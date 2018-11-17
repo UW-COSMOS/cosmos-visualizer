@@ -12,9 +12,10 @@ implemented however but is expected to have several routes:
 
 - `/image [GET]`: returns the URL of the next image to tag, and
   its natural size `{url, width, height}`
-- `/tags [GET]`: list of possible tags
+- `/tags [GET]`: array of possible tags as `{id,name,description,
+  color?}` objects
 - `/tags [POST]`: set tags on an image, as
-  an array of `{x,y,width,height,tag: "TAG_NAME"}` objects
+  an array of `{x,y,width,height,tag: "tag_id"}` objects
 
 Additional API routes could be added to expand functionality,
 but have not yet been implemented:
