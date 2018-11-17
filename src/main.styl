@@ -6,4 +6,21 @@ body
 
 .image-container
   margin 1em
-  border 0.5em solid #eee
+  outline 0.5em solid #eee
+  position relative
+  div.overlay
+    top 0
+    left 0
+    position absolute
+
+div.drag-rect
+  position absolute
+  div.handles
+    div
+      background rgba(50,50,50,0.2)
+      position absolute
+    .left, .right
+      cursor: ew-resize
+    .top, .bottom
+      cursor: ns-resize
+
