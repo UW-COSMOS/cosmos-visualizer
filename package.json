@@ -1,0 +1,23 @@
+{
+  "name": "image-tagger",
+  "version": "1.0.0",
+  "description": "Tag images with rectangles",
+  "main": "index.html",
+  "dependencies": {},
+  "devDependencies": {
+    "parcel": "^1.10.3"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/UW-Macrostrat/image-tagger.git"
+  },
+  "author": "Daven Quinn",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/UW-Macrostrat/image-tagger/issues"
+  },
+  "homepage": "https://github.com/UW-Macrostrat/image-tagger#readme"
+}
