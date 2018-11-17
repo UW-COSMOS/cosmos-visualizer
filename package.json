@@ -5,7 +5,8 @@
   "main": "index.html",
   "dependencies": {},
   "devDependencies": {
-    "parcel": "^1.10.3"
+    "coffeescript": "^2.3.2",
+    "stylus": "^0.54.5"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"

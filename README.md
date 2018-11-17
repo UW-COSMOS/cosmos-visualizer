@@ -25,3 +25,16 @@ but have not yet been implemented:
 Of course, the images need to be accessible at whatever URL is returned by
 the API.
 
+## Installation
+
+Building the UI requires the [Parcel](https://parceljs.org/) bundler to be installed
+globally, so the full installation process is
+
+```
+npm install -g parcel-bundler
+npm install
+```
+
+After this, a development version can be run using
+`parcel index.html`.
+
