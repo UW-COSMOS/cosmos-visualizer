@@ -3,6 +3,7 @@ import {Component, createContext} from 'react'
 import {render} from 'react-dom'
 import h from 'react-hyperscript'
 import {APIProvider, APIContext} from './api'
+import './main.styl'
 
 class AppMain extends Component
   @contextType: APIContext
@@ -19,8 +20,9 @@ class AppMain extends Component
     {currentImage} = @state
     return null unless currentImage?
     {url, height, width } = currentImage
-    console.log url
-    h 'img', {src: url, width, height}
+    h 'div.image-container', [
+      h 'img', {src: url, width, height}
+    ]
 
   componentDidMount: ->
     currentImage = await @context.get "/image"
