@@ -1,10 +1,11 @@
 import 'babel-polyfill' # Helps with building
-import {json} from 'd3-fetch'
-import {Component} from 'react'
+import {Component, createContext} from 'react'
 import {render} from 'react-dom'
 import h from 'react-hyperscript'
+import {APIProvider, APIContext} from './api'
 
-class App extends Component
+class AppMain extends Component
+  @contextType: APIContext
   constructor: (props)->
     super props
     @state = {
@@ -14,13 +15,6 @@ class App extends Component
       isEditing: false
     }
 
-    @fetchData()
-
-  fetchData: ->
-    data = await json('/test/image.json')
-    @setState {currentImage: data}
-    console.log data
-
   render: ->
     {currentImage} = @state
     return null unless currentImage?
@@ -28,4 +22,15 @@ class App extends Component
     console.log url
     h 'img', {src: url, width, height}
 
-render h(App), document.getElementById('app')
+  componentDidMount: ->
+    currentImage = await @context.get "/image"
+    @setState {currentImage}
+
+App = (props)=>
+  {baseURL, rest...} = props
+  h APIProvider, {baseURL}, [
+    h AppMain, rest
+  ]
+
+el = document.getElementById('app')
+render h(App), el
