@@ -1,8 +1,8 @@
 [
-  "figure",
-  "caption",
-  "table",
-  "bibliography",
-  "reference",
-  "equation"
+ {"id": "figure"},
+ {"id": "caption"},
+ {"id": "table"},
+ {"id": "bibliography"},
+ {"id": "reference"},
+ {"id": "equation"}
 ]

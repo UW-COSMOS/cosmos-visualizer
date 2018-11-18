@@ -13,8 +13,8 @@ class AppMain extends Component
     super props
     @state = {
       currentImage: null
-      possibleTags: null
-      tagData: null
+      tagStore: []
+      rectStore: []
       isEditing: false
       editingRect: {
         x: 50, y: 30,
@@ -27,25 +27,37 @@ class AppMain extends Component
     @setState {editingRect: pos}
 
   render: ->
-    {currentImage, editingRect} = @state
+    {currentImage, editingRect, rectStore} = @state
     return null unless currentImage?
     {url, height, width } = currentImage
     style = {width, height}
     h 'div.image-container', {style}, [
       h 'img', {src: url, style...}
-      h 'div.overlay', {style}, [
+      h 'div.overlay', {style}, rectStore.map (d, ix)=>
         h DragRect, {
+          key: ix
           updateRect: @updateRect
-          editingRect...
+          d...
           color: 'rgba(255,0,0,0.5)'
           maxPosition: style
         }
-      ]
     ]
 
   componentDidMount: ->
-    currentImage = await @context.get "/image"
-    @setState {currentImage}
+    @context.get("/tags")
+      .then (d)=>@setState {tagStore: d}
+
+    @context.get("/image")
+      .then (d)=>@setState {currentImage: d}
+
+  componentDidUpdate: (prevProps, prevState)->
+    {currentImage} = @state
+    return if prevState.currentImage == currentImage
+    return unless currentImage?
+    {id} = @state.currentImage
+    @context.get("/image/#{id}/tags")
+      .then (d)=>@setState {rectStore: d}
+
 
 App = (props)=>
   {baseURL, rest...} = props
