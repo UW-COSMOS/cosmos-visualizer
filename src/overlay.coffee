@@ -4,6 +4,8 @@ import {DragRectangle, Rectangle} from './drag-rect'
 import {select, event} from 'd3-selection'
 import {drag} from 'd3-drag'
 import {findDOMNode} from 'react-dom'
+import { Hotkey, Hotkeys, HotkeysTarget } from "@blueprintjs/core"
+
 
 class Overlay extends Component
   constructor: (props)->
@@ -46,16 +48,46 @@ class Overlay extends Component
     rect = {x,y,width,height}
     @setState {inProgressRectangle: rect}
 
+  handleDeleteRectangle: =>
+    console.log "Deleting rect"
+    {actions, editingRect} = @props
+    return unless editingRect?
+    actions.updateState {
+      rectStore: {$splice: [[editingRect,1]]}
+      editingRect: {$set: null}
+    }
+
   handleAddRectangle: =>
     {actions} = @props
-    actions.addRectangle @state.inProgressRectangle
+    {inProgressRectangle: r} = @state
     @setState {inProgressRectangle: null}
+
+    # Get rid of spurious rectangle clicks.
+    return unless r?
+    return if r.width < 10
+    return if r.height < 10
+    actions.addRectangle r
+    l = @props.rectangles.length
+    console.log l
+    actions.updateState {editingRect: {$set: l-1}}
 
   disableEditing: =>
     {actions,editingRect} = @props
     if editingRect?
       __ = {editingRect: {$set: null}}
       actions.updateState __
+
+  renderHotkeys: ->
+    {editingRect} = @props
+    h Hotkeys, null, [
+      h Hotkey, {
+        label: "Delete rectangle"
+        combo: "backspace"
+        global: true
+        #disabled: not editingRect?
+        onKeyDown: @handleDeleteRectangle
+      }
+    ]
 
   componentDidMount: ->
     el = select findDOMNode @
@@ -66,5 +98,7 @@ class Overlay extends Component
       .filter => not @props.editingRect?
 
     el.call @edgeDrag
+
+Overlay = HotkeysTarget(Overlay)
 
 export {Overlay}
