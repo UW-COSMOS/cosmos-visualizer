@@ -45,6 +45,12 @@ class Overlay extends Component
     {x,y} = subject
     width = event.x-x
     height = event.y-y
+    if width < 0
+      width *= -1
+      x -= width
+    if height < 0
+      height *= -1
+      y -= height
     rect = {x,y,width,height}
     @setState {inProgressRectangle: rect}
 
@@ -84,7 +90,7 @@ class Overlay extends Component
         label: "Delete rectangle"
         combo: "backspace"
         global: true
-        #disabled: not editingRect?
+        disabled: not editingRect?
         onKeyDown: @handleDeleteRectangle
       }
     ]
