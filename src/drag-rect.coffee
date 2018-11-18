@@ -80,11 +80,11 @@ class DragRectangle extends Component
   handleDrag: (side)=>
     side ?= ""
     {subject: s} = event
-    {width, height, x,y, source} = s
+    {width, height, x,y, source, maxPosition} = s
     client = @mouseCoords()
     dx = client.x-source.x
     dy = client.y-source.y
-    {updateRect, maxPosition, minSize} = @props
+    {updateRect, minSize, maxPosition} = @props
 
     if side.includes('top')
       if dy > height

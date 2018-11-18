@@ -24,6 +24,9 @@ class AppMain extends Component
       [i,1,pos]
     ]}}
 
+  selectRectangle: (i)=> =>
+    @setState {editingRect: i}
+
   updateState: (spec)->
     newState = update @state, spec
     @setState newState
@@ -40,6 +43,7 @@ class AppMain extends Component
         h Rect, {
           key: ix
           updateRect: @updateRectangle(ix)
+          onClick: @selectRectangle(ix)
           d...
           color: 'rgba(255,0,0,0.5)'
           maxPosition: style
