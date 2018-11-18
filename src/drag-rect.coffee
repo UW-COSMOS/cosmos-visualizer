@@ -36,7 +36,9 @@ Handle = ({side, margin})->
   return h 'div', {style, className, __data__: side}
 
 class DragRect extends Component
-  startRect: null
+  @defaultProps: {
+    minSize: {width: 10, height: 10}
+  }
   render: ->
     {x,y,width,height, color} = @props
     margin = 4
@@ -44,6 +46,7 @@ class DragRect extends Component
       top: y, left: x,
       width, height,
       backgroundColor: color
+      borderColor: color
     }
 
     ew = {top: margin, bottom: margin, width: 2*margin}
@@ -63,10 +66,8 @@ class DragRect extends Component
 
   mouseCoords: ->
     {screenX: x, screenY: y} = event.sourceEvent
-    {x,y}
 
   dragSubject: =>
-    console.log "Computed subject"
     {x,y, width, height} = @props
     source = @mouseCoords()
     return {x,y, width, height, source}
@@ -78,7 +79,7 @@ class DragRect extends Component
     client = @mouseCoords()
     dx = client.x-source.x
     dy = client.y-source.y
-    {updateRect, maxPosition} = @props
+    {updateRect, maxPosition, minSize} = @props
 
     if side.includes('top')
       if dy > height
@@ -95,6 +96,12 @@ class DragRect extends Component
     if side == ""
       # Drag the entire box
       {x,y} = event
+
+    if width < minSize.width
+      width = minSize.width
+    if height < minSize.height
+      height = minSize.height
+
 
     x = 0 if x < 0
     y = 0 if y < 0

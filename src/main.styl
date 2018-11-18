@@ -16,12 +16,18 @@ body
 div.drag-rect
   position absolute
   cursor move
+  border 2px solid black
   div.handles
     div
-      background rgba(50,50,50,0.2)
+      background rgba(0,0,0,0)
+      &:hover
+        background rgba(0,0,0,0.5)
       position absolute
     .left, .right
       cursor: ew-resize
     .top, .bottom
       cursor: ns-resize
-
+    .top.right, .left.bottom
+      cursor: nesw-resize
+    .top.left, .right.bottom
+      cursor: nwse-resize
