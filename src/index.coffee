@@ -16,10 +16,18 @@ class AppMain extends Component
       possibleTags: null
       tagData: null
       isEditing: false
+      editingRect: {
+        x: 50, y: 30,
+        width: 100
+        height: 500
+      }
     }
 
+  updateRect: (pos)=>
+    @setState {editingRect: pos}
+
   render: ->
-    {currentImage} = @state
+    {currentImage, editingRect} = @state
     return null unless currentImage?
     {url, height, width } = currentImage
     style = {width, height}
@@ -27,8 +35,11 @@ class AppMain extends Component
       h 'img', {src: url, style...}
       h 'div.overlay', {style}, [
         h DragRect, {
-          x: 50, y: 30, width: 100,
-          height: 500, color: 'rgba(255,0,0,0.5)'}
+          updateRect: @updateRect
+          editingRect...
+          color: 'rgba(255,0,0,0.5)'
+          maxPosition: style
+        }
       ]
     ]
 
