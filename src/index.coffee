@@ -3,9 +3,12 @@ import {Component, createContext} from 'react'
 import {render} from 'react-dom'
 import h from 'react-hyperscript'
 import update from 'immutability-helper'
+import {select} from 'd3-selection'
+import {findDOMNode} from 'react-dom'
+import 'd3-jetpack'
 
+import {Overlay} from './overlay'
 import {APIProvider, APIContext} from './api'
-import {DragRectangle, Rectangle} from './drag-rect'
 import './main.styl'
 
 class AppMain extends Component
@@ -24,8 +27,19 @@ class AppMain extends Component
       [i,1,pos]
     ]}}
 
+  createRectangle: (e)=>
+    {clientX: x, clientY: y} = e
+
+    console.log {x,y}
+    el = select findDOMNode @
+    div = el.append 'div.rect'
+      .at {top:x,left:y,width:100,height:100}
+
   selectRectangle: (i)=> =>
     @setState {editingRect: i}
+
+  addRectangle: (rect)=>
+    @updateState {rectStore: {$push: rect}}
 
   updateState: (spec)->
     newState = update @state, spec
@@ -36,18 +50,20 @@ class AppMain extends Component
     return null unless currentImage?
     {url, height, width } = currentImage
     style = {width, height}
+    onClick = @createRectangle
     h 'div.image-container', {style}, [
       h 'img', {src: url, style...}
-      h 'div.overlay', {style}, rectStore.map (d, ix)=>
-        Rect = if ix == editingRect then DragRectangle else Rectangle
-        h Rect, {
-          key: ix
-          updateRect: @updateRectangle(ix)
-          onClick: @selectRectangle(ix)
-          d...
-          color: 'rgba(255,0,0,0.5)'
-          maxPosition: style
+      h Overlay, {
+        width,
+        height,
+        editingRect
+        rectangles: rectStore
+        actions: {
+          updateRectangle: @updateRectangle
+          selectRectangle: @selectRectangle
+          addRectangle: @addRectangles
         }
+      }
     ]
 
   componentDidMount: ->
