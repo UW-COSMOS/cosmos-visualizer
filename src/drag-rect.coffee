@@ -8,13 +8,29 @@ import {select, event, mouse} from 'd3-selection'
 import {drag} from 'd3-drag'
 import h from 'react-hyperscript'
 
+oppositeSide = (s)->
+  return 'top' if s == 'bottom'
+  return 'left' if s == 'right'
+  return 'right' if s == 'left'
+  return 'bottom' if s == 'top'
+
 Handle = ({side, margin})->
   margin ?= 4
+  style = {
+    left: margin, right: margin,
+    top: margin, bottom: margin
+    width: 2*margin, height: 2*margin
+  }
+
   if ['top','bottom'].includes side
-    style = {left: margin, right: margin, height: 2*margin}
-  else
-    style = {top: margin, bottom: margin, width: 2*margin}
-  style[side] = -margin
+    style.width = null
+  if ['left','right'].includes side
+    style.height = null
+
+  for s in side.split(" ")
+    style[s] = -margin
+    style[oppositeSide(s)] = null
+
   className = side
 
   return h 'div', {style, className, __data__: side}
@@ -38,6 +54,10 @@ class DragRect extends Component
         h Handle, {side: 'bottom'}
         h Handle, {side: 'left'}
         h Handle, {side: 'right'}
+        h Handle, {side: 'top right', margin: 6}
+        h Handle, {side: 'bottom right', margin: 6}
+        h Handle, {side: 'top left', margin: 6}
+        h Handle, {side: 'bottom left', margin: 6}
       ]
     ]
 
@@ -52,6 +72,7 @@ class DragRect extends Component
     return {x,y, width, height, source}
 
   handleDrag: (side)=>
+    side ?= ""
     {subject: s} = event
     {width, height, x,y, source} = s
     client = @mouseCoords()
@@ -59,17 +80,19 @@ class DragRect extends Component
     dy = client.y-source.y
     {updateRect, maxPosition} = @props
 
-    if side == 'top'
+    if side.includes('top')
+      if dy > height
+        dy = height
       y = s.y+dy
       height -= dy
-    else if side == 'bottom'
+    if side.includes('bottom')
       height += dy
-    else if side == "right"
+    if side.includes("right")
       width += dx
-    else if side == 'left'
+    if side.includes('left')
       x = s.x+dx
       width -= dx
-    else
+    if side == ""
       # Drag the entire box
       {x,y} = event
 
@@ -83,6 +106,7 @@ class DragRect extends Component
       y = maxY if y > maxY
 
     updateRect {x,y,width,height}
+    event.sourceEvent.stopPropagation()
 
   componentDidMount: ->
     el = select findDOMNode @
