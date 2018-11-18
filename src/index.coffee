@@ -39,9 +39,9 @@ class AppMain extends Component
     @setState {editingRect: i}
 
   addRectangle: (rect)=>
-    @updateState {rectStore: {$push: rect}}
+    @updateState {rectStore: {$push: [rect]}}
 
-  updateState: (spec)->
+  updateState: (spec)=>
     newState = update @state, spec
     @setState newState
 
@@ -61,7 +61,8 @@ class AppMain extends Component
         actions: {
           updateRectangle: @updateRectangle
           selectRectangle: @selectRectangle
-          addRectangle: @addRectangles
+          addRectangle: @addRectangle
+          updateState: @updateState
         }
       }
     ]
