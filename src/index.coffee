@@ -2,9 +2,10 @@ import 'babel-polyfill' # Helps with building
 import {Component, createContext} from 'react'
 import {render} from 'react-dom'
 import h from 'react-hyperscript'
+import update from 'immutability-helper'
 
 import {APIProvider, APIContext} from './api'
-import {DragRect} from './drag-rect'
+import {DragRectangle, Rectangle} from './drag-rect'
 import './main.styl'
 
 class AppMain extends Component
@@ -13,18 +14,19 @@ class AppMain extends Component
     super props
     @state = {
       currentImage: null
+      editingRect: null
       tagStore: []
       rectStore: []
-      isEditing: false
-      editingRect: {
-        x: 50, y: 30,
-        width: 100
-        height: 500
-      }
     }
 
-  updateRect: (pos)=>
-    @setState {editingRect: pos}
+  updateRectangle: (i)=>(pos)=>
+    @updateState {rectStore: {$splice: [
+      [i,1,pos]
+    ]}}
+
+  updateState: (spec)->
+    newState = update @state, spec
+    @setState newState
 
   render: ->
     {currentImage, editingRect, rectStore} = @state
@@ -34,9 +36,10 @@ class AppMain extends Component
     h 'div.image-container', {style}, [
       h 'img', {src: url, style...}
       h 'div.overlay', {style}, rectStore.map (d, ix)=>
-        h DragRect, {
+        Rect = if ix == editingRect then DragRectangle else Rectangle
+        h Rect, {
           key: ix
-          updateRect: @updateRect
+          updateRect: @updateRectangle(ix)
           d...
           color: 'rgba(255,0,0,0.5)'
           maxPosition: style

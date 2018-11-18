@@ -35,23 +35,28 @@ Handle = ({side, margin})->
 
   return h 'div', {style, className, __data__: side}
 
-class DragRect extends Component
-  @defaultProps: {
-    minSize: {width: 10, height: 10}
-  }
+class Rectangle extends Component
   render: ->
-    {x,y,width,height, color} = @props
-    margin = 4
+    {x,y,width,height, color, children, onClick, className, rest...} = @props
     style = {
       top: y, left: x,
       width, height,
       backgroundColor: color
       borderColor: color
     }
+    h 'div.rect', {style, children, onClick, className}
 
+
+class DragRectangle extends Component
+  @defaultProps: {
+    minSize: {width: 10, height: 10}
+  }
+  render: ->
+    margin = 4
     ew = {top: margin, bottom: margin, width: 2*margin}
     ns = {left: margin, right: margin, height: 2*margin}
-    h 'div.drag-rect', {style}, [
+    className = 'draggable'
+    h Rectangle, {@props..., className}, [
       h 'div.handles', [
         h Handle, {side: 'top'}
         h Handle, {side: 'bottom'}
@@ -130,4 +135,4 @@ class DragRect extends Component
 
     el.call edgeDrag
 
-export {DragRect}
+export {DragRectangle, Rectangle}

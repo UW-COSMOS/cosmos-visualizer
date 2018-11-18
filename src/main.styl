@@ -13,10 +13,11 @@ body
     left 0
     position absolute
 
-div.drag-rect
+div.rect
   position absolute
-  cursor move
   border 2px solid black
+  &.draggable
+    cursor move
   div.handles
     div
       background rgba(0,0,0,0)
