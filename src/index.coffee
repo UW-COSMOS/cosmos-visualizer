@@ -14,6 +14,7 @@ import "@blueprintjs/core/lib/css/blueprint.css"
 import "@blueprintjs/icons/lib/css/blueprint-icons.css"
 import "@blueprintjs/select/lib/css/blueprint-select.css"
 
+import {AppToaster} from './toaster'
 import {Overlay} from './overlay'
 import {APIProvider, APIContext} from './api'
 import './main.styl'
@@ -95,8 +96,15 @@ class AppMain extends Component
       }
     ]
 
+  clearAnnotations: =>
+    @updateState {
+      rectStore: {$set: []}
+      editingRect: {$set: null}
+      saved: {$set: true}
+    }
+
   render: ->
-    {saved} = @state
+    {saved, rectStore} = @state
     h 'div.main', [
       h Navbar, [
         h Navbar.Group, [
@@ -111,9 +119,15 @@ class AppMain extends Component
               onClick: @saveData
             }
             h Button, {
+              intent: Intent.DANGER, text: "Clear annotations",
+              icon: 'trash', disabled: rectStore.length == 0
+              onClick: @clearAnnotations
+            }
+            h Button, {
               intent: Intent.PRIMARY, text: "Next image",
               rightIcon: 'chevron-right'
-              onClick: @loadNextImage
+              disabled: not saved
+              onClick: @getNextImage
             }
           ]
         ]
@@ -126,10 +140,10 @@ class AppMain extends Component
     try
       await @context.saveData(currentImage, rectStore)
       @updateState {saved: {$set: true}}
+      return true
     catch err
       console.log "Save rejected"
-
-  loadNextImage: =>
+      return false
 
   setupTags: (data)=>
 
@@ -151,7 +165,22 @@ class AppMain extends Component
 
   getNextImage: =>
     @context.get("/image")
-      .then (d)=>@setState {currentImage: d}
+      .then @onImageLoaded
+
+  onImageLoaded: (d)=>
+    @setState {
+      currentImage: d
+      rectStore: []
+      saved: false
+    }
+    AppToaster.show {
+      message: h 'div', [
+        "Loaded image "
+        h "code", d.id
+        "."
+      ]
+      intent: Intent.PRIMARY
+    }
 
   componentDidMount: ->
     @context.get("/tags")
@@ -164,7 +193,7 @@ class AppMain extends Component
     return unless currentImage?
     {id} = @state.currentImage
     @context.get("/image/#{id}/tags")
-      .then (d)=>@setState {rectStore: d}
+      .then (d)=>@setState {rectStore: d, saved: true}
 
 
 App = (props)=>

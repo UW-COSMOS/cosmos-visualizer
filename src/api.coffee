@@ -48,7 +48,7 @@ class APIProvider extends Component
               h 'code', "POST"
               " to endpoint "
               h 'code', endpoint
-              " failed"
+              " failed."
             ]
             h "pre", JSON.stringify(tags, null, 2)
           ]
