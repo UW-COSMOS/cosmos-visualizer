@@ -12,9 +12,9 @@ class APIProvider extends Component
   @defaultProps: {
     baseURL: null
     testEndpoints: {
-      "/image": "/test/image.json"
-      "/tags": "/test/tags.json"
-      "/image/pazzaglia_brandon_1996_p6/tags": "/test/rectangles.json"
+      "/image": "test/image.json"
+      "/tags": "test/tags.json"
+      "/image/pazzaglia_brandon_1996_p6/tags": "test/rectangles.json"
     }
   }
   constructor: (props)->
