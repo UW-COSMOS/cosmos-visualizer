@@ -74,20 +74,22 @@ class DragRectangle extends Component
     ]
 
   renderItems: ->
+    {tags, tag} = @props
+    currentTag = tags.find (d)-> d.id == tag
     h "div.rect-controls", [
       h Select, {
-        items: [0...100]
-        itemRenderer: (d, {handleClick})->
+        items: tags
+        itemRenderer: (t, {handleClick})->
           h MenuItem, {
-            key: d,
+            key: t.id,
             onClick: handleClick
-            text: d
-            label: d
+            text: t.name
           }
-        onItemSelect: (d)->
+        onItemSelect: @setTag
+
       }, [
         h Button, {
-          text: "Hello"
+          text: currentTag.name
           rightIcon: "double-caret-vertical"
         }
       ]
@@ -101,6 +103,10 @@ class DragRectangle extends Component
     source = @mouseCoords()
     return {x,y, width, height, source}
 
+  setTag: (tag)=>
+    {update, width, height, x, y} = @props
+    update {width, height, x, y, tag: tag.id}
+
   handleDrag: (side)=>
     side ?= ""
     {subject: s} = event
@@ -108,7 +114,7 @@ class DragRectangle extends Component
     client = @mouseCoords()
     dx = client.x-source.x
     dy = client.y-source.y
-    {update, minSize, maxPosition} = @props
+    {update, minSize, maxPosition, tag} = @props
 
     if side.includes('top')
       if dy > height
@@ -140,7 +146,7 @@ class DragRectangle extends Component
       x = maxX if x > maxX
       y = maxY if y > maxY
 
-    update {x,y,width,height}
+    update {x,y,width,height,tag}
     event.sourceEvent.stopPropagation()
 
   componentDidMount: ->

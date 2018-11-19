@@ -85,13 +85,24 @@ class AppMain extends Component
       }
     ]
 
+  setupTags: (data)=>
+    tags = data.map (d, ix)->
+      {id, color, name} = d
+
+      name ?= id.replace /\b\w/g, (l)->l.toUpperCase()
+                .replace /\-\_/g, " "
+      color ?= 'red'
+      {id, color, name}
+
+    @setState {
+      tagStore: tags
+      currentTag: tags[0].id
+    }
+
+
   componentDidMount: ->
     @context.get("/tags")
-      .then (d)=>@setState {
-        tagStore: d
-        currentTag: d[0]
-      }
-
+      .then @setupTags
     @context.get("/image")
       .then (d)=>@setState {currentImage: d}
 

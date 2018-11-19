@@ -20,7 +20,7 @@ class Overlay extends Component
 
   renderRectangles: ->
     {inProgressRectangle} = @state
-    {rectangles, width, height, editingRect, actions} = @props
+    {rectangles, tags, width, height, editingRect, actions} = @props
     if inProgressRectangle?
       editingRect = null
       rectangles = [rectangles..., inProgressRectangle]
@@ -39,8 +39,7 @@ class Overlay extends Component
         return h DragRectangle, {
           delete: actions.deleteRectangle(ix)
           update: actions.updateRectangle(ix)
-          #changeTag: actions.changeClass(ix)
-          currentTag: null
+          tags
           opts...
         }
       return h Rectangle, {
