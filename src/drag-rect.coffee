@@ -77,7 +77,6 @@ class DragRectangle extends Component
     h "div.rect-controls", [
       h Select, {
         items: [0...100]
-        filterable: false
         itemRenderer: (d, {handleClick})->
           h MenuItem, {
             key: d,
@@ -131,7 +130,6 @@ class DragRectangle extends Component
       width = minSize.width
     if height < minSize.height
       height = minSize.height
-
 
     x = 0 if x < 0
     y = 0 if y < 0

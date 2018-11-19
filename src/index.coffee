@@ -27,16 +27,21 @@ class AppMain extends Component
       rectStore: []
     }
 
-  updateRectangle: (i)=>(pos)=>
-    @updateState {rectStore: {$splice: [
-      [i,1,pos]
+  updateRectangle: (i)=>(rect)=>
+    rect.tag ?= null
+    spec = {rectStore: {$splice: [
+      [i,1,rect]
     ]}}
+    if rect.tag? and rect.tag != @state.currentTag
+      spec.currentTag = {$set: rect.tag}
+    @updateState spec
 
   deleteRectangle: (i)=> =>
+    {editingRect} = @state
     spec = {
       rectStore: {$splice: [[i,1]]}
     }
-    if i == @state.editingRect
+    if editingRect? and i == editingRect
       spec.editingRect = {$set: null}
     @updateState spec
 
@@ -44,14 +49,20 @@ class AppMain extends Component
     @updateState {editingRect: {$set: i}}
 
   appendRectangle: (rect)=>
-    @updateState {rectStore: {$push: [rect]}}
+    return unless rect?
+    {currentTag, rectStore} = @state
+    rect.tag = currentTag
+    @updateState {
+      rectStore: {$push: [rect]}
+      editingRect: {$set: rectStore.length}
+    }
 
   updateState: (spec)=>
     newState = update @state, spec
     @setState newState
 
   render: ->
-    {currentImage, editingRect, rectStore} = @state
+    {currentImage, editingRect, rectStore, tagStore} = @state
     return null unless currentImage?
     {url, height, width } = currentImage
     style = {width, height}
@@ -63,6 +74,7 @@ class AppMain extends Component
         height,
         editingRect
         rectangles: rectStore
+        tags: tagStore
         actions: {
           deleteRectangle: @deleteRectangle
           updateRectangle: @updateRectangle
@@ -75,7 +87,10 @@ class AppMain extends Component
 
   componentDidMount: ->
     @context.get("/tags")
-      .then (d)=>@setState {tagStore: d}
+      .then (d)=>@setState {
+        tagStore: d
+        currentTag: d[0]
+      }
 
     @context.get("/image")
       .then (d)=>@setState {currentImage: d}

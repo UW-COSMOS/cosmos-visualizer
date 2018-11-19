@@ -71,24 +71,11 @@ class Overlay extends Component
     rect = {x,y,width,height}
     @setState {inProgressRectangle: rect}
 
-  handleDeleteRectangle: =>
-    console.log "Deleting rect"
-    {actions, editingRect} = @props
-    return unless editingRect?
-    actions.updateState {
-      rectStore: {$splice: [[editingRect,1]]}
-      editingRect: {$set: null}
-    }
-
   handleAddRectangle: =>
     {actions} = @props
     {inProgressRectangle: r} = @state
     @setState {inProgressRectangle: null}
-
-    return unless r?
     actions.appendRectangle r
-    l = @props.rectangles.length
-    actions.updateState {editingRect: {$set: l-1}}
 
   disableEditing: =>
     {actions,editingRect} = @props
@@ -97,14 +84,14 @@ class Overlay extends Component
       actions.updateState __
 
   renderHotkeys: ->
-    {editingRect} = @props
+    {editingRect, actions} = @props
     h Hotkeys, null, [
       h Hotkey, {
         label: "Delete rectangle"
         combo: "backspace"
         global: true
         disabled: not editingRect?
-        onKeyDown: @handleDeleteRectangle
+        onKeyDown: actions.deleteRectangle(editingRect)
       }
     ]
 
