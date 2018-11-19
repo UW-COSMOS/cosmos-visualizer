@@ -202,5 +202,7 @@ App = (props)=>
     h AppMain, rest
   ]
 
-el = document.getElementById('app')
-render h(App), el
+window.createUI = (baseURL=null)->
+  el = document.getElementById('app')
+  __ = h App, {baseURL}
+  render __, el
