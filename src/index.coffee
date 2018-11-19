@@ -106,7 +106,7 @@ class AppMain extends Component
   render: ->
     {saved, rectStore} = @state
     h 'div.main', [
-      h Navbar, [
+      h Navbar, {fixedToTop: true}, [
         h Navbar.Group, [
           h Navbar.Heading, "Image tagger"
           h "span.instructions", "Click + drag to create item. Click existing item to adjust."
@@ -153,8 +153,9 @@ class AppMain extends Component
     tags = data.map (d, ix)->
       {id, color, name} = d
 
-      name ?= id.replace /\b\w/g, (l)->l.toUpperCase()
-                .replace /\-\_/g, " "
+      if not name?
+        name = id.replace "-", " "
+        name = name.charAt(0).toUpperCase()+name.slice(1)
       color ?= cscale[ix]
       {id, color, name}
 

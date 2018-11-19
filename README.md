@@ -13,15 +13,23 @@ implemented however but is expected to have several routes:
 - `/image [GET]`: returns the URL of the next image to tag, and
   its natural size `{url, width, height}`
 - `/tags [GET]`: array of possible tags as `{id,name?,description?,
-  color?}` objects
+  color?}` objects. If `name` is not provided, it will be guessed
+  from the `id`. If `color` isn't given, an arbitrary color will
+  be assigned.
+
 - `/image/<id>/tags [GET]`: currently set tags for an image
 - `image/<id>/tags [POST]`: set tags on an image, as
   an array of `{x,y,width,height,tag: tag.id}` objects
 
 ## Next steps
 
-We might wish to add sub-tags (e.g. `figure > figure-part`) to define hierarchies
-of data. Also, scaling large images might be desirable.
+A few features we might wish to add:
+
+[ ] Sub-tags (e.g. `figure > figure-part`) to define hierarchies of data.
+[ ] Scaling large images in the UI.
+[ ] Modifier tokens: array of tag-like modifiers for each tag for
+    increased semantic depth (*this could be unhelpful for some
+    workflows*)
 
 Additional API routes could be added to expand functionality,
 but have not yet been implemented:
@@ -42,7 +50,7 @@ npm install
 ```
 
 After this, a development version with hot reloading can be run on
-`localhost` using `npm run-script watch`.
+`http://localhost:1234` using `npm run-script watch`.
 A space-efficient production build can be obtained using
 `npm run-script build` and copied to the webserver (assumed right now
 to be at the sub-directory `image-tagger/`) on the server.

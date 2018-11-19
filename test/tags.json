@@ -4,5 +4,10 @@
  {"id": "table"},
  {"id": "bibliography"},
  {"id": "reference"},
- {"id": "equation"}
+ {"id": "equation"},
+ {"id": "body-text"},
+ {"id": "page-header"},
+ {"id": "page-footer"},
+ {"id": "table-note"},
+ {"id": "figure-note"}
 ]
