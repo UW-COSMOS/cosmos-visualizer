@@ -10,6 +10,10 @@ import 'd3-jetpack'
 import {Overlay} from './overlay'
 import {APIProvider, APIContext} from './api'
 import './main.styl'
+import "@blueprintjs/core/lib/css/blueprint.css"
+import "@blueprintjs/icons/lib/css/blueprint-icons.css"
+import "@blueprintjs/select/lib/css/blueprint-select.css"
+
 
 class AppMain extends Component
   @contextType: APIContext

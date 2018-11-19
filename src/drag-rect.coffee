@@ -7,6 +7,8 @@ import {findDOMNode} from 'react-dom'
 import {select, event, mouse} from 'd3-selection'
 import {drag} from 'd3-drag'
 import h from 'react-hyperscript'
+import {Select} from '@blueprintjs/select'
+import {MenuItem, Button} from '@blueprintjs/core'
 
 oppositeSide = (s)->
   return 'top' if s == 'bottom'
@@ -46,7 +48,6 @@ class Rectangle extends Component
     }
     h 'div.rect', {style, children, onClick, className}
 
-
 class DragRectangle extends Component
   @defaultProps: {
     minSize: {width: 10, height: 10}
@@ -56,7 +57,9 @@ class DragRectangle extends Component
     ew = {top: margin, bottom: margin, width: 2*margin}
     ns = {left: margin, right: margin, height: 2*margin}
     className = 'draggable'
-    h Rectangle, {@props..., className}, [
+    onClick = (e)->
+      e.stopPropagation()
+    h Rectangle, {@props..., className, onClick}, [
       h 'div.handles', [
         h Handle, {side: 'top'}
         h Handle, {side: 'bottom'}
@@ -66,6 +69,28 @@ class DragRectangle extends Component
         h Handle, {side: 'bottom right', margin: 6}
         h Handle, {side: 'top left', margin: 6}
         h Handle, {side: 'bottom left', margin: 6}
+      ]
+      @renderItems()
+    ]
+
+  renderItems: ->
+    h "div.rect-controls", [
+      h Select, {
+        items: [0...100]
+        filterable: false
+        itemRenderer: (d, {handleClick})->
+          h MenuItem, {
+            key: d,
+            onClick: handleClick
+            text: d
+            label: d
+          }
+        onItemSelect: (d)->
+      }, [
+        h Button, {
+          text: "Hello"
+          rightIcon: "double-caret-vertical"
+        }
       ]
     ]
 

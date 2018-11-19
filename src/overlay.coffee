@@ -8,6 +8,10 @@ import { Hotkey, Hotkeys, HotkeysTarget } from "@blueprintjs/core"
 
 
 class Overlay extends Component
+  @defaultProps: {
+    # Distance we take as a click before switching to drag
+    clickDistance: 10
+  }
   constructor: (props)->
     super props
     @state = {
@@ -23,15 +27,22 @@ class Overlay extends Component
 
     rectangles.map (d, ix)=>
       _editing = ix == editingRect
-      Rect = if _editing then DragRectangle else Rectangle
       opacity = if _editing then 0.5 else 0.3
-      h Rect, {
+      opts = {
         key: ix
-        updateRect: actions.updateRectangle(ix)
-        onClick: actions.selectRectangle(ix)
         d...
         color: "rgba(255,0,0,#{opacity})"
         maxPosition: {width, height}
+      }
+
+      if _editing
+        return h DragRectangle, {
+          updateRect: actions.updateRectangle(ix)
+          opts...
+        }
+      return h Rectangle, {
+        onClick: actions.selectRectangle(ix)
+        opts...
       }
 
   render: ->
@@ -43,6 +54,7 @@ class Overlay extends Component
   handleDrag: =>
     {subject} = event
     {x,y} = subject
+    {clickDistance} = @props
     width = event.x-x
     height = event.y-y
     if width < 0
@@ -51,6 +63,8 @@ class Overlay extends Component
     if height < 0
       height *= -1
       y -= height
+    return if width < clickDistance
+    return if height < clickDistance
     rect = {x,y,width,height}
     @setState {inProgressRectangle: rect}
 
@@ -68,10 +82,7 @@ class Overlay extends Component
     {inProgressRectangle: r} = @state
     @setState {inProgressRectangle: null}
 
-    # Get rid of spurious rectangle clicks.
     return unless r?
-    return if r.width < 10
-    return if r.height < 10
     actions.addRectangle r
     l = @props.rectangles.length
     console.log l
@@ -101,6 +112,7 @@ class Overlay extends Component
     @edgeDrag = drag()
       .on "drag", @handleDrag
       .on "end", @handleAddRectangle
+      .clickDistance @props.clickDistance
       .filter => not @props.editingRect?
 
     el.call @edgeDrag
