@@ -6,14 +6,18 @@ import update from 'immutability-helper'
 import {select} from 'd3-selection'
 import {findDOMNode} from 'react-dom'
 import 'd3-jetpack'
+import chroma from 'chroma-js'
+import { FocusStyleManager } from "@blueprintjs/core"
 
-import {Overlay} from './overlay'
-import {APIProvider, APIContext} from './api'
-import './main.styl'
 import "@blueprintjs/core/lib/css/blueprint.css"
 import "@blueprintjs/icons/lib/css/blueprint-icons.css"
 import "@blueprintjs/select/lib/css/blueprint-select.css"
 
+import {Overlay} from './overlay'
+import {APIProvider, APIContext} from './api'
+import './main.styl'
+
+FocusStyleManager.onlyShowFocusOnTabs()
 
 class AppMain extends Component
   @contextType: APIContext
@@ -87,12 +91,16 @@ class AppMain extends Component
     ]
 
   setupTags: (data)=>
+
+    cscale = chroma.scale('RdYlBu')
+      .colors(data.length)
+
     tags = data.map (d, ix)->
       {id, color, name} = d
 
       name ?= id.replace /\b\w/g, (l)->l.toUpperCase()
                 .replace /\-\_/g, " "
-      color ?= 'red'
+      color ?= cscale[ix]
       {id, color, name}
 
     @setState {

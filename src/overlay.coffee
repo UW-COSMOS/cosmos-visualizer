@@ -33,7 +33,6 @@ class Overlay extends Component
         key: ix
         d...
         tags
-        color: "rgba(255,0,0,#{opacity})"
         maxPosition: {width, height}
       }
 

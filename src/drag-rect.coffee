@@ -7,6 +7,7 @@ import {findDOMNode} from 'react-dom'
 import {select, event, mouse} from 'd3-selection'
 import {drag} from 'd3-drag'
 import h from 'react-hyperscript'
+import chroma from 'chroma-js'
 import {Select} from '@blueprintjs/select'
 import {Navbar, MenuItem, Button, Intent} from '@blueprintjs/core'
 
@@ -38,13 +39,24 @@ Handle = ({side, margin})->
   return h 'div', {style, className, __data__: side}
 
 class Rectangle extends Component
+  @defaultProps: {
+    isSelected: false
+  }
   render: ->
-    {x,y,width,height, color, children,
-     onClick, className, tag, tags, rest...} = @props
+    {x,y,width,height, children,
+     onClick, className, tag, tags, isSelected, rest...} = @props
 
-    currentTag = tags.find (d)->d.id == tag
+    alpha = 0.2
+    if isSelected
+      alpha = 0.6
+
+    tagData = tags.find (d)->d.id == tag
+    c = chroma(tagData.color)
+    textColor = c.darken(2)
+    color = c.alpha(alpha).css()
+
     try
-      name = h 'div.tag-name', currentTag.name
+      name = h 'div.tag-name', {style: {color: textColor}}, tagData.name
     catch
       name = null
 
@@ -69,9 +81,10 @@ class DragRectangle extends Component
     ew = {top: margin, bottom: margin, width: 2*margin}
     ns = {left: margin, right: margin, height: 2*margin}
     className = 'draggable'
+    isSelected = true
     onClick = (e)->
       e.stopPropagation()
-    h Rectangle, {@props..., className, onClick}, [
+    h Rectangle, {@props..., className, isSelected, onClick}, [
       h 'div.handles', [
         h Handle, {side: 'top'}
         h Handle, {side: 'bottom'}
@@ -107,7 +120,7 @@ class DragRectangle extends Component
         }
       ]
       h Button, {
-        icon: 'delete'
+        icon: 'cross'
         intent: Intent.DANGER
         onClick: deleteRectangle
       }
