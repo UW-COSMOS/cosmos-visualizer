@@ -105,13 +105,31 @@ class AppMain extends Component
         ]
         h Navbar.Group, {align: Alignment.RIGHT}, [
           h ButtonGroup, [
-            h Button, {intent: Intent.SUCCESS, text: "Save", icon: 'floppy-disk', disabled: saved}
-            h Button, {intent: Intent.PRIMARY, text: "Next image", rightIcon: 'chevron-right'}
+            h Button, {
+              intent: Intent.SUCCESS, text: "Save",
+              icon: 'floppy-disk', disabled: saved
+              onClick: @saveData
+            }
+            h Button, {
+              intent: Intent.PRIMARY, text: "Next image",
+              rightIcon: 'chevron-right'
+              onClick: @loadNextImage
+            }
           ]
         ]
       ]
       @renderImageContainer()
     ]
+
+  saveData: =>
+    {currentImage, rectStore} = @state
+    try
+      await @context.saveData(currentImage, rectStore)
+      @updateState {saved: {$set: true}}
+    catch err
+      console.log "Save rejected"
+
+  loadNextImage: =>
 
   setupTags: (data)=>
 
