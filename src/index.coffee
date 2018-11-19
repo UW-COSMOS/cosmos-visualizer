@@ -22,6 +22,7 @@ class AppMain extends Component
     @state = {
       currentImage: null
       editingRect: null
+      currentTag: null
       tagStore: []
       rectStore: []
     }
@@ -31,18 +32,18 @@ class AppMain extends Component
       [i,1,pos]
     ]}}
 
-  createRectangle: (e)=>
-    {clientX: x, clientY: y} = e
-
-    console.log {x,y}
-    el = select findDOMNode @
-    div = el.append 'div.rect'
-      .at {top:x,left:y,width:100,height:100}
+  deleteRectangle: (i)=> =>
+    spec = {
+      rectStore: {$splice: [[i,1]]}
+    }
+    if i == @state.editingRect
+      spec.editingRect = {$set: null}
+    @updateState spec
 
   selectRectangle: (i)=> =>
-    @setState {editingRect: i}
+    @updateState {editingRect: {$set: i}}
 
-  addRectangle: (rect)=>
+  appendRectangle: (rect)=>
     @updateState {rectStore: {$push: [rect]}}
 
   updateState: (spec)=>
@@ -63,9 +64,10 @@ class AppMain extends Component
         editingRect
         rectangles: rectStore
         actions: {
+          deleteRectangle: @deleteRectangle
           updateRectangle: @updateRectangle
           selectRectangle: @selectRectangle
-          addRectangle: @addRectangle
+          appendRectangle: @appendRectangle
           updateState: @updateState
         }
       }

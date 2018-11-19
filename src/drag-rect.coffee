@@ -109,7 +109,7 @@ class DragRectangle extends Component
     client = @mouseCoords()
     dx = client.x-source.x
     dy = client.y-source.y
-    {updateRect, minSize, maxPosition} = @props
+    {update, minSize, maxPosition} = @props
 
     if side.includes('top')
       if dy > height
@@ -142,7 +142,7 @@ class DragRectangle extends Component
       x = maxX if x > maxX
       y = maxY if y > maxY
 
-    updateRect {x,y,width,height}
+    update {x,y,width,height}
     event.sourceEvent.stopPropagation()
 
   componentDidMount: ->

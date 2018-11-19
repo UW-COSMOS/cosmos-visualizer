@@ -37,7 +37,10 @@ class Overlay extends Component
 
       if _editing
         return h DragRectangle, {
-          updateRect: actions.updateRectangle(ix)
+          delete: actions.deleteRectangle(ix)
+          update: actions.updateRectangle(ix)
+          #changeTag: actions.changeClass(ix)
+          currentTag: null
           opts...
         }
       return h Rectangle, {
@@ -83,9 +86,8 @@ class Overlay extends Component
     @setState {inProgressRectangle: null}
 
     return unless r?
-    actions.addRectangle r
+    actions.appendRectangle r
     l = @props.rectangles.length
-    console.log l
     actions.updateState {editingRect: {$set: l-1}}
 
   disableEditing: =>
