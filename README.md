@@ -18,6 +18,11 @@ implemented however but is expected to have several routes:
 - `image/<id>/tags [POST]`: set tags on an image, as
   an array of `{x,y,width,height,tag: tag.id}` objects
 
+## Next steps
+
+We might wish to add sub-tags (e.g. `figure > figure-part`) to define hierarchies
+of data. Also, scaling large images might be desirable.
+
 Additional API routes could be added to expand functionality,
 but have not yet been implemented:
 
