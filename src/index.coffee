@@ -62,7 +62,7 @@ class AppMain extends Component
     @setState newState
 
   render: ->
-    {currentImage, editingRect, rectStore, tagStore} = @state
+    {currentImage, editingRect, rectStore, tagStore, currentTag} = @state
     return null unless currentImage?
     {url, height, width } = currentImage
     style = {width, height}
@@ -75,6 +75,7 @@ class AppMain extends Component
         editingRect
         rectangles: rectStore
         tags: tagStore
+        currentTag
         actions: {
           deleteRectangle: @deleteRectangle
           updateRectangle: @updateRectangle

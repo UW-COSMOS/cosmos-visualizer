@@ -28,9 +28,11 @@ class Overlay extends Component
     rectangles.map (d, ix)=>
       _editing = ix == editingRect
       opacity = if _editing then 0.5 else 0.3
+
       opts = {
         key: ix
         d...
+        tags
         color: "rgba(255,0,0,#{opacity})"
         maxPosition: {width, height}
       }
@@ -39,7 +41,6 @@ class Overlay extends Component
         return h DragRectangle, {
           delete: actions.deleteRectangle(ix)
           update: actions.updateRectangle(ix)
-          tags
           opts...
         }
       return h Rectangle, {
@@ -56,7 +57,7 @@ class Overlay extends Component
   handleDrag: =>
     {subject} = event
     {x,y} = subject
-    {clickDistance} = @props
+    {clickDistance, currentTag} = @props
     width = event.x-x
     height = event.y-y
     if width < 0
@@ -67,7 +68,7 @@ class Overlay extends Component
       y -= height
     return if width < clickDistance
     return if height < clickDistance
-    rect = {x,y,width,height}
+    rect = {x,y,width,height, tag: currentTag}
     @setState {inProgressRectangle: rect}
 
   handleAddRectangle: =>

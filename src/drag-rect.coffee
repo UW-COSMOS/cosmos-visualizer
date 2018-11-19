@@ -8,7 +8,7 @@ import {select, event, mouse} from 'd3-selection'
 import {drag} from 'd3-drag'
 import h from 'react-hyperscript'
 import {Select} from '@blueprintjs/select'
-import {MenuItem, Button} from '@blueprintjs/core'
+import {Navbar, MenuItem, Button, Intent} from '@blueprintjs/core'
 
 oppositeSide = (s)->
   return 'top' if s == 'bottom'
@@ -39,14 +39,26 @@ Handle = ({side, margin})->
 
 class Rectangle extends Component
   render: ->
-    {x,y,width,height, color, children, onClick, className, rest...} = @props
+    {x,y,width,height, color, children,
+     onClick, className, tag, tags, rest...} = @props
+
+    currentTag = tags.find (d)->d.id == tag
+    try
+      name = h 'div.tag-name', currentTag.name
+    catch
+      name = null
+
     style = {
       top: y, left: x,
       width, height,
       backgroundColor: color
       borderColor: color
     }
-    h 'div.rect', {style, children, onClick, className}
+
+    h 'div.rect', {style, onClick, className}, [
+      name
+      children
+    ]
 
 class DragRectangle extends Component
   @defaultProps: {
@@ -74,9 +86,9 @@ class DragRectangle extends Component
     ]
 
   renderItems: ->
-    {tags, tag} = @props
+    {tags, tag, delete: deleteRectangle} = @props
     currentTag = tags.find (d)-> d.id == tag
-    h "div.rect-controls", [
+    h 'div.rect-controls', [
       h Select, {
         items: tags
         itemRenderer: (t, {handleClick})->
@@ -86,13 +98,19 @@ class DragRectangle extends Component
             text: t.name
           }
         onItemSelect: @setTag
-
+        filterable: false
       }, [
         h Button, {
           text: currentTag.name
           rightIcon: "double-caret-vertical"
+          className: 'select-box'
         }
       ]
+      h Button, {
+        icon: 'delete'
+        intent: Intent.DANGER
+        onClick: deleteRectangle
+      }
     ]
 
   mouseCoords: ->
