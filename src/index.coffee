@@ -7,7 +7,8 @@ import {select} from 'd3-selection'
 import {findDOMNode} from 'react-dom'
 import 'd3-jetpack'
 import chroma from 'chroma-js'
-import { FocusStyleManager } from "@blueprintjs/core"
+import {FocusStyleManager, Navbar, Button, ButtonGroup
+        Intent, Alignment} from "@blueprintjs/core"
 
 import "@blueprintjs/core/lib/css/blueprint.css"
 import "@blueprintjs/icons/lib/css/blueprint-icons.css"
@@ -27,15 +28,17 @@ class AppMain extends Component
       currentImage: null
       editingRect: null
       currentTag: null
+      saved: true
       tagStore: []
       rectStore: []
     }
 
   updateRectangle: (i)=>(rect)=>
     rect.tag ?= null
-    spec = {rectStore: {$splice: [
-      [i,1,rect]
-    ]}}
+    spec = {
+      rectStore: {$splice: [[i,1,rect]]}
+      saved: {$set: false}
+    }
     if rect.tag? and rect.tag != @state.currentTag
       spec.currentTag = {$set: rect.tag}
     @updateState spec
@@ -44,6 +47,7 @@ class AppMain extends Component
     {editingRect} = @state
     spec = {
       rectStore: {$splice: [[i,1]]}
+      saved: {$set: false}
     }
     if editingRect? and i == editingRect
       spec.editingRect = {$set: null}
@@ -57,6 +61,7 @@ class AppMain extends Component
     {currentTag, rectStore} = @state
     rect.tag = currentTag
     @updateState {
+      saved: {$set: false}
       rectStore: {$push: [rect]}
       editingRect: {$set: rectStore.length}
     }
@@ -65,7 +70,7 @@ class AppMain extends Component
     newState = update @state, spec
     @setState newState
 
-  render: ->
+  renderImageContainer: ->
     {currentImage, editingRect, rectStore, tagStore, currentTag} = @state
     return null unless currentImage?
     {url, height, width } = currentImage
@@ -90,6 +95,24 @@ class AppMain extends Component
       }
     ]
 
+  render: ->
+    {saved} = @state
+    h 'div.main', [
+      h Navbar, [
+        h Navbar.Group, [
+          h Navbar.Heading, "Image tagger"
+          h "span.instructions", "Click + drag to create item. Click existing item to adjust."
+        ]
+        h Navbar.Group, {align: Alignment.RIGHT}, [
+          h ButtonGroup, [
+            h Button, {intent: Intent.SUCCESS, text: "Save", icon: 'floppy-disk', disabled: saved}
+            h Button, {intent: Intent.PRIMARY, text: "Next image", rightIcon: 'chevron-right'}
+          ]
+        ]
+      ]
+      @renderImageContainer()
+    ]
+
   setupTags: (data)=>
 
     cscale = chroma.scale('RdYlBu')
@@ -108,12 +131,14 @@ class AppMain extends Component
       currentTag: tags[0].id
     }
 
+  getNextImage: =>
+    @context.get("/image")
+      .then (d)=>@setState {currentImage: d}
 
   componentDidMount: ->
     @context.get("/tags")
       .then @setupTags
-    @context.get("/image")
-      .then (d)=>@setState {currentImage: d}
+    @getNextImage()
 
   componentDidUpdate: (prevProps, prevState)->
     {currentImage} = @state
