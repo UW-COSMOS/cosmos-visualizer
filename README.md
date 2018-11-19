@@ -12,16 +12,16 @@ implemented however but is expected to have several routes:
 
 - `/image [GET]`: returns the URL of the next image to tag, and
   its natural size `{url, width, height}`
-- `/tags [GET]`: array of possible tags as `{id,name,description,
+- `/tags [GET]`: array of possible tags as `{id,name?,description?,
   color?}` objects
-- `/tags [POST]`: set tags on an image, as
-  an array of `{x,y,width,height,tag: "tag_id"}` objects
+- `/image/<id>/tags [GET]`: currently set tags for an image
+- `image/<id>/tags [POST]`: set tags on an image, as
+  an array of `{x,y,width,height,tag: tag.id}` objects
 
 Additional API routes could be added to expand functionality,
 but have not yet been implemented:
 
 - `/images [GET]`: URL and number of tags on each potential image
-- `/image/<image_id>/tags [GET]`: currently set tags for an image
 
 Of course, the images need to be accessible at whatever URL is returned by
 the API.
@@ -36,6 +36,9 @@ npm install -g parcel-bundler
 npm install
 ```
 
-After this, a development version can be run using
-`parcel index.html`.
+After this, a development version with hot reloading can be run on
+`localhost` using `npm run-script watch`.
+A space-efficient production build can be obtained using
+`npm run-script build` and copied to the webserver (assumed right now
+to be at the sub-directory `image-tagger/`) on the server.
 

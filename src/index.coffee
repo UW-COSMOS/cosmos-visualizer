@@ -192,7 +192,7 @@ class AppMain extends Component
     return if prevState.currentImage == currentImage
     return unless currentImage?
     {id} = @state.currentImage
-    @context.get("image/#{id}/tags")
+    @context.get("/image/#{id}/tags")
       .then (d)=>@setState {rectStore: d, saved: true}
 
 

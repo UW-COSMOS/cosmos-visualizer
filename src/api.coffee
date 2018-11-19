@@ -32,7 +32,7 @@ class APIProvider extends Component
     h APIContext.Provider, {value}, children
 
   saveData: (image, tags)=>
-    endpoint = "/image/#{image.id}"
+    endpoint = "/image/#{image.id}/tags"
     try
       await @post(endpoint, tags)
       AppToaster.show {
