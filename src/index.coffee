@@ -33,6 +33,7 @@ class AppMain extends Component
       tagStore: []
       rectStore: []
       imageBaseURL: null
+      scaleFactor: 1
     }
 
   updateRectangle: (i)=>(rect)=>
@@ -73,15 +74,13 @@ class AppMain extends Component
     @setState newState
 
   renderImageContainer: ->
-    {imageBaseURL} = @props
-    imageBaseURL ?= ""
     {currentImage, editingRect, rectStore, tagStore, currentTag} = @state
     return null unless currentImage?
-    {url, height, width } = currentImage
+    {height, width } = currentImage
     style = {width, height}
     onClick = @createRectangle
     h 'div.image-container', {style}, [
-      h 'img', {src: imageBaseURL+url, style...}
+      h 'img', {src: @imageURL(currentImage), style...}
       h Overlay, {
         width,
         height,
@@ -154,24 +153,49 @@ class AppMain extends Component
       .colors(data.length)
 
     tags = data.map (d, ix)->
-      {id, color, name} = d
+      {tag_id, color, name} = d
 
       if not name?
-        name = id.replace "-", " "
+        name = tag_id.replace "-", " "
         name = name.charAt(0).toUpperCase()+name.slice(1)
       color ?= cscale[ix]
-      {id, color, name}
+      {tag_id, color, name}
 
     @setState {
       tagStore: tags
-      currentTag: tags[0].id
+      currentTag: tags[0].tag_id
     }
 
+  imageURL: (image)=>
+    {imageBaseURL} = @props
+    imageBaseURL ?= ""
+    return imageBaseURL + image.file_path
+
+  ensureImageDimensions: ({width, height, rest...})=>
+    # Make sure we have image dimensions set before loading an image
+    # into the UI
+    imageURL = @imageURL(rest)
+    new Promise (resolve, reject)->
+      if width? and height?
+        resolve({width, height, rest...})
+        return
+      img = new Image()
+      img.onload = ->
+        {width, height} = @
+        resolve({width,height, rest...})
+      img.src = imageURL
+
   getNextImage: =>
-    @context.get("/image")
+    @context.get("/image/next")
       .then @onImageLoaded
 
   onImageLoaded: (d)=>
+    if Array.isArray(d)
+      d = d[0]
+
+    d = await @ensureImageDimensions(d)
+
+    console.log d
     @setState {
       currentImage: d
       rectStore: []
@@ -180,14 +204,14 @@ class AppMain extends Component
     AppToaster.show {
       message: h 'div', [
         "Loaded image "
-        h "code", d.id
+        h "code", d.image_id
         "."
       ]
       intent: Intent.PRIMARY
     }
 
   componentDidMount: ->
-    @context.get("/tags")
+    @context.get("/tags/all")
       .then @setupTags
     @getNextImage()
 
@@ -195,8 +219,8 @@ class AppMain extends Component
     {currentImage} = @state
     return if prevState.currentImage == currentImage
     return unless currentImage?
-    {id} = @state.currentImage
-    @context.get("/image/#{id}/tags")
+    {image_id} = @state.currentImage
+    @context.get("/image/#{image_id}/tags")
       .then (d)=>@setState {rectStore: d, saved: true}
 
 

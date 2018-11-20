@@ -50,7 +50,7 @@ class Rectangle extends Component
     if isSelected
       alpha = 0.6
 
-    tagData = tags.find (d)->d.id == tag
+    tagData = tags.find (d)->d.tag_id == tag
     c = chroma(tagData.color)
     textColor = c.darken(2)
     color = c.alpha(alpha).css()
@@ -100,13 +100,13 @@ class DragRectangle extends Component
 
   renderItems: ->
     {tags, tag, delete: deleteRectangle} = @props
-    currentTag = tags.find (d)-> d.id == tag
+    currentTag = tags.find (d)-> d.tag_id == tag
     h 'div.rect-controls', [
       h Select, {
         items: tags
         itemRenderer: (t, {handleClick})->
           h MenuItem, {
-            key: t.id,
+            key: t.tag_id,
             onClick: handleClick
             text: t.name
           }
