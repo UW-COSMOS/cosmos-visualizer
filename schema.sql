@@ -27,15 +27,22 @@ INSERT INTO tags (tag_id, name, description) VALUES (6, 'Equation', 'An equation
 
 
 CREATE TABLE image_tags (
+  image_tag_id text primary key, -- unique image/tag/user hash
   image_id text,
-  tag_id text,
+  tag_id integer,
+  tagger text, -- the person who created the tag
+  validator text, -- the person who validated the tag
   x_min integer,
   y_min integer,
   x_max integer,
   y_max integer,
-  tagger text, -- the person who created the tag
-  validator text, -- the person who validated the tag
-  created datetime default current_timestamp, -- time of tag creation
-  validated datetime, -- time of tag validation
-  is_valid boolean
+  created datetime default current_timestamp -- time of tag creation
+);
+
+CREATE TABLE people (
+  person_id text primary key,
+  name text,
+  tagger boolean default TRUE,
+  validator boolean default FALSE,
+  created datetime default current_timestamp
 );
