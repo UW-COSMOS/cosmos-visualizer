@@ -19,11 +19,14 @@ CREATE TABLE tags (
 );
 
 INSERT INTO tags (tag_id, name, description) VALUES (1, 'Figure', 'A chart, graph, or other graphical display');
-INSERT INTO tags (tag_id, name, description) VALUES (2, 'Caption', 'A text description associated with a figure or table');
-INSERT INTO tags (tag_id, name, description) VALUES (3, 'Table', 'A tabular graphic of data');
-INSERT INTO tags (tag_id, name, description) VALUES (4, 'Bibliography', '');
-INSERT INTO tags (tag_id, name, description) VALUES (5, 'Reference', 'A citation');
-INSERT INTO tags (tag_id, name, description) VALUES (6, 'Equation', 'An equation');
+INSERT INTO tags (tag_id, name, description) VALUES (2, 'Figure Note', 'A footnote to explain subset of figure content');
+INSERT INTO tags (tag_id, name, description) VALUES (3, 'Table', 'A tabular representation of information');
+INSERT INTO tags (tag_id, name, description) VALUES (4, 'Table Note', 'A footnote to explain subset of table content');
+INSERT INTO tags (tag_id, name, description) VALUES (5, 'Caption', 'A text description associated with an entire figure or table');
+INSERT INTO tags (tag_id, name, description) VALUES (6, 'Page Header', 'Document-wide summary information, including page no., at top of page');
+INSERT INTO tags (tag_id, name, description) VALUES (7, 'Page Footer', 'Document-wide summary information, including page no., at bottom of page');
+INSERT INTO tags (tag_id, name, description) VALUES (8, 'Text Header', 'Text identifying section within text of document';
+INSERT INTO tags (tag_id, name, description) VALUES (9, 'Equation', 'An equation');
 
 
 CREATE TABLE image_tags (
