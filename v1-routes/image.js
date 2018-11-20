@@ -29,11 +29,43 @@ module.exports = {
     '/api/v1/image/456',
     '/api/v1/image/next',
   ],
-  handler: (req, res, next) => {
+  handler: (req, res, next, plugins) => {
     if (req.query.image_id === 'next') {
-      res.reply(req, res, next, {image_id: 'random', 'width': 123, 'height': 123})
+      plugins.db.all(`
+        SELECT
+          image_id,
+          doc_id,
+          page_no,
+          stack,
+          file_path,
+          created
+        FROM images
+        WHERE tag_start IS NULL OR tag_start < datetime('now', '-5 minutes')
+        ORDER BY random()
+        LIMIT 1
+      `, (error, row) => {
+        // Update the tag start
+        plugins.db.run(`
+          UPDATE images
+          SET tag_start = current_timestamp
+          WHERE image_id = ?
+        `, row.image_id)
+        res.reply(req, res, next, row)
+      })
     } else {
-      res.reply(req, res, next, [{image_id: req.query.image_id, 'width': 456, 'height': 456}])
+      plugins.db.all(`
+        SELECT
+          image_id,
+          doc_id,
+          page_no,
+          stack,
+          file_path,
+          created
+        FROM images
+        WHERE image_id = ?
+      `, req.query.image_id, (error, row) => {
+        res.reply(req, res, next, row)
+      })
     }
   }
 }

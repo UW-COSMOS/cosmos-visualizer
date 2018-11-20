@@ -33,11 +33,32 @@ module.exports = {
     '/api/v1/tags/2',
     '/api/v1/tags/all',
   ],
-  handler: (req, res, next) => {
+  handler: (req, res, next, plugins) => {
     if (req.query.tag_id === 'all') {
-      res.reply(req, res, next, [{tag_id: 'random', 'name': 'my tag', 'description': 'what', 'color': '#000000'}])
+      plugins.db.all(`
+        SELECT
+          tag_id,
+          name,
+          description,
+          color,
+          created
+        FROM tags
+      `, (error, tags) => {
+        res.reply(req, res, next, tags)
+      })
     } else {
-    res.reply(req, res, next, [{tag_id: req.query.tag_id, 'name': 'my tag', 'description': 'what', 'color': '#000000'}])
+      plugins.db.get(`
+        SELECT
+          tag_id,
+          name,
+          description,
+          color,
+          created
+        FROM tags
+        WHERE tag_id = ?
+      `, req.query.tag_id, (error, tag) => {
+        res.reply(req, res, next, [tag])
+      })
     }
   }
 }

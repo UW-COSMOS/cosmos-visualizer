@@ -1,5 +1,7 @@
 const Larkin = require('@macrostrat/larkin')
 const fs = require('fs')
+const sqlite3 = require('sqlite3')
+const db = new sqlite3.Database(`${__dirname}/annotations.sqlite`)
 
 // Define a new larkin instance
 let v1 = new Larkin({
@@ -7,6 +9,9 @@ let v1 = new Larkin({
   license: 'MIT',
   description: 'Routes for powering image-tagger'
 })
+
+// Add postgres
+v1.registerPlugin('db', db)
 
 //Recursively read all the route definition files in the folder /routes and register them
 fs.readdirSync(`${__dirname}/v1-routes`).forEach(file => {
