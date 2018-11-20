@@ -1,4 +1,5 @@
 const async = require('async')
+const uuidv4 = require('uuid/v4')
 
 module.exports = {
   path: '/image/:image_id/tags',
@@ -41,6 +42,7 @@ module.exports = {
     if (req.method === 'GET') {
       plugins.db.all(`
         SELECT
+          image_tags.image_tag_id,
           tags.tag_id,
           tags.name,
           image_tags.x_min,
@@ -89,55 +91,27 @@ module.exports = {
         if (!tag.y_max) {
           return res.error(req, res, next, 'A tag is missing an x_max', 400)
         }
-
-        if (incoming.validator) {
-          if (!'is_valid' in tag) {
-            return res.error(req, res, next, 'When validating each tag must specify a "is_valid" parameter', 400)
-          }
-        }
       })
 
       // Alright...I think we are good to go
-      // If we are validating tags
-      if (incoming.validator) {
-        async.eachLimit(incoming.tags, 1, (tag, callback) => {
-          plugins.db.run(`
-            UPDATE image_tags
-            SET validator = ?, validated = current_timestamp, is_valid = ?
-            WHERE image_id = ? AND tag_id = ?
-          `, [incoming.validator, tag.is_valid, req.query.image_id, tag.tag_id], (error) => {
-            if (error) {
-              return callback(error)
-            }
-            callback(null)
-          })
-        }, (error) => {
+      async.eachLimit(incoming.tags, 1, (tag, callback) => {
+        plugins.db.run(`
+          INSERT INTO image_tags (image_tag_id, image_id, tag_id, x_min, y_min, x_max, y_max, tagger, validator)
+          VALUES (?, ?, ?, ?, ?, ?, ?)
+        `, [tags.image_tag_id || uuidv4(), req.query.image_id, tag.tag_id, tag.x_min, tag.y_min, tag.x_max, tag.y_max, incoming.tagger, incoming.validator || NULL], (error) => {
           if (error) {
-            return res.error(req, res, next, 'An error occurred while inserting tags', 500)
+            return callback(error)
           }
-          res.reply(req, res, next, 'Success')
+          callback(null)
         })
+      }, (error) => {
+        if (error) {
+          return res.error(req, res, next, 'An error occurred while inserting tags', 500)
+        }
+        res.reply(req, res, next, 'Success')
+      })
 
-      } else {
-        async.eachLimit(incoming.tags, 1, (tag, callback) => {
-          plugins.db.run(`
-            INSERT INTO image_tags (image_id, tag_id, x_min, y_min, x_max, y_max, tagger)
-            VALUES (?, ?, ?, ?, ?, ?, ?)
-          `, [req.query.image_id, tag.tag_id, tag.x_min, tag.y_min, tag.x_max, tag.y_max, incoming.tagger], (error) => {
-            if (error) {
-              return callback(error)
-            }
-            callback(null)
-          })
-        }, (error) => {
-          if (error) {
-            return res.error(req, res, next, 'An error occurred while inserting tags', 500)
-          }
-          res.reply(req, res, next, 'Success')
-        })
-      }
 
-      res.reply(req, res, next, ['Add tags'])
     }
   }
 }
