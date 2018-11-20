@@ -32,6 +32,7 @@ class AppMain extends Component
       saved: true
       tagStore: []
       rectStore: []
+      imageBaseURL: null
     }
 
   updateRectangle: (i)=>(rect)=>
@@ -72,13 +73,15 @@ class AppMain extends Component
     @setState newState
 
   renderImageContainer: ->
+    {imageBaseURL} = @props
+    imageBaseURL ?= ""
     {currentImage, editingRect, rectStore, tagStore, currentTag} = @state
     return null unless currentImage?
     {url, height, width } = currentImage
     style = {width, height}
     onClick = @createRectangle
     h 'div.image-container', {style}, [
-      h 'img', {src: url, style...}
+      h 'img', {src: imageBaseURL+url, style...}
       h Overlay, {
         width,
         height,
@@ -203,7 +206,8 @@ App = (props)=>
     h AppMain, rest
   ]
 
-window.createUI = (baseURL=null)->
+window.createUI = (opts={})->
+  {baseURL, imageBaseURL} = opts
   el = document.getElementById('app')
-  __ = h App, {baseURL}
+  __ = h App, {baseURL, imageBaseURL}
   render __, el

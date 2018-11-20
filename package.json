@@ -22,10 +22,11 @@
     "babel-core": "^6.26.3",
     "babel-polyfill": "^6.26.0",
     "coffeescript": "^2.3.2",
+    "parcel-bundler": "^1.10.3",
     "stylus": "^0.54.5"
   },
   "scripts": {
-    "watch": "mkdir -p dist && cp -r test dist && parcel index.html",
+    "watch": "mkdir -p dist && cp -r test dist && parcel index.html test.html",
     "build": "rm -rf dist && mkdir -p dist && cp -r test dist && parcel build index.html --public-url '/image-tagger'",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
