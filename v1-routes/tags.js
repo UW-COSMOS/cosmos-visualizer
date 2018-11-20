@@ -1,5 +1,5 @@
 module.exports = {
-  path: '/tags/:tag_id',
+  path: '/tags/:tag_id?',
   displayPath: '/tags',
   methods: ['GET'],
   description: 'Get available image tags',
@@ -47,7 +47,7 @@ module.exports = {
         res.reply(req, res, next, tags)
       })
     } else {
-      plugins.db.get(`
+      plugins.db.all(`
         SELECT
           tag_id,
           name,
@@ -56,8 +56,8 @@ module.exports = {
           created
         FROM tags
         WHERE tag_id = ?
-      `, req.query.tag_id, (error, tag) => {
-        res.reply(req, res, next, [tag])
+      `, req.query.tag_id, (error, tags) => {
+        res.reply(req, res, next, tag)
       })
     }
   }
