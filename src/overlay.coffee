@@ -20,7 +20,9 @@ class Overlay extends Component
 
   renderRectangles: ->
     {inProgressRectangle} = @state
-    {rectangles, tags, width, height, editingRect, actions} = @props
+    {rectangles, tags, width, height,
+     editingRect, actions, scaleFactor} = @props
+
     if inProgressRectangle?
       editingRect = null
       rectangles = [rectangles..., inProgressRectangle]
@@ -33,6 +35,7 @@ class Overlay extends Component
         key: ix
         d...
         tags
+        scaleFactor
         maxPosition: {width, height}
       }
 
@@ -56,7 +59,8 @@ class Overlay extends Component
   handleDrag: =>
     {subject} = event
     {x,y} = subject
-    {clickDistance, currentTag} = @props
+    {clickDistance, currentTag, scaleFactor} = @props
+    scaleFactor ?= 1
     width = event.x-x
     height = event.y-y
     if width < 0
@@ -67,6 +71,11 @@ class Overlay extends Component
       y -= height
     return if width < clickDistance
     return if height < clickDistance
+    # Shift to image coordinates from pixel coordinates
+    x *= scaleFactor
+    y *= scaleFactor
+    width *= scaleFactor
+    height *= scaleFactor
     rect = {x,y,width,height, tag: currentTag}
     @setState {inProgressRectangle: rect}
 

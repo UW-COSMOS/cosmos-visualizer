@@ -33,7 +33,8 @@ class AppMain extends Component
       tagStore: []
       rectStore: []
       imageBaseURL: null
-      scaleFactor: 1
+      scaleFactor: null
+      windowWidth: window.innerWidth
     }
 
   updateRectangle: (i)=>(rect)=>
@@ -73,18 +74,27 @@ class AppMain extends Component
     newState = update @state, spec
     @setState newState
 
-  renderImageContainer: ->
-    {currentImage, editingRect, rectStore, tagStore, currentTag} = @state
+  scaledSize: =>
+    {currentImage, scaleFactor} = @state
     return null unless currentImage?
-    {height, width } = currentImage
-    style = {width, height}
+    scaleFactor ?= 1
+    {height, width} = currentImage
+    height /= scaleFactor
+    width /= scaleFactor
+    return {width,height}
+
+  renderImageContainer: =>
+    {currentImage, editingRect, scaleFactor
+      rectStore, tagStore, currentTag} = @state
+    return null unless currentImage?
+    style = @scaledSize()
     onClick = @createRectangle
     h 'div.image-container', {style}, [
       h 'img', {src: @imageURL(currentImage), style...}
       h Overlay, {
-        width,
-        height,
+        style...
         editingRect
+        scaleFactor
         rectangles: rectStore
         tags: tagStore
         currentTag
@@ -190,7 +200,8 @@ class AppMain extends Component
       .then @onImageLoaded
 
   onImageLoaded: (d)=>
-    if Array.isArray(d)
+    if Array.isArray(d) and d.length == 1
+      # API returns a unit-length array
       d = d[0]
 
     d = await @ensureImageDimensions(d)
@@ -215,7 +226,10 @@ class AppMain extends Component
       .then @setupTags
     @getNextImage()
 
-  componentDidUpdate: (prevProps, prevState)->
+    window.addEventListener 'resize', =>
+      @setState {windowWidth: window.innerWidth}
+
+  didUpdateImage: (prevProps, prevState)->
     {currentImage} = @state
     return if prevState.currentImage == currentImage
     return unless currentImage?
@@ -223,6 +237,17 @@ class AppMain extends Component
     @context.get("/image/#{image_id}/tags")
       .then (d)=>@setState {rectStore: d, saved: true}
 
+  didUpdateWindowSize: (prevProps, prevState)->
+    {windowWidth, scaleFactor, currentImage} = @state
+    return if scaleFactor? and prevState.windowWidth == windowWidth
+    return unless currentImage?
+    {width} = currentImage
+    scaleFactor = Math.ceil(width/windowWidth)
+    @setState {scaleFactor}
+
+  componentDidUpdate: ->
+    @didUpdateImage.apply(@,arguments)
+    @didUpdateWindowSize.apply(@,arguments)
 
 App = (props)=>
   {baseURL, rest...} = props
