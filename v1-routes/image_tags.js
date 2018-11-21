@@ -40,6 +40,8 @@ module.exports = {
   ],
   handler: (req, res, next, plugins) => {
     if (req.method === 'GET') {
+      let where = (req.query.image_id === 'validate') ? 'ORDER BY random() LIMIT 1' : 'WHERE image_tags.image_id = ?'
+      let params = (req.query.image_id === 'validate') ? [] : [ req.query.image_id ]
       plugins.db.all(`
         SELECT
           image_tags.image_tag_id,
@@ -55,8 +57,8 @@ module.exports = {
           image_tags.validated
         FROM tags
         JOIN image_tags ON image_tags.tag_id = tags.tag_id
-        WHERE image_tags.image_id = ?
-      `, req.query.image_id, (error, tags) => {
+        ${where}
+      `, params, (error, tags) => {
         res.reply(req, res, next, tags)
       })
     } else {
