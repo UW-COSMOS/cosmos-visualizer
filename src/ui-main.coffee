@@ -146,9 +146,13 @@ class UIMain extends StatefulComponent
     {currentImage, rectStore} = @state
     {extraSaveData} = @props
     extraSaveData ?= {}
-    console.log extraSaveData
+    tags = rectStore.map (d)->
+      # Shim to set ID correctly for API.
+      {tag, rest...} = d
+      return {tag_id: tag, rest...}
+
     saveItem = {
-      tags: rectStore
+      tags
       extraSaveData...
     }
 
@@ -176,7 +180,6 @@ class UIMain extends StatefulComponent
       color ?= cscale[ix]
       {tag_id, color, name}
 
-    console.log tags
     @setState {
       tagStore: tags
       currentTag: tags[0].tag_id
