@@ -44,6 +44,7 @@ class APIProvider extends Component
         message: h 'div.error-toast', [
           h 'h4', "Could not save data"
           h 'div.details', [
+            h 'div.error-message', err
             h 'div', [
               h 'code', "POST"
               " to endpoint "
@@ -75,13 +76,14 @@ class APIProvider extends Component
   post: (spec, data)=>
     uri = @endpointFor(spec)
     console.log "#{uri} [POST]", data
-    {data} = await json(uri, {
+    res = await json(uri, {
       method: 'POST',
       headers: {"Content-type": "application/json; charset=UTF-8"},
       body: JSON.stringify(data)
     })
+    {data, error} = res
     if not data?
-      throw "Invalid API response."
+      throw error or "Invalid API response."
     return data
 
 export {APIProvider, APIConsumer, APIContext}

@@ -8,11 +8,12 @@ import chroma from 'chroma-js'
 import {Navbar, Button, ButtonGroup
         Intent, Alignment, Text} from "@blueprintjs/core"
 
+import {StatefulComponent} from './util'
 import {AppToaster} from './toaster'
 import {Overlay} from './overlay'
 import {APIContext} from './api'
 
-class UIMain extends Component
+class UIMain extends StatefulComponent
   @contextType: APIContext
   constructor: (props)->
     super props
@@ -57,10 +58,6 @@ class UIMain extends Component
       rectStore: {$push: [rect]}
       editingRect: {$set: rectStore.length}
     }
-
-  updateState: (spec)=>
-    newState = update @state, spec
-    @setState newState
 
   scaledSize: =>
     {currentImage, scaleFactor} = @state
@@ -147,8 +144,20 @@ class UIMain extends Component
 
   saveData: =>
     {currentImage, rectStore} = @state
+    {extraSaveData} = @props
+    extraSaveData ?= {}
+    tags = rectStore.map (d)->
+      # Shim to set ID correctly for API.
+      {tag, rest...} = d
+      return {tag_id: tag, rest...}
+
+    saveItem = {
+      tags
+      extraSaveData...
+    }
+
     try
-      await @context.saveData(currentImage, rectStore)
+      await @context.saveData(currentImage, saveItem)
       @updateState {
         initialRectStore: {$set: rectStore}
       }
@@ -196,7 +205,9 @@ class UIMain extends Component
       img.src = imageURL
 
   getNextImage: =>
-    @context.get("/image/next")
+    {nextImageEndpoint} = @props
+    nextImageEndpoint ?= "/image/next"
+    @context.get(nextImageEndpoint)
       .then @onImageLoaded
 
   onImageLoaded: (d)=>
