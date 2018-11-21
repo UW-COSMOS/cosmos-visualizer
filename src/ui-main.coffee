@@ -12,7 +12,7 @@ import {AppToaster} from './toaster'
 import {Overlay} from './overlay'
 import {APIContext} from './api'
 
-class App extends Component
+class UIMain extends Component
   @contextType: APIContext
   constructor: (props)->
     super props
@@ -254,4 +254,4 @@ class App extends Component
     @didUpdateImage.apply(@,arguments)
     @didUpdateWindowSize.apply(@,arguments)
 
-export {App}
+export {UIMain}

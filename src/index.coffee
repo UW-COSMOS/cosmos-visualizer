@@ -8,7 +8,7 @@ import './main.styl'
 import {render} from 'react-dom'
 import h from 'react-hyperscript'
 import {FocusStyleManager} from "@blueprintjs/core"
-import {App} from './app'
+import {UIMain} from './ui-main'
 import {APIProvider} from './api'
 
 FocusStyleManager.onlyShowFocusOnTabs()
@@ -16,7 +16,7 @@ FocusStyleManager.onlyShowFocusOnTabs()
 AppHolder = (props)=>
   {baseURL, rest...} = props
   h APIProvider, {baseURL}, [
-    h App, rest
+    h UIMain, rest
   ]
 
 window.createUI = (opts={})->
