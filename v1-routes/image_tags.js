@@ -45,10 +45,10 @@ module.exports = {
           image_tags.image_tag_id,
           tags.tag_id,
           tags.name,
-          image_tags.x_min,
-          image_tags.y_min,
-          image_tags.x_max,
-          image_tags.y_max,
+          image_tags.x,
+          image_tags.y,
+          image_tags.width,
+          image_tags.height,
           image_tags.tagger,
           image_tags.validator,
           image_tags.created,
@@ -79,26 +79,26 @@ module.exports = {
         if (!tag.tag_id) {
           return res.error(req, res, next, 'A tag is missing a tag_id', 400)
         }
-        if (!tag.x_min) {
-          return res.error(req, res, next, 'A tag is missing an x_min', 400)
+        if (!tag.x) {
+          return res.error(req, res, next, 'A tag is missing an x', 400)
         }
-        if (!tag.y_min) {
-          return res.error(req, res, next, 'A tag is missing an y_min', 400)
+        if (!tag.y) {
+          return res.error(req, res, next, 'A tag is missing an y', 400)
         }
-        if (!tag.x_max) {
-          return res.error(req, res, next, 'A tag is missing an x_max', 400)
+        if (!tag.width) {
+          return res.error(req, res, next, 'A tag is missing an width', 400)
         }
-        if (!tag.y_max) {
-          return res.error(req, res, next, 'A tag is missing an x_max', 400)
+        if (!tag.height) {
+          return res.error(req, res, next, 'A tag is missing an width', 400)
         }
       })
 
       // Alright...I think we are good to go
       async.eachLimit(incoming.tags, 1, (tag, callback) => {
         plugins.db.run(`
-          INSERT INTO image_tags (image_tag_id, image_id, tag_id, x_min, y_min, x_max, y_max, tagger, validator)
+          INSERT INTO image_tags (image_tag_id, image_id, tag_id, x, y, width, height, tagger, validator)
           VALUES (?, ?, ?, ?, ?, ?, ?)
-        `, [tags.image_tag_id || uuidv4(), req.query.image_id, tag.tag_id, tag.x_min, tag.y_min, tag.x_max, tag.y_max, incoming.tagger, incoming.validator || NULL], (error) => {
+        `, [tags.image_tag_id || uuidv4(), req.query.image_id, tag.tag_id, tag.x, tag.y, tag.width, tag.height, incoming.tagger, incoming.validator || NULL], (error) => {
           if (error) {
             return callback(error)
           }

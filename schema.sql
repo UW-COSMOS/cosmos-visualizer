@@ -35,10 +35,10 @@ CREATE TABLE image_tags (
   tag_id integer,
   tagger text, -- the person who created the tag
   validator text, -- the person who validated the tag
-  x_min integer,
-  y_min integer,
-  x_max integer,
-  y_max integer,
+  x integer,
+  y integer,
+  width integer,
+  height integer,
   created datetime default current_timestamp -- time of tag creation
 );
 
