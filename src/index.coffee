@@ -32,6 +32,7 @@ class AppMain extends Component
       saved: true
       tagStore: []
       rectStore: []
+      initialRectStore: []
       imageBaseURL: null
       scaleFactor: null
       windowWidth: window.innerWidth
@@ -108,15 +109,26 @@ class AppMain extends Component
       }
     ]
 
-  clearAnnotations: =>
+  clearChanges: =>
+    {initialRectStore} = @state
     @updateState {
-      rectStore: {$set: []}
+      rectStore: {$set: initialRectStore}
       editingRect: {$set: null}
       saved: {$set: true}
     }
 
+  uiHasChanges: =>
+    {rectStore, initialRectStore} = @state
+    if initialRectStore.length == rectStore.length == 0
+      return true
+    return rectStore == initialRectStore
+
   render: ->
-    {saved, rectStore} = @state
+    {saved, rectStore, initialRectStore} = @state
+    clearRectText = "Clear changes"
+    if initialRectStore.length != 0
+      clearRectText = "Reset changes"
+
     h 'div.main', [
       h Navbar, {fixedToTop: true}, [
         h Navbar.Group, [
@@ -131,9 +143,9 @@ class AppMain extends Component
               onClick: @saveData
             }
             h Button, {
-              intent: Intent.DANGER, text: "Clear annotations",
-              icon: 'trash', disabled: rectStore.length == 0
-              onClick: @clearAnnotations
+              intent: Intent.DANGER, text: clearRectText,
+              icon: 'trash', disabled: @uiHasChanges()
+              onClick: @clearChanges
             }
             h Button, {
               intent: Intent.PRIMARY, text: "Next image",
@@ -206,10 +218,11 @@ class AppMain extends Component
 
     d = await @ensureImageDimensions(d)
 
-    console.log d
+    rectStore = []
     @setState {
       currentImage: d
-      rectStore: []
+      rectStore
+      initialRectStore: rectStore
       saved: false
     }
     AppToaster.show {
@@ -234,15 +247,19 @@ class AppMain extends Component
     return if prevState.currentImage == currentImage
     return unless currentImage?
     {image_id} = @state.currentImage
-    @context.get("/image/#{image_id}/tags")
-      .then (d)=>@setState {rectStore: d, saved: true}
+    d = await @context.get "/image/#{image_id}/tags"
+    @setState {rectStore: d, initRectStore: d, saved: true}
 
   didUpdateWindowSize: (prevProps, prevState)->
     {windowWidth, scaleFactor, currentImage} = @state
     return if scaleFactor? and prevState.windowWidth == windowWidth
     return unless currentImage?
     {width} = currentImage
-    scaleFactor = Math.ceil(width/windowWidth)
+    # Clamp to integer scalings for simplicity
+    scaleFactor = width/windowWidth
+    if scaleFactor < 1
+      scaleFactor = 1
+
     @setState {scaleFactor}
 
   componentDidUpdate: ->
