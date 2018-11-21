@@ -6,7 +6,10 @@
     <div id="app"></div>
     <script src="./src/index.coffee"></script>
     <script>
-      createUI();
+      createUI({
+        baseURL: "https://dev.macrostrat.org/image-tagger-api",
+        imageBaseURL: "https://dev.macrostrat.org/image-tagger/img/"
+      });
     </script>
   </body>
 </html>

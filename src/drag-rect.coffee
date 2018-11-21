@@ -43,14 +43,15 @@ class Rectangle extends Component
     isSelected: false
   }
   render: ->
-    {x,y,width,height, children,
+    {x,y,width,height, scaleFactor, children,
      onClick, className, tag, tags, isSelected, rest...} = @props
+    scaleFactor ?= 1
 
     alpha = 0.2
     if isSelected
       alpha = 0.6
 
-    tagData = tags.find (d)->d.id == tag
+    tagData = tags.find (d)->d.tag_id == tag
     c = chroma(tagData.color)
     textColor = c.darken(2)
     color = c.alpha(alpha).css()
@@ -60,8 +61,11 @@ class Rectangle extends Component
     catch
       name = null
 
+    width /= scaleFactor
+    height /= scaleFactor
+
     style = {
-      top: y, left: x,
+      top: y/scaleFactor, left: x/scaleFactor,
       width, height,
       backgroundColor: color
       borderColor: color
@@ -84,6 +88,7 @@ class DragRectangle extends Component
     isSelected = true
     onClick = (e)->
       e.stopPropagation()
+
     h Rectangle, {@props..., className, isSelected, onClick}, [
       h 'div.handles', [
         h Handle, {side: 'top'}
@@ -100,13 +105,13 @@ class DragRectangle extends Component
 
   renderItems: ->
     {tags, tag, delete: deleteRectangle} = @props
-    currentTag = tags.find (d)-> d.id == tag
+    currentTag = tags.find (d)-> d.tag_id == tag
     h 'div.rect-controls', [
       h Select, {
         items: tags
         itemRenderer: (t, {handleClick})->
           h MenuItem, {
-            key: t.id,
+            key: t.tag_id,
             onClick: handleClick
             text: t.name
           }
@@ -130,8 +135,13 @@ class DragRectangle extends Component
     {screenX: x, screenY: y} = event.sourceEvent
 
   dragSubject: =>
-    {x,y, width, height} = @props
+    {x,y, width, height, scaleFactor} = @props
     source = @mouseCoords()
+    scaleFactor ?= 1
+    x /= scaleFactor
+    y /= scaleFactor
+    width /= scaleFactor
+    height /= scaleFactor
     return {x,y, width, height, source}
 
   setTag: (tag)=>
@@ -145,7 +155,8 @@ class DragRectangle extends Component
     client = @mouseCoords()
     dx = client.x-source.x
     dy = client.y-source.y
-    {update, minSize, maxPosition, tag} = @props
+    {update, minSize, maxPosition, tag, scaleFactor} = @props
+    scaleFactor ?= 1
 
     if side.includes('top')
       if dy > height
@@ -176,6 +187,11 @@ class DragRectangle extends Component
       maxY = maxPosition.height-height
       x = maxX if x > maxX
       y = maxY if y > maxY
+
+    x *= scaleFactor
+    y *= scaleFactor
+    width *= scaleFactor
+    height *= scaleFactor
 
     update {x,y,width,height,tag}
     event.sourceEvent.stopPropagation()
