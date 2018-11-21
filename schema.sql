@@ -25,7 +25,7 @@ INSERT INTO tags (tag_id, name, description) VALUES (4, 'Table Note', 'A footnot
 INSERT INTO tags (tag_id, name, description) VALUES (5, 'Caption', 'A text description associated with an entire figure or table');
 INSERT INTO tags (tag_id, name, description) VALUES (6, 'Page Header', 'Document-wide summary information, including page no., at top of page');
 INSERT INTO tags (tag_id, name, description) VALUES (7, 'Page Footer', 'Document-wide summary information, including page no., at bottom of page');
-INSERT INTO tags (tag_id, name, description) VALUES (8, 'Text Header', 'Text identifying section within text of document';
+INSERT INTO tags (tag_id, name, description) VALUES (8, 'Text Header', 'Text identifying section within text of document');
 INSERT INTO tags (tag_id, name, description) VALUES (9, 'Equation', 'An equation');
 
 
