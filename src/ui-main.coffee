@@ -8,11 +8,12 @@ import chroma from 'chroma-js'
 import {Navbar, Button, ButtonGroup
         Intent, Alignment, Text} from "@blueprintjs/core"
 
+import {StatefulComponent} from './util'
 import {AppToaster} from './toaster'
 import {Overlay} from './overlay'
 import {APIContext} from './api'
 
-class UIMain extends Component
+class UIMain extends StatefulComponent
   @contextType: APIContext
   constructor: (props)->
     super props
@@ -57,10 +58,6 @@ class UIMain extends Component
       rectStore: {$push: [rect]}
       editingRect: {$set: rectStore.length}
     }
-
-  updateState: (spec)=>
-    newState = update @state, spec
-    @setState newState
 
   scaledSize: =>
     {currentImage, scaleFactor} = @state

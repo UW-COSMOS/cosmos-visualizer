@@ -8,7 +8,6 @@ import './main.styl'
 import {render} from 'react-dom'
 import h from 'react-hyperscript'
 import {FocusStyleManager} from "@blueprintjs/core"
-import {UIMain} from './ui-main'
 import {App} from './app'
 import {APIProvider} from './api'
 

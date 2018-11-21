@@ -18,4 +18,10 @@ class App extends Component
       h UIMain, @props
     ]
 
+  setupPeople: =>
+
+  componentDidMount: ->
+    @context.get("/people/all")
+      .then @setupPeople
+
 export {App}
