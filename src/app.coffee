@@ -1,5 +1,4 @@
 import {Component, createContext} from 'react'
-import {render} from 'react-dom'
 import h from 'react-hyperscript'
 import update from 'immutability-helper'
 import {select} from 'd3-selection'
@@ -21,7 +20,6 @@ class App extends Component
       currentImage: null
       editingRect: null
       currentTag: null
-      saved: true
       tagStore: []
       rectStore: []
       initialRectStore: []
@@ -213,7 +211,6 @@ class App extends Component
       currentImage: d
       rectStore
       initialRectStore: rectStore
-      saved: false
     }
     AppToaster.show {
       message: h 'div', [
@@ -238,7 +235,7 @@ class App extends Component
     return unless currentImage?
     {image_id} = @state.currentImage
     d = await @context.get "/image/#{image_id}/tags"
-    @setState {rectStore: d, initRectStore: d, saved: true}
+    @setState {rectStore: d, initRectStore: d}
 
   didUpdateWindowSize: (prevProps, prevState)->
     {windowWidth, scaleFactor, currentImage} = @state
