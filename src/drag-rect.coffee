@@ -145,8 +145,8 @@ class DragRectangle extends Component
     return {x,y, width, height, source}
 
   setTag: (tag)=>
-    {update, width, height, x, y} = @props
-    update {width, height, x, y, tag: tag.id}
+    {update} = @props
+    update {tag: {$set: tag.id}}
 
   handleDrag: (side)=>
     side ?= ""
@@ -155,7 +155,7 @@ class DragRectangle extends Component
     client = @mouseCoords()
     dx = client.x-source.x
     dy = client.y-source.y
-    {update, minSize, maxPosition, tag, scaleFactor} = @props
+    {update, minSize, maxPosition, tag, scaleFactor, tagger} = @props
     scaleFactor ?= 1
 
     if side.includes('top')
@@ -193,7 +193,12 @@ class DragRectangle extends Component
     width *= scaleFactor
     height *= scaleFactor
 
-    update {x,y,width,height,tag}
+    update {
+      x: {$set: x}
+      y: {$set: y}
+      width: {$set: width}
+      height: {$set: height}
+    }
     event.sourceEvent.stopPropagation()
 
   componentDidMount: ->

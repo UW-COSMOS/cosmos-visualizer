@@ -29,13 +29,11 @@ class UIMain extends StatefulComponent
       windowWidth: window.innerWidth
     }
 
-  updateRectangle: (i)=>(rect)=>
-    rect.tag ?= null
-    spec = {
-      rectStore: {$splice: [[i,1,rect]]}
-    }
-    if rect.tag? and rect.tag != @state.currentTag
-      spec.currentTag = {$set: rect.tag}
+  updateRectangle: (i)=>(updateSpec)=>
+    spec = {rectStore: {}}
+    spec.rectStore[i] = updateSpec
+    if updateSpec.tag?
+      spec.currentTag = updateSpec.tag
     @updateState spec
 
   deleteRectangle: (i)=> =>
