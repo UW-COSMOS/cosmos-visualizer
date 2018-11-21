@@ -32,8 +32,8 @@ class UIMain extends StatefulComponent
   updateRectangle: (i)=>(updateSpec)=>
     spec = {rectStore: {}}
     spec.rectStore[i] = updateSpec
-    if updateSpec.tag?
-      spec.currentTag = updateSpec.tag
+    if updateSpec.tag_id?
+      spec.currentTag = updateSpec.tag_id
     @updateState spec
 
   deleteRectangle: (i)=> =>
@@ -51,7 +51,7 @@ class UIMain extends StatefulComponent
   appendRectangle: (rect)=>
     return unless rect?
     {currentTag, rectStore} = @state
-    rect.tag = currentTag
+    rect.tag_id = currentTag
     @updateState {
       rectStore: {$push: [rect]}
       editingRect: {$set: rectStore.length}
@@ -144,13 +144,9 @@ class UIMain extends StatefulComponent
     {currentImage, rectStore} = @state
     {extraSaveData} = @props
     extraSaveData ?= {}
-    tags = rectStore.map (d)->
-      # Shim to set ID correctly for API.
-      {tag, rest...} = d
-      return {tag_id: tag, rest...}
 
     saveItem = {
-      tags
+      tags: rectStore
       extraSaveData...
     }
 
@@ -162,6 +158,7 @@ class UIMain extends StatefulComponent
       return true
     catch err
       console.log "Save rejected"
+      console.log err
       return false
 
   setupTags: (data)=>

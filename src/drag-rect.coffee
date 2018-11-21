@@ -44,14 +44,14 @@ class Rectangle extends Component
   }
   render: ->
     {x,y,width,height, scaleFactor, children,
-     onClick, className, tag, tags, isSelected, rest...} = @props
+     onClick, className, tag_id, tags, isSelected, rest...} = @props
     scaleFactor ?= 1
 
     alpha = 0.2
     if isSelected
       alpha = 0.6
 
-    tagData = tags.find (d)->d.tag_id == tag
+    tagData = tags.find (d)->d.tag_id == tag_id
     c = chroma(tagData.color)
     textColor = c.darken(2)
     color = c.alpha(alpha).css()
@@ -104,8 +104,8 @@ class DragRectangle extends Component
     ]
 
   renderItems: ->
-    {tags, tag, delete: deleteRectangle} = @props
-    currentTag = tags.find (d)-> d.tag_id == tag
+    {tags, tag_id, delete: deleteRectangle} = @props
+    currentTag = tags.find (d)-> d.tag_id == tag_id
     h 'div.rect-controls', [
       h Select, {
         items: tags
@@ -146,7 +146,7 @@ class DragRectangle extends Component
 
   setTag: (tag)=>
     {update} = @props
-    update {tag: {$set: tag.id}}
+    update {tag_id: {$set: tag.tag_id}}
 
   handleDrag: (side)=>
     side ?= ""
@@ -155,7 +155,7 @@ class DragRectangle extends Component
     client = @mouseCoords()
     dx = client.x-source.x
     dy = client.y-source.y
-    {update, minSize, maxPosition, tag, scaleFactor, tagger} = @props
+    {update, minSize, maxPosition, scaleFactor} = @props
     scaleFactor ?= 1
 
     if side.includes('top')
