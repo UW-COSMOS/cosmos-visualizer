@@ -71,11 +71,6 @@ module.exports = {
       if (!incoming.tags) {
         return res.error(req, res, next, 'Missing "tags" property', 400)
       }
-      try {
-        incoming.tags = JSON.parse(incoming.tags)
-      } catch(e) {
-        return res.error(req, res, next, 'Could not parse tags', 400)
-      }
 
       incoming.tags.forEach(tag => {
         if (!tag.tag_id) {
@@ -88,10 +83,10 @@ module.exports = {
           return res.error(req, res, next, 'A tag is missing an y', 400)
         }
         if (!tag.width) {
-          return res.error(req, res, next, 'A tag is missing an width', 400)
+          return res.error(req, res, next, 'A tag is missing a width', 400)
         }
         if (!tag.height) {
-          return res.error(req, res, next, 'A tag is missing an width', 400)
+          return res.error(req, res, next, 'A tag is missing a height', 400)
         }
       })
 
