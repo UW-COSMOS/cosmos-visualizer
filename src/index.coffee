@@ -8,7 +8,7 @@ import {findDOMNode} from 'react-dom'
 import 'd3-jetpack'
 import chroma from 'chroma-js'
 import {FocusStyleManager, Navbar, Button, ButtonGroup
-        Intent, Alignment} from "@blueprintjs/core"
+        Intent, Alignment, Text} from "@blueprintjs/core"
 
 import "@blueprintjs/core/lib/css/blueprint.css"
 import "@blueprintjs/icons/lib/css/blueprint-icons.css"
@@ -42,7 +42,6 @@ class AppMain extends Component
     rect.tag ?= null
     spec = {
       rectStore: {$splice: [[i,1,rect]]}
-      saved: {$set: false}
     }
     if rect.tag? and rect.tag != @state.currentTag
       spec.currentTag = {$set: rect.tag}
@@ -52,7 +51,6 @@ class AppMain extends Component
     {editingRect} = @state
     spec = {
       rectStore: {$splice: [[i,1]]}
-      saved: {$set: false}
     }
     if editingRect? and i == editingRect
       spec.editingRect = {$set: null}
@@ -66,7 +64,6 @@ class AppMain extends Component
     {currentTag, rectStore} = @state
     rect.tag = currentTag
     @updateState {
-      saved: {$set: false}
       rectStore: {$push: [rect]}
       editingRect: {$set: rectStore.length}
     }
@@ -114,7 +111,6 @@ class AppMain extends Component
     @updateState {
       rectStore: {$set: initialRectStore}
       editingRect: {$set: null}
-      saved: {$set: true}
     }
 
   uiHasChanges: =>
@@ -124,7 +120,7 @@ class AppMain extends Component
     return rectStore == initialRectStore
 
   render: ->
-    {saved, rectStore, initialRectStore} = @state
+    {rectStore, initialRectStore} = @state
     clearRectText = "Clear changes"
     if initialRectStore.length != 0
       clearRectText = "Reset changes"
@@ -133,13 +129,13 @@ class AppMain extends Component
       h Navbar, {fixedToTop: true}, [
         h Navbar.Group, [
           h Navbar.Heading, "Image tagger"
-          h "span.instructions", "Click + drag to create item. Click existing item to adjust."
+          h Text, {className: "instructions"}, "Click + drag to create item. Click existing item to adjust."
         ]
         h Navbar.Group, {align: Alignment.RIGHT}, [
           h ButtonGroup, [
             h Button, {
               intent: Intent.SUCCESS, text: "Save",
-              icon: 'floppy-disk', disabled: saved
+              icon: 'floppy-disk', disabled: @uiHasChanges()
               onClick: @saveData
             }
             h Button, {
@@ -150,7 +146,7 @@ class AppMain extends Component
             h Button, {
               intent: Intent.PRIMARY, text: "Next image",
               rightIcon: 'chevron-right'
-              disabled: not saved
+              disabled: not @uiHasChanges()
               onClick: @getNextImage
             }
           ]
@@ -163,7 +159,9 @@ class AppMain extends Component
     {currentImage, rectStore} = @state
     try
       await @context.saveData(currentImage, rectStore)
-      @updateState {saved: {$set: true}}
+      @updateState {
+        initialRectStore: {$set: rectStore}
+      }
       return true
     catch err
       console.log "Save rejected"
@@ -255,8 +253,9 @@ class AppMain extends Component
     return if scaleFactor? and prevState.windowWidth == windowWidth
     return unless currentImage?
     {width} = currentImage
+    targetSize = Math.min 2000, windowWidth-24
     # Clamp to integer scalings for simplicity
-    scaleFactor = width/windowWidth
+    scaleFactor = width/targetSize
     if scaleFactor < 1
       scaleFactor = 1
 
