@@ -68,9 +68,19 @@ class App extends Component
     return true
 
   renderUI: ->
-    {person, people} = @state
+    {person, people, role} = @state
     if @allRequiredOptionsAreSet()
-      return h UIMain, @props
+      id = person.person_id
+      console.log person
+      extraSaveData = null
+      nextImageEndpoint = "/image/next"
+      if role == Role.TAG
+        extraSaveData = {tagger: id}
+      else if role == Role.VALIDATE
+        extraSaveData = {validator: id}
+        nextImageEndpoint = "/image/validate/tags"
+
+      return h UIMain, {extraSaveData, nextImageEndpoint, @props...}
     else if people?
       return @renderLoginForm()
     return null

@@ -144,8 +144,16 @@ class UIMain extends StatefulComponent
 
   saveData: =>
     {currentImage, rectStore} = @state
+    {extraSaveData} = @props
+    extraSaveData ?= {}
+    console.log extraSaveData
+    saveItem = {
+      tags: rectStore
+      extraSaveData...
+    }
+
     try
-      await @context.saveData(currentImage, rectStore)
+      await @context.saveData(currentImage, saveItem)
       @updateState {
         initialRectStore: {$set: rectStore}
       }
@@ -168,6 +176,7 @@ class UIMain extends StatefulComponent
       color ?= cscale[ix]
       {tag_id, color, name}
 
+    console.log tags
     @setState {
       tagStore: tags
       currentTag: tags[0].tag_id
@@ -193,7 +202,9 @@ class UIMain extends StatefulComponent
       img.src = imageURL
 
   getNextImage: =>
-    @context.get("/image/next")
+    {nextImageEndpoint} = @props
+    nextImageEndpoint ?= "/image/next"
+    @context.get(nextImageEndpoint)
       .then @onImageLoaded
 
   onImageLoaded: (d)=>
