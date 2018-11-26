@@ -61,9 +61,9 @@ module.exports = {
       let where = ''
       let params = []
       if (req.query.validated == false) {
-        where = 'AND images.image_id NOT IN (SELECT DISTINCT image_id FROM image_tags)'
+        where = 'WHERE images.image_id NOT IN (SELECT DISTINCT image_id FROM image_tags)'
       } else if (req.query.validated == true) {
-        where = 'AND images.image_id IN (SELECT DISTINCT image_id FROM image_tags)'
+        where = 'WHERE images.image_id IN (SELECT DISTINCT image_id FROM image_tags)'
       } else {
         where = ''
       }
@@ -77,8 +77,7 @@ module.exports = {
           images.created
         FROM images
         JOIN image_tags ON images.image_id = image_tags.image_id
-        WHERE (tag_start IS NULL OR tag_start < datetime('now', '-5 minutes'))
-          ${where}
+        ${where}
         ORDER BY random()
         LIMIT 1
       `, (error, row) => {
