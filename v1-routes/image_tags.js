@@ -42,6 +42,9 @@ module.exports = {
     if (req.method === 'GET') {
       let where = (req.query.image_id === 'validate') ? 'ORDER BY random() LIMIT 1' : 'WHERE image_tags.image_id = ?'
       let params = (req.query.image_id === 'validate') ? [] : [ req.query.image_id ]
+
+      console.log('where', where)
+      console.log('params', params)
       plugins.db.all(`
         SELECT
           image_tags.image_tag_id,
@@ -53,12 +56,14 @@ module.exports = {
           image_tags.height,
           image_tags.tagger,
           image_tags.validator,
-          image_tags.created,
-          image_tags.validated
+          image_tags.created
         FROM tags
         JOIN image_tags ON image_tags.tag_id = tags.tag_id
         ${where}
       `, params, (error, tags) => {
+        if (error) {
+          return res.error(req, res, next, 'An internal error occurred', 500)
+        }
         res.reply(req, res, next, tags)
       })
     } else {
@@ -71,6 +76,12 @@ module.exports = {
       if (!incoming.tags) {
         return res.error(req, res, next, 'Missing "tags" property', 400)
       }
+
+      try {
+         incoming.tags = JSON.parse(incoming.tags)
+       } catch(e) {
+         return res.error(req, res, next, 'Could not parse tags', 400)
+       }
 
       incoming.tags.forEach(tag => {
         if (!tag.tag_id) {
@@ -92,10 +103,11 @@ module.exports = {
 
       // Alright...I think we are good to go
       async.eachLimit(incoming.tags, 1, (tag, callback) => {
+        console.log([tag.image_tag_id || uuidv4(), req.query.image_id, tag.tag_id, tag.x, tag.y, tag.width, tag.height, incoming.tagger, incoming.validator || null])
         plugins.db.run(`
           INSERT INTO image_tags (image_tag_id, image_id, tag_id, x, y, width, height, tagger, validator)
-          VALUES (?, ?, ?, ?, ?, ?, ?)
-        `, [tags.image_tag_id || uuidv4(), req.query.image_id, tag.tag_id, tag.x, tag.y, tag.width, tag.height, incoming.tagger, incoming.validator || NULL], (error) => {
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+        `, [tag.image_tag_id || uuidv4(), req.query.image_id, tag.tag_id, tag.x, tag.y, tag.width, tag.height, incoming.tagger, incoming.validator || null], (error) => {
           if (error) {
             return callback(error)
           }
@@ -103,12 +115,11 @@ module.exports = {
         })
       }, (error) => {
         if (error) {
+              console.log(error)
           return res.error(req, res, next, 'An error occurred while inserting tags', 500)
         }
         res.reply(req, res, next, 'Success')
       })
-
-
     }
   }
 }
