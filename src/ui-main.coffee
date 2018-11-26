@@ -120,7 +120,7 @@ class UIMain extends StatefulComponent
           h ButtonGroup, [
             h Button, {
               intent: Intent.SUCCESS, text: "Save",
-              icon: 'floppy-disk', disabled: @uiHasChanges()
+              icon: 'floppy-disk',
               onClick: @saveData
             }
             h Button, {
