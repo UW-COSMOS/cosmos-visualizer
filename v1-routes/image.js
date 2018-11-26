@@ -61,7 +61,7 @@ module.exports = {
       let where = ''
       let params = []
       if (req.query.validated == false) {
-        where = 'WHERE images.image_id NOT IN (SELECT DISTINCT image_id FROM image_tags WHERE validator IS NULL)'
+        where = 'WHERE images.image_id IN (SELECT DISTINCT image_id FROM image_tags WHERE validator IS NULL)'
       } else if (req.query.validated == true) {
         where = 'WHERE images.image_id IN (SELECT DISTINCT image_id FROM image_tags WHERE validator IS NOT NULL)'
       } else {
