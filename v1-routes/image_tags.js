@@ -72,11 +72,13 @@ module.exports = {
         return res.error(req, res, next, 'Missing "tags" property', 400)
       }
 
-      try {
-         incoming.tags = JSON.parse(incoming.tags)
-       } catch(e) {
-         return res.error(req, res, next, 'Could not parse tags', 400)
-       }
+      if (!(Array.isArray(incoming.tags))) {
+        try {
+           incoming.tags = JSON.parse(incoming.tags)
+         } catch(e) {
+           return res.error(req, res, next, 'Could not parse tags', 400)
+         }
+      }
 
       incoming.tags.forEach(tag => {
         if (!tag.tag_id) {
