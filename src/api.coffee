@@ -78,7 +78,7 @@ class APIProvider extends Component
     console.log "#{uri} [POST]", data
     res = await json(uri, {
       method: 'POST',
-      headers: {"Content-type": "application/json; charset=UTF-8"},
+      headers: {"Content-Type": "application/json; charset=UTF-8"},
       body: JSON.stringify(data)
     })
     {data, error} = res
