@@ -21,6 +21,10 @@ module.exports = {
     'validator': {
       'type': 'text',
       'description': 'The person who validated the tags'
+    },
+    'validated': {
+      'type': 'boolean',
+      'description': 'Only return validation tags'
     }
   },
   requiredParameters: [ ],
@@ -40,6 +44,13 @@ module.exports = {
   ],
   handler: (req, res, next, plugins) => {
     if (req.method === 'GET') {
+      let validation = ''
+      if ('validated' in req.query && req.query.validated === true) {
+        validation = `AND image_tags.validator IS NOT NULL`
+      } else if ('validated' in req.query && req.query.validated === false) {
+        validation = `AND image_tags.validator IS NULL`
+      }
+
       plugins.db.all(`
         SELECT
           image_tags.image_tag_id,
@@ -55,6 +66,7 @@ module.exports = {
         FROM tags
         JOIN image_tags ON image_tags.tag_id = tags.tag_id
         WHERE image_tags.image_id = ?
+        ${validation}
       `, [ req.query.image_id ], (error, tags) => {
         if (error) {
           return res.error(req, res, next, 'An internal error occurred', 500)
