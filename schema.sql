@@ -19,15 +19,16 @@ CREATE TABLE tags (
 );
 
 INSERT INTO tags (tag_id, name, description) VALUES (1, 'Figure', 'A chart, graph, or other graphical display');
-INSERT INTO tags (tag_id, name, description) VALUES (2, 'Figure Note', 'A footnote to explain subset of figure content');
-INSERT INTO tags (tag_id, name, description) VALUES (3, 'Table', 'A tabular representation of information');
-INSERT INTO tags (tag_id, name, description) VALUES (4, 'Table Note', 'A footnote to explain subset of table content');
-INSERT INTO tags (tag_id, name, description) VALUES (5, 'Caption', 'A text description associated with an entire figure or table');
-INSERT INTO tags (tag_id, name, description) VALUES (6, 'Page Header', 'Document-wide summary information, including page no., at top of page');
-INSERT INTO tags (tag_id, name, description) VALUES (7, 'Page Footer', 'Document-wide summary information, including page no., at bottom of page');
-INSERT INTO tags (tag_id, name, description) VALUES (8, 'Text Header', 'Text identifying section within text of document');
-INSERT INTO tags (tag_id, name, description) VALUES (9, 'Equation', 'An equation');
-
+INSERT INTO tags (tag_id, name, description) VALUES (2, 'Figure Legend', 'A graphical and text explanation of symbology in a figure');
+INSERT INTO tags (tag_id, name, description) VALUES (3, 'Figure Caption', 'A text description associated with an entire figure');
+INSERT INTO tags (tag_id, name, description) VALUES (4, 'Table', 'A tabular representation of information');
+INSERT INTO tags (tag_id, name, description) VALUES (5, 'Table Note', 'A footnote to explain subset of table content');
+INSERT INTO tags (tag_id, name, description) VALUES (6, 'Table Caption', 'A text description associated with an entire table');
+INSERT INTO tags (tag_id, name, description) VALUES (7, 'Page Header', 'Document-wide summary information, including page no., at top of page');
+INSERT INTO tags (tag_id, name, description) VALUES (8, 'Page Footer', 'Document-wide summary information, including page no., at bottom of page');
+INSERT INTO tags (tag_id, name, description) VALUES (9, 'Section Header', 'Text identifying section within text of document');
+INSERT INTO tags (tag_id, name, description) VALUES (10, 'Equation', 'An equation');
+INSERT INTO tags (tag_id, name, description) VALUES (11, 'Body Text', 'The primary text of an article');
 
 CREATE TABLE image_tags (
   image_tag_id text, -- unique image/tag/user hash
