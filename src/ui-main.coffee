@@ -240,8 +240,8 @@ class UIMain extends StatefulComponent
     return if prevState.currentImage == currentImage
     return unless currentImage?
     {image_id} = @state.currentImage
-    d = await @context.get "/image/#{image_id}/tags"
-    @setState {rectStore: d, initRectStore: d}
+    d = await @context.get "/image/#{image_id}/tags?validated=false"
+    @setState {rectStore: d, initialRectStore: d}
 
   didUpdateWindowSize: (prevProps, prevState)->
     {windowWidth, scaleFactor, currentImage} = @state
