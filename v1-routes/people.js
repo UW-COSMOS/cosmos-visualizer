@@ -75,7 +75,7 @@ module.exports = {
     } else {
       // Validate the input
       let incoming = req.body
-      console.log(incoming)
+
       if (!incoming.name) {
         return res.error(req, res, next, 'A "name" must be provided', 400)
       }
@@ -92,8 +92,6 @@ module.exports = {
         }
         res.reply(req, res, next, {'person_id': person_id})
       })
-
-
     }
   }
 }

@@ -11,10 +11,8 @@
   "license": "MIT",
   "dependencies": {
     "@macrostrat/larkin": "git+https://github.com/UW-Macrostrat/larkin.git",
-    "@macrostrat/pg-helper": "git+https://github.com/UW-Macrostrat/pg-helper.git",
     "async": "^2.6.1",
     "body-parser": "^1.18.3",
-    "package.json": "^2.0.1",
     "sqlite3": "^4.0.4",
     "uuid": "^3.3.2"
   }
