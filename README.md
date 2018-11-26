@@ -58,24 +58,24 @@ npm start
 
 ## Routes
 
-#### /image/:image_id
-**Methods**: `GET`
+#### /image/:image_id  
+**Methods**: `GET`  
 **Description**: Return or create annotations. The `image_id` parameter can be replaced with `next` to get a random image for annotation or `validate` to get a random image for validation.  
 **Parameters**:
   + `validated` : Boolean : when used with `validate`, returns only images that have or have not already been validated
 
-#### /image/:image_id/tags
+#### /image/:image_id/tags  
 **Methods**: `GET`, `POST`  
 **Description**: Return or create annotations.
 
 
-#### /tags/:tag_id?
-**Methods**: `GET`
+#### /tags/:tag_id?  
+**Methods**: `GET`  
 **Description**: Get available tags and their descriptions. All tags can be retrieved by passing `all` as the `tag_id`
 
 
 #### /people/:person_id?
 **Methods**: `GET`, `POST`  
-**Description**: Return or create users.
-**Parameters**:
+**Description**: Return or create users.  
+**Parameters**:  
   + `key` : String : required when creating a new user

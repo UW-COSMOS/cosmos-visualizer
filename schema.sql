@@ -30,7 +30,7 @@ INSERT INTO tags (tag_id, name, description) VALUES (9, 'Equation', 'An equation
 
 
 CREATE TABLE image_tags (
-  image_tag_id text primary key, -- unique image/tag/user hash
+  image_tag_id text, -- unique image/tag/user hash
   image_id text,
   tag_id integer,
   tagger text, -- the person who created the tag
