@@ -78,7 +78,7 @@ class App extends Component
         extraSaveData = {tagger: id}
       else if role == Role.VALIDATE
         extraSaveData = {validator: id}
-        nextImageEndpoint = "/image/validate/tags"
+        nextImageEndpoint = "/image/validate"
 
       return h UIMain, {extraSaveData, nextImageEndpoint, @props...}
     else if people?
