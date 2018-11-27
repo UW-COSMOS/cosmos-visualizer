@@ -110,12 +110,18 @@ module.exports = {
         }
       })
 
+      incoming.tags = incoming.tags.map(tag => {
+        if (!('image_tag_id' in tag)) {
+          tag.image_tag_id = uuidv4()
+        }
+        return tag
+      })
       // Alright...I think we are good to go
       async.eachLimit(incoming.tags, 1, (tag, callback) => {
         plugins.db.run(`
           INSERT INTO image_tags (image_tag_id, image_id, tag_id, x, y, width, height, tagger, validator)
           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-        `, [tag.image_tag_id || uuidv4(), req.query.image_id, tag.tag_id, tag.x, tag.y, tag.width, tag.height, incoming.tagger, incoming.validator || null], (error) => {
+        `, [tag.image_tag_id, req.query.image_id, tag.tag_id, tag.x, tag.y, tag.width, tag.height, incoming.tagger, incoming.validator || null], (error) => {
           if (error) {
             return callback(error)
           }
@@ -126,7 +132,7 @@ module.exports = {
           console.log(error)
           return res.error(req, res, next, 'An error occurred while inserting tags', 500)
         }
-        res.reply(req, res, next, 'Success')
+        res.reply(req, res, next, incoming.tags)
       })
     }
   }
