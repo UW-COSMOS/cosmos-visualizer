@@ -74,13 +74,21 @@ class App extends Component
       console.log person
       extraSaveData = null
       nextImageEndpoint = "/image/next"
+      allowSaveWithoutChanges = false
       if role == Role.TAG
         extraSaveData = {tagger: id}
       else if role == Role.VALIDATE
         extraSaveData = {validator: id}
         nextImageEndpoint = "/image/validate"
+        # Tags can be validated even when unchanged
+        allowSaveWithoutChanges = true
 
-      return h UIMain, {extraSaveData, nextImageEndpoint, @props...}
+      return h UIMain, {
+        extraSaveData
+        nextImageEndpoint
+        allowSaveWithoutChanges
+        @props...
+      }
     else if people?
       return @renderLoginForm()
     return null

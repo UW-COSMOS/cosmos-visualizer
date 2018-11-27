@@ -35,11 +35,12 @@ class APIProvider extends Component
   saveData: (image, tags)=>
     endpoint = "/image/#{image.image_id}/tags"
     try
-      await @post(endpoint, tags)
+      data = await @post(endpoint, tags)
       AppToaster.show {
         message: "Saved data!"
         intent: Intent.SUCCESS
       }
+      return data
     catch err
       AppToaster.show {
         message: h 'div.error-toast', [

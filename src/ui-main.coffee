@@ -14,6 +14,10 @@ import {Overlay} from './overlay'
 import {APIContext} from './api'
 
 class UIMain extends StatefulComponent
+  @defaultProps: {
+    allowSaveWithoutChanges: false
+    nextImageEndpoint: "/image/next"
+  }
   @contextType: APIContext
   constructor: (props)->
     super props
@@ -105,6 +109,8 @@ class UIMain extends StatefulComponent
     return rectStore == initialRectStore
 
   render: ->
+    hasChanges = @uiHasChanges()
+    {allowSaveWithoutChanges} = @props
     {rectStore, initialRectStore} = @state
     clearRectText = "Clear changes"
     if initialRectStore.length != 0
@@ -122,10 +128,11 @@ class UIMain extends StatefulComponent
               intent: Intent.SUCCESS, text: "Save",
               icon: 'floppy-disk',
               onClick: @saveData
+              disabled: hasChanges or allowSaveWithoutChanges
             }
             h Button, {
               intent: Intent.DANGER, text: clearRectText,
-              icon: 'trash', disabled: @uiHasChanges()
+              icon: 'trash', disabled: hasChanges
               onClick: @clearChanges
             }
             h Button, {
@@ -151,9 +158,10 @@ class UIMain extends StatefulComponent
     }
 
     try
-      await @context.saveData(currentImage, saveItem)
+      newData = await @context.saveData(currentImage, saveItem)
       @updateState {
-        initialRectStore: {$set: rectStore}
+        rectStore: {$set: newData}
+        initialRectStore: {$set: newData}
       }
       return true
     catch err
