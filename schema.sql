@@ -30,8 +30,7 @@ INSERT INTO tags (tag_id, name, description) VALUES (9, 'Page Footer', 'Document
 INSERT INTO tags (tag_id, name, description) VALUES (10, 'Section Header', 'Text identifying section within text of document');
 INSERT INTO tags (tag_id, name, description) VALUES (11, 'Equation', 'An equation');
 INSERT INTO tags (tag_id, name, description) VALUES (12, 'Equation label', 'An identifier for an equation');
-INSERT INTO tags (tag_id, name, description) VALUES (13, 'Equation label', 'An identifier for an equation');
-INSERT INTO tags (tag_id, name, description) VALUES (14, 'Abstract', 'Abstract of paper');
+INSERT INTO tags (tag_id, name, description) VALUES (13, 'Abstract', 'Abstract of paper');
 
 
 CREATE TABLE image_tags (
