@@ -53,5 +53,3 @@ CREATE TABLE people (
   validator boolean default FALSE,
   created datetime default current_timestamp
 );
-
-INSERT INTO people (person_id, name, tagger, validator) VALUES ('daven', 'Daven', TRUE, TRUE);
