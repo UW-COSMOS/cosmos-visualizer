@@ -105,8 +105,8 @@ class UIMain extends StatefulComponent
   uiHasChanges: =>
     {rectStore, initialRectStore} = @state
     if initialRectStore.length == rectStore.length == 0
-      return true
-    return rectStore == initialRectStore
+      return false
+    return rectStore != initialRectStore
 
   render: ->
     hasChanges = @uiHasChanges()
@@ -128,17 +128,17 @@ class UIMain extends StatefulComponent
               intent: Intent.SUCCESS, text: "Save",
               icon: 'floppy-disk',
               onClick: @saveData
-              disabled: hasChanges or allowSaveWithoutChanges
+              disabled: not hasChanges and not allowSaveWithoutChanges
             }
             h Button, {
               intent: Intent.DANGER, text: clearRectText,
-              icon: 'trash', disabled: hasChanges
+              icon: 'trash', disabled: not hasChanges
               onClick: @clearChanges
             }
             h Button, {
               intent: Intent.PRIMARY, text: "Next image",
               rightIcon: 'chevron-right'
-              disabled: not @uiHasChanges()
+              disabled: hasChanges
               onClick: @getNextImage
             }
           ]
