@@ -44,7 +44,7 @@ module.exports = {
           file_path,
           created
         FROM images
-        WHERE tag_start IS NULL OR tag_start < datetime('now', '-5 minutes')
+        WHERE (tag_start IS NULL OR tag_start < datetime('now', '-5 minutes'))
           AND image_id NOT IN (SELECT image_id FROM image_tags)
         ORDER BY random()
         LIMIT 1
