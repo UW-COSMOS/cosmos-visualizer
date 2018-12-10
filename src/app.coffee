@@ -1,7 +1,7 @@
 import {Component} from 'react'
 import h from 'react-hyperscript'
 
-import {BrowserRouter as Router, Route, Link} from 'react-router-dom'
+import {BrowserRouter as Router, Route, Redirect} from 'react-router-dom'
 
 import {APIContext} from './api'
 import {UIMain} from './ui-main'
@@ -24,48 +24,60 @@ class App extends Component
     return false unless @state.role?
     return true
 
-  renderUI: ->
-    {person, people, role} = @state
-    if @allRequiredOptionsAreSet()
-      id = person.person_id
-      console.log person
-      extraSaveData = null
-      nextImageEndpoint = "/image/next"
-      allowSaveWithoutChanges = false
-      editingEnabled = true
-      if role == Role.TAG
-        extraSaveData = {tagger: id}
-        subtitleText = "Tag"
-      else if role == Role.VALIDATE
-        extraSaveData = {validator: id}
-        nextImageEndpoint = "/image/validate"
-        # Tags can be validated even when unchanged
-        allowSaveWithoutChanges = true
-        subtitleText = "Validate"
-      else if role == Role.VIEW
-        editingEnabled = false
-        nextImageEndpoint = "/image/validate"
-        subtitleText = "View"
+  renderUI: ({match})=>
+    {params: {role}} = match
+    {person, people, role: stateRole} = @state
+    isValid = (stateRole == role)
+    if not isValid
+      # We need to allow the user to change roles
+      return h Redirect, {to: '/'}
 
-      return h UIMain, {
-        extraSaveData
-        nextImageEndpoint
-        allowSaveWithoutChanges
-        editingEnabled
-        subtitleText
-        @props...
-      }
-    else if people?
-      return h LoginForm, {
-        person, people,
-        setPerson: @setPerson
-        setRole: @setRole
-      }
-    return null
+    id = person.person_id
+    console.log person
+    extraSaveData = null
+    nextImageEndpoint = "/image/next"
+    allowSaveWithoutChanges = false
+    editingEnabled = true
+    if role == Role.TAG
+      extraSaveData = {tagger: id}
+      subtitleText = "Tag"
+    else if role == Role.VALIDATE
+      extraSaveData = {validator: id}
+      nextImageEndpoint = "/image/validate"
+      # Tags can be validated even when unchanged
+      allowSaveWithoutChanges = true
+      subtitleText = "Validate"
+    else if role == Role.VIEW
+      editingEnabled = false
+      nextImageEndpoint = "/image/validate"
+      subtitleText = "View"
+
+    return h UIMain, {
+      extraSaveData
+      nextImageEndpoint
+      allowSaveWithoutChanges
+      editingEnabled
+      subtitleText
+      @props...
+    }
+
+  renderLoginForm: =>
+    {person, people, role} = @state
+    return null unless people?
+    if @allRequiredOptionsAreSet()
+      return h Redirect, {to: "/#{role}"}
+    h LoginForm, {
+      person, people,
+      setPerson: @setPerson
+      setRole: @setRole
+    }
 
   render: ->
-    h 'div.app-main', [
-      @renderUI()
+    h Router, [
+      h 'div.app-main', [
+        h Route, {path: '/', exact: true, render: @renderLoginForm}
+        h Route, {path: '/:role', render: @renderUI}
+      ]
     ]
 
   setupPeople: (d)=>

@@ -1,7 +1,7 @@
 Role = Object.freeze({
-  TAG: 0
-  VALIDATE: 1
-  VIEW: 2
+  TAG: 'tag'
+  VALIDATE: 'validate'
+  VIEW: 'view'
 })
 
 export {Role}
