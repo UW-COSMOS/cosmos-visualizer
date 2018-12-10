@@ -79,7 +79,7 @@ class App extends Component
     return h UIMain, {
       editingEnabled: false
       navigationEnabled: false
-      subtitleText: "View #{imageId}"
+      subtitleText: h ["View ", h('code',imageId)]
       nextImageEndpoint: "/image/#{imageId}"
       imageId: imageId
       @props...

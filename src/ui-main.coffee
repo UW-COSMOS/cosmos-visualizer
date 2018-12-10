@@ -122,14 +122,14 @@ class UIMain extends StatefulComponent
   renderSubtitle: =>
     {subtitleText} = @props
     return null if not subtitleText?
-    return h Navbar.Heading, {className: 'mode'}, subtitleText
+    return h Navbar.Heading, {className: 'subtitle'}, subtitleText
 
   renderInstructions: =>
     {editingEnabled} = @props
     text = "Editing disabled"
     if editingEnabled
       text = "Click + drag to create item. Click existing item to adjust."
-    return h Text, {className: "instructions"}, text
+    return h Navbar.Heading, {className: "instructions"}, text
 
   renderPersistenceButtonArray: =>
     # Persist data to backend if editing is enabled
@@ -215,7 +215,7 @@ class UIMain extends StatefulComponent
 
   setupTags: (data)=>
 
-    cscale = chroma.scale('RdYlBu')
+    cscale = chroma.scale('viridis')
       .colors(data.length)
 
     tags = data.map (d, ix)->
