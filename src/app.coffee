@@ -86,7 +86,7 @@ class App extends Component
     }
 
   render: ->
-    h Router, [
+    h Router, {basename: '/image-tagger'}, [
       h 'div.app-main', [
         h Switch, [
           h Route, {path: '/', exact: true, render: @renderLoginForm}

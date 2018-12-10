@@ -3,9 +3,13 @@
 PROJECT_DIR="$(git rev-parse --show-toplevel)"
 
 cd "$PROJECT_DIR"
-npm run-script build
+
+rm -rf dist
+mkdir -p dist
+cp -r test dist
+parcel build index.html --public-url '/image-tagger'
+
 rsync -av --delete dist/ steno:image-tagger/
 
 OUTDIR="/data/projects/macrostrat/image-tagger"
 ssh -t steno "sudo rsync -av image-tagger/ $OUTDIR/"
-

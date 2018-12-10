@@ -29,7 +29,7 @@
   },
   "scripts": {
     "watch": "mkdir -p dist && cp -r test dist && parcel index.html",
-    "build": "rm -rf dist && mkdir -p dist && cp -r test dist && parcel build index.html --public-url '/image-tagger'",
+    "build": "rm -rf dist && mkdir -p dist && cp -r test dist && parcel build index.html --public-url './'",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
