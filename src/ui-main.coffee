@@ -17,6 +17,7 @@ class UIMain extends StatefulComponent
   @defaultProps: {
     allowSaveWithoutChanges: false
     nextImageEndpoint: "/image/next"
+    editingEnabled: true
   }
   @contextType: APIContext
   constructor: (props)->
@@ -71,11 +72,25 @@ class UIMain extends StatefulComponent
     return {width,height}
 
   renderImageContainer: =>
+    {editingEnabled} = @props
     {currentImage, editingRect, scaleFactor
       rectStore, tagStore, currentTag} = @state
     return null unless currentImage?
     style = @scaledSize()
     onClick = @createRectangle
+
+    actions = {
+      deleteRectangle: @deleteRectangle
+      updateRectangle: @updateRectangle
+      selectRectangle: @selectRectangle
+      appendRectangle: @appendRectangle
+      updateState: @updateState
+    }
+    if not editingEnabled
+      # Overwrite all editing actions with no-ops
+      for k,fn of actions
+        actions[k] = ->
+
     h 'div.image-container', {style}, [
       h 'img', {src: @imageURL(currentImage), style...}
       h Overlay, {
@@ -85,13 +100,7 @@ class UIMain extends StatefulComponent
         rectangles: rectStore
         tags: tagStore
         currentTag
-        actions: {
-          deleteRectangle: @deleteRectangle
-          updateRectangle: @updateRectangle
-          selectRectangle: @selectRectangle
-          appendRectangle: @appendRectangle
-          updateState: @updateState
-        }
+        actions
       }
     ]
 
@@ -108,33 +117,51 @@ class UIMain extends StatefulComponent
       return false
     return rectStore != initialRectStore
 
-  render: ->
-    hasChanges = @uiHasChanges()
+  renderSubtitle: =>
+    {subtitleText} = @props
+    return null if not subtitleText?
+    return h Navbar.Heading, {className: 'mode'}, subtitleText
+
+  renderInstructions: =>
+    {editingEnabled} = @props
+    text = "Editing disabled"
+    if editingEnabled
+      text = "Click + drag to create item. Click existing item to adjust."
+    return h Text, {className: "instructions"}, text
+
+  renderPersistenceButtonArray: =>
+    # Persist data to backend if editing is enabled
+    return [] unless @props.editingEnabled
     {allowSaveWithoutChanges} = @props
     {rectStore, initialRectStore} = @state
     clearRectText = "Clear changes"
     if initialRectStore.length != 0
       clearRectText = "Reset changes"
-
+    hasChanges = @uiHasChanges()
+    return [
+      h Button, {
+        intent: Intent.SUCCESS, text: "Save",
+        icon: 'floppy-disk',
+        onClick: @saveData
+        disabled: not hasChanges and not allowSaveWithoutChanges
+      }
+      h Button, {
+        intent: Intent.DANGER, text: clearRectText,
+        icon: 'trash', disabled: not hasChanges
+        onClick: @clearChanges
+      }]
+  render: ->
+    hasChanges = @uiHasChanges()
     h 'div.main', [
       h Navbar, {fixedToTop: true}, [
         h Navbar.Group, [
           h Navbar.Heading, "Image tagger"
-          h Text, {className: "instructions"}, "Click + drag to create item. Click existing item to adjust."
+          @renderSubtitle()
+          @renderInstructions()
         ]
         h Navbar.Group, {align: Alignment.RIGHT}, [
           h ButtonGroup, [
-            h Button, {
-              intent: Intent.SUCCESS, text: "Save",
-              icon: 'floppy-disk',
-              onClick: @saveData
-              disabled: not hasChanges and not allowSaveWithoutChanges
-            }
-            h Button, {
-              intent: Intent.DANGER, text: clearRectText,
-              icon: 'trash', disabled: not hasChanges
-              onClick: @clearChanges
-            }
+            @renderPersistenceButtonArray()...
             h Button, {
               intent: Intent.PRIMARY, text: "Next image",
               rightIcon: 'chevron-right'

@@ -28,6 +28,7 @@ class App extends Component
       h ButtonGroup, {fill:true}, [
         h Button, {text: "Tag", onClick: selectRole(Role.TAG)}
         h Button, {text: "Validate", onClick: selectRole(Role.VALIDATE)}
+        h Button, {text: "View", onClick: selectRole(Role.VIEW)}
       ]
     ]
 
@@ -75,18 +76,27 @@ class App extends Component
       extraSaveData = null
       nextImageEndpoint = "/image/next"
       allowSaveWithoutChanges = false
+      editingEnabled = true
       if role == Role.TAG
         extraSaveData = {tagger: id}
+        subtitleText = "Tag"
       else if role == Role.VALIDATE
         extraSaveData = {validator: id}
         nextImageEndpoint = "/image/validate"
         # Tags can be validated even when unchanged
         allowSaveWithoutChanges = true
+        subtitleText = "Validate"
+      else if role == Role.VIEW
+        editingEnabled = false
+        nextImageEndpoint = "/image/validate"
+        subtitleText = "View"
 
       return h UIMain, {
         extraSaveData
         nextImageEndpoint
         allowSaveWithoutChanges
+        editingEnabled
+        subtitleText
         @props...
       }
     else if people?

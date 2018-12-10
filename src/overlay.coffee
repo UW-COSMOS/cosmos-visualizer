@@ -59,7 +59,8 @@ class Overlay extends Component
   handleDrag: =>
     {subject} = event
     {x,y} = subject
-    {clickDistance, currentTag, scaleFactor} = @props
+    {clickDistance, currentTag, scaleFactor, editingEnabled} = @props
+    return if not editingEnabled
     scaleFactor ?= 1
     width = event.x-x
     height = event.y-y
