@@ -1,7 +1,7 @@
 import {Component} from 'react'
 import h from 'react-hyperscript'
 
-import {BrowserRouter as Router, Route, Redirect} from 'react-router-dom'
+import {BrowserRouter as Router, Route, Redirect, Switch} from 'react-router-dom'
 
 import {APIContext} from './api'
 import {UIMain} from './ui-main'
@@ -65,18 +65,34 @@ class App extends Component
     {person, people, role} = @state
     return null unless people?
     if @allRequiredOptionsAreSet()
-      return h Redirect, {to: "/#{role}"}
+      return h Redirect, {to: "/action/#{role}"}
     h LoginForm, {
       person, people,
       setPerson: @setPerson
       setRole: @setRole
     }
 
+  renderViewerForImage: ({match})=>
+    console.log "Render viewer"
+    {params: {imageId}} = match
+    console.log "Match"
+    return h UIMain, {
+      editingEnabled: false
+      navigationEnabled: false
+      subtitleText: "View #{imageId}"
+      nextImageEndpoint: "/image/#{imageId}"
+      imageId: imageId
+      @props...
+    }
+
   render: ->
     h Router, [
       h 'div.app-main', [
-        h Route, {path: '/', exact: true, render: @renderLoginForm}
-        h Route, {path: '/:role', render: @renderUI}
+        h Switch, [
+          h Route, {path: '/', exact: true, render: @renderLoginForm}
+          h Route, {path: '/image/:imageId', render: @renderViewerForImage}
+          h Route, {path: '/action/:role', render: @renderUI}
+        ]
       ]
     ]
 

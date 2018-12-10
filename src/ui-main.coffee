@@ -5,19 +5,21 @@ import {select} from 'd3-selection'
 import {findDOMNode} from 'react-dom'
 import 'd3-jetpack'
 import chroma from 'chroma-js'
+import {Link} from 'react-router-dom'
 import {Navbar, Button, ButtonGroup
-        Intent, Alignment, Text} from "@blueprintjs/core"
+        Intent, Alignment, Text, Icon} from "@blueprintjs/core"
 
 import {StatefulComponent} from './util'
 import {AppToaster} from './toaster'
 import {Overlay} from './overlay'
 import {APIContext} from './api'
 
+
 class UIMain extends StatefulComponent
   @defaultProps: {
     allowSaveWithoutChanges: false
-    nextImageEndpoint: "/image/next"
     editingEnabled: true
+    navigationEnabled: true
   }
   @contextType: APIContext
   constructor: (props)->
@@ -150,8 +152,27 @@ class UIMain extends StatefulComponent
         icon: 'trash', disabled: not hasChanges
         onClick: @clearChanges
       }]
-  render: ->
+
+  renderImageLink: =>
+    {currentImage} = @state
+    return null unless currentImage?
+    {image_id} = currentImage
+    h Link, {to: "/image/#{image_id}"}, [
+      h Button, {icon: 'bookmark'}
+    ]
+
+  renderNextImageButton: =>
+    {navigationEnabled} = @props
+    return null unless navigationEnabled
     hasChanges = @uiHasChanges()
+    h Button, {
+      intent: Intent.PRIMARY, text: "Next image",
+      rightIcon: 'chevron-right'
+      disabled: hasChanges
+      onClick: @getNextImage
+    }
+
+  render: ->
     h 'div.main', [
       h Navbar, {fixedToTop: true}, [
         h Navbar.Group, [
@@ -162,13 +183,9 @@ class UIMain extends StatefulComponent
         h Navbar.Group, {align: Alignment.RIGHT}, [
           h ButtonGroup, [
             @renderPersistenceButtonArray()...
-            h Button, {
-              intent: Intent.PRIMARY, text: "Next image",
-              rightIcon: 'chevron-right'
-              disabled: hasChanges
-              onClick: @getNextImage
-            }
+            @renderNextImageButton()
           ]
+          @renderImageLink()
         ]
       ]
       @renderImageContainer()
@@ -236,7 +253,7 @@ class UIMain extends StatefulComponent
 
   getNextImage: =>
     {nextImageEndpoint} = @props
-    nextImageEndpoint ?= "/image/next"
+    return unless nextImageEndpoint?
     @context.get(nextImageEndpoint)
       .then @onImageLoaded
 
