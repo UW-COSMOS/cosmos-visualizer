@@ -3,25 +3,47 @@ import h from 'react-hyperscript'
 
 import {Select} from '@blueprintjs/select'
 import {MenuItem, Button, Card, ButtonGroup} from '@blueprintjs/core'
+import {BrowserRouter as Router, Route, Link} from 'react-router-dom'
 
 import {APIContext} from './api'
 import {UIMain} from './ui-main'
 import {Role} from './enum'
 
-class App extends Component
-  @contextType: APIContext
-  constructor: (props)->
-    super props
-    @state = {
-      people: null
-      person: null
-      role: null
-    }
+class LoginForm extends Component
+  @defaultProps: {
+    setRole: ->
+    setPerson: ->
+  }
+
+  renderRoleControl: ->
+    {person, people, setPerson} = @props
+    selectText = "Select a user"
+    if person?
+      {name: selectText} = person
+    h Select, {
+      className: 'user-select'
+      items: people
+      itemPredicate: (query, item)->
+        item.name.toLowerCase().includes query.toLowerCase()
+      itemRenderer: (t, {handleClick})->
+        h MenuItem, {
+          key: t.person_id,
+          onClick: handleClick
+          text: t.name
+        }
+      onItemSelect: setPerson
+    }, [
+      h Button, {
+        text: selectText
+        fill: true
+        rightIcon: "double-caret-vertical"
+      }
+    ]
 
   renderModeControl: ->
-    return null unless @state.person?
-    selectRole = (role)=> =>
-      @setState {role}
+    {setRole, person} = @props
+    return null unless person?
+    selectRole = (role)=> => setRole(role)
 
     h 'div.mode-control', [
       h 'h4', "Select a role"
@@ -32,35 +54,23 @@ class App extends Component
       ]
     ]
 
-  renderLoginForm: ->
-    {people, person} = @state
-    selectText = "Select a user"
-    if person?
-      {name: selectText} = person
-
+  render: ->
+    {people, person} = @props
     h Card, {className: 'login-form'}, [
       h 'h3.bp3-heading', 'Image tagger'
-      h Select, {
-        className: 'user-select'
-        items: people
-        itemPredicate: (query, item)->
-          item.name.toLowerCase().includes query.toLowerCase()
-        itemRenderer: (t, {handleClick})->
-          h MenuItem, {
-            key: t.person_id,
-            onClick: handleClick
-            text: t.name
-          }
-        onItemSelect: @setPerson
-      }, [
-        h Button, {
-          text: selectText
-          fill: true
-          rightIcon: "double-caret-vertical"
-        }
-      ]
+      @renderRoleControl()
       @renderModeControl()
     ]
+
+class App extends Component
+  @contextType: APIContext
+  constructor: (props)->
+    super props
+    @state = {
+      people: null
+      person: null
+      role: null
+    }
 
   allRequiredOptionsAreSet: =>
     console.log @state
@@ -100,7 +110,11 @@ class App extends Component
         @props...
       }
     else if people?
-      return @renderLoginForm()
+      return h LoginForm, {
+        person, people,
+        setPerson: @setPerson
+        setRole: @setRole
+      }
     return null
 
   render: ->
@@ -119,6 +133,9 @@ class App extends Component
     if tagger == 1 and validator != 1
       role = Role.TAG
     @setState {person: item, role}
+
+  setRole: (role)=>
+    @setState {role}
 
   componentDidMount: ->
     @context.get("/people/all")
