@@ -1,7 +1,7 @@
 import {Component} from 'react'
 import h from 'react-hyperscript'
 
-import {BrowserRouter as Router, Route, Redirect, Switch} from 'react-router-dom'
+import {HashRouter as Router, Route, Redirect, Switch} from 'react-router-dom'
 
 import {APIContext} from './api'
 import {UIMain} from './ui-main'
@@ -33,7 +33,6 @@ class App extends Component
       return h Redirect, {to: '/'}
 
     id = person.person_id
-    console.log person
     extraSaveData = null
     nextImageEndpoint = "/image/next"
     allowSaveWithoutChanges = false
@@ -51,6 +50,8 @@ class App extends Component
       editingEnabled = false
       nextImageEndpoint = "/image/validate"
       subtitleText = "View"
+
+    console.log "Setting up UI with role #{role}"
 
     return h UIMain, {
       extraSaveData
@@ -73,7 +74,7 @@ class App extends Component
     }
 
   renderViewerForImage: ({match})=>
-    console.log "Render viewer"
+    console.log "Render viewer for image"
     {params: {imageId}} = match
     console.log "Match"
     return h UIMain, {
@@ -86,11 +87,11 @@ class App extends Component
     }
 
   render: ->
-    h Router, {basename: '/image-tagger'}, [
+    h Router, [
       h 'div.app-main', [
         h Switch, [
           h Route, {path: '/', exact: true, render: @renderLoginForm}
-          h Route, {path: '/image/:imageId', render: @renderViewerForImage}
+          h Route, {path: '/view/:imageId', render: @renderViewerForImage}
           h Route, {path: '/action/:role', render: @renderUI}
         ]
       ]

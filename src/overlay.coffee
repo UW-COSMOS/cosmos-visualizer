@@ -11,6 +11,7 @@ class Overlay extends Component
   @defaultProps: {
     # Distance we take as a click before switching to drag
     clickDistance: 10
+    editingEnabled: true
   }
   constructor: (props)->
     super props

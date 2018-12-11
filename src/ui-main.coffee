@@ -88,16 +88,17 @@ class UIMain extends StatefulComponent
       appendRectangle: @appendRectangle
       updateState: @updateState
     }
-    if not editingEnabled
-      # Overwrite all editing actions with no-ops
-      for k,fn of actions
-        actions[k] = ->
+    # if not editingEnabled
+    #   # Overwrite all editing actions with no-ops
+    #   for k,fn of actions
+    #     actions[k] = ->
 
     h 'div.image-container', {style}, [
       h 'img', {src: @imageURL(currentImage), style...}
       h Overlay, {
         style...
         editingRect
+        editingEnabled
         scaleFactor
         rectangles: rectStore
         tags: tagStore
@@ -126,7 +127,7 @@ class UIMain extends StatefulComponent
 
   renderInstructions: =>
     {editingEnabled} = @props
-    text = "Editing disabled"
+    text = "Saving disabled"
     if editingEnabled
       text = "Click + drag to create item. Click existing item to adjust."
     return h Navbar.Heading, {className: "instructions"}, text
@@ -157,7 +158,7 @@ class UIMain extends StatefulComponent
     {currentImage} = @state
     return null unless currentImage?
     {image_id} = currentImage
-    h Link, {to: "/image/#{image_id}"}, [
+    h Link, {to: "/view/#{image_id}"}, [
       h Button, {icon: 'bookmark'}
     ]
 
@@ -254,6 +255,7 @@ class UIMain extends StatefulComponent
   getNextImage: =>
     {nextImageEndpoint} = @props
     return unless nextImageEndpoint?
+    console.log "Getting image from endpoint #{nextImageEndpoint}"
     @context.get(nextImageEndpoint)
       .then @onImageLoaded
 
