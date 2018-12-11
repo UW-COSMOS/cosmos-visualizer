@@ -57,7 +57,7 @@ module.exports = {
         `, row.image_id)
         res.reply(req, res, next, row)
       })
-    }  else if ( req.query.image_id = 'validate') {
+    }  else if ( req.query.image_id === 'validate') {
       let where = ''
       let params = []
       if (req.query.validated == false) {
