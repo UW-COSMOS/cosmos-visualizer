@@ -16,9 +16,12 @@ function setup(callback) {
     db.get(`SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'images';`, (error, row) => {
       if (error || !row) {
         let setupSQL = fs.readFileSync(`${__dirname}/schema.sql`, 'utf8')
+        let tagDataSQL = fs.readFileSync(`${__dirname}/tag-data.sql`, 'utf8')
 
         db.exec(setupSQL, (error) => {
-          callback(null)
+          db.exec(tagDataSQL, (error) => {
+            callback(null)
+          })
         })
       } else {
         callback(null)

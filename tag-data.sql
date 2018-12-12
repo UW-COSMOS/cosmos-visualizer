@@ -1,0 +1,15 @@
+INSERT INTO tags (tag_id, name, description, color) VALUES
+(1, 'Body Text', 'The primary text of an article', '#aaaaaa'),
+(2, 'Figure', 'A chart, graph, or other graphical display', '#aa3939'),
+(3, 'Figure Note', 'A footnote explanation of specific content in a figure', '#801515'),
+(4, 'Figure Caption', 'A text description associated with an entire figure', '#d46A6A'),
+(5, 'Table', 'A tabular representation of information', '#432F75'),
+(6, 'Table Note', 'A footnote to explain a subset of table content', '#281657'),
+(7, 'Table Caption', 'A text description associated with an entire table', '#635192'),
+(8, 'Page Header', 'Document-wide summary information, including page no., at top of page', '#2a755c'),
+(9, 'Page Footer', 'Document-wide summary information, including page no., at bottom of page', '#34554a'),
+(10, 'Section Header', 'Text identifying section within text of document', '#1aa778'),
+(11, 'Equation', 'An equation', '#2C4770'),
+(12, 'Equation label', 'An identifier for an equation', '#4D658D'),
+(13, 'Abstract', 'Abstract of paper', '#D4A26A'),
+(14, 'Reference text', 'References to other works', '#804D15');

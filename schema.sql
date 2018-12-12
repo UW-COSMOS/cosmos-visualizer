@@ -18,21 +18,6 @@ CREATE TABLE tags (
   created datetime default current_timestamp
 );
 
-INSERT INTO tags (tag_id, name, description) VALUES (1, 'Body Text', 'The primary text of an article');
-INSERT INTO tags (tag_id, name, description) VALUES (2, 'Figure', 'A chart, graph, or other graphical display');
-INSERT INTO tags (tag_id, name, description) VALUES (3, 'Figure Note', 'A footnote explanation of specific content in a figure');
-INSERT INTO tags (tag_id, name, description) VALUES (4, 'Figure Caption', 'A text description associated with an entire figure');
-INSERT INTO tags (tag_id, name, description) VALUES (5, 'Table', 'A tabular representation of information');
-INSERT INTO tags (tag_id, name, description) VALUES (6, 'Table Note', 'A footnote to explain subset of table content');
-INSERT INTO tags (tag_id, name, description) VALUES (7, 'Table Caption', 'A text description associated with an entire table');
-INSERT INTO tags (tag_id, name, description) VALUES (8, 'Page Header', 'Document-wide summary information, including page no., at top of page');
-INSERT INTO tags (tag_id, name, description) VALUES (9, 'Page Footer', 'Document-wide summary information, including page no., at bottom of page');
-INSERT INTO tags (tag_id, name, description) VALUES (10, 'Section Header', 'Text identifying section within text of document');
-INSERT INTO tags (tag_id, name, description) VALUES (11, 'Equation', 'An equation');
-INSERT INTO tags (tag_id, name, description) VALUES (12, 'Equation label', 'An identifier for an equation');
-INSERT INTO tags (tag_id, name, description) VALUES (13, 'Abstract', 'Abstract of paper');
-INSERT INTO tags (tag_id, name, description) VALUES (14, 'Reference text', 'References to other works');
-
 CREATE TABLE image_tags (
   image_tag_id text, -- unique image/tag/user hash
   image_id text,
