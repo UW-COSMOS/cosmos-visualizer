@@ -41,11 +41,11 @@ Handle = ({side, margin})->
 class Rectangle extends Component
   @defaultProps: {
     isSelected: false
+    scaleFactor: 1 # Maps pixel scale to external scale
   }
   render: ->
     {x,y,width,height, scaleFactor, children,
      onClick, className, tag_id, tags, isSelected, rest...} = @props
-    scaleFactor ?= 1
 
     alpha = 0.2
     if isSelected
@@ -103,10 +103,22 @@ class DragRectangle extends Component
       @renderItems()
     ]
 
+  editingMenuPosition: =>
+    {x,y, width, height, maxPosition, scaleFactor} = @props
+    y /= scaleFactor
+    height /= scaleFactor
+    if maxPosition?
+      maxY = y+height
+      if maxY > maxPosition.height-50
+        return 'top'
+    return 'bottom'
+
   renderItems: ->
     {tags, tag_id, delete: deleteRectangle} = @props
     currentTag = tags.find (d)-> d.tag_id == tag_id
-    h 'div.rect-controls', [
+    className = @editingMenuPosition()
+
+    h 'div.rect-controls', {className}, [
       h Select, {
         items: tags
         itemRenderer: (t, {handleClick})->
