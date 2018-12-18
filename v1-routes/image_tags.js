@@ -44,11 +44,18 @@ module.exports = {
   ],
   handler: (req, res, next, plugins) => {
     if (req.method === 'GET') {
-      let validation = ''
+      let where = []
+      let params = [req.query.image_id]
       if ('validated' in req.query && req.query.validated === true) {
-        validation = `AND image_tags.validator IS NOT NULL`
+        where.push(`image_tags.validator IS NOT NULL`)
       } else if ('validated' in req.query && req.query.validated === false) {
-        validation = `AND image_tags.validator IS NULL`
+        where.push(`image_tags.validator IS NULL`)
+      }
+
+      // TODO: Make sure this is a valid validator
+      if ('validator' in req.query) {
+        where.push('tagger != ? AND (validator != ? OR validator IS NULL)')
+        params.push(req.query.validator, req.query.validator)
       }
 
       plugins.db.all(`
@@ -66,8 +73,8 @@ module.exports = {
         FROM tags
         JOIN image_tags ON image_tags.tag_id = tags.tag_id
         WHERE image_tags.image_id = ?
-        ${validation}
-      `, [ req.query.image_id ], (error, tags) => {
+        ${where.length ? ' AND ' + where.join(' AND ') : ''}
+      `, params, (error, tags) => {
         if (error) {
           return res.error(req, res, next, 'An internal error occurred', 500)
         }
