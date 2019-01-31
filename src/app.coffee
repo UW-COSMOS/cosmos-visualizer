@@ -50,6 +50,10 @@ class App extends Component
       editingEnabled = false
       nextImageEndpoint = "/image/validate"
       subtitleText = "View"
+    else if role == Role.VIEW_SEGMENTED
+      editingEnabled = false
+      nextImageEndpoint = "/image_predictions/next"
+      subtitleText = "View"
 
     console.log "Setting up UI with role #{role}"
 
@@ -86,12 +90,26 @@ class App extends Component
       @props...
     }
 
+  renderViewerForImageSegmented: ({match})=>
+    console.log "Render viewer for image"
+    {params: {imageId}} = match
+    console.log "Match"
+    return h UIMain, {
+      editingEnabled: false
+      navigationEnabled: false
+      subtitleText: h ["View ", h('code',imageId)]
+      nextImageEndpoint: "/results/#{imageId}"
+      imageId: imageId
+      @props...
+    }
+
   render: ->
     h Router, [
       h 'div.app-main', [
         h Switch, [
           h Route, {path: '/', exact: true, render: @renderLoginForm}
           h Route, {path: '/view/:imageId', render: @renderViewerForImage}
+          h Route, {path: '/results/:imageId', render: @renderViewerForImageSegmented}
           h Route, {path: '/action/:role', render: @renderUI}
         ]
       ]

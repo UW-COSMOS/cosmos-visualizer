@@ -291,10 +291,13 @@ class UIMain extends StatefulComponent
 
   didUpdateImage: (prevProps, prevState)->
     {currentImage} = @state
+    # This supports flipping between images and predicted images
+    {baseRoute} = @props
+    baseRoute ?= 'image'
     return if prevState.currentImage == currentImage
     return unless currentImage?
     {image_id} = @state.currentImage
-    d = await @context.get "/image/#{image_id}/tags?validated=false"
+    d = await @context.get "/#{baseRoute}/#{image_id}/tags?validated=false"
     @setState {rectStore: d, initialRectStore: d}
 
   didUpdateWindowSize: (prevProps, prevState)->
