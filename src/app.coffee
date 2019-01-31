@@ -1,7 +1,7 @@
 import {Component} from 'react'
 import h from 'react-hyperscript'
 
-import {HashRouter as Router, Route, Redirect, Switch} from 'react-router-dom'
+import {BrowserRouter as Router, Route, Redirect, Switch} from 'react-router-dom'
 
 import {APIContext} from './api'
 import {UIMain} from './ui-main'
@@ -101,7 +101,8 @@ class App extends Component
     }
 
   render: ->
-    h Router, [
+    {publicURL} = @props
+    h Router, {basename: publicURL}, [
       h 'div.app-main', [
         h Switch, [
           h Route, {path: '/', exact: true, render: @renderLoginForm}
@@ -129,7 +130,7 @@ class App extends Component
   setRole: (role)=>
     @setState {role}
 
-  componentDidMount: ->
+  componentDidMount: =>
     @context.get("/people/all")
       .then @setupPeople
 

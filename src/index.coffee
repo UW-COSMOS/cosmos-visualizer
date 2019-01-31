@@ -15,12 +15,23 @@ FocusStyleManager.onlyShowFocusOnTabs()
 
 AppHolder = (props)=>
   {baseURL, rest...} = props
+
   h APIProvider, {baseURL}, [
-    h App, rest
+    h App, {rest...}
   ]
 
 window.createUI = (opts={})->
   {baseURL, imageBaseURL} = opts
+
+  # Public URL for frontend
+  publicURL = process.env.PUBLIC_URL or "/"
+  console.log publicURL
+
   el = document.getElementById('app')
-  __ = h AppHolder, {baseURL, imageBaseURL}
+  __ = h AppHolder, {baseURL, imageBaseURL, publicURL}
   render __, el
+
+createUI({
+  baseURL: "https://dev.macrostrat.org/image-tagger-api",
+  imageBaseURL: "https://dev.macrostrat.org/image-tagger/img/"
+})
