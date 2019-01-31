@@ -24,25 +24,31 @@ class App extends Component
     return false unless @state.role?
     return true
 
-  renderUI: ({match})=>
+  renderAction: ({match})=>
     {params: {role}} = match
-    {person, people, role: stateRole} = @state
+    {person, role: stateRole} = @state
     isValid = (stateRole == role)
     if not isValid
       # We need to allow the user to change roles
       return h Redirect, {to: '/'}
 
+    @renderUI(role, person)({match})
+
+  renderUI: (role, person)=> ({match})=>
+
     imageRoute = "/image"
-    id = person.person_id
+    id = null
+    if person?
+      id = person.person_id
     extraSaveData = null
     nextImageEndpoint = "/image/next"
     allowSaveWithoutChanges = false
     editingEnabled = true
 
-    if role == Role.TAG
+    if role == Role.TAG and id?
       extraSaveData = {tagger: id}
       subtitleText = "Tag"
-    else if role == Role.VALIDATE
+    else if role == Role.VALIDATE and id?
       extraSaveData = {validator: id}
       nextImageEndpoint = "/image/validate"
       # Tags can be validated even when unchanged
@@ -51,52 +57,35 @@ class App extends Component
     else if role == Role.VIEW_TRAINING
       editingEnabled = false
       nextImageEndpoint = "/image/validate"
-      subtitleText = "View Training Data"
+      subtitleText = "View training data"
+      permalinkRoute = "/view-training"
     else if role == Role.VIEW_RESULTS
       editingEnabled = false
       imageRoute = "/image_predictions"
       nextImageEndpoint = "/image_predictions/next"
-      subtitleText = "View Results"
+      subtitleText = "View results"
+      permalinkRoute = "/view-results"
+
+    # Go to specific image by default, if set
+    {params: {imageId}} = match
+    # This is a hack to disable "NEXT" for now
+    # on permalinked images
+    navigationEnabled
+    if imageId?
+      navigationEnabled = false
 
     console.log "Setting up UI with role #{role}"
-
+    console.log "Image id: #{imageId}"
     return h UIMain, {
       imageRoute
       extraSaveData
+      permalinkRoute
+      navigationEnabled
       nextImageEndpoint
+      initialImage: imageId
       allowSaveWithoutChanges
       editingEnabled
       subtitleText
-      @props...
-    }
-
-  renderViewerForTrainingImage: ({match})=>
-    console.log "Render viewer for image"
-    {params: {imageId}} = match
-    console.log "Match", match
-    return h UIMain, {
-      editingEnabled: false
-      navigationEnabled: false
-      subtitleText: h ["View ", h('code',imageId)]
-      initialImageEndpoint: "/image/#{imageId}"
-      nextImageEndpoint: "image/next"
-      imageId: imageId
-      @props...
-    }
-
-  renderViewerForResultImage: ({match})=>
-    console.log "Render viewer for image"
-    {params: {imageId}} = match
-    console.log "Match"
-    baseRoute = "/image_predictions"
-    return h UIMain, {
-      editingEnabled: false
-      navigationEnabled: false
-      subtitleText: h ["View ", h('code',imageId)]
-      baseRoute
-      initialImageEndpoint: "#{baseRoute}/#{imageId}"
-      nextImageEndpoint: "#{baseRoute}/next"
-      imageId: imageId
       @props...
     }
 
@@ -117,10 +106,10 @@ class App extends Component
         h Switch, [
           h Route, {path: '/', exact: true, render: @renderLoginForm}
           # Legacy route for viewing training data
-          h Route, {path: '/view/:imageId', render: @renderViewerForTrainingImage}
-          h Route, {path: '/view-training/:imageId', render: @renderViewerForTrainingImage}
-          h Route, {path: '/view-results/:imageId', render: @renderViewerForResultImage}
-          h Route, {path: '/action/:role', render: @renderUI}
+          h Route, {path: '/view/:imageId', render: @renderUI(Role.VIEW_TRAINING)}
+          h Route, {path: '/view-training/:imageId', render: @renderUI(Role.VIEW_TRAINING)}
+          h Route, {path: '/view-results/:imageId', render: @renderUI(Role.VIEW_RESULTS)}
+          h Route, {path: '/action/:role', render: @renderAction}
         ]
       ]
     ]

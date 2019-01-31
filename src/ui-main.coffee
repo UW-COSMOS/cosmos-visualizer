@@ -21,7 +21,6 @@ class UIMain extends StatefulComponent
     editingEnabled: true
     navigationEnabled: true
     imageRoute: '/image'
-    permalinkRoute: '/view-training'
   }
   @contextType: APIContext
   constructor: (props)->
@@ -157,12 +156,18 @@ class UIMain extends StatefulComponent
       }]
 
   renderImageLink: =>
-    {permalinkRoute} = @props
+    {permalinkRoute, initialImage} = @props
     {currentImage} = @state
     return null unless currentImage?
     {image_id} = currentImage
     className = "bp3-button bp3-icon-bookmark"
-    h Link, {to: "#{permalinkRoute}/#{image_id}", className}, "Permalink"
+    text = "Permalink"
+
+    if image_id == initialImage
+      # We are at a permalink right now
+      className += " bp3-disabled"
+      text = h [h('span', [text, " to image "]), h('code', image_id)]
+    h Link, {to: "#{permalinkRoute}/#{image_id}", className}, text
 
   renderNextImageButton: =>
     {navigationEnabled} = @props
@@ -255,7 +260,11 @@ class UIMain extends StatefulComponent
       img.src = imageURL
 
   getImageToDisplay: =>
-    {nextImageEndpoint: imageToDisplay} = @props
+    {nextImageEndpoint: imageToDisplay, imageRoute, initialImage} = @props
+    {currentImage} = @state
+    if initialImage and not currentImage?
+      imageToDisplay = "#{imageRoute}/#{initialImage}"
+    # We are loading an image and
     return unless imageToDisplay?
     console.log "Getting image from endpoint #{imageToDisplay}"
     @context.get(imageToDisplay)
