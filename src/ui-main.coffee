@@ -184,7 +184,9 @@ class UIMain extends StatefulComponent
     h 'div.main', [
       h Navbar, {fixedToTop: true}, [
         h Navbar.Group, [
-          h Navbar.Heading, "Image tagger"
+          h Link, {to: "/"}, [
+            h Navbar.Heading, "Image tagger"
+          ]
           @renderSubtitle()
           @renderInstructions()
         ]

@@ -48,15 +48,20 @@ class LoginForm extends Component
       h ButtonGroup, {fill:true}, [
         h Button, {text: "Tag", onClick: selectRole(Role.TAG)}
         h Button, {text: "Validate", onClick: selectRole(Role.VALIDATE)}
-        h Button, {text: "View Training Data", onClick: selectRole(Role.VIEW_TRAINING)}
-        h Button, {text: "View Results", onClick: selectRole(Role.VIEW_RESULTS)}
       ]
     ]
 
   render: ->
-    {people, person} = @props
+    {setRole, people, person} = @props
+    selectRole = (role)=> => setRole(role)
+
     h Card, {className: 'login-form'}, [
       h 'h3.bp3-heading', 'Image tagger'
+      h ButtonGroup, {fill: true}, [
+        h Button, {text: "View Training Data", onClick: selectRole(Role.VIEW_TRAINING)}
+        h Button, {text: "View Results", onClick: selectRole(Role.VIEW_RESULTS)}
+      ]
+      h "h4", "Select a user to edit"
       @renderRoleControl()
       @renderModeControl()
     ]

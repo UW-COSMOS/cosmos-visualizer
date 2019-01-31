@@ -19,9 +19,9 @@ class App extends Component
     }
 
   allRequiredOptionsAreSet: =>
-    console.log @state
-    return false unless @state.person?
-    return false unless @state.role?
+    {role, person} = @state
+    return false unless role?
+    return false if not person? and (role == Role.TAG or role == Role.VALIDATE)
     return true
 
   renderAction: ({match})=>
@@ -42,6 +42,7 @@ class App extends Component
       id = person.person_id
     extraSaveData = null
     nextImageEndpoint = "/image/next"
+    permalinkRoute = "/view-training"
     allowSaveWithoutChanges = false
     editingEnabled = true
 
@@ -58,7 +59,6 @@ class App extends Component
       editingEnabled = false
       nextImageEndpoint = "/image/validate"
       subtitleText = "View training data"
-      permalinkRoute = "/view-training"
     else if role == Role.VIEW_RESULTS
       editingEnabled = false
       imageRoute = "/image_predictions"
