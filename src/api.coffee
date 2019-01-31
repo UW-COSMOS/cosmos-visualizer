@@ -61,6 +61,7 @@ class APIProvider extends Component
       throw err
 
   endpointFor: (spec)=>
+    console.log "#{spec}"
     {baseURL, testEndpoints} = @props
     if not baseURL?
       e = testEndpoints[spec]

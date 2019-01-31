@@ -20,6 +20,7 @@ class UIMain extends StatefulComponent
     allowSaveWithoutChanges: false
     editingEnabled: true
     navigationEnabled: true
+    imageRoute: '/image'
   }
   @contextType: APIContext
   constructor: (props)->
@@ -155,12 +156,18 @@ class UIMain extends StatefulComponent
       }]
 
   renderImageLink: =>
+    {permalinkRoute, initialImage} = @props
     {currentImage} = @state
     return null unless currentImage?
     {image_id} = currentImage
-    h Link, {to: "/view/#{image_id}"}, [
-      h Button, {icon: 'bookmark'}
-    ]
+    className = "bp3-button bp3-icon-bookmark"
+    text = "Permalink"
+
+    if image_id == initialImage
+      # We are at a permalink right now
+      className += " bp3-disabled"
+      text = h [h('span', [text, " to image "]), h('code', image_id)]
+    h Link, {to: "#{permalinkRoute}/#{image_id}", className}, text
 
   renderNextImageButton: =>
     {navigationEnabled} = @props
@@ -170,23 +177,25 @@ class UIMain extends StatefulComponent
       intent: Intent.PRIMARY, text: "Next image",
       rightIcon: 'chevron-right'
       disabled: hasChanges
-      onClick: @getNextImage
+      onClick: @getImageToDisplay
     }
 
   render: ->
     h 'div.main', [
       h Navbar, {fixedToTop: true}, [
         h Navbar.Group, [
-          h Navbar.Heading, "Image tagger"
+          h Link, {to: "/"}, [
+            h Navbar.Heading, "Image tagger"
+          ]
           @renderSubtitle()
           @renderInstructions()
         ]
         h Navbar.Group, {align: Alignment.RIGHT}, [
+          @renderImageLink()
           h ButtonGroup, [
             @renderPersistenceButtonArray()...
             @renderNextImageButton()
           ]
-          @renderImageLink()
         ]
       ]
       @renderImageContainer()
@@ -252,11 +261,15 @@ class UIMain extends StatefulComponent
         resolve({width,height, rest...})
       img.src = imageURL
 
-  getNextImage: =>
-    {nextImageEndpoint} = @props
-    return unless nextImageEndpoint?
-    console.log "Getting image from endpoint #{nextImageEndpoint}"
-    @context.get(nextImageEndpoint)
+  getImageToDisplay: =>
+    {nextImageEndpoint: imageToDisplay, imageRoute, initialImage} = @props
+    {currentImage} = @state
+    if initialImage and not currentImage?
+      imageToDisplay = "#{imageRoute}/#{initialImage}"
+    # We are loading an image and
+    return unless imageToDisplay?
+    console.log "Getting image from endpoint #{imageToDisplay}"
+    @context.get(imageToDisplay)
       .then @onImageLoaded
 
   onImageLoaded: (d)=>
@@ -279,22 +292,26 @@ class UIMain extends StatefulComponent
         "."
       ]
       intent: Intent.PRIMARY
+      timeout: 2000
     }
 
   componentDidMount: ->
     @context.get("/tags/all")
       .then @setupTags
-    @getNextImage()
+    @getImageToDisplay()
 
     window.addEventListener 'resize', =>
       @setState {windowWidth: window.innerWidth}
 
   didUpdateImage: (prevProps, prevState)->
     {currentImage} = @state
+    # This supports flipping between images and predicted images
+    {imageRoute} = @props
+    imageRoute ?= '/image'
     return if prevState.currentImage == currentImage
     return unless currentImage?
     {image_id} = @state.currentImage
-    d = await @context.get "/image/#{image_id}/tags?validated=false"
+    d = await @context.get "#{imageRoute}/#{image_id}/tags?validated=false"
     @setState {rectStore: d, initialRectStore: d}
 
   didUpdateWindowSize: (prevProps, prevState)->
