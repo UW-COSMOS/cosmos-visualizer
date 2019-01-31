@@ -1,8 +1,8 @@
 Role = Object.freeze({
   TAG: 'tag'
   VALIDATE: 'validate'
-  VIEW: 'view'
-  VIEW_SEGMENTED: 'view_segmented'
+  VIEW_TRAINING: 'view-training'
+  VIEW_RESULTS: 'view-results'
 })
 
 export {Role}

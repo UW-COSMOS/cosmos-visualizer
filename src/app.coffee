@@ -32,11 +32,13 @@ class App extends Component
       # We need to allow the user to change roles
       return h Redirect, {to: '/'}
 
+    imageRoute = "/image"
     id = person.person_id
     extraSaveData = null
     nextImageEndpoint = "/image/next"
     allowSaveWithoutChanges = false
     editingEnabled = true
+
     if role == Role.TAG
       extraSaveData = {tagger: id}
       subtitleText = "Tag"
@@ -46,23 +48,55 @@ class App extends Component
       # Tags can be validated even when unchanged
       allowSaveWithoutChanges = true
       subtitleText = "Validate"
-    else if role == Role.VIEW
+    else if role == Role.VIEW_TRAINING
       editingEnabled = false
       nextImageEndpoint = "/image/validate"
-      subtitleText = "View"
-    else if role == Role.VIEW_SEGMENTED
+      subtitleText = "View Training Data"
+    else if role == Role.VIEW_RESULTS
       editingEnabled = false
+      imageRoute = "/image_predictions"
       nextImageEndpoint = "/image_predictions/next"
-      subtitleText = "View"
+      subtitleText = "View Results"
 
     console.log "Setting up UI with role #{role}"
 
     return h UIMain, {
+      imageRoute
       extraSaveData
       nextImageEndpoint
       allowSaveWithoutChanges
       editingEnabled
       subtitleText
+      @props...
+    }
+
+  renderViewerForTrainingImage: ({match})=>
+    console.log "Render viewer for image"
+    {params: {imageId}} = match
+    console.log "Match", match
+    return h UIMain, {
+      editingEnabled: false
+      navigationEnabled: false
+      subtitleText: h ["View ", h('code',imageId)]
+      initialImageEndpoint: "/image/#{imageId}"
+      nextImageEndpoint: "image/next"
+      imageId: imageId
+      @props...
+    }
+
+  renderViewerForResultImage: ({match})=>
+    console.log "Render viewer for image"
+    {params: {imageId}} = match
+    console.log "Match"
+    baseRoute = "/image_predictions"
+    return h UIMain, {
+      editingEnabled: false
+      navigationEnabled: false
+      subtitleText: h ["View ", h('code',imageId)]
+      baseRoute
+      initialImageEndpoint: "#{baseRoute}/#{imageId}"
+      nextImageEndpoint: "#{baseRoute}/next"
+      imageId: imageId
       @props...
     }
 
@@ -77,39 +111,15 @@ class App extends Component
       setRole: @setRole
     }
 
-  renderViewerForImage: ({match})=>
-    console.log "Render viewer for image"
-    {params: {imageId}} = match
-    console.log "Match"
-    return h UIMain, {
-      editingEnabled: false
-      navigationEnabled: false
-      subtitleText: h ["View ", h('code',imageId)]
-      nextImageEndpoint: "/image/#{imageId}"
-      imageId: imageId
-      @props...
-    }
-
-  renderViewerForImageSegmented: ({match})=>
-    console.log "Render viewer for image"
-    {params: {imageId}} = match
-    console.log "Match"
-    return h UIMain, {
-      editingEnabled: false
-      navigationEnabled: false
-      subtitleText: h ["View ", h('code',imageId)]
-      nextImageEndpoint: "/results/#{imageId}"
-      imageId: imageId
-      @props...
-    }
-
   render: ->
     h Router, [
       h 'div.app-main', [
         h Switch, [
           h Route, {path: '/', exact: true, render: @renderLoginForm}
-          h Route, {path: '/view/:imageId', render: @renderViewerForImage}
-          h Route, {path: '/results/:imageId', render: @renderViewerForImageSegmented}
+          # Legacy route for viewing training data
+          h Route, {path: '/view/:imageId', render: @renderViewerForTrainingImage}
+          h Route, {path: '/view-training/:imageId', render: @renderViewerForTrainingImage}
+          h Route, {path: '/view-results/:imageId', render: @renderViewerForResultImage}
           h Route, {path: '/action/:role', render: @renderUI}
         ]
       ]

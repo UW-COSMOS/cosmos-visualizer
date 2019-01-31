@@ -48,8 +48,8 @@ class LoginForm extends Component
       h ButtonGroup, {fill:true}, [
         h Button, {text: "Tag", onClick: selectRole(Role.TAG)}
         h Button, {text: "Validate", onClick: selectRole(Role.VALIDATE)}
-        h Button, {text: "View Training Data", onClick: selectRole(Role.VIEW)}
-        h Button, {text: "View Results", onClick: selectRole(Role.VIEW_SEGMENTED)}
+        h Button, {text: "View Training Data", onClick: selectRole(Role.VIEW_TRAINING)}
+        h Button, {text: "View Results", onClick: selectRole(Role.VIEW_RESULTS)}
       ]
     ]
 
