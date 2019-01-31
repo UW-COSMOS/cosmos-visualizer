@@ -130,7 +130,7 @@ class App extends Component
   setRole: (role)=>
     @setState {role}
 
-  componentDidMount: ->
+  componentDidMount: =>
     @context.get("/people/all")
       .then @setupPeople
 
