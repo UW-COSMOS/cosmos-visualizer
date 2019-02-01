@@ -30,12 +30,15 @@ window.createUI = (opts={})->
     publicURL ?= process.env.PUBLIC_URL
     baseURL ?= process.env.API_BASE_URL
     imageBaseURL ?= process.env.IMAGE_BASE_URL
-  catch {}
+  catch error
+    console.log error
 
   # Set reasonable defaults
   publicURL ?= "/"
   baseURL ?= "https://dev.macrostrat.org/image-tagger-api"
   imageBaseURL ?= "https://dev.macrostrat.org/image-tagger/img/"
+
+  console.log publicURL, baseURL, imageBaseURL
 
   el = document.getElementById('app')
   __ = h AppHolder, {baseURL, imageBaseURL, publicURL}
