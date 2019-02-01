@@ -21,17 +21,22 @@ AppHolder = (props)=>
   ]
 
 window.createUI = (opts={})->
-  {baseURL, imageBaseURL} = opts
+  {baseURL, imageBaseURL, publicURL} = opts
 
-  # Public URL for frontend
-  publicURL = process.env.PUBLIC_URL or "/"
-  console.log publicURL
+  try
+    # Attempt to set parameters from environment variables
+    # This will fail if bundled on a different system, presumably,
+    # so we wrap in try/catch.
+    publicURL ?= process.env.PUBLIC_URL
+    baseURL ?= process.env.API_BASE_URL
+    imageBaseURL ?= process.env.IMAGE_BASE_URL
+  catch {}
+
+  # Set reasonable defaults
+  publicURL ?= "/"
+  baseURL ?= "https://dev.macrostrat.org/image-tagger-api"
+  imageBaseURL ?= "https://dev.macrostrat.org/image-tagger/img/"
 
   el = document.getElementById('app')
   __ = h AppHolder, {baseURL, imageBaseURL, publicURL}
   render __, el
-
-createUI({
-  baseURL: "https://dev.macrostrat.org/image-tagger-api",
-  imageBaseURL: "https://dev.macrostrat.org/image-tagger/img/"
-})
