@@ -1,7 +1,6 @@
 #!/bin/sh
 
 # Just want to get the schema set up
-node setup.js dummy dummy
 
 if [ -z "${IMAGE_TAGGER_API_MODE}" ]
 then
@@ -17,7 +16,7 @@ then
     python import_predictions.py /xml /images
 elif [ "$MODE" = "annotate" ]
 then
-    node setup.js images dummy_import &
+    #node setup.js images dummy_import &
     npm start
 else
     echo "I don't know what to do."
