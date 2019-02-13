@@ -3,33 +3,23 @@ services:
   image-tagger-api:
     build: api
     environment:
+      # This should be changeable obviously
       - IMAGE_TAGGER_API_MODE=annotate
     ports:
       - 5454:5454
+    depends_on:
+      - db
     volumes:
-      - ./images:/src/images/
- 
-#  image-tagger:
-#    image: cosmos/image_tagger
-#    ports:
-#        - 80:80
-#    volumes:
-#        - ./images/:/user/src/image-tagger/dist/images/
-# version: '3'
-# services:
-  # image-tagger-api:
-    #image: cosmos/image_tagger_api
-##    environment:
-##      - DUMMY=${DUMMY}
-    #ports:
-      #- 5454:5454
-    #volumes:
-      #- ./prediction_xml/:/xml/
-      #- ./prediction_images/:/images/
+      - ./_data/images:/src/images/
+  db:
+    image: postgres:11.1-alpine
+    volumes:
+      - ./setup:/docker-entrypoint-initdb.d/
+      - ./_data/pg-cluster:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=annotations
+    ports:
+      - "54321:5432"
+    expose:
+      - 5432
 
-  #image-tagger:
-    #image: cosmos/image_tagger
-    #ports:
-        #- 80:80
-    #volumes:
-        #- ./images/:/user/src/image-tagger/dist/images/
