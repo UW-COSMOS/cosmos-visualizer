@@ -1,18 +1,35 @@
 version: '3'
 services:
   image-tagger-api:
-    build: .
+    build: api
     environment:
       - IMAGE_TAGGER_API_MODE=annotate
     ports:
       - 5454:5454
     volumes:
-      - ./images/:/user/src/image-tagger-api/images/
-#      - ./prediction_images/:/images/
-
+      - ./images:/src/images/
+ 
 #  image-tagger:
 #    image: cosmos/image_tagger
 #    ports:
 #        - 80:80
 #    volumes:
 #        - ./images/:/user/src/image-tagger/dist/images/
+# version: '3'
+# services:
+  # image-tagger-api:
+    #image: cosmos/image_tagger_api
+##    environment:
+##      - DUMMY=${DUMMY}
+    #ports:
+      #- 5454:5454
+    #volumes:
+      #- ./prediction_xml/:/xml/
+      #- ./prediction_images/:/images/
+
+  #image-tagger:
+    #image: cosmos/image_tagger
+    #ports:
+        #- 80:80
+    #volumes:
+        #- ./images/:/user/src/image-tagger/dist/images/
