@@ -13,7 +13,7 @@ COPY . /src
 WORKDIR /src
 
 RUN npm install
-RUN ./setup-database
+RUN ./setup-secret-key
 
 CMD ["./start-server"]
 
