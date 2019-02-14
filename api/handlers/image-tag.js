@@ -1,7 +1,8 @@
 const uuidv4 = require('uuid/v4')
+const {wrapHandler} = require('./util')
 
 module.exports = (tablename) => {
-  return async (req, res, next, plugins) => {
+  const handler = async (req, res, next, plugins) => {
     const {db} = plugins;
     if (req.method === 'GET') {
       let where = []
@@ -131,4 +132,7 @@ module.exports = (tablename) => {
       }
     }
   }
+  // Wrap handler in error handling code
+  return wrapHandler(handler);
 };
+

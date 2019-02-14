@@ -1,8 +1,10 @@
 /*
 Handler for both `image` and `image_prediction` routes
 */
+const {wrapHandler} = require('./util')
+
 module.exports = (tablename)=> {
-  return async (req, res, next, plugins) => {
+  const handler = async (req, res, next, plugins) => {
     const {db} = plugins;
     if (req.query.image_id === 'next') {
       let row = await db.one(`
@@ -81,4 +83,6 @@ module.exports = (tablename)=> {
       res.reply(req, res, next, row);
     }
   }
+
+  return wrapHandler(handler);
 };

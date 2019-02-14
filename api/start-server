@@ -7,6 +7,8 @@ node setup.js "/images/test" test
 run_app() {
   # If we have mounted a debug directory,
   # proceed with nodemon in that directory
+  # (this is a debug convenience that may be more
+  # trouble than it's worth)
   if [ -d /debug-src ]; then
     ln -s /src/node_modules /debug-src/node_modules
     cp /src/api_key.js /debug-src/api_key.js
