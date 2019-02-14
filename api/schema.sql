@@ -3,7 +3,7 @@ This bootstrap script only runs on cluster creation but we might want it to run
 every time we start up the worker, just in case we make schema additions, etc.
  */
 
-CREATE TABLE image (
+CREATE TABLE IF NOT EXISTS image (
   image_id text PRIMARY KEY,
   doc_id text,
   page_no integer,
@@ -15,7 +15,7 @@ CREATE TABLE image (
   created timestamp DEFAULT now()
 );
 
-CREATE TABLE person (
+CREATE TABLE IF NOT EXISTS person (
   person_id text PRIMARY KEY,
   name text,
   tagger boolean DEFAULT TRUE,
@@ -25,7 +25,7 @@ CREATE TABLE person (
 
 /* Should refactor to be the same table as the "images" table with
    a flag instead of a separate table? */
-CREATE TABLE image_prediction (
+CREATE TABLE IF NOT EXISTS image_prediction (
   image_id text PRIMARY KEY,
   doc_id text,
   page_no integer,
@@ -37,15 +37,15 @@ CREATE TABLE image_prediction (
   created timestamp DEFAULT now()
 );
 
-CREATE TABLE tag (
+CREATE TABLE IF NOT EXISTS tag (
   tag_id integer PRIMARY KEY,
-  name text,
+  name text UNIQUE,
   description text,
   color text,
   created timestamp DEFAULT now()
 );
 
-CREATE TABLE image_tag (
+CREATE TABLE IF NOT EXISTS image_tag (
   image_tag_id text, -- unique image/tag/user hash
   image_id text REFERENCES image(image_id),
   tag_id integer REFERENCES tag(tag_id),
@@ -59,7 +59,7 @@ CREATE TABLE image_tag (
 );
 
 /* Again, should refactor? */
-CREATE TABLE image_tag_prediction (
+CREATE TABLE IF NOT EXISTS image_tag_prediction (
   image_tag_id text, -- unique image/tag/user hash
   image_id text REFERENCES image_prediction(image_id),
   tag_id integer REFERENCES tag(tag_id),
@@ -71,4 +71,5 @@ CREATE TABLE image_tag_prediction (
   height integer,
   created timestamp DEFAULT now() -- time of tag creation
 );
+
 

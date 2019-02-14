@@ -1,7 +1,7 @@
 FROM node:8
 
 RUN apt-get update \
- && apt-get install libpq-dev g++ make
+ && apt-get install -y libpq-dev postgresql-client
 
 WORKDIR /tmp
 RUN curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py \
@@ -21,7 +21,6 @@ COPY . /src
 # Install all the application modules
 RUN ./setup-secret-key
 
-RUN coffee setup.coffee images test
 EXPOSE 5454
 
 CMD ["./start-server"]

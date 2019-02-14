@@ -2,6 +2,7 @@ PGPromise = require('pg-promise')
 uuidv4 = require('uuid/v4')
 fs = require 'fs'
 {join} = require 'path'
+{TSParser} = require 'tsparser'
 
 folder = process.argv[2]
 datasetName = process.argv[3] || folder
@@ -15,6 +16,9 @@ pgp = PGPromise {promiseLib: Promise, pgNative: true}
 
 db = pgp("postgres://postgres:postgres@db:5432/annotations")
 
+sleep = (ms)->
+  new Promise((resolve)=>setTimeout(resolve, ms))
+
 runQuery = (args...)->
   try
     await db.query args...
@@ -23,7 +27,10 @@ runQuery = (args...)->
 
 runFromFile = (fn)->
   SQL = fs.readFileSync "#{__dirname}/#{fn}", "utf8"
-  runQuery SQL
+  statements = TSParser.parse(SQL, 'pg', ';')
+  db.tx (ctx)->
+    for statement in statements
+      await runQuery statement
 
 fn = (args...)->join(__dirname, args...)
 
@@ -35,11 +42,20 @@ insertImage = "INSERT INTO image
 
 setup = ->
   # Entire setup script using helpers above
+  connected = false
+  while not connected
+    try
+      await db.connect()
+      connected = true
+    catch err
+      console.error "Can't connect to database yet"
+      await sleep(1000)
 
+  await runFromFile("schema.sql")
   await runFromFile("tag-data.sql")
 
   # Read the folder
-  for folder in fs.readdirSync fn(folder)
+  for entry in fs.readdirSync fn(folder)
     stats = fs.statSync fn(folder, entry)
     # For each entry check if it is a directory
     continue unless stats.isDirectory()
@@ -55,4 +71,8 @@ setup = ->
       vals = [uuidv4(), doc_id, page_no, datasetName, file_path]
       await db.one insertImage, vals
 
-setup()
+main = do ->
+  try
+    await setup()
+  catch err
+    console.error err.toString()

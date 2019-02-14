@@ -1,4 +1,4 @@
-INSERT INTO tags (tag_id, name, description, color) VALUES
+INSERT INTO tag (tag_id, name, description, color) VALUES
 (1, 'Body Text', 'The primary text of an article', '#aaaaaa'),
 (2, 'Figure', 'A chart, graph, or other graphical display', '#a15231'),
 (3, 'Figure Note', 'A footnote explanation of specific content in a figure', '#801515'),
