@@ -32,7 +32,6 @@ async function runFromFile(fn) {
   });
 };
 
-
 const insertImageStack = `INSERT INTO image_stack
                     (image_id, stack_id)
                     VALUES ($1, $2)
@@ -47,6 +46,10 @@ const insertImage = `INSERT INTO image
                     (image_id, doc_id, page_no, file_path)
                     VALUES ($1, $2, $3, $4)
                     ON CONFLICT DO NOTHING`
+
+const checkImage = `SELECT image_id FROM image
+                    WHERE doc_id=$1 AND page_no=$2
+                    `
 
 async function setup() {
   // Entire setup script using helpers above
@@ -68,8 +71,6 @@ async function setup() {
     datasetName,
     "annotation"
   ]);
-
-  // Read the image folder
   for (var entry of fs.readdirSync(join(folder))) {
 
     let stats = fs.statSync(join(folder, entry))
@@ -83,13 +84,18 @@ async function setup() {
       if (!parts.length) continue
       let page_no = parts[1]
       let file_path = join(doc_id, 'png', page);
-      let image_id = uuidv4();
+      let image_id = await db.one("SELECT image_id FROM image WHERE doc_id=$1 AND page_no=$2", [doc_id, page_no]);
+      image_id = image_id["image_id"] || uuidv4();
+
+      // add image -- does nothing if docid, pageno exit
       await db.query(insertImage, [
         image_id,
         doc_id,
         page_no,
         file_path
       ]);
+      
+      // associate image_id to stack
       await db.query(insertImageStack, [
         image_id,
         datasetName
