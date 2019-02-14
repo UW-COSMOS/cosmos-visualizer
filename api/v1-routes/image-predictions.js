@@ -33,5 +33,5 @@ module.exports = {
     '/api/v1/image_predictions/456',
     '/api/v1/image_predictions/next',
   ],
-  handler: require("../handlers/image")("image_prediction")
+  handler: require("../handlers/image")("prediction")
 }

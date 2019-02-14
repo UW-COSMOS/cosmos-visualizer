@@ -3,25 +3,38 @@ Handler for both `image` and `image_prediction` routes
 */
 const {wrapHandler} = require('./util')
 
-module.exports = (tablename)=> {
+module.exports = (type)=> {
+  /* If type is prediction we are only going to get images
+   * that are in a stack marked 'prediction', same goes for
+   * annotation type */
+  if (!['prediction','annotation'].contains(type)) {
+    throw "Only 'prediction' and 'annotation' are supported"
+  }
+
+  const baseSelect = `
+    SELECT
+      i.image_id,
+      doc_id,
+      page_no,
+      stack_id stack,
+      file_path,
+      i.created
+    FROM image i
+    JOIN image_stack USING (image_id)
+    JOIN stack USING (stack_id)`
+
   const handler = async (req, res, next, plugins) => {
     const {db} = plugins;
     if (req.query.image_id === 'next') {
       let row = await db.one(`
-        SELECT
-          image_id,
-          doc_id,
-          page_no,
-          stack,
-          file_path,
-          created
-        FROM ${tablename}
+        ${baseSelect}
         WHERE (
               tag_start IS NULL
            OR tag_start < now() - interval '5 minutes' )
           AND image_id NOT IN (SELECT image_id FROM image_tag)
+          AND stack_type = $1
         ORDER BY random()
-        LIMIT 1`);
+        LIMIT 1`, [type]);
       await db.query(`
         UPDATE ${tablename}
         SET tag_start = now()
@@ -29,30 +42,23 @@ module.exports = (tablename)=> {
       res.reply(req, res, next, row);
 
     } else if ( req.query.image_id === 'validate') {
-      let where = ''
+      let where = 'WHERE true'
       let params = []
       if (req.query.validated == false) {
         where = 'WHERE validator IS NULL'
       } else if (req.query.validated == true) {
         where = 'WHERE validator IS NOT NULL'
-      } else {
-        where = ''
       }
+      where += "\nAND stack_type = $1"
+
       try {
         let row = await db.one(`
-          SELECT
-            i.image_id,
-            doc_id,
-            page_no,
-            stack,
-            file_path,
-            i.created
-          FROM ${tablename} i
+          ${baseSelect}
           JOIN image_tag it
-            ON i.image_id = it.image_id
+            ON is.image_stack_id = it.image_tag_id
           ${where}
           ORDER BY random()
-          LIMIT 1`);
+          LIMIT 1`, [type]);
 
         if (!row) {
           return res.reply(req, res, next, []);
@@ -73,14 +79,7 @@ module.exports = (tablename)=> {
       res.reply(req, res, next, row);
     } else {
       let row = await db.one(`
-        SELECT
-          image_id,
-          doc_id,
-          page_no,
-          stack,
-          file_path,
-          created
-        FROM ${tablename}
+        ${baseSelect}
         WHERE image_id = $1`,
         [row.image_id]
       );
