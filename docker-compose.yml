@@ -3,7 +3,7 @@ services:
   gateway:
     image: nginx:1.15
     ports:
-      - "5454:80"
+      - "5002:80"
     depends_on:
       - image-tagger-api
       - frontend
@@ -23,7 +23,7 @@ services:
       - ./_data/images:/images/
       - ./api:/debug-src
   db:
-    image: postgres:11.1-alpine
+    image: mdillon/postgis:11
     volumes:
       - ./setup:/docker-entrypoint-initdb.d/
       - ./_data/pg-cluster:/var/lib/postgresql/data

@@ -8,7 +8,7 @@ module.exports = (tablename) => {
       let where = []
       let params = {};
       params['image_id'] = req.query.image_id;
-      params['stack_id'] = req.query.stack_id || 'test'
+      params['stack_id'] = req.query.stack_id || 'default'
 
       if ('validated' in req.query && req.query.validated === true) {
         where.push(`it.validator IS NOT NULL`)
@@ -107,7 +107,7 @@ module.exports = (tablename) => {
         WHERE stack_id = $(stack_id)
           AND image_id = $(image_id)`, {
           image_id: req.query.image_id,
-          stack_id: req.query.stack_id || 'test'
+          stack_id: req.query.stack_id || 'default'
         });
 
 
