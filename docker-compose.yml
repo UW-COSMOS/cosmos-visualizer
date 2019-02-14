@@ -1,12 +1,22 @@
 version: '3'
 services:
+  gateway:
+    image: nginx:1.15
+    ports:
+      - "5454:80"
+    depends_on:
+      - image-tagger-api
+      - frontend
+    volumes:
+      - ./_data/logs:/logs
+      - ./_data/images:/images:ro
+      - ./frontend/dist:/usr/share/nginx/html:ro
+      #- ./nginx.conf:/etc/nginx/nginx.conf:ro
   image-tagger-api:
     build: api
     environment:
       # This should be changeable obviously
       - IMAGE_TAGGER_API_MODE=annotate
-    ports:
-      - "5454:5454"
     depends_on:
       - db
     volumes:
@@ -23,4 +33,14 @@ services:
       - "54321:5432"
     expose:
       - 5432
-
+  frontend:
+    build: frontend
+    ports:
+      - '1234:1234'
+      - '34365:34365'
+    expose:
+      - 1234
+      - 34365
+    volumes:
+      - ./frontend/src:/user/src
+      - ./frontend/dist:/user/dist
