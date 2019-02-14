@@ -65,7 +65,7 @@ async function setup() {
       let parts = page.split('_')
       if (!parts.length) continue
       let page_no = parts[1]
-      let file_path = join(folder, doc_id, 'png', page);
+      let file_path = join(doc_id, 'png', page);
       await db.query(insertImage, [
         uuidv4(),
         doc_id,

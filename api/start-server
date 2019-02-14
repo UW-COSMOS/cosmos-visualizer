@@ -2,7 +2,7 @@
 
 # Wait until PostgreSQL is available
 # and then set up the schema
-node setup.js "/images/test" test
+node setup.js "/images/" test
 
 run_app() {
   # If we have mounted a debug directory,
