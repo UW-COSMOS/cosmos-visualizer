@@ -7,7 +7,7 @@ module.exports = (type)=> {
   /* If type is prediction we are only going to get images
    * that are in a stack marked 'prediction', same goes for
    * annotation type */
-  if (!['prediction','annotation'].contains(type)) {
+  if (!['prediction','annotation'].includes(type)) {
     throw "Only 'prediction' and 'annotation' are supported"
   }
 
@@ -36,7 +36,7 @@ module.exports = (type)=> {
         ORDER BY random()
         LIMIT 1`, [type]);
       await db.query(`
-        UPDATE ${tablename}
+        UPDATE image
         SET tag_start = now()
         WHERE image_id = $1`, [row.image_id]);
       res.reply(req, res, next, row);
@@ -68,7 +68,7 @@ module.exports = (type)=> {
 
         // Update the tag start
         await db.none(`
-          UPDATE ${tablename}
+          UPDATE image
           SET tag_start = now()
           WHERE image_id = $1`, [row.image_id]);
 
@@ -81,7 +81,7 @@ module.exports = (type)=> {
       let row = await db.one(`
         ${baseSelect}
         WHERE image_id = $1`,
-        [row.image_id]
+        [req.query.image_id]
       );
       res.reply(req, res, next, row);
     }

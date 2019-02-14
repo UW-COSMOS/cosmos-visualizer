@@ -7,7 +7,7 @@ CREATE TABLE IF NOT EXISTS stack_type (
   id text PRIMARY KEY
 );
 
-INSERT INTO stack_type (id) VALUES 
+INSERT INTO stack_type (id) VALUES
   ('prediction'),('annotation')
  ON CONFLICT DO NOTHING;
 

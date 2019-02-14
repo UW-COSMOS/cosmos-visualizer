@@ -8,6 +8,7 @@ module.exports = (tablename) => {
       let where = []
       let params = {};
       params['image_id'] = req.query.image_id;
+      params['stack_id'] = req.query.stack_id || 'test'
 
       if ('validated' in req.query && req.query.validated === true) {
         where.push(`it.validator IS NOT NULL`)
@@ -28,6 +29,7 @@ module.exports = (tablename) => {
         let tags = await db.any(`
           SELECT
             it.image_tag_id,
+            it.image_stack_id,
             tag.tag_id,
             tag.name,
             it.x,
@@ -38,9 +40,11 @@ module.exports = (tablename) => {
             it.validator,
             it.created
           FROM tag
-          JOIN ${tablename} it
+          JOIN image_tag it
             ON it.tag_id = tag.tag_id
-          WHERE it.image_id = $(image_id)
+          JOIN image_stack USING (image_stack_id)
+          WHERE image_stack.image_id = $(image_id)
+            AND image_stack.stack_id = $(stack_id)
           ${where.length ? ' AND ' + where.join(' AND ') : ''}
         `, params);
 
@@ -48,7 +52,7 @@ module.exports = (tablename) => {
 
       } catch (error) {
         return res.error(req, res, next,
-          'An internal error occurred', 500);
+          error.toString(), 500);
       }
     } else {
       // Validate the input
@@ -95,11 +99,24 @@ module.exports = (tablename) => {
       })
       // Alright...I think we are good to go
 
+      // We should consider setting image_stack_id at
+      // UI level
+      let {image_stack_id} = await db.one(`
+        SELECT image_stack_id
+        FROM image_stack
+        WHERE stack_id = $(stack_id)
+          AND image_id = $(image_id)`, {
+          image_id: req.query.image_id,
+          stack_id: req.query.stack_id || 'test'
+        });
+
+
       try {
         for (tag of incoming.tags) {
+
           let params = [
             tag.image_tag_id,
-            req.query.image_id,
+            image_stack_id,
             tag.tag_id,
             tag.x, tag.y,
             tag.width, tag.height,
@@ -109,7 +126,7 @@ module.exports = (tablename) => {
           await db.none(`
             INSERT INTO image_tag (
               image_tag_id,
-              image_id,
+              image_stack_id,
               tag_id,
               x,
               y,
