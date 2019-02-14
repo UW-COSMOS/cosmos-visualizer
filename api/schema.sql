@@ -2,14 +2,16 @@
 This bootstrap script only runs on cluster creation but we might want it to run
 every time we start up the worker, just in case we make schema additions, etc.
  */
+CREATE EXTENSION IF NOT EXISTS postgis;
 
 CREATE TABLE IF NOT EXISTS stack_type (
   id text PRIMARY KEY
 );
 
 INSERT INTO stack_type (id) VALUES
-  ('prediction'),('annotation')
- ON CONFLICT DO NOTHING;
+('prediction'),
+('annotation')
+ON CONFLICT DO NOTHING;
 
 CREATE TABLE IF NOT EXISTS stack (
   stack_id text PRIMARY KEY,
@@ -52,15 +54,12 @@ CREATE TABLE IF NOT EXISTS tag (
 );
 
 CREATE TABLE IF NOT EXISTS image_tag (
-  image_tag_id text, -- unique image/tag/user hash
-  image_stack_id integer REFERENCES image_stack(image_stack_id),
-  tag_id integer REFERENCES tag(tag_id),
+  image_tag_id text PRIMARY KEY, -- unique image/tag/user hash
+  image_stack_id integer REFERENCES image_stack(image_stack_id) NOT NULL,
+  tag_id integer REFERENCES tag(tag_id) NOT NULL,
   tagger text REFERENCES person(person_id), -- the person who created the tag
   validator text, -- the person who validated the tag
-  x integer,
-  y integer,
-  width integer,
-  height integer,
+  geometry geometry(MULTIPOLYGON) NOT NULL,
   created timestamp DEFAULT now() -- time of tag creation
 );
 

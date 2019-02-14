@@ -84,8 +84,13 @@ async function setup() {
       if (!parts.length) continue
       let page_no = parts[1]
       let file_path = join(doc_id, 'png', page);
-      let image_id = await db.one("SELECT image_id FROM image WHERE doc_id=$1 AND page_no=$2", [doc_id, page_no]);
-      image_id = image_id["image_id"] || uuidv4();
+      let row = await db.oneOrNone("SELECT image_id FROM image WHERE doc_id=$1 AND page_no=$2", [doc_id, page_no]);
+      let image_id = null
+      if (row == null) {
+        image_id = uuidv4();
+      } else {
+        image_id = row.image_id;
+      }
 
       // add image -- does nothing if docid, pageno exit
       await db.query(insertImage, [
@@ -94,7 +99,7 @@ async function setup() {
         page_no,
         file_path
       ]);
-      
+
       // associate image_id to stack
       await db.query(insertImageStack, [
         image_id,
