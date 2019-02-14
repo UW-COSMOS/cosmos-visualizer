@@ -32,9 +32,20 @@ async function runFromFile(fn) {
   });
 };
 
+
+const insertImageStack = `INSERT INTO image_stack
+                    (image_id, stack_id)
+                    VALUES ($1, $2)
+                    ON CONFLICT DO NOTHING`
+
+const insertStack = `INSERT INTO stack
+                    (stack_id, stack_type)
+                    VALUES ($1, $2)
+                    ON CONFLICT DO NOTHING`
+
 const insertImage = `INSERT INTO image
-                    (image_id, doc_id, page_no, stack, file_path)
-                    VALUES ($1, $2, $3, $4, $5)
+                    (image_id, doc_id, page_no, file_path)
+                    VALUES ($1, $2, $3, $4)
                     ON CONFLICT DO NOTHING`
 
 async function setup() {
@@ -53,8 +64,14 @@ async function setup() {
   await runFromFile("schema.sql");
   await runFromFile("tag-data.sql");
 
-  // Read the folder
+  await db.query(insertStack, [
+    datasetName,
+    "annotation"
+  ]);
+
+  // Read the image folder
   for (var entry of fs.readdirSync(join(folder))) {
+
     let stats = fs.statSync(join(folder, entry))
     // For each entry check if it is a directory
     if (!stats.isDirectory()) continue
@@ -66,12 +83,16 @@ async function setup() {
       if (!parts.length) continue
       let page_no = parts[1]
       let file_path = join(doc_id, 'png', page);
+      let image_id = uuidv4();
       await db.query(insertImage, [
-        uuidv4(),
+        image_id,
         doc_id,
         page_no,
-        datasetName,
         file_path
+      ]);
+      await db.query(insertImageStack, [
+        image_id,
+        datasetName
       ]);
     }
   }
