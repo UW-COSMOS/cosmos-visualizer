@@ -1,8 +1,8 @@
 module.exports = {
-  path: '/image/:image_id?',
-  displayPath: '/image',
+  path: '/image_predictions/:image_id?',
+  displayPath: '/image_predictions',
   methods: ['GET'],
-  description: 'Get image metadata',
+  description: 'Get image metadata for images that have gone through the segmentation algorithm',
   parameters: {
     'image_id': {
       'positional': true,
@@ -30,8 +30,8 @@ module.exports = {
     }
   },
   examples: [
-    '/api/v1/image/456',
-    '/api/v1/image/next',
+    '/api/v1/image_predictions/456',
+    '/api/v1/image_predictions/next',
   ],
-  handler: require("../handlers/image")("image")
+  handler: require("../handlers/image")("image_predictions")
 }

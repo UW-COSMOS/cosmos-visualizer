@@ -1,8 +1,8 @@
-const PGPromise = require('pg-promise')
 const uuidv4 = require('uuid/v4')
 const fs = require('fs')
 const {join} = require('path')
 const {TSParser} = require('tsparser')
+const db = require('./database-connection')
 
 const folder = process.argv[2]
 const datasetName = process.argv[3] || folder
@@ -11,9 +11,6 @@ if (!folder) {
   console.log('No folder of docs specified. Example: node setup.js docs1 <optional dataset name>')
   process.exit()
 }
-
-const pgp = PGPromise({promiseLib: Promise, pgNative: true});
-const db = pgp("postgres://postgres@db:5432/annotations")
 
 async function sleep(ms) {
   await new Promise(resolve => { setTimeout(resolve, ms)});
@@ -80,7 +77,10 @@ async function setup() {
 }
 
 (async function(){
-  try { await setup()}
+  try {
+    await setup()
+    process.exit(0)
+  }
   catch (err) { console.error(err.toString()) }
 })();
 

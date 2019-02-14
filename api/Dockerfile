@@ -10,7 +10,7 @@ RUN pip install lxml pillow
 RUN rm -rf /tmp
 
 # For development
-RUN npm install -g nodemon coffeescript
+RUN npm install -g nodemon
 
 COPY ./package.json /src/package.json
 WORKDIR /src

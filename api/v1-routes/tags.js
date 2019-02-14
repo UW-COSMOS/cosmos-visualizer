@@ -1,3 +1,29 @@
+const handler = async (req, res, next, plugins) => {
+  const {db} = plugins;
+  if (req.query.tag_id === 'all') {
+    let tags = await db.any(`
+      SELECT
+        tag_id,
+        name,
+        description,
+        color,
+        created
+      FROM tag`)
+    res.reply(req, res, next, tags)
+  } else {
+    let tags = await db.any(`
+      SELECT
+        tag_id,
+        name,
+        description,
+        color,
+        created
+      FROM tag
+      WHERE tag_id = $1`, [req.query.tag_id]);
+    res.reply(req, res, next, tag);
+  }
+}
+
 module.exports = {
   path: '/tags/:tag_id?',
   displayPath: '/tags',
@@ -33,32 +59,5 @@ module.exports = {
     '/api/v1/tags/2',
     '/api/v1/tags/all',
   ],
-  handler: (req, res, next, plugins) => {
-    if (req.query.tag_id === 'all') {
-      plugins.db.all(`
-        SELECT
-          tag_id,
-          name,
-          description,
-          color,
-          created
-        FROM tags
-      `, (error, tags) => {
-        res.reply(req, res, next, tags)
-      })
-    } else {
-      plugins.db.all(`
-        SELECT
-          tag_id,
-          name,
-          description,
-          color,
-          created
-        FROM tags
-        WHERE tag_id = ?
-      `, req.query.tag_id, (error, tags) => {
-        res.reply(req, res, next, tag)
-      })
-    }
-  }
+  handler: handler
 }
