@@ -18,10 +18,10 @@ let v1 = new Larkin({
 v1.registerPlugin('db', db)
 
 //Recursively read all the route definition files in the folder /routes and register them
-for (var route of fs.readdirSync(`${__dirname}/v1-routes`)) {
+for (var file of fs.readdirSync(`${__dirname}/v1-routes`)) {
   // Make sure we don't accidentally read something like .DS_Store
   if (file.split('.').pop() !== 'js') continue
-  v1.registerRoute(require(`./v1-routes/${route}`))
+  v1.registerRoute(require(`./v1-routes/${file}`))
 }
 
 app.disable('x-powered-by')

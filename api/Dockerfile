@@ -14,9 +14,9 @@ RUN npm install -g nodemon
 
 COPY ./package.json /src/package.json
 WORKDIR /src
-RUN npm install
-
 COPY . /src
+RUN rm -f /src/node_modules /src/api_key.js
+RUN npm install
 
 # Install all the application modules
 RUN ./setup-secret-key

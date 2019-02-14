@@ -39,5 +39,5 @@ module.exports = {
   examples: [
     '/api/v1/image/2/tags',
   ],
-  handler: require("../handlers/image-tags")("image_tag")
+  handler: require("../handlers/image-tag")("image_tag")
 }

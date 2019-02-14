@@ -11,6 +11,7 @@ services:
       - db
     volumes:
       - ./_data/images:/images/test
+      - ./api:/debug-src
   db:
     image: postgres:11.1-alpine
     volumes:

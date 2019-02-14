@@ -12,6 +12,7 @@ if (!folder) {
   process.exit()
 }
 
+
 async function sleep(ms) {
   await new Promise(resolve => { setTimeout(resolve, ms)});
 };
