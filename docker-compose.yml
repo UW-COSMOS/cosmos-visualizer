@@ -11,7 +11,7 @@ services:
       - ./_data/logs:/logs
       - ./_data/images:/images:ro
       - ./frontend/dist:/usr/share/nginx/html:ro
-      #- ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
   image-tagger-api:
     build: api
     environment:
@@ -20,7 +20,7 @@ services:
     depends_on:
       - db
     volumes:
-      - ./_data/images:/images/test
+      - ./_data/images:/images/
       - ./api:/debug-src
   db:
     image: postgres:11.1-alpine
@@ -36,10 +36,8 @@ services:
   frontend:
     build: frontend
     ports:
-      - '1234:1234'
       - '34365:34365'
     expose:
-      - 1234
       - 34365
     volumes:
       - ./frontend/src:/user/src
