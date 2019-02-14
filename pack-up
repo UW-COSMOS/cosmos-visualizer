@@ -7,7 +7,8 @@ cd "$PROJECT_DIR"
 rm -rf dist
 mkdir -p dist
 cp -r test dist
-parcel build index.html --public-url './'
+export PUBLIC_URL='/image-tagger'
+parcel build index.html --public-url $PUBLIC_URL
 
 rsync -av --delete dist/ steno:image-tagger/
 

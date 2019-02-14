@@ -15,12 +15,31 @@ FocusStyleManager.onlyShowFocusOnTabs()
 
 AppHolder = (props)=>
   {baseURL, rest...} = props
+
   h APIProvider, {baseURL}, [
-    h App, rest
+    h App, {rest...}
   ]
 
 window.createUI = (opts={})->
-  {baseURL, imageBaseURL} = opts
+  {baseURL, imageBaseURL, publicURL} = opts
+
+  try
+    # Attempt to set parameters from environment variables
+    # This will fail if bundled on a different system, presumably,
+    # so we wrap in try/catch.
+    publicURL ?= process.env.PUBLIC_URL
+    baseURL ?= process.env.API_BASE_URL
+    imageBaseURL ?= process.env.IMAGE_BASE_URL
+  catch error
+    console.log error
+
+  # Set reasonable defaults
+  publicURL ?= "/"
+  baseURL ?= "https://dev.macrostrat.org/image-tagger-api"
+  imageBaseURL ?= "https://dev.macrostrat.org/image-tagger/img/"
+
+  console.log publicURL, baseURL, imageBaseURL
+
   el = document.getElementById('app')
-  __ = h AppHolder, {baseURL, imageBaseURL}
+  __ = h AppHolder, {baseURL, imageBaseURL, publicURL}
   render __, el

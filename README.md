@@ -21,6 +21,16 @@ implemented however but is expected to have several routes:
 - `image/<id>/tags [POST]`: set tags on an image, as
   an array of `{x,y,width,height,tag: tag.id}` objects
 
+## Options settable from environment variables
+
+Environment variables can be used to set several variables that might
+change with different locations of the server.
+
+- `PUBLIC_URL`: the URL basename the app will be served from (defaults to`/`)
+- `API_BASE_URL`: the URL path for [`image-tagger-api`](https://github.com/UW-COSMOS/image-tagger-api)
+- `IMAGE_BASE_URL`: the URL path beneath which images are stored
+
+
 ## Next steps
 
 A few features we might wish to add:
@@ -54,4 +64,3 @@ After this, a development version with hot reloading can be run on
 A space-efficient production build can be obtained using
 `npm run-script build` and copied to the webserver (assumed right now
 to be at the sub-directory `image-tagger/`) on the server.
-
