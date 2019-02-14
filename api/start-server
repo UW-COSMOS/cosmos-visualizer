@@ -10,7 +10,7 @@
 
 #>&2 echo "Postgres is up - executing command"
 # Set up the schema
-coffee setup.coffee images test
+coffee setup.coffee "/images/test" test
 
 if [ -z "${IMAGE_TAGGER_API_MODE}" ]
 then

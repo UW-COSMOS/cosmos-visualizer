@@ -10,7 +10,7 @@ services:
     depends_on:
       - db
     volumes:
-      - ./_data/images:/src/images/dummy
+      - ./_data/images:/images/test
   db:
     image: postgres:11.1-alpine
     volumes:

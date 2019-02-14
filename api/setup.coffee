@@ -32,13 +32,10 @@ runFromFile = (fn)->
     for statement in statements
       await runQuery statement
 
-fn = (args...)->join(__dirname, args...)
-
 insertImage = "INSERT INTO image
       (image_id, doc_id, page_no, stack, file_path)
-      VALUES (?, ?, ?, ?, ?)
+      VALUES ($1, $2, $3, $4, $5)
       ON CONFLICT DO NOTHING"
-
 
 setup = ->
   # Entire setup script using helpers above
@@ -55,21 +52,21 @@ setup = ->
   await runFromFile("tag-data.sql")
 
   # Read the folder
-  for entry in fs.readdirSync fn(folder)
-    stats = fs.statSync fn(folder, entry)
+  for entry in fs.readdirSync join(folder)
+    stats = fs.statSync join(folder, entry)
     # For each entry check if it is a directory
     continue unless stats.isDirectory()
     # Now we know this is a document
     doc_id = entry
     # Get all the pages for this document and insert them into the database
-    for page in fs.readdirSync fn(folder, doc_id, 'png')
+    for page in fs.readdirSync join(folder, doc_id, 'png')
       parts = page.split('_')
       continue unless parts.length
       page_no = parts[1]
 
-      file_path = fn(folder, doc_id, png, page)
+      file_path = join(folder, doc_id, 'png', page)
       vals = [uuidv4(), doc_id, page_no, datasetName, file_path]
-      await db.one insertImage, vals
+      await db.query insertImage, vals
 
 main = do ->
   try
