@@ -16,13 +16,15 @@ module.exports = (tablename)=> {
           file_path,
           created
         FROM ${tablename}
-        WHERE (tag_start IS NULL OR tag_start < datetime('now', '-5 minutes'))
+        WHERE (
+              tag_start IS NULL
+           OR tag_start < now() - interval '5 minutes' )
           AND image_id NOT IN (SELECT image_id FROM image_tags)
         ORDER BY random()
         LIMIT 1`);
       await db.query(`
         UPDATE ${tablename}
-        SET tag_start = current_timestamp
+        SET tag_start = now()
         WHERE image_id = $1`, [row.image_id]);
       res.reply(req, res, next, row);
 
@@ -59,7 +61,7 @@ module.exports = (tablename)=> {
         // Update the tag start
         await db.none(`
           UPDATE ${tablename}
-          SET tag_start = current_timestamp
+          SET tag_start = now()
           WHERE image_id = $1`, [row.image_id]);
 
       } catch(error) {
