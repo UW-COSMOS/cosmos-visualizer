@@ -7,11 +7,11 @@ RUN npm install -g parcel-bundler
 COPY ./index.html /user/
 COPY ./package.json /user/
 
-ENV API_BASE_URL=http://localhost/image-tagger-api/
-ENV IMAGE_BASE_URL=http://localhost/
-ENV PUBLIC_URL=/
-
 RUN npm install
+
+ENV API_BASE_URL=http://localhost:5454/api/
+ENV IMAGE_BASE_URL=http://localhost:5454/images/
+ENV PUBLIC_URL=/
 
 EXPOSE 1234
 EXPOSE 34365
