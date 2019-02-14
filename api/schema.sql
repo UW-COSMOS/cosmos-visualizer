@@ -7,21 +7,14 @@ CREATE TABLE IF NOT EXISTS stack_type (
   id text PRIMARY KEY
 );
 
-INSERT INTO stack_type (id) VALUES (
-  ('prediction','annotation')
-) ON CONFLICT DO NOTHING;
+INSERT INTO stack_type (id) VALUES 
+  ('prediction'),('annotation')
+ ON CONFLICT DO NOTHING;
 
 CREATE TABLE IF NOT EXISTS stack (
   stack_id text PRIMARY KEY,
   stack_type text REFERENCES stack_type(id) NOT NULL
 );
-
-CREATE TABLE IF NOT EXISTS image_stack (
-  image_stack_id serial PRIMARY KEY,
-  image_id text REFERENCES image(image_id) NOT NULL,
-  stack_id text REFERENCES stack(stack_id) NOT NULL,
-  UNIQUE (image_id, stack_id)
-)
 
 CREATE TABLE IF NOT EXISTS image (
   image_id text PRIMARY KEY,
@@ -33,6 +26,13 @@ CREATE TABLE IF NOT EXISTS image (
   tag_start timestamp, -- the time tagging began
   created timestamp DEFAULT now(),
   UNIQUE (doc_id, page_no)
+);
+
+CREATE TABLE IF NOT EXISTS image_stack (
+  image_stack_id serial PRIMARY KEY,
+  image_id text REFERENCES image(image_id),
+  stack_id text REFERENCES stack(stack_id),
+  UNIQUE (image_id, stack_id)
 );
 
 CREATE TABLE IF NOT EXISTS person (
