@@ -22,17 +22,15 @@ run_app() {
 if [ -z "${IMAGE_TAGGER_API_MODE}" ]
 then
     echo "No startup mode specified -- assumed prediction ingest."
-    MODE='prediction'
-else
-    MODE='annotate'
+    IMAGE_TAGGER_API_MODE='prediction'
 fi
 
-if [ "$MODE" = "prediction" ]
+if [ "$IMAGE_TAGGER_API_MODE" = "prediction" ]
 then
   run_app
   # Not Guess this happens afterwards?
   #python import_predictions.py /xml /images
-elif [ "$MODE" = "annotate" ]
+elif [ "$IMAGE_TAGGER_API_MODE" = "annotate" ]
 then
   #node setup.js images dummy_import &
   run_app
