@@ -1,16 +1,10 @@
 #!/bin/sh
 
-# Wait for postgresql then run init script
 
-#>&2 echo $(which psql)
-#until psql -h db -U postgres -c '\q'; do
-  #>&2 echo "Postgres is unavailable - sleeping"
-  #sleep 1
-#done
 
-#>&2 echo "Postgres is up - executing command"
-# Set up the schema
-coffee setup.coffee "/images/test" test
+# Wait until PostgreSQL is available
+# and then set up the schema
+node setup.js "/images/test" test
 
 if [ -z "${IMAGE_TAGGER_API_MODE}" ]
 then
@@ -22,20 +16,16 @@ fi
 
 if [ "$MODE" = "prediction" ]
 then
-    npm start &
-    python import_predictions.py /xml /images
+  # Not sure if this is the proper API
+  python import_predictions.py /xml /images
+  nodemon npm start
 elif [ "$MODE" = "annotate" ]
 then
-    #node setup.js images dummy_import &
-    npm start
+  #node setup.js images dummy_import &
+  nodemon npm start
 else
-    echo "I don't know what to do."
-    exit 1
+  echo "I don't know what to do."
+  exit 1
 fi
-
-#while true
-#do
-#    sleep 1
-#done
 
 

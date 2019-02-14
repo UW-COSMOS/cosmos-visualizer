@@ -6,7 +6,7 @@ services:
       # This should be changeable obviously
       - IMAGE_TAGGER_API_MODE=annotate
     ports:
-      - 5454:5454
+      - "5454:5454"
     depends_on:
       - db
     volumes:
