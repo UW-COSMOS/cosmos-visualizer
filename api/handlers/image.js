@@ -56,6 +56,8 @@ module.exports = (tablename)=> {
 
         if (!row) {
           return res.reply(req, res, next, []);
+        } else {
+          return res.reply(req, res, next, row);
         }
 
         // Update the tag start
