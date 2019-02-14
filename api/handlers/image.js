@@ -19,7 +19,7 @@ module.exports = (tablename)=> {
         WHERE (
               tag_start IS NULL
            OR tag_start < now() - interval '5 minutes' )
-          AND image_id NOT IN (SELECT image_id FROM image_tags)
+          AND image_id NOT IN (SELECT image_id FROM image_tag)
         ORDER BY random()
         LIMIT 1`);
       await db.query(`

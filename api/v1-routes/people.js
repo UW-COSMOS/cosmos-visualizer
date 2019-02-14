@@ -1,5 +1,6 @@
 const uuidv4 = require('uuid/v4')
 const apiKey = require('../api_key')
+const {wrapHandler} = require('../handlers/util')
 
 const handler = async (req, res, next, plugins) => {
   const {db} = plugins;
@@ -94,5 +95,5 @@ module.exports = {
   examples: [
     '/api/v1/people/abc123',
   ],
-  handler: handler
+  handler: wrapHandler(handler)
 }

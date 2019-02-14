@@ -1,3 +1,5 @@
+const {wrapHandler} = require('../handlers/util')
+
 const handler = async (req, res, next, plugins) => {
   const {db} = plugins;
   if (req.query.tag_id === 'all') {
@@ -59,5 +61,5 @@ module.exports = {
     '/api/v1/tags/2',
     '/api/v1/tags/all',
   ],
-  handler: handler
+  handler: wrapHandler(handler)
 }
