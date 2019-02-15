@@ -126,12 +126,17 @@ class App extends Component
     if tagger == 1 and validator != 1
       role = Role.TAG
     @setState {person: item, role}
+    localStorage.setItem('person', JSON.stringify(item))
 
   setRole: (role)=>
     @setState {role}
 
   componentDidMount: =>
     @context.get("/people/all")
-      .then @setupPeople
+    .then @setupPeople
+
+    p = localStorage.getItem('person')
+    return unless p?
+    @setState {person: JSON.parse(p)}
 
 export {App}
