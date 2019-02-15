@@ -40,5 +40,4 @@ services:
     expose:
       - 34365
     volumes:
-      - ./frontend/src:/user/src
-      - ./frontend/dist:/user/dist
+      - ./frontend:/user

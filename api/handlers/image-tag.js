@@ -1,5 +1,6 @@
 const uuidv4 = require('uuid/v4')
 const {wrapHandler} = require('./util')
+const pgp = require('pg-promise')
 
 module.exports = (tablename) => {
   const handler = async (req, res, next, plugins) => {
@@ -114,31 +115,49 @@ module.exports = (tablename) => {
       try {
         for (tag of incoming.tags) {
 
-          let params = [
-            tag.image_tag_id,
+          let {x, y, width, height, tag_id, image_tag_id} = tag
+          let {tagger, validator} = incoming
+
+          let xMax = x + width
+          let yMax = y + height
+
+          // Construct array of BBoxes
+          let coords = [[
+            tag.x, tag.y, xMax, yMax
+          ]]
+
+          let rects = coords.map( d => {
+            return pgp.as.format("ST_MakeEnvelope($1,$2,$3,$4)", d)
+          })
+
+          let geomArray = pgp.as.format("ARRAY[$(geoms:value)]", {geoms: rects.join(", ")})
+
+          let params = {
+            image_tag_id,
             image_stack_id,
-            tag.tag_id,
-            tag.x, tag.y,
-            tag.width, tag.height,
-            incoming.tagger, incoming.validator || null
-          ];
+            tag_id,
+            geomArray,
+            tagger,
+            validator: validator || null,
+            rects
+          };
 
           await db.none(`
             INSERT INTO image_tag (
               image_tag_id,
               image_stack_id,
               tag_id,
-              x,
-              y,
-              width,
-              height,
+              geometry,
               tagger,
               validator
-            ) VALUES (
-              $1, $2, $3,
-              $4, $5, $6,
-              $7, $8, $9
-            )`, params);
+            )
+            SELECT
+              $(image_tag_id),
+              $(image_stack_id),
+              $(tag_id),
+              ST_Collect($(geomArray:value)),
+              $(tagger),
+              $(validator)`, params);
 
         }
         // Finished inserting tags
