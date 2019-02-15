@@ -9,8 +9,8 @@ COPY ./package.json /user/
 
 RUN npm install
 
-ENV API_BASE_URL=http://localhost:5454/api/
-ENV IMAGE_BASE_URL=http://localhost:5454/images/
+ENV API_BASE_URL=/api/
+ENV IMAGE_BASE_URL=/images/
 ENV PUBLIC_URL=/
 
 EXPOSE 1234

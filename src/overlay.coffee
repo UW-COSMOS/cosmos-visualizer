@@ -61,6 +61,7 @@ class Overlay extends Component
     {subject} = event
     {x,y} = subject
     {clickDistance, currentTag, scaleFactor, editingEnabled} = @props
+    console.log "Started dragging"
     return if not editingEnabled
     scaleFactor ?= 1
     width = event.x-x
@@ -101,7 +102,9 @@ class Overlay extends Component
         combo: "backspace"
         global: true
         disabled: not editingRect?
-        onKeyDown: actions.deleteRectangle(editingRect)
+        onKeyDown: (evt)=>
+          actions.deleteRectangle(editingRect)()
+          evt.preventDefault()
       }
     ]
 
