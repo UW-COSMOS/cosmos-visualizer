@@ -1,6 +1,5 @@
 import {Component, createContext} from 'react'
 import h from 'react-hyperscript'
-import update from 'immutability-helper'
 import {select} from 'd3-selection'
 import {findDOMNode} from 'react-dom'
 import 'd3-jetpack'
@@ -14,6 +13,15 @@ import {AppToaster} from './toaster'
 import {Overlay} from './overlay'
 import {APIContext} from './api'
 
+# Updates props for a rectangle
+# from API signature to our internal signature
+# TODO: make handle multiple boxes
+updateRectangle = (props)->
+  {boxes, rest...} = props
+  [x, y, xmax, ymax] = boxes[0]
+  width = xmax-x
+  height = ymax-y
+  return {x,y,width,height, rest...}
 
 class UIMain extends StatefulComponent
   @defaultProps: {
@@ -131,7 +139,7 @@ class UIMain extends StatefulComponent
     text = "Saving disabled"
     if editingEnabled
       text = "Click + drag to create item. Click existing item to adjust."
-    return h Navbar.Heading, {className: "instructions"}, text
+    return h Navbar.Heading, {className: "instructions"}, h(Text, text)
 
   renderPersistenceButtonArray: =>
     # Persist data to backend if editing is enabled
@@ -312,7 +320,8 @@ class UIMain extends StatefulComponent
     return unless currentImage?
     {image_id} = @state.currentImage
     d = await @context.get "#{imageRoute}/#{image_id}/tags?validated=false"
-    @setState {rectStore: d, initialRectStore: d}
+    image_tags = d.map(updateRectangle)
+    @setState {rectStore: image_tags, initialRectStore: image_tags}
 
   didUpdateWindowSize: (prevProps, prevState)->
     {windowWidth, scaleFactor, currentImage} = @state

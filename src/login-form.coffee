@@ -58,8 +58,8 @@ class LoginForm extends Component
     h Card, {className: 'login-form'}, [
       h 'h3.bp3-heading', 'Image tagger'
       h ButtonGroup, {fill: true}, [
-        h Button, {text: "View Training Data", onClick: selectRole(Role.VIEW_TRAINING)}
-        h Button, {text: "View Results", onClick: selectRole(Role.VIEW_RESULTS)}
+        h Button, {text: "View training data", onClick: selectRole(Role.VIEW_TRAINING)}
+        h Button, {text: "View results", onClick: selectRole(Role.VIEW_RESULTS)}
       ]
       h "h4", "Select a user to edit"
       @renderRoleControl()

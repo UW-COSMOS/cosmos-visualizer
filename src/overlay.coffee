@@ -6,7 +6,6 @@ import {drag} from 'd3-drag'
 import {findDOMNode} from 'react-dom'
 import { Hotkey, Hotkeys, HotkeysTarget } from "@blueprintjs/core"
 
-
 class Overlay extends Component
   @defaultProps: {
     # Distance we take as a click before switching to drag
@@ -111,11 +110,11 @@ class Overlay extends Component
   componentDidMount: ->
     el = select findDOMNode @
 
+    # Set up dragging when rectangle is not clicked
     @edgeDrag = drag()
       .on "drag", @handleDrag
       .on "end", @handleAddRectangle
       .clickDistance @props.clickDistance
-      .filter => not @props.editingRect?
 
     el.call @edgeDrag
 

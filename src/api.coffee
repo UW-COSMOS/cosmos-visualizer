@@ -8,6 +8,27 @@ import {Intent} from '@blueprintjs/core'
 APIContext = createContext({})
 APIConsumer = APIContext.Consumer
 
+ErrorMessage = (props)=>
+  {title, error, method, endpoint, data} = props
+  method ?= 'GET'
+  title ?= 'API error'
+
+  message = h 'div.error-toast', [
+    h 'h4', title
+    h 'div.details', [
+      h 'div.error-message', error
+      h 'div', [
+        h 'code', method
+        " to endpoint "
+        h 'code', endpoint
+        " failed."
+      ]
+      if data then h "pre", JSON.stringify(data, null, 2) else null
+    ]
+  ]
+
+  {message, intent: Intent.DANGER}
+
 class APIProvider extends Component
   @defaultProps: {
     baseURL: null
@@ -42,21 +63,12 @@ class APIProvider extends Component
       }
       return data
     catch err
-      AppToaster.show {
-        message: h 'div.error-toast', [
-          h 'h4', "Could not save data"
-          h 'div.details', [
-            h 'div.error-message', err
-            h 'div', [
-              h 'code', "POST"
-              " to endpoint "
-              h 'code', endpoint
-              " failed."
-            ]
-            h "pre", JSON.stringify(tags, null, 2)
-          ]
-        ]
-        intent: Intent.DANGER
+      AppToaster.show ErrorMessage {
+        title: "Could not save tags"
+        method: 'POST'
+        endpoint: endpoint
+        error: err.toString()
+        data: tags
       }
       throw err
 
@@ -71,9 +83,17 @@ class APIProvider extends Component
   get: (spec)=>
     uri = @endpointFor spec
     console.log "#{uri} [GET]"
-    {data} = await json uri
-    if not data?
-      throw "Invalid API response."
+    {data, error} = await json uri
+    console.log data, error
+    if error?
+      title = "Invalid API response."
+      AppToaster.show ErrorMessage {
+        title
+        method: 'GET'
+        endpoint: uri
+        message: error.toString()
+      }
+      throw error
     return data
 
   post: (spec, data)=>

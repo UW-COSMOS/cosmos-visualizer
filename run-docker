@@ -1,0 +1,5 @@
+#!/bin/sh
+
+git submodule update --init
+npm install
+parcel --hmr-port 34365 index.html
