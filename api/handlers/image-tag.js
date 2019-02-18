@@ -86,17 +86,16 @@ async function handlePost(req, res, next, plugins) {
     if (!tag.tag_id) {
       return res.error(req, res, next, 'A tag is missing a tag_id', 400)
     }
-    if (!tag.x) {
-      return res.error(req, res, next, 'A tag is missing an x', 400)
-    }
-    if (!tag.y) {
-      return res.error(req, res, next, 'A tag is missing an y', 400)
-    }
-    if (!tag.width) {
-      return res.error(req, res, next, 'A tag is missing a width', 400)
-    }
-    if (!tag.height) {
-      return res.error(req, res, next, 'A tag is missing a height', 400)
+    for (box of tag.boxes) {
+      if (box.length != 4) {
+        return res.error(req, res, next, 'A box has the incorrect number of coordinates', 400)
+      }
+      if (box[2] < box[0]) {
+        return res.error(req, res, next, 'xMax must be greater than xMin', 400)
+      }
+      if (box[3] < box[1]) {
+        return res.error(req, res, next, 'yMax must be greater than yMin', 400)
+      }
     }
   })
 
@@ -123,18 +122,11 @@ async function handlePost(req, res, next, plugins) {
   try {
     for (tag of incoming.tags) {
 
-      let {x, y, width, height, tag_id, image_tag_id} = tag
+      let {boxes, tag_id, image_tag_id} = tag
       let {tagger, validator} = incoming
 
-      let xMax = x + width
-      let yMax = y + height
-
-      // Construct array of BBoxes
-      let coords = [[
-        tag.x, tag.y, xMax, yMax
-      ]]
-
-      let rects = coords.map( d => {
+      // Boxes should be in format [xmin,ymin,xmax,ymax]
+      let rects = boxes.map( d => {
         return pgp.as.format("ST_MakeEnvelope($1,$2,$3,$4)", d)
       })
 
@@ -165,7 +157,15 @@ async function handlePost(req, res, next, plugins) {
           $(tag_id),
           ST_Collect($(geomArray:value)),
           $(tagger),
-          $(validator)`, params);
+          $(validator)
+        ON CONFLICT (image_tag_id)
+        DO UPDATE SET
+          tag_id = $(tag_id),
+          image_stack_id = $(image_stack_id),
+          geometry = ST_Collect($(geomArray:value)),
+          tagger = $(tagger),
+          validator = $(validator)
+        `, params);
 
     }
     // Finished inserting tags
