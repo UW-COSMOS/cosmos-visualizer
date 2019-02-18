@@ -6,6 +6,12 @@ import {drag} from 'd3-drag'
 import {findDOMNode} from 'react-dom'
 import { Hotkey, Hotkeys, HotkeysTarget } from "@blueprintjs/core"
 
+Tag = (props)->
+  h Rectangle, props
+
+ActiveTag = (props)->
+  h DragRectangle, props
+
 class Overlay extends Component
   @defaultProps: {
     # Distance we take as a click before switching to drag
@@ -20,14 +26,14 @@ class Overlay extends Component
 
   renderRectangles: ->
     {inProgressRectangle} = @state
-    {rectangles, tags, width, height,
+    {image_tags, tags, width, height,
      editingRect, actions, scaleFactor} = @props
 
     if inProgressRectangle?
       editingRect = null
-      rectangles = [rectangles..., inProgressRectangle]
+      rectangles = [image_tags..., inProgressRectangle]
 
-    rectangles.map (d, ix)=>
+    image_tags.map (d, ix)=>
       _editing = ix == editingRect
       opacity = if _editing then 0.5 else 0.3
 
@@ -40,12 +46,12 @@ class Overlay extends Component
       }
 
       if _editing
-        return h DragRectangle, {
+        return h ActiveTag, {
           delete: actions.deleteRectangle(ix)
           update: actions.updateRectangle(ix)
           opts...
         }
-      return h Rectangle, {
+      return h Tag, {
         onClick: actions.selectRectangle(ix)
         opts...
       }

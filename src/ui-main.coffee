@@ -109,7 +109,7 @@ class UIMain extends StatefulComponent
         editingRect
         editingEnabled
         scaleFactor
-        rectangles: rectStore
+        image_tags: rectStore
         tags: tagStore
         currentTag
         actions
