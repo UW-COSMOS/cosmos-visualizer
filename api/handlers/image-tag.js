@@ -33,10 +33,7 @@ module.exports = (tablename) => {
             it.image_stack_id,
             tag.tag_id,
             tag.name,
-            it.x,
-            it.y,
-            it.width,
-            it.height,
+            it.geometry,
             it.tagger,
             it.validator,
             it.created
@@ -78,17 +75,8 @@ module.exports = (tablename) => {
         if (!tag.tag_id) {
           return res.error(req, res, next, 'A tag is missing a tag_id', 400)
         }
-        if (!tag.x) {
-          return res.error(req, res, next, 'A tag is missing an x', 400)
-        }
-        if (!tag.y) {
-          return res.error(req, res, next, 'A tag is missing an y', 400)
-        }
-        if (!tag.width) {
-          return res.error(req, res, next, 'A tag is missing a width', 400)
-        }
-        if (!tag.height) {
-          return res.error(req, res, next, 'A tag is missing a height', 400)
+        if (!tag.geometry) {
+          return res.error(req, res, next, 'A tag is missing a geometry', 400)
         }
       })
 
