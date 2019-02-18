@@ -78,7 +78,9 @@ class Overlay extends Component
     y *= scaleFactor
     width *= scaleFactor
     height *= scaleFactor
-    rect = {x,y,width,height, tag_id: currentTag}
+    boxes = [[x,y,x+width,y+height]]
+    console.log boxes
+    rect = {boxes, tag_id: currentTag}
     @setState {inProgressRectangle: rect}
 
   handleAddRectangle: =>

@@ -11,6 +11,12 @@ import chroma from 'chroma-js'
 import {Select} from '@blueprintjs/select'
 import {Navbar, MenuItem, Button, Intent} from '@blueprintjs/core'
 
+getSize = (boxes)->
+  [x,y, xMax, yMax] = boxes[0]
+  width = xMax-x
+  height = yMax-y
+  {x,y,width,height}
+
 oppositeSide = (s)->
   return 'top' if s == 'bottom'
   return 'left' if s == 'right'
@@ -44,8 +50,10 @@ class Rectangle extends Component
     scaleFactor: 1 # Maps pixel scale to external scale
   }
   render: ->
-    {x,y,width,height, scaleFactor, children,
+    {boxes, scaleFactor, children,
      onClick, className, tag_id, tags, isSelected, rest...} = @props
+
+    {x,y,width, height} = getSize(boxes)
 
     alpha = 0.2
     if isSelected
@@ -104,7 +112,9 @@ class DragRectangle extends Component
     ]
 
   editingMenuPosition: =>
-    {x,y, width, height, maxPosition, scaleFactor} = @props
+    {boxes, maxPosition, scaleFactor} = @props
+    {x,y,width,height} = getSize(boxes)
+
     y /= scaleFactor
     height /= scaleFactor
     if maxPosition?
@@ -147,14 +157,16 @@ class DragRectangle extends Component
     {screenX: x, screenY: y} = event.sourceEvent
 
   dragSubject: =>
-    {x,y, width, height, scaleFactor} = @props
+    {boxes, scaleFactor} = @props
+    {x,y,width,height} = getSize(boxes)
+
     source = @mouseCoords()
     scaleFactor ?= 1
     x /= scaleFactor
     y /= scaleFactor
     width /= scaleFactor
     height /= scaleFactor
-    return {x,y, width, height, source}
+    return {x,y, width, height, boxes, source}
 
   setTag: (tag)=>
     {update} = @props
@@ -206,10 +218,7 @@ class DragRectangle extends Component
     height *= scaleFactor
 
     update {
-      x: {$set: x}
-      y: {$set: y}
-      width: {$set: width}
-      height: {$set: height}
+      boxes: {$set: [[x,y,x+width,y+height]]}
     }
     event.sourceEvent.stopPropagation()
 

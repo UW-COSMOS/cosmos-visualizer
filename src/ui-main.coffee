@@ -282,9 +282,8 @@ class UIMain extends StatefulComponent
 
   onImageLoaded: (d)=>
     if Array.isArray(d) and d.length == 1
-      # API returns a unit-length array
+      # API returns a single-item array
       d = d[0]
-
     d = await @ensureImageDimensions(d)
 
     rectStore = []
@@ -319,8 +318,7 @@ class UIMain extends StatefulComponent
     return if prevState.currentImage == currentImage
     return unless currentImage?
     {image_id} = @state.currentImage
-    d = await @context.get "#{imageRoute}/#{image_id}/tags?validated=false"
-    image_tags = d.map(updateRectangle)
+    image_tags = await @context.get "#{imageRoute}/#{image_id}/tags?validated=false"
     @setState {rectStore: image_tags, initialRectStore: image_tags}
 
   didUpdateWindowSize: (prevProps, prevState)->
