@@ -20,7 +20,7 @@ module.exports = (type)=> {
       file_path,
       i.created
     FROM image i
-    JOIN image_stack USING (image_id)
+    JOIN image_stack istack USING (image_id)
     JOIN stack USING (stack_id)`
 
   const handler = async (req, res, next, plugins) => {
@@ -31,7 +31,7 @@ module.exports = (type)=> {
         WHERE (
               tag_start IS NULL
            OR tag_start < now() - interval '5 minutes' )
-          AND image_id NOT IN (SELECT image_id FROM image_tag)
+          AND image_id NOT IN (SELECT image_id FROM image_tag JOIN image_stack USING (image_stack_id))
           AND stack_type = $1
         ORDER BY random()
         LIMIT 1`, [type]);
@@ -55,7 +55,7 @@ module.exports = (type)=> {
         let row = await db.one(`
           ${baseSelect}
           JOIN image_tag it
-            ON is.image_stack_id = it.image_tag_id
+            ON istack.image_stack_id = it.image_stack_id
           ${where}
           ORDER BY random()
           LIMIT 1`, [type]);
