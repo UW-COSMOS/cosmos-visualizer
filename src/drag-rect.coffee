@@ -8,8 +8,6 @@ import {select, event, mouse} from 'd3-selection'
 import {drag} from 'd3-drag'
 import h from 'react-hyperscript'
 import chroma from 'chroma-js'
-import {Select} from '@blueprintjs/select'
-import {Navbar, MenuItem, Button, Intent} from '@blueprintjs/core'
 
 getSize = (bounds)->
   console.log bounds
@@ -90,6 +88,7 @@ class DragRectangle extends Component
     minSize: {width: 10, height: 10}
   }
   render: ->
+    {children, rest...} = @props
     margin = 4
     ew = {top: margin, bottom: margin, width: 2*margin}
     ns = {left: margin, right: margin, height: 2*margin}
@@ -98,7 +97,7 @@ class DragRectangle extends Component
     onClick = (e)->
       e.stopPropagation()
 
-    h Rectangle, {@props..., className, isSelected, onClick}, [
+    h Rectangle, {rest..., className, isSelected, onClick}, [
       h 'div.handles', [
         h Handle, {side: 'top'}
         h Handle, {side: 'bottom'}
@@ -109,49 +108,7 @@ class DragRectangle extends Component
         h Handle, {side: 'top left', margin: 6}
         h Handle, {side: 'bottom left', margin: 6}
       ]
-      @renderItems()
-    ]
-
-  editingMenuPosition: =>
-    {bounds, maxPosition, scaleFactor} = @props
-    {x,y,width,height} = getSize(bounds)
-
-    y /= scaleFactor
-    height /= scaleFactor
-    if maxPosition?
-      maxY = y+height
-      if maxY > maxPosition.height-50
-        return 'top'
-    return 'bottom'
-
-  renderItems: ->
-    {tags, tag_id, delete: deleteRectangle} = @props
-    currentTag = tags.find (d)-> d.tag_id == tag_id
-    className = @editingMenuPosition()
-
-    h 'div.rect-controls', {className}, [
-      h Select, {
-        items: tags
-        itemRenderer: (t, {handleClick})->
-          h MenuItem, {
-            key: t.tag_id,
-            onClick: handleClick
-            text: t.name
-          }
-        onItemSelect: @setTag
-        filterable: false
-      }, [
-        h Button, {
-          text: currentTag.name
-          rightIcon: "double-caret-vertical"
-          className: 'select-box'
-        }
-      ]
-      h Button, {
-        icon: 'cross'
-        intent: Intent.DANGER
-        onClick: deleteRectangle
-      }
+      children
     ]
 
   mouseCoords: ->
@@ -168,10 +125,6 @@ class DragRectangle extends Component
     width /= scaleFactor
     height /= scaleFactor
     return {x,y, width, height, bounds, source}
-
-  setTag: (tag)=>
-    {update} = @props
-    update {tag_id: {$set: tag.tag_id}}
 
   handleDrag: (side)=>
     side ?= ""
