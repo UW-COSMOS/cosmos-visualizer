@@ -89,7 +89,12 @@ class ActiveTag extends Tag
     currentTag = tags.find (d)-> d.tag_id == tag_id
     className = @editingMenuPosition()
 
-    h 'div.rect-controls', {className}, [
+    # Make sure clicks on the control panel don't dismiss it
+    # due to the competing overlay click handler
+    onClick = (event)->
+      event.stopPropagation()
+
+    h 'div.rect-controls', {className, onClick}, [
       h Select, {
         items: tags
         itemRenderer: (t, {handleClick})->
