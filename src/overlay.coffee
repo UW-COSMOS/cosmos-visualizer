@@ -1,16 +1,10 @@
 import {Component} from 'react'
 import h from 'react-hyperscript'
-import {DragRectangle, Rectangle} from './drag-rect'
 import {select, event} from 'd3-selection'
 import {drag} from 'd3-drag'
 import {findDOMNode} from 'react-dom'
 import { Hotkey, Hotkeys, HotkeysTarget } from "@blueprintjs/core"
-
-Tag = (props)->
-  h Rectangle, props
-
-ActiveTag = (props)->
-  h DragRectangle, props
+import {Tag, ActiveTag} from './annotation'
 
 class Overlay extends Component
   @defaultProps: {
@@ -21,17 +15,17 @@ class Overlay extends Component
   constructor: (props)->
     super props
     @state = {
-      inProgressRectangle: null
+      inProgressAnnotation: null
     }
 
-  renderRectangles: ->
-    {inProgressRectangle} = @state
+  renderAnnotations: ->
+    {inProgressAnnotation} = @state
     {image_tags, tags, width, height,
      editingRect, actions, scaleFactor} = @props
 
-    if inProgressRectangle?
+    if inProgressAnnotation?
       editingRect = null
-      rectangles = [image_tags..., inProgressRectangle]
+      image_tags = [image_tags..., inProgressAnnotation]
 
     image_tags.map (d, ix)=>
       _editing = ix == editingRect
@@ -47,12 +41,12 @@ class Overlay extends Component
 
       if _editing
         return h ActiveTag, {
-          delete: actions.deleteRectangle(ix)
-          update: actions.updateRectangle(ix)
+          delete: actions.deleteAnnotation(ix)
+          update: actions.updateAnnotation(ix)
           opts...
         }
       return h Tag, {
-        onClick: actions.selectRectangle(ix)
+        onClick: actions.selectAnnotation(ix)
         opts...
       }
 
@@ -60,7 +54,7 @@ class Overlay extends Component
     {width, height, rest...} = @props
     style = {width, height}
     onClick = @disableEditing
-    h 'div.overlay', {style, onClick}, @renderRectangles()
+    h 'div.overlay', {style, onClick}, @renderAnnotations()
 
   handleDrag: =>
     {subject} = event
@@ -86,13 +80,13 @@ class Overlay extends Component
     height *= scaleFactor
     boxes = [[x,y,x+width,y+height]]
     rect = {boxes, tag_id: currentTag}
-    @setState {inProgressRectangle: rect}
+    @setState {inProgressAnnotation: rect}
 
-  handleAddRectangle: =>
+  handleAddAnnotation: =>
     {actions} = @props
-    {inProgressRectangle: r} = @state
-    @setState {inProgressRectangle: null}
-    actions.appendRectangle r
+    {inProgressAnnotation: r} = @state
+    @setState {inProgressAnnotation: null}
+    actions.appendAnnotation r
 
   disableEditing: =>
     {actions,editingRect} = @props
@@ -109,7 +103,7 @@ class Overlay extends Component
         global: true
         disabled: not editingRect?
         onKeyDown: (evt)=>
-          actions.deleteRectangle(editingRect)()
+          actions.deleteAnnotation(editingRect)()
           evt.preventDefault()
       }
     ]
@@ -120,7 +114,7 @@ class Overlay extends Component
     # Set up dragging when rectangle is not clicked
     @edgeDrag = drag()
       .on "drag", @handleDrag
-      .on "end", @handleAddRectangle
+      .on "end", @handleAddAnnotation
       .clickDistance @props.clickDistance
 
     el.call @edgeDrag

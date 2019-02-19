@@ -11,8 +11,9 @@ import chroma from 'chroma-js'
 import {Select} from '@blueprintjs/select'
 import {Navbar, MenuItem, Button, Intent} from '@blueprintjs/core'
 
-getSize = (boxes)->
-  [x,y, xMax, yMax] = boxes[0]
+getSize = (bounds)->
+  console.log bounds
+  [x,y, xMax, yMax] = bounds
   width = xMax-x
   height = yMax-y
   {x,y,width,height}
@@ -50,10 +51,10 @@ class Rectangle extends Component
     scaleFactor: 1 # Maps pixel scale to external scale
   }
   render: ->
-    {boxes, scaleFactor, children,
-     onClick, className, tag_id, tags, isSelected, rest...} = @props
-
-    {x,y,width, height} = getSize(boxes)
+    {bounds, scaleFactor, children,
+     onClick, className, tag_id,
+     tags, isSelected, rest...} = @props
+    {x,y,width, height} = getSize(bounds)
 
     alpha = 0.2
     if isSelected
@@ -112,8 +113,8 @@ class DragRectangle extends Component
     ]
 
   editingMenuPosition: =>
-    {boxes, maxPosition, scaleFactor} = @props
-    {x,y,width,height} = getSize(boxes)
+    {bounds, maxPosition, scaleFactor} = @props
+    {x,y,width,height} = getSize(bounds)
 
     y /= scaleFactor
     height /= scaleFactor
@@ -157,8 +158,8 @@ class DragRectangle extends Component
     {screenX: x, screenY: y} = event.sourceEvent
 
   dragSubject: =>
-    {boxes, scaleFactor} = @props
-    {x,y,width,height} = getSize(boxes)
+    {bounds, scaleFactor} = @props
+    {x,y,width,height} = getSize(bounds)
 
     source = @mouseCoords()
     scaleFactor ?= 1
@@ -166,7 +167,7 @@ class DragRectangle extends Component
     y /= scaleFactor
     width /= scaleFactor
     height /= scaleFactor
-    return {x,y, width, height, boxes, source}
+    return {x,y, width, height, bounds, source}
 
   setTag: (tag)=>
     {update} = @props
@@ -217,9 +218,8 @@ class DragRectangle extends Component
     width *= scaleFactor
     height *= scaleFactor
 
-    update {
-      boxes: {$set: [[x,y,x+width,y+height]]}
-    }
+    # Provide an update spec
+    update {bounds: {$set: [x,y,x+width,y+height]}}
     event.sourceEvent.stopPropagation()
 
   componentDidMount: ->

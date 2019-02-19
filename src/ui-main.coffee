@@ -16,13 +16,6 @@ import {APIContext} from './api'
 # Updates props for a rectangle
 # from API signature to our internal signature
 # TODO: make handle multiple boxes
-updateRectangle = (props)->
-  {boxes, rest...} = props
-  [x, y, xmax, ymax] = boxes[0]
-  width = xmax-x
-  height = ymax-y
-  return {x,y,width,height, rest...}
-
 class UIMain extends StatefulComponent
   @defaultProps: {
     allowSaveWithoutChanges: false
@@ -45,14 +38,14 @@ class UIMain extends StatefulComponent
       windowWidth: window.innerWidth
     }
 
-  updateRectangle: (i)=>(updateSpec)=>
-    spec = {rectStore: {}}
-    spec.rectStore[i] = updateSpec
+  updateAnnotation: (i)=>(updateSpec)=>
+    spec = {rectStore: {[i]: updateSpec}}
     if updateSpec.tag_id?
       spec.currentTag = updateSpec.tag_id
+    console.log updateSpec
     @updateState spec
 
-  deleteRectangle: (i)=> =>
+  deleteAnnotation: (i)=> =>
     {editingRect} = @state
     spec = {
       rectStore: {$splice: [[i,1]]}
@@ -61,10 +54,10 @@ class UIMain extends StatefulComponent
       spec.editingRect = {$set: null}
     @updateState spec
 
-  selectRectangle: (i)=> =>
+  selectAnnotation: (i)=> =>
     @updateState {editingRect: {$set: i}}
 
-  appendRectangle: (rect)=>
+  appendAnnotation: (rect)=>
     return unless rect?
     {currentTag, rectStore} = @state
     rect.tag_id = currentTag
@@ -88,13 +81,13 @@ class UIMain extends StatefulComponent
       rectStore, tagStore, currentTag} = @state
     return null unless currentImage?
     style = @scaledSize()
-    onClick = @createRectangle
+    onClick = @createAnnotation
 
     actions = {
-      deleteRectangle: @deleteRectangle
-      updateRectangle: @updateRectangle
-      selectRectangle: @selectRectangle
-      appendRectangle: @appendRectangle
+      deleteAnnotation: @deleteAnnotation
+      updateAnnotation: @updateAnnotation
+      selectAnnotation: @selectAnnotation
+      appendAnnotation: @appendAnnotation
       updateState: @updateState
     }
     # if not editingEnabled
