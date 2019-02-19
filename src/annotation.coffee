@@ -6,27 +6,27 @@ import {Select} from '@blueprintjs/select'
 import {Navbar, MenuItem, Button, Intent} from '@blueprintjs/core'
 
 class Tag extends Component
-  render: ->
-    {boxes, rest...} = @props
-    h 'div.tag', boxes.map (d, i)->
-      h Rectangle, {bounds: d, rest...}
+  tagUpdater: (ix)=>
+    {update} = @props
+    return null unless update?
+    # Return an updater function
+    return (spec)=>
+      {bounds: subSpec} = spec
+      return unless subSpec?
+      update {boxes: {[ix]: subSpec}}
 
-class ActiveTag extends Component
-  renderTags: =>
-    {boxes, update: __update, rest...} = @props
-    h 'div.tag.active', boxes.map (d,i)=>
-      update = (spec)=>
-        {bounds: subSpec} = spec
-        return unless subSpec?
-        __update {boxes: {[i]: subSpec}}
-      props = {bounds: d, update, rest...}
-      controls = null
-      if i == boxes.length-1
-        controls = @renderControls()
-      h DragRectangle, props, controls
+  renderTags: ->
+    {boxes, update, rest...} = @props
+    className = null
+    if update?
+      className = 'active'
+    h 'div.tag', {className}, boxes.map (d, i)=>
+      update = @tagUpdater(i)
+      h Rectangle, {bounds: d, update, rest...}
 
   render: =>
-    {boxes, rest...} = @props
+    {boxes, update, rest...} = @props
+    isActive = update?
     overallBounds = [
       min boxes, (d)->d[0]
       min boxes, (d)->d[1]
@@ -35,10 +35,16 @@ class ActiveTag extends Component
     ]
 
     h 'div.contents', [
-      h Rectangle, {bounds: overallBounds, rest...}
+      h Rectangle, {bounds: overallBounds, rest...}, [
+        @renderControls()
+      ]
       @renderTags()
     ]
 
+  renderControls: => null
+
+
+class ActiveTag extends Tag
   setTag: (tag)=>
     {update} = @props
     console.log tag
@@ -46,6 +52,7 @@ class ActiveTag extends Component
 
   renderControls: =>
     {tags, tag_id, delete: deleteRectangle} = @props
+    return null if not deleteRectangle?
     currentTag = tags.find (d)-> d.tag_id == tag_id
     className = @editingMenuPosition()
 
@@ -82,6 +89,5 @@ class ActiveTag extends Component
      if maxY > maxPosition.height-50
         return 'top'
     return 'bottom'
-
 
 export {Tag, ActiveTag}

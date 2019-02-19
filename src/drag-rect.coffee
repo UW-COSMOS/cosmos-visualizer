@@ -42,7 +42,7 @@ Handle = ({side, margin})->
 
   return h 'div', {style, className, __data__: side}
 
-class Rectangle extends Component
+class StaticRectangle extends Component
   @defaultProps: {
     isSelected: false
     scaleFactor: 1 # Maps pixel scale to external scale
@@ -96,7 +96,7 @@ class DragRectangle extends Component
     onClick = (e)->
       e.stopPropagation()
 
-    h Rectangle, {rest..., className, isSelected, onClick}, [
+    h StaticRectangle, {rest..., className, isSelected, onClick}, [
       h 'div.handles', [
         h Handle, {side: 'top'}
         h Handle, {side: 'bottom'}
@@ -188,5 +188,10 @@ class DragRectangle extends Component
       .call edgeDrag
 
     el.call edgeDrag
+
+Rectangle = (props)->
+  if props.update?
+    return h DragRectangle, props
+  return h StaticRectangle, props
 
 export {DragRectangle, Rectangle}
