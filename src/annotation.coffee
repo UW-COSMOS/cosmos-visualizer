@@ -4,6 +4,7 @@ import {min, max} from 'd3-array'
 import {DragRectangle, Rectangle} from './drag-rect'
 import {Select} from '@blueprintjs/select'
 import {Navbar, MenuItem, Button, Intent} from '@blueprintjs/core'
+import chroma from 'chroma-js'
 
 class Tag extends Component
   tagUpdater: (ix)=>
@@ -15,17 +16,33 @@ class Tag extends Component
       return unless subSpec?
       update {boxes: {[ix]: subSpec}}
 
-  renderTags: ->
-    {boxes, update, rest...} = @props
+  color: =>
+    {tags, tagData, tag_id} = @props
+    tagData = tags.find (d)->d.tag_id == tag_id
+    chroma(tagData.color)
+
+  isSelected: =>
+    {update} = @props
+    return update?
+
+  renderTags: =>
+    {boxes, update, color, rest...} = @props
+    alpha = 0.2
+    if @isSelected()
+      alpha = 0.6
+
+    c = @color()
+    color = c.alpha(alpha).css()
+
     className = null
     if update?
       className = 'active'
     h 'div.tag', {className}, boxes.map (d, i)=>
       update = @tagUpdater(i)
-      h Rectangle, {bounds: d, update, rest...}
+      h Rectangle, {bounds: d, update, color, rest...}
 
   render: =>
-    {boxes, update, rest...} = @props
+    {boxes, update, name, rest...} = @props
     isActive = update?
     overallBounds = [
       min boxes, (d)->d[0]
@@ -34,8 +51,24 @@ class Tag extends Component
       max boxes, (d)->d[3]
     ]
 
+    c = @color()
+    alpha = 0.2
+    if @isSelected()
+      alpha = 0.6
+    color = c.alpha(alpha).css()
+    textColor = c.darken(2)
+    try
+      name = h 'div.tag-name', {style: {color: textColor}}, tagData.name
+    catch
+      name = null
+
     h 'div.contents', [
-      h Rectangle, {bounds: overallBounds, rest...}, [
+      h Rectangle, {
+        bounds: overallBounds,
+        color, backgroundColor: 'none',
+        rest...
+        }, [
+        name
         @renderControls()
       ]
       @renderTags()
@@ -52,7 +85,7 @@ class ActiveTag extends Tag
 
   renderControls: =>
     {tags, tag_id, delete: deleteRectangle} = @props
-    return null if not deleteRectangle?
+    return null if not @isSelected()
     currentTag = tags.find (d)-> d.tag_id == tag_id
     className = @editingMenuPosition()
 

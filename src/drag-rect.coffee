@@ -7,7 +7,6 @@ import {findDOMNode} from 'react-dom'
 import {select, event, mouse} from 'd3-selection'
 import {drag} from 'd3-drag'
 import h from 'react-hyperscript'
-import chroma from 'chroma-js'
 
 getSize = (bounds)->
   [x,y, xMax, yMax] = bounds
@@ -50,22 +49,11 @@ class StaticRectangle extends Component
   render: ->
     {bounds, scaleFactor, children,
      onClick, className, tag_id,
-     tags, isSelected, rest...} = @props
+     tags, color,
+     backgroundColor, rest...} = @props
     {x,y,width, height} = getSize(bounds)
 
-    alpha = 0.2
-    if isSelected
-      alpha = 0.6
-
-    tagData = tags.find (d)->d.tag_id == tag_id
-    c = chroma(tagData.color)
-    textColor = c.darken(2)
-    color = c.alpha(alpha).css()
-
-    try
-      name = h 'div.tag-name', {style: {color: textColor}}, tagData.name
-    catch
-      name = null
+    backgroundColor ?= color
 
     width /= scaleFactor
     height /= scaleFactor
@@ -73,14 +61,11 @@ class StaticRectangle extends Component
     style = {
       top: y/scaleFactor, left: x/scaleFactor,
       width, height,
-      backgroundColor: color
+      backgroundColor: backgroundColor
       borderColor: color
     }
 
-    h 'div.rect', {style, onClick, className}, [
-      name
-      children
-    ]
+    h 'div.rect', {style, onClick, className}, children
 
 class DragRectangle extends Component
   @defaultProps: {
