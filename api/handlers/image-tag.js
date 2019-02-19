@@ -31,17 +31,7 @@ async function handleGet(req, res, next, plugins) {
         it.image_stack_id,
         tag.tag_id,
         tag.name,
-        (SELECT array_agg(
-          ARRAY[
-            ST_XMin(b),
-            ST_YMin(b),
-            ST_XMax(b),
-            ST_YMax(b)])
-        FROM (
-          SELECT Box2D(
-            (ST_Dump(geometry)).geom
-          ) AS b
-        ) AS c) AS boxes,
+        bbox_array(geometry) boxes,
         it.tagger,
         it.validator,
         it.created
@@ -124,6 +114,10 @@ async function handlePost(req, res, next, plugins) {
 
       let {boxes, tag_id, image_tag_id} = tag
       let {tagger, validator} = incoming
+      if (tagger == null) {
+        // Tagger might already be set on an individual tag
+        tagger = tag.tagger;
+      }
 
       // Boxes should be in format [xmin,ymin,xmax,ymax]
       let rects = boxes.map( d => {
@@ -158,14 +152,10 @@ async function handlePost(req, res, next, plugins) {
           ST_Collect($(geomArray:value)),
           $(tagger),
           $(validator)
-        ON CONFLICT (image_tag_id)
+        ON CONFLICT (image_tag_id, tagger, validator)
         DO UPDATE SET
-          tag_id = $(tag_id),
-          image_stack_id = $(image_stack_id),
-          geometry = ST_Collect($(geomArray:value)),
-          tagger = $(tagger),
-          validator = $(validator)
-        `, params);
+          geometry = EXCLUDED.geometry
+      `, params);
 
     }
     // Finished inserting tags
