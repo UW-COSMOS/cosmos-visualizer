@@ -46,7 +46,8 @@ CREATE TABLE IF NOT EXISTS person (
   name text,
   tagger boolean DEFAULT TRUE,
   validator boolean DEFAULT FALSE,
-  created timestamp DEFAULT now()
+  created timestamp DEFAULT now(),
+  CHECK (person_id <> 'none')
 );
 
 CREATE TABLE IF NOT EXISTS tag (
@@ -74,8 +75,7 @@ CREATE TABLE IF NOT EXISTS image_tag (
 /* Additional partial UNIQUE index to constrain uniqueness
    when validator is not yet set */
 CREATE UNIQUE INDEX image_tag_unvalidated_unique
-ON image_tag (image_tag_id, tagger)
-WHERE validator IS NULL;
+ON image_tag (image_tag_id, tagger, coalesce(validator, 'none'));
 
 INSERT INTO person (person_id, name) VALUES
 ('dummy','Dummy')

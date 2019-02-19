@@ -29,6 +29,7 @@ async function handleGet(req, res, next, plugins) {
       SELECT
         it.image_tag_id,
         it.image_stack_id,
+        it.linked_to,
         tag.tag_id,
         tag.name,
         bbox_array(geometry) boxes,
@@ -112,7 +113,7 @@ async function handlePost(req, res, next, plugins) {
   try {
     for (tag of incoming.tags) {
 
-      let {boxes, tag_id, image_tag_id} = tag
+      let {boxes, tag_id, image_tag_id, linked_to} = tag
       let {tagger, validator} = incoming
       if (tagger == null) {
         // Tagger might already be set on an individual tag
@@ -132,6 +133,7 @@ async function handlePost(req, res, next, plugins) {
         tag_id,
         geomArray,
         tagger,
+        linked_to,
         validator: validator || null,
         rects
       };
@@ -141,6 +143,7 @@ async function handlePost(req, res, next, plugins) {
           image_tag_id,
           image_stack_id,
           tag_id,
+          linked_to,
           geometry,
           tagger,
           validator
@@ -149,10 +152,11 @@ async function handlePost(req, res, next, plugins) {
           $(image_tag_id),
           $(image_stack_id),
           $(tag_id),
+          $(linked_to),
           ST_Collect($(geomArray:value)),
           $(tagger),
           $(validator)
-        ON CONFLICT (image_tag_id, tagger, validator)
+        ON CONFLICT (image_tag_id, tagger, coalesce(validator, 'none'))
         DO UPDATE SET
           geometry = EXCLUDED.geometry
       `, params);
