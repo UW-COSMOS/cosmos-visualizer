@@ -29,6 +29,7 @@ class Overlay extends Component
 
     image_tags.map (d, ix)=>
       _editing = ix == editingRect
+
       opacity = if _editing then 0.5 else 0.3
 
       opts = {
@@ -39,16 +40,19 @@ class Overlay extends Component
         maxPosition: {width, height}
       }
 
+      onClick = (event)=>
+        do actions.selectAnnotation(ix)
+        # Make sure we don't activate the general
+        # general
+        event.stopPropagation()
+
       if _editing
         return h ActiveTag, {
           delete: actions.deleteAnnotation(ix)
           update: actions.updateAnnotation(ix)
           opts...
         }
-      return h Tag, {
-        onClick: actions.selectAnnotation(ix)
-        opts...
-      }
+      return h Tag, {onClick, opts...}
 
   render: ->
     {width, height, rest...} = @props

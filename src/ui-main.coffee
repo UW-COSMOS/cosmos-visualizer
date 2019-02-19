@@ -43,7 +43,6 @@ class UIMain extends StatefulComponent
     if updateSpec.tag_id?
       spec.currentTag = updateSpec.tag_id
     @updateState spec
-    console.log @state
 
   deleteAnnotation: (i)=> =>
     {editingRect} = @state
@@ -90,10 +89,6 @@ class UIMain extends StatefulComponent
       appendAnnotation: @appendAnnotation
       updateState: @updateState
     }
-    # if not editingEnabled
-    #   # Overwrite all editing actions with no-ops
-    #   for k,fn of actions
-    #     actions[k] = ->
 
     h 'div.image-container', {style}, [
       h 'img', {src: @imageURL(currentImage), style...}
@@ -185,7 +180,7 @@ class UIMain extends StatefulComponent
     h 'div.main', [
       h Navbar, {fixedToTop: true}, [
         h Navbar.Group, [
-          h Link, {to: "/"}, [
+          h Link, {to: {pathname: "/", state: "initial"}}, [
             h Navbar.Heading, "Image tagger"
           ]
           @renderSubtitle()
