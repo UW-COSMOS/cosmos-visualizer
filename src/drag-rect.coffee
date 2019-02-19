@@ -10,7 +10,6 @@ import h from 'react-hyperscript'
 import chroma from 'chroma-js'
 
 getSize = (bounds)->
-  console.log bounds
   [x,y, xMax, yMax] = bounds
   width = xMax-x
   height = yMax-y

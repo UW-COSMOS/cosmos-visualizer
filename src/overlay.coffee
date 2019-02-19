@@ -78,15 +78,25 @@ class Overlay extends Component
     y *= scaleFactor
     width *= scaleFactor
     height *= scaleFactor
+
+    # We are adding a new annotation
     boxes = [[x,y,x+width,y+height]]
     rect = {boxes, tag_id: currentTag}
     @setState {inProgressAnnotation: rect}
 
   handleAddAnnotation: =>
-    {actions} = @props
+    {shiftKey} = event.sourceEvent
+    {actions, editingRect} = @props
     {inProgressAnnotation: r} = @state
     @setState {inProgressAnnotation: null}
-    actions.appendAnnotation r
+
+    if shiftKey and editingRect?
+      # We are adding a box to the currently
+      # selected annotation
+      fn = actions.updateAnnotation(editingRect)
+      fn {boxes: {$push: r.boxes}}
+    else
+      actions.appendAnnotation r
 
   disableEditing: =>
     {actions,editingRect} = @props

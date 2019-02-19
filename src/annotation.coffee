@@ -1,17 +1,18 @@
 import {Component} from 'react'
 import h from 'react-hyperscript'
-import {Rectangle, DragRectangle} from './drag-rect'
+import {min, max} from 'd3-array'
+import {DragRectangle, Rectangle} from './drag-rect'
 import {Select} from '@blueprintjs/select'
 import {Navbar, MenuItem, Button, Intent} from '@blueprintjs/core'
 
 class Tag extends Component
   render: ->
     {boxes, rest...} = @props
-    h 'div.tag', boxes.map (d)->
+    h 'div.tag', boxes.map (d, i)->
       h Rectangle, {bounds: d, rest...}
 
 class ActiveTag extends Component
-  render: ->
+  renderTags: =>
     {boxes, update: __update, rest...} = @props
     h 'div.tag.active', boxes.map (d,i)=>
       update = (spec)=>
@@ -19,7 +20,24 @@ class ActiveTag extends Component
         return unless subSpec?
         __update {boxes: {[i]: subSpec}}
       props = {bounds: d, update, rest...}
-      h DragRectangle, props, @renderControls()
+      controls = null
+      if i == boxes.length-1
+        controls = @renderControls()
+      h DragRectangle, props, controls
+
+  render: =>
+    {boxes, rest...} = @props
+    overallBounds = [
+      min boxes, (d)->d[0]
+      min boxes, (d)->d[1]
+      max boxes, (d)->d[2]
+      max boxes, (d)->d[3]
+    ]
+
+    h 'div.contents', [
+      h Rectangle, {bounds: overallBounds, rest...}
+      @renderTags()
+    ]
 
   setTag: (tag)=>
     {update} = @props

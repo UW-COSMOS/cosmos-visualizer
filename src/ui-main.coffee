@@ -42,8 +42,8 @@ class UIMain extends StatefulComponent
     spec = {rectStore: {[i]: updateSpec}}
     if updateSpec.tag_id?
       spec.currentTag = updateSpec.tag_id
-    console.log updateSpec
     @updateState spec
+    console.log @state
 
   deleteAnnotation: (i)=> =>
     {editingRect} = @state
