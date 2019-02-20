@@ -13,5 +13,8 @@ INSERT INTO tag (tag_id, name, description, color) VALUES
 (12, 'Equation label', 'An identifier for an equation', '#4D658D'),
 (13, 'Abstract', 'Abstract of paper', '#D4A26A'),
 (14, 'Reference text', 'References to other works', '#804D15'),
-(15, 'Other', 'Textual metadata and image content that is not semantically meaningful', '#96990c')
+(15, 'Other', 'Textual metadata and image content that is not semantically meaningful', '#96990c'),
+(16, 'Equation definition', 'An equation definition', '#23477e'),
+(17, 'Symbol', 'A symbol', '#4c2c70'),
+(18, 'Symbol definition', 'A symbol definition', '#ff0000')
 ON CONFLICT DO NOTHING;
