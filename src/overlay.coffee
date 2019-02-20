@@ -3,16 +3,42 @@ import h from 'react-hyperscript'
 import {select, event} from 'd3-selection'
 import {drag} from 'd3-drag'
 import {findDOMNode} from 'react-dom'
-import { Hotkey, Hotkeys, HotkeysTarget } from "@blueprintjs/core"
+import {Hotkey, Hotkeys, HotkeysTarget} from "@blueprintjs/core"
+import {bboxPolygon, featureCollection,
+        polygonToLine,
+        nearestPointOnLine,
+        centroid, combine} from '@turf/turf'
+
 import {Tag, ActiveTag, tagCenter} from './annotation'
 
 class AnnotationLinks extends Component
+  renderDefs: ->
+    h 'defs', [
+      h 'marker#arrow', {
+        markerWidth: 10
+        markerHeight: 10
+        refX: 8
+        refY: 3
+        orient: "auto"
+        markerUnits: "strokeWidth"
+        viewBox: "0 0 15 15"
+      }, (
+        h 'path', {d: "M0,0 L0,6 L9,3 z", fill: "#444"}
+      )
+    ]
   render: ->
     {width, height, links} = @props
-    console.log links
-    h 'svg.annotation-links', {width, height}, links.map (l)->
-      [x1,y1,x2,y2] = l
-      h 'line', {x1,x2,y1,y2, stroke: "black"}
+    h 'svg.annotation-links', {width, height}, [
+      @renderDefs()
+      h 'g.links', links.map (l)->
+        [x1,y1,x2,y2] = l.coords
+        h 'line', {
+          x1,x2,y1,y2,
+          stroke: l.color,
+          strokeWidth: "2px"
+          markerEnd: "url(#arrow)"
+        }
+    ]
 
 class Overlay extends Component
   @defaultProps: {
@@ -68,16 +94,40 @@ class Overlay extends Component
   computeLinks: =>
     {image_tags, scaleFactor} = @props
 
+    boxPolygon = (boxes)->
+      polys = boxes
+        .map (box)->
+          box.map (d)->d/1000
+        .map(bboxPolygon)
+      combine(featureCollection(polys)).features[0]
+
     links = []
     for fromTag in image_tags
       {linked_to} = fromTag
       continue unless linked_to?
       toTag = image_tags.find (d)->
         d.image_tag_id == linked_to
+      continue unless toTag?
 
-      c1 = tagCenter(fromTag.boxes)
-      c2 = tagCenter(toTag.boxes)
-      links.push [c1...,c2...].map (d)->d/scaleFactor
+      p1 = boxPolygon(fromTag.boxes)
+      p2 = boxPolygon(toTag.boxes)
+      ext1 = polygonToLine(p1).features[0]
+      ext2 = polygonToLine(p2).features[0]
+
+      # Get the centroid of the first point
+      c1 = centroid p1
+      c2 = centroid p2
+      e1 = nearestPointOnLine ext1, c2
+      e2 = nearestPointOnLine ext2, e1
+      c1 = e1.geometry.coordinates
+      c2 = e2.geometry.coordinates
+
+      coords = [c1...,c2...].map (d)->d/scaleFactor*1000
+
+      console.log fromTag, toTag
+      color = "#444444"
+      links.push {coords, color}
+
     return links
 
   render: ->

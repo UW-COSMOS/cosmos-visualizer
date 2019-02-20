@@ -59,12 +59,17 @@ class UIMain extends StatefulComponent
     @updateState spec
 
   deleteAnnotation: (i)=> =>
-    {editingRect} = @state
+    {rectStore, editingRect} = @state
     spec = {
       rectStore: {$splice: [[i,1]]}
     }
     if editingRect? and i == editingRect
       spec.editingRect = {$set: null}
+    # Zero out links to this annotation
+    {image_tag_id} = rectStore[editingRect]
+    for rect,i in rectStore
+      continue unless rect.linked_to == image_tag_id
+      spec.rectStore[i] = {linked_to: {$set: null}}
     @updateState spec
 
   selectAnnotation: (i)=> =>
