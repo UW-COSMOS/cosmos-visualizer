@@ -6,6 +6,10 @@ import {findDOMNode} from 'react-dom'
 import { Hotkey, Hotkeys, HotkeysTarget } from "@blueprintjs/core"
 import {Tag, ActiveTag} from './annotation'
 
+class AnnotationLinks extends Component
+  render: ->
+    h 'svg', @props, []
+
 class Overlay extends Component
   @defaultProps: {
     # Distance we take as a click before switching to drag
@@ -41,10 +45,13 @@ class Overlay extends Component
       }
 
       onClick = (event)=>
-        do actions.selectAnnotation(ix)
         # Make sure we don't activate the general
-        # general
+        # general click or drag handlers
         event.stopPropagation()
+        if event.shiftKey
+          do actions.addLink(ix)
+        else
+          do actions.selectAnnotation(ix)
 
       if _editing
         return h ActiveTag, {
@@ -56,9 +63,13 @@ class Overlay extends Component
 
   render: ->
     {width, height, rest...} = @props
-    style = {width, height}
+    size = {width, height}
+
     onClick = @disableEditing
-    h 'div.overlay', {style, onClick}, @renderAnnotations()
+    h 'div', [
+      h 'div.overlay', {style: size, onClick}, @renderAnnotations()
+    h AnnotationLinks, size
+    ]
 
   handleDrag: =>
     {subject} = event
@@ -94,6 +105,7 @@ class Overlay extends Component
     {inProgressAnnotation: r} = @state
     @setState {inProgressAnnotation: null}
 
+    return unless r?
     if shiftKey and editingRect?
       # We are adding a box to the currently
       # selected annotation

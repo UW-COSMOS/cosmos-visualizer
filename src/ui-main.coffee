@@ -1,6 +1,7 @@
 import {Component, createContext} from 'react'
 import h from 'react-hyperscript'
 import {select} from 'd3-selection'
+import uuidv4 from 'uuid/v4'
 import {findDOMNode} from 'react-dom'
 import 'd3-jetpack'
 import chroma from 'chroma-js'
@@ -44,6 +45,18 @@ class UIMain extends StatefulComponent
       spec.currentTag = updateSpec.tag_id
     @updateState spec
 
+  addLink: (i)=> =>
+    # Add a link to another annotation
+    {editingRect, rectStore} = @state
+    {image_tag_id} = rectStore[i]
+    if not editingRect?
+      throw "Annotation must be selected to add a link"
+    if editingRect == i
+      throw "Cannot create self-referential link"
+    spec = {rectStore: {[editingRect]: {linked_to: {$set: image_tag_id}}}}
+    @updateState spec
+    console.log @state.rectStore
+
   deleteAnnotation: (i)=> =>
     {editingRect} = @state
     spec = {
@@ -60,6 +73,9 @@ class UIMain extends StatefulComponent
     return unless rect?
     {currentTag, rectStore} = @state
     rect.tag_id = currentTag
+    # Create UUID on client side to allow
+    # linking
+    rect.image_tag_id = uuidv4()
     @updateState {
       rectStore: {$push: [rect]}
       editingRect: {$set: rectStore.length}
@@ -88,6 +104,7 @@ class UIMain extends StatefulComponent
       selectAnnotation: @selectAnnotation
       appendAnnotation: @appendAnnotation
       updateState: @updateState
+      addLink: @addLink
     }
 
     h 'div.image-container', {style}, [
