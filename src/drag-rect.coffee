@@ -50,7 +50,7 @@ class StaticRectangle extends Component
     {bounds, scaleFactor, children,
      onClick, className, tag_id,
      tags, color,
-     backgroundColor, rest...} = @props
+     backgroundColor, style, rest...} = @props
     {x,y,width, height} = getSize(bounds)
 
     backgroundColor ?= color
@@ -63,6 +63,7 @@ class StaticRectangle extends Component
       width, height,
       backgroundColor: backgroundColor
       borderColor: color
+      style...
     }
 
     h 'div.rect', {style, onClick, className}, children

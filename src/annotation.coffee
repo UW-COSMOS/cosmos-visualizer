@@ -18,6 +18,10 @@ tagCenter = (boxes)->
   d = tagBounds(boxes)
   return [(d[0]+d[2])/2, (d[1]+d[3])/2]
 
+tagColor = ({tags, tag_id})->
+    tagData = tags.find (d)->d.tag_id == tag_id
+    chroma(tagData.color)
+
 class Tag extends Component
   tagUpdater: (ix)=>
     {update} = @props
@@ -28,10 +32,7 @@ class Tag extends Component
       return unless subSpec?
       update {boxes: {[ix]: subSpec}}
 
-  color: =>
-    {tags, tagData, tag_id} = @props
-    tagData = tags.find (d)->d.tag_id == tag_id
-    chroma(tagData.color)
+  color: => tagColor(@props)
 
   isSelected: =>
     {update} = @props
@@ -73,6 +74,7 @@ class Tag extends Component
       h Rectangle, {
         bounds: overallBounds,
         color, backgroundColor: 'none',
+        style: {pointerEvents: 'none'}
         rest...
         }, [
         name
@@ -135,4 +137,4 @@ class ActiveTag extends Tag
         return 'top'
     return 'bottom'
 
-export {Tag, ActiveTag, tagCenter, tagBounds}
+export {Tag, ActiveTag, tagCenter, tagBounds, tagColor}

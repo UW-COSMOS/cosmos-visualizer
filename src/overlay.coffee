@@ -9,34 +9,64 @@ import {bboxPolygon, featureCollection,
         nearestPointOnLine,
         centroid, combine} from '@turf/turf'
 
-import {Tag, ActiveTag, tagCenter} from './annotation'
+import {Tag, ActiveTag, tagColor} from './annotation'
+
+class MarkerBox extends Component
+  @id: (color)->
+    console.log color
+    return "box-"+color.replace("#",'')
+  render: ->
+    {color} = @props
+    h 'marker', {
+      id: @constructor.id(color)
+      markerWidth: 4
+      markerHeight: 4
+      refX: 2
+      refY: 2
+    }, (
+      h 'rect', {x: 0, y: 0, width: 4, height: 4, fill: color}
+    )
+
+class MarkerArrow extends Component
+  @id: (color)->
+    return "arrow-"+color.replace("#",'')
+  render: ->
+    {color} = @props
+    h 'marker', {
+      markerWidth: 10
+      markerHeight: 10
+      refX: 8
+      refY: 3
+      orient: "auto"
+      markerUnits: "strokeWidth"
+      id: @constructor.id(color)
+      viewBox: "0 0 15 15"
+    }, (
+      h 'path', {d: "M0,0 L0,6 L9,3 z", fill: color}
+    )
 
 class AnnotationLinks extends Component
   renderDefs: ->
-    h 'defs', [
-      h 'marker#arrow', {
-        markerWidth: 10
-        markerHeight: 10
-        refX: 8
-        refY: 3
-        orient: "auto"
-        markerUnits: "strokeWidth"
-        viewBox: "0 0 15 15"
-      }, (
-        h 'path', {d: "M0,0 L0,6 L9,3 z", fill: "#444"}
-      )
-    ]
+    {links} = @props
+    colors = new Set links.map((l)->l.color.hex())
+    h 'defs', Array.from(colors).map (c)-> [
+        h MarkerBox, {color: c}
+        h MarkerArrow, {color: c}
+      ]
+
   render: ->
     {width, height, links} = @props
     h 'svg.annotation-links', {width, height}, [
       @renderDefs()
       h 'g.links', links.map (l)->
         [x1,y1,x2,y2] = l.coords
+        color = l.color.hex()
         h 'line', {
           x1,x2,y1,y2,
-          stroke: l.color,
+          stroke: color,
           strokeWidth: "2px"
-          markerEnd: "url(#arrow)"
+          markerEnd: "url(##{MarkerArrow.id(color)})"
+          markerStart: "url(##{MarkerBox.id(color)})"
         }
     ]
 
@@ -92,7 +122,7 @@ class Overlay extends Component
       return h Tag, {onClick, opts...}
 
   computeLinks: =>
-    {image_tags, scaleFactor} = @props
+    {image_tags, scaleFactor, tags} = @props
 
     boxPolygon = (boxes)->
       polys = boxes
@@ -124,7 +154,7 @@ class Overlay extends Component
 
       coords = [c1...,c2...].map (d)->d/scaleFactor*1000
 
-      color = "#444444"
+      color = tagColor({tags, tag_id: fromTag.tag_id})
       links.push {coords, color}
 
     return links
@@ -143,7 +173,6 @@ class Overlay extends Component
     {subject} = event
     {x,y} = subject
     {clickDistance, currentTag, scaleFactor, editingEnabled} = @props
-    console.log "Started dragging"
     return if not editingEnabled
     scaleFactor ?= 1
     width = event.x-x
