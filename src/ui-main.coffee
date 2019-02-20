@@ -53,9 +53,10 @@ class UIMain extends StatefulComponent
       throw "Annotation must be selected to add a link"
     if editingRect == i
       throw "Cannot create self-referential link"
-    spec = {rectStore: {[editingRect]: {linked_to: {$set: image_tag_id}}}}
+    spec = {
+      rectStore: {[editingRect]: {linked_to: {$set: image_tag_id}}}
+    }
     @updateState spec
-    console.log @state.rectStore
 
   deleteAnnotation: (i)=> =>
     {editingRect} = @state

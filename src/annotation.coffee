@@ -6,6 +6,18 @@ import {Select} from '@blueprintjs/select'
 import {Navbar, MenuItem, Button, Intent} from '@blueprintjs/core'
 import chroma from 'chroma-js'
 
+tagBounds = (boxes)->
+  return [
+    min boxes, (d)->d[0]
+    min boxes, (d)->d[1]
+    max boxes, (d)->d[2]
+    max boxes, (d)->d[3]
+  ]
+
+tagCenter = (boxes)->
+  d = tagBounds(boxes)
+  return [(d[0]+d[2])/2, (d[1]+d[3])/2]
+
 class Tag extends Component
   tagUpdater: (ix)=>
     {update} = @props
@@ -44,12 +56,7 @@ class Tag extends Component
   render: =>
     {boxes, update, name, rest...} = @props
     isActive = update?
-    overallBounds = [
-      min boxes, (d)->d[0]
-      min boxes, (d)->d[1]
-      max boxes, (d)->d[2]
-      max boxes, (d)->d[3]
-    ]
+    overallBounds = tagBounds(boxes)
 
     c = @color()
     alpha = 0.2
@@ -128,4 +135,4 @@ class ActiveTag extends Tag
         return 'top'
     return 'bottom'
 
-export {Tag, ActiveTag}
+export {Tag, ActiveTag, tagCenter, tagBounds}
