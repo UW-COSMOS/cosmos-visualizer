@@ -203,7 +203,7 @@ class UIMain extends StatefulComponent
     h 'div.main', [
       h Navbar, {fixedToTop: true}, [
         h Navbar.Group, [
-          h Link, {to: {pathname: "/", state: "initial"}}, [
+          h 'a', {href: '/'}, [
             h Navbar.Heading, "Image tagger"
           ]
           @renderSubtitle()
