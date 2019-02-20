@@ -54,7 +54,7 @@ class Tag extends Component
       h Rectangle, {bounds: d, update, color, rest...}
 
   render: =>
-    {boxes, update, name, rest...} = @props
+    {boxes, update, name, tags, tag_id, rest...} = @props
     isActive = update?
     overallBounds = tagBounds(boxes)
 
@@ -64,10 +64,10 @@ class Tag extends Component
       alpha = 0.6
     color = c.alpha(alpha).css()
     textColor = c.darken(2)
-    try
-      name = h 'div.tag-name', {style: {color: textColor}}, tagData.name
-    catch
-      name = null
+
+    tagData = tags.find (d)->d.tag_id == tag_id
+    name = h 'div.tag-name', {style: {color: textColor}}, tagData.name
+
 
     h 'div.contents', [
       h Rectangle, {

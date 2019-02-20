@@ -124,7 +124,6 @@ class Overlay extends Component
 
       coords = [c1...,c2...].map (d)->d/scaleFactor*1000
 
-      console.log fromTag, toTag
       color = "#444444"
       links.push {coords, color}
 
