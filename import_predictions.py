@@ -36,31 +36,30 @@ if __name__ == '__main__':
         stack = "default"
 
     cur.execute("INSERT INTO stack (stack_id, stack_type) VALUES (%s, %s) ON CONFLICT DO NOTHING;", (stack, "prediction"))
-    conn.commit()
 
     for xml in glob.glob("%s/*.xml" % xml_path):
         with open(xml) as fin:
             doc = etree.parse(fin)
 
-        # TODO: these filepaths need to be cleaned up/corrected/mapped to the 'live' pile
         try:
-            image_filepath = glob.glob("%s/%s" % (png_path, doc.xpath("//filename/text()")[0]))[0]
+            image_filepath = doc.xpath("//filename/text()")[0]
+            _ = glob.glob("%s/%s" % (png_path, image_filepath))[0]
 #            image_filepath = glob.glob("%s/%s*png" % (png_path, xml.replace(xml_path, "").replace(".xml","")))[0]
-        except:
-            # TODO?: try to find the image some other way?
-            print("Couldn't find PNG associated with %s! Skipping." % xml)
-            print("\tExpected: %s/%s" % (png_path, doc.xpath("//filename/text()")[0]))
-        imge = Image.open(image_filepath)
+        except: # something funny in the xml -- try to fall back on filename consistency
+            image_filepath = os.path.basename(xml).replace(".xml",".png")
+            _ = glob.glob("%s/%s" % (png_path, image_filepath))
+            if _ == []:
+                print("Couldn't find PNG associated with %s! Skipping." % xml)
+                continue
+        imge = Image.open(os.path.join(png_path, image_filepath))
         image_width, image_height = imge.size
-
-        # TODO: we'll keep track of these as we run them (embedded in file names, most likely)
+#        reported_width = int(doc.xpath("size/width/text()")[0])
+#        reported_height = int(doc.xpath("size/width/text()")[0])
 
         # doc_id = TODO: need to map these back to the GDD docid
         doc_id, page_no = os.path.basename(xml).split(".pdf_")
         page_no = int(os.path.splitext(page_no)[0])
         # page_no = TODO
-
-        # ASSUME: These all come out of the standard pipeline, with the file naming scheme of [docid].pdf_[pageno].[png/xml]
 
         cur.execute("SELECT image_id FROM image WHERE doc_id=%s AND page_no=%s", (doc_id, page_no))
         check = cur.fetchone()
@@ -69,12 +68,9 @@ if __name__ == '__main__':
         else:
             image_id = check[0]
 
-        # TODO: image_filepath needs to be relative to the "base" image path (e.g. /images/ when internal to the docker container)
-
         cur.execute("INSERT INTO image (image_id, doc_id, page_no, file_path) VALUES (%s, %s, %s, %s) ON CONFLICT DO NOTHING;", (str(image_id), doc_id, page_no, image_filepath))
         cur.execute("INSERT INTO image_stack (image_id, stack_id) VALUES (%s, %s) RETURNING image_stack_id", (str(image_id), stack))
         image_stack_id = cur.fetchone()[0]
-        conn.commit()
 
         # loop through tags
         for record in doc.xpath("//object"):
@@ -86,7 +82,7 @@ if __name__ == '__main__':
             xmax = int(record.xpath('bndbox/xmax/text()')[0])
             ymax = int(record.xpath('bndbox/ymax/text()')[0])
 
-            cur.execute("INSERT INTO image_tag (image_tag_id, image_stack_id, tag_id, geometry) VALUES (%s, %s, %s, ST_Collect(ARRAY[ST_MakeEnvelope(%s, %s, %s, %s)])) ON CONFLICT DO NOTHING;", (str(image_tag_id), image_stack_id, tag_id, xmin, ymin, xmax, ymax))
+            cur.execute("INSERT INTO image_tag (image_tag_id, image_stack_id, tag_id, geometry, tagger) VALUES (%s, %s, %s, ST_Collect(ARRAY[ST_MakeEnvelope(%s, %s, %s, %s)]), %s) ON CONFLICT DO NOTHING;", (str(image_tag_id), image_stack_id, tag_id, xmin, ymin, xmax, ymax, 'COSMOS'))
 
             conn.commit()
 
