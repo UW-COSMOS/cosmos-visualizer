@@ -180,4 +180,3 @@ module.exports = (tablename) => {
   }
   return wrapHandler(handler);
 };
-

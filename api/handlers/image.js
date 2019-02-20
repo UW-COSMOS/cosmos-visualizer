@@ -20,7 +20,7 @@ module.exports = (type)=> {
       file_path,
       i.created
     FROM image i
-    JOIN image_stack USING (image_id)
+    JOIN image_stack istack USING (image_id)
     JOIN stack USING (stack_id)`
 
   const handler = async (req, res, next, plugins) => {
