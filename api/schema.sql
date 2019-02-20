@@ -78,7 +78,7 @@ CREATE UNIQUE INDEX image_tag_unvalidated_unique
 ON image_tag (image_tag_id, tagger, coalesce(validator, 'none'));
 
 INSERT INTO person (person_id, name) VALUES
-('dummy','Dummy')
+('COSMOS','COSMOS')
 ON CONFLICT DO NOTHING;
 
 /* Convert a geometry to an array of bounding boxes
