@@ -103,7 +103,7 @@ class ActiveTag extends Tag
     onClick = (event)->
       event.stopPropagation()
 
-    h 'div.rect-controls', {className, onClick}, [
+    h 'div.rect-controls', {className, onClick, style: {pointerEvents: 'visible'}}, [
       h Select, {
         items: tags
         itemRenderer: (t, {handleClick})->
