@@ -41,7 +41,6 @@ async function handleGet(req, res, next, plugins) {
         ON it.tag_id = tag.tag_id
       JOIN image_stack USING (image_stack_id)
       WHERE image_stack.image_id = $(image_id)
-        AND image_stack.stack_id = $(stack_id)
       ${where.length ? ' AND ' + where.join(' AND ') : ''}
     `, params);
 
