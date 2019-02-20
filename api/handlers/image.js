@@ -3,13 +3,7 @@ Handler for both `image` and `image_prediction` routes
 */
 const {wrapHandler} = require('./util')
 
-module.exports = (type)=> {
-  /* If type is prediction we are only going to get images
-   * that are in a stack marked 'prediction', same goes for
-   * annotation type */
-  if (!['prediction','annotation'].includes(type)) {
-    throw "Only 'prediction' and 'annotation' are supported"
-  }
+module.exports = ()=> {
 
   const baseSelect = `
     SELECT
@@ -26,6 +20,7 @@ module.exports = (type)=> {
   const handler = async (req, res, next, plugins) => {
     const {db} = plugins;
     if (req.query.image_id === 'next') {
+      type='annotation';
       let row = await db.one(`
         ${baseSelect}
         WHERE (
@@ -47,6 +42,7 @@ module.exports = (type)=> {
       res.reply(req, res, next, row);
 
     } else if ( req.query.image_id === 'validate') {
+      type='annotation';
       let where = 'WHERE true'
       let params = []
       if (req.query.validated == false) {
@@ -76,6 +72,38 @@ module.exports = (type)=> {
           UPDATE image
           SET tag_start = now()
           WHERE image_id = $1`, [row.image_id]);
+
+      } catch(error) {
+        console.log(error)
+        return res.error(req, res, next, 'An internal error occurred', 500)
+      }
+      res.reply(req, res, next, row);
+    } else if ( req.query.image_id === 'prediction') {
+        //TODO : this type should key into the stack_type column in the stack table instead of the stack_id like it does now
+      type='prediction';
+      let where = 'WHERE true'
+      let params = []
+      where += "\nAND stack_type = $1"
+        params.push(type)
+      if (req.query.stack_id) { 
+          where += "\n AND stack_id = $2"
+        params.push(req.query.stack_id)
+       }
+
+      try {
+        let row = await db.one(`
+          ${baseSelect}
+          JOIN image_tag it
+          USING (image_stack_id)
+          ${where}
+          ORDER BY random()
+          LIMIT 1`, params);
+
+        if (!row) {
+          return res.reply(req, res, next, []);
+        } else {
+          return res.reply(req, res, next, row);
+        }
 
       } catch(error) {
         console.log(error)

@@ -33,5 +33,5 @@ module.exports = {
     '/api/v1/image/456',
     '/api/v1/image/next',
   ],
-  handler: require("../handlers/image")("annotation")
+  handler: require("../handlers/image")()
 }
