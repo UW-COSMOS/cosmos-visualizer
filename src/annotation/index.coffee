@@ -116,13 +116,16 @@ class ActiveTag extends Tag
         filterable: false
       }, [
         h Button, {
-          text: currentTag.name
-          rightIcon: "double-caret-vertical"
+          text: "Change type"
+          small: true
           className: 'select-box'
+          minimal: true
         }
       ]
       h Button, {
         icon: 'cross'
+        minimal: true
+        small: true
         intent: Intent.DANGER
         onClick: deleteRectangle
       }

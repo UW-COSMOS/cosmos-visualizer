@@ -4,77 +4,22 @@ import {select, event} from 'd3-selection'
 import {drag} from 'd3-drag'
 import {findDOMNode} from 'react-dom'
 import {Hotkey, Hotkeys, HotkeysTarget} from "@blueprintjs/core"
+import {Omnibar} from '@blueprintjs/select'
 import {bboxPolygon, featureCollection,
         polygonToLine,
         nearestPointOnLine,
         centroid, combine} from '@turf/turf'
-
-import {Tag, ActiveTag, tagColor} from './annotation'
-
-class MarkerBox extends Component
-  @id: (color)->
-    console.log color
-    return "box-"+color.replace("#",'')
-  render: ->
-    {color} = @props
-    h 'marker', {
-      id: @constructor.id(color)
-      markerWidth: 4
-      markerHeight: 4
-      refX: 2
-      refY: 2
-    }, (
-      h 'rect', {x: 0, y: 0, width: 4, height: 4, fill: color}
-    )
-
-class MarkerArrow extends Component
-  @id: (color)->
-    return "arrow-"+color.replace("#",'')
-  render: ->
-    {color} = @props
-    h 'marker', {
-      markerWidth: 10
-      markerHeight: 10
-      refX: 8
-      refY: 3
-      orient: "auto"
-      markerUnits: "strokeWidth"
-      id: @constructor.id(color)
-      viewBox: "0 0 15 15"
-    }, (
-      h 'path', {d: "M0,0 L0,6 L9,3 z", fill: color}
-    )
-
-class AnnotationLinks extends Component
-  renderDefs: ->
-    {links} = @props
-    colors = new Set links.map((l)->l.color.hex())
-    h 'defs', Array.from(colors).map (c)-> [
-        h MarkerBox, {color: c}
-        h MarkerArrow, {color: c}
-      ]
-
-  render: ->
-    {width, height, links} = @props
-    h 'svg.annotation-links', {width, height}, [
-      @renderDefs()
-      h 'g.links', links.map (l)->
-        [x1,y1,x2,y2] = l.coords
-        color = l.color.hex()
-        h 'line', {
-          x1,x2,y1,y2,
-          stroke: color,
-          strokeWidth: "2px"
-          markerEnd: "url(##{MarkerArrow.id(color)})"
-          markerStart: "url(##{MarkerBox.id(color)})"
-        }
-    ]
+import Fuse from 'fuse.js'
+import {Tag, ActiveTag, tagColor} from '../annotation'
+import {AnnotationLinks} from './links'
+import classNames from 'classnames'
 
 class Overlay extends Component
   @defaultProps: {
     # Distance we take as a click before switching to drag
     clickDistance: 10
     editingEnabled: true
+    selectIsOpen: false
   }
   constructor: (props)->
     super props
@@ -121,53 +66,49 @@ class Overlay extends Component
         }
       return h Tag, {onClick, opts...}
 
-  computeLinks: =>
-    {image_tags, scaleFactor, tags} = @props
-
-    boxPolygon = (boxes)->
-      polys = boxes
-        .map (box)->
-          box.map (d)->d/1000
-        .map(bboxPolygon)
-      combine(featureCollection(polys)).features[0]
-
-    links = []
-    for fromTag in image_tags
-      {linked_to} = fromTag
-      continue unless linked_to?
-      toTag = image_tags.find (d)->
-        d.image_tag_id == linked_to
-      continue unless toTag?
-
-      p1 = boxPolygon(fromTag.boxes)
-      p2 = boxPolygon(toTag.boxes)
-      ext1 = polygonToLine(p1).features[0]
-      ext2 = polygonToLine(p2).features[0]
-
-      # Get the centroid of the first point
-      c1 = centroid p1
-      c2 = centroid p2
-      e1 = nearestPointOnLine ext1, c2
-      e2 = nearestPointOnLine ext2, e1
-      c1 = e1.geometry.coordinates
-      c2 = e2.geometry.coordinates
-
-      coords = [c1...,c2...].map (d)->d/scaleFactor*1000
-
-      color = tagColor({tags, tag_id: fromTag.tag_id})
-      links.push {coords, color}
-
-    return links
-
   render: ->
-    {width, height, rest...} = @props
+    {width, height, image_tags, scaleFactor, tags, rest...} = @props
     size = {width, height}
 
     onClick = @disableEditing
     h 'div', [
+      @renderOmnibar()
       h 'div.overlay', {style: size, onClick}, @renderAnnotations()
-      h AnnotationLinks, {links: @computeLinks(), size...}
+      h AnnotationLinks, {image_tags, scaleFactor, tags, size...}
     ]
+
+  renderOmnibar: =>
+
+    options = {
+      shouldSort: true,
+      minMatchCharLength: 0,
+      keys: ["name", "description"]
+    }
+    fuse = null
+    {tags} = @props
+    {selectIsOpen} = @state
+
+    h Omnibar, {
+      isOpen: selectIsOpen
+      items: tags
+
+      itemListRenderer: (obj)=>
+        console.log obj
+        {filteredItems, activeItem} = obj
+        h 'div.item-list', filteredItems.map (d)=>
+          className = classNames {active: d == activeItem}
+          h 'div', {key: d.id, className}, d.name
+
+      itemListPredicate: (query, items)->
+        return items if query == ""
+        if not fuse?
+          fuse = new Fuse(items, options)
+        fuse.search(query)
+      onItemSelect: (d)->
+        console.log d
+      onClose: =>
+        @setState {selectIsOpen: false}
+    }
 
   handleDrag: =>
     {subject} = event
@@ -217,6 +158,9 @@ class Overlay extends Component
       __ = {editingRect: {$set: null}}
       actions.updateState __
 
+  toggleSelect: =>
+    @setState {selectIsOpen: true}
+
   renderHotkeys: ->
     {editingRect, actions} = @props
     h Hotkeys, null, [
@@ -224,10 +168,18 @@ class Overlay extends Component
         label: "Delete rectangle"
         combo: "backspace"
         global: true
-        disabled: not editingRect?
+        preventDefault: true
         onKeyDown: (evt)=>
+          return unless editingRect?
           actions.deleteAnnotation(editingRect)()
-          evt.preventDefault()
+      }
+      h Hotkey, {
+        global: true
+        combo: "l"
+        label: "Toggle select"
+        onKeyDown: @toggleSelect
+        #prevent typing "O" in omnibar input
+        preventDefault: true
       }
     ]
 
