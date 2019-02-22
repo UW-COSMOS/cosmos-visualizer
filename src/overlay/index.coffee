@@ -4,15 +4,11 @@ import {select, event} from 'd3-selection'
 import {drag} from 'd3-drag'
 import {findDOMNode} from 'react-dom'
 import {Hotkey, Hotkeys, HotkeysTarget} from "@blueprintjs/core"
-import {Omnibar} from '@blueprintjs/select'
-import {bboxPolygon, featureCollection,
-        polygonToLine,
-        nearestPointOnLine,
-        centroid, combine} from '@turf/turf'
-import Fuse from 'fuse.js'
 import {Tag, ActiveTag, tagColor} from '../annotation'
-import {AnnotationLinks} from './links'
-import classNames from 'classnames'
+import {AnnotationLinks} from './annotation-links'
+import {TypeSelector} from './type-selector'
+
+import './main.styl'
 
 class Overlay extends Component
   @defaultProps: {
@@ -62,53 +58,37 @@ class Overlay extends Component
         return h ActiveTag, {
           delete: actions.deleteAnnotation(ix)
           update: actions.updateAnnotation(ix)
+          onSelect: @toggleSelect
           opts...
         }
       return h Tag, {onClick, opts...}
 
   render: ->
-    {width, height, image_tags, scaleFactor, tags, rest...} = @props
+    {editingRect, width, height, image_tags,
+     scaleFactor, tags, rest...} = @props
     size = {width, height}
+    {selectIsOpen} = @state
+    if not editingRect?
+      selectIsOpen = false
 
     onClick = @disableEditing
     h 'div', [
-      @renderOmnibar()
+      h TypeSelector, {
+        tags,
+        isOpen: selectIsOpen
+        onClose: => @setState {selectIsOpen: false}
+        onItemSelect: @selectTag
+      }
       h 'div.overlay', {style: size, onClick}, @renderAnnotations()
       h AnnotationLinks, {image_tags, scaleFactor, tags, size...}
     ]
 
-  renderOmnibar: =>
-
-    options = {
-      shouldSort: true,
-      minMatchCharLength: 0,
-      keys: ["name", "description"]
-    }
-    fuse = null
-    {tags} = @props
-    {selectIsOpen} = @state
-
-    h Omnibar, {
-      isOpen: selectIsOpen
-      items: tags
-
-      itemListRenderer: (obj)=>
-        console.log obj
-        {filteredItems, activeItem} = obj
-        h 'div.item-list', filteredItems.map (d)=>
-          className = classNames {active: d == activeItem}
-          h 'div', {key: d.id, className}, d.name
-
-      itemListPredicate: (query, items)->
-        return items if query == ""
-        if not fuse?
-          fuse = new Fuse(items, options)
-        fuse.search(query)
-      onItemSelect: (d)->
-        console.log d
-      onClose: =>
-        @setState {selectIsOpen: false}
-    }
+  selectTag: (tag)=>
+    # Selects tag for active annotation
+    {actions, editingRect} = @props
+    fn = actions.updateAnnotation(editingRect)
+    fn {tag_id: {$set: tag.tag_id}}
+    @setState {selectIsOpen: false}
 
   handleDrag: =>
     {subject} = event
@@ -159,6 +139,7 @@ class Overlay extends Component
       actions.updateState __
 
   toggleSelect: =>
+    return unless @props.editingRect?
     @setState {selectIsOpen: true}
 
   renderHotkeys: ->

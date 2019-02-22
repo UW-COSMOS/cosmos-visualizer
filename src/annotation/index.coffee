@@ -93,7 +93,7 @@ class ActiveTag extends Tag
     update {tag_id: {$set: tag.tag_id}}
 
   renderControls: =>
-    {tags, tag_id, delete: deleteRectangle} = @props
+    {tags, tag_id, delete: deleteRectangle, onSelect} = @props
     return null if not @isSelected()
     currentTag = tags.find (d)-> d.tag_id == tag_id
     className = @editingMenuPosition()
@@ -104,24 +104,13 @@ class ActiveTag extends Tag
       event.stopPropagation()
 
     h 'div.rect-controls', {className, onClick, style: {pointerEvents: 'visible'}}, [
-      h Select, {
-        items: tags
-        itemRenderer: (t, {handleClick})->
-          h MenuItem, {
-            key: t.tag_id,
-            onClick: handleClick
-            text: t.name
-          }
-        onItemSelect: @setTag
-        filterable: false
-      }, [
-        h Button, {
-          text: "Change type"
-          small: true
-          className: 'select-box'
-          minimal: true
-        }
-      ]
+      h Button, {
+        text: "Change type"
+        small: true
+        className: 'select-box'
+        minimal: true
+        onClick: onSelect
+      }
       h Button, {
         icon: 'cross'
         minimal: true

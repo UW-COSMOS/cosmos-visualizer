@@ -7,6 +7,8 @@
     "@blueprintjs/core": "^3.13.0",
     "@blueprintjs/icons": "^3.6.0",
     "@blueprintjs/select": "^3.6.1",
+    "@emotion/core": "^10.0.7",
+    "@emotion/styled": "^10.0.7",
     "@macrostrat/ui-components": "file:./ui-components",
     "@turf/bbox-polygon": "^6.0.1",
     "@turf/centroid": "^6.0.2",

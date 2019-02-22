@@ -4,6 +4,7 @@ import {bboxPolygon, featureCollection,
         polygonToLine,
         nearestPointOnLine,
         centroid, combine} from '@turf/turf'
+import {tagColor} from '../annotation'
 
 class MarkerBox extends Component
   @id: (color)->
@@ -40,18 +41,18 @@ class MarkerArrow extends Component
     )
 
 class AnnotationLinks extends Component
-  renderDefs: ->
-    {links} = @props
+  renderDefs: (links)->
     colors = new Set links.map((l)->l.color.hex())
     h 'defs', Array.from(colors).map (c)-> [
-        h MarkerBox, {color: c}
-        h MarkerArrow, {color: c}
+        h MarkerBox, {color: c, key: 'box'}
+        h MarkerArrow, {color: c, key: 'arrow'}
       ]
 
   render: ->
-    {width, height, links} = @props
+    {width, height} = @props
+    links = @computeLinks()
     h 'svg.annotation-links', {width, height}, [
-      @renderDefs()
+      @renderDefs(links)
       h 'g.links', links.map (l)->
         [x1,y1,x2,y2] = l.coords
         color = l.color.hex()
