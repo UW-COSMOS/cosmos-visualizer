@@ -25,6 +25,7 @@ tagCenter = (boxes)->
 
 tagColor = ({tags, tag_id})->
     tagData = tags.find (d)->d.tag_id == tag_id
+    tagData ?= {color: 'black'}
     chroma(tagData.color)
 
 class Tag extends Component

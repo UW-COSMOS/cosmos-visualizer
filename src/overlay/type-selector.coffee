@@ -8,7 +8,6 @@ import chroma from 'chroma-js'
 
 ListItem = (props)->
   {active, className, onClick, d...} = props
-  console.log d
   className = classNames {active}, className
   color = chroma d.color
   l = if active then 0.5 else 0.95

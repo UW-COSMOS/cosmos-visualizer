@@ -64,7 +64,7 @@ class Overlay extends StatefulComponent
     {actions, editModes} = @contextValue()
     # Make sure we don't activate the general
     # general click or drag handlers
-    event.stopPropagation()
+    #event.stopPropagation()
     if editModes.has(LINK)
       do actions.addLink(ix)
       actions.setMode(LINK, false)
@@ -108,8 +108,6 @@ class Overlay extends StatefulComponent
      scaleFactor, tags, rest...} = @props
     size = {width, height}
     {selectIsOpen} = @state
-    if not editingRect?
-      selectIsOpen = false
 
     onClick = @disableEditing
 
@@ -141,17 +139,28 @@ class Overlay extends StatefulComponent
     h EditorContext.Provider, {value: @contextValue()}, @renderInterior()
 
   selectTag: (tag)=>
-    # Selects tag for active annotation
+    # Selects the Tag ID for active annotation
     {actions, editingRect} = @props
-    fn = actions.updateAnnotation(editingRect)
-    fn {tag_id: {$set: tag.tag_id}}
+    if editingRect?
+      # Set tag for the active rectangle
+      fn = actions.updateAnnotation(editingRect)
+      fn {tag_id: {$set: tag.tag_id}}
+    else
+      do actions.updateCurrentTag(tag.tag_id)
     @setState {selectIsOpen: false}
 
   handleDrag: =>
     {subject} = event
     {x,y} = subject
-    {clickDistance, currentTag, scaleFactor, editingEnabled} = @props
+    {clickDistance, editingRect, currentTag,
+     scaleFactor, editingEnabled, image_tags} = @props
     return if not editingEnabled
+
+    # Make sure we color with the tag this will be
+    {editModes} = @contextValue()
+    if editModes.has(ADD_PART) and editingRect?
+      currentTag = image_tags[editingRect].tag_id
+
     scaleFactor ?= 1
     width = event.x-x
     height = event.y-y
@@ -198,7 +207,7 @@ class Overlay extends StatefulComponent
     actions.updateState __
 
   toggleSelect: =>
-    return unless @props.editingRect?
+    console.log "Opening select box"
     @setState {selectIsOpen: true}
 
   renderHotkeys: ->

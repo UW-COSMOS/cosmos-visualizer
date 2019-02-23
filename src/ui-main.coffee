@@ -72,6 +72,9 @@ class UIMain extends StatefulComponent
       spec.rectStore[i] = {linked_to: {$set: null}}
     @updateState spec
 
+  updateCurrentTag: (tag_id)=> =>
+    @updateState {currentTag: {$set: tag_id}}
+
   selectAnnotation: (i)=> =>
     @updateState {editingRect: {$set: i}}
 
@@ -110,6 +113,7 @@ class UIMain extends StatefulComponent
       selectAnnotation: @selectAnnotation
       appendAnnotation: @appendAnnotation
       updateState: @updateState
+      updateCurrentTag: @updateCurrentTag
       addLink: @addLink
     }
 
