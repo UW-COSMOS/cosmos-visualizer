@@ -256,7 +256,6 @@ class Overlay extends StatefulComponent
       if @state.shiftKey and not event.shiftKey
         do @handleShift(false)
 
-
 Overlay = HotkeysTarget(Overlay)
 
 export {Overlay}
