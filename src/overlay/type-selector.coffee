@@ -4,15 +4,24 @@ import classNames from 'classnames'
 import styled from '@emotion/styled'
 import {Omnibar} from '@blueprintjs/select'
 import Fuse from 'fuse.js'
+import chroma from 'chroma-js'
 
 ListItem = (props)->
   {active, className, onClick, d...} = props
-  className = classNames {active}
+  console.log d
+  className = classNames {active}, className
+  color = chroma d.color
+  l = if active then 0.5 else 0.95
+  light = color.set('hsl.l', l)
+  _ = if active then 0.95 else 0.5
+  dark = color.set('hsl.l', _)
   h 'div.tag-item-container', {
     key: d.id,
-    className, onClick}, (
-    h 'div.tag-item', d.name
-  )
+    className, onClick
+    style: {backgroundColor: light.css(), color: dark.css()}
+  }, [
+    h 'div.tag-item', {}, d.name
+  ]
 
 class TypeSelector extends Component
   render: ->

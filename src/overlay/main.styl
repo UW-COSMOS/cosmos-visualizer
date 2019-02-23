@@ -1,11 +1,19 @@
 
 .tag-item-container
   &:hover
-    background-color: #eeeeee
+    font-weight bold
   &.active
     font-weight: bold
     background-color: #fafafa
   cursor: pointer
   border-top: 1px solid #cccccc
   padding: 8px 12px
+
+div.bp3-omnibar .item-list
+  max-height 60vh
+  overflow-y scroll
+  border-radius 0 0 3px 3px
+  div.tag-item-container
+    display flex
+    flex-direction row
 
