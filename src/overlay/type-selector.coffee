@@ -28,10 +28,9 @@ class TypeSelector extends Component
       rest...
       onItemSelect
       items: tags
+      resetOnSelect: true
       itemListRenderer: (obj)=>
         {filteredItems, activeItem} = obj
-        if filteredItems.length > 10
-          filteredItems = filteredItems.slice(0,10)
         h 'div.item-list', null, filteredItems.map (d)=>
           active = d == activeItem
           onClick = =>

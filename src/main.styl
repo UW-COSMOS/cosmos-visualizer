@@ -100,13 +100,24 @@ div.rect
     background-color #eee
     border 1px solid #ccc
     border-radius 5px
-    min-width: 100px
+    min-width: 122px
     &.top
       top -20px
     &.bottom
       bottom -36px
     &>*
       margin 3px
+
+div.image-container div.notifications
+  position absolute
+  top 0
+  left 0
+  margin 10px
+  div.bp3-toast
+    margin-top: 8px
+    padding: 2px
+  div.bp3-toast:first-child
+    margin-top 0
 
 svg.annotation-links
   position absolute

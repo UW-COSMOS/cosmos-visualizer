@@ -1,16 +1,46 @@
-import {Component} from 'react'
+import {Component, createContext} from 'react'
 import h from 'react-hyperscript'
 import {select, event} from 'd3-selection'
 import {drag} from 'd3-drag'
 import {findDOMNode} from 'react-dom'
-import {Hotkey, Hotkeys, HotkeysTarget} from "@blueprintjs/core"
+import {Hotkey, Hotkeys, HotkeysTarget, Intent} from "@blueprintjs/core"
 import {Tag, ActiveTag, tagColor} from '../annotation'
 import {AnnotationLinks} from './annotation-links'
 import {TypeSelector} from './type-selector'
+import {StatefulComponent} from '../util'
+import {EditorContext} from './context'
+
+import {EditMode} from '../enum'
+import {Toast, Toaster, Position} from '@blueprintjs/core'
 
 import './main.styl'
 
-class Overlay extends Component
+{ADD_PART, LINK} = EditMode
+
+Messages = {
+  [ADD_PART]: "Add part"
+  [LINK]: "Add link"
+}
+
+SHIFT_MODES = new Set([LINK, ADD_PART])
+
+class ModalNotifications extends Component
+  @contextType: EditorContext
+  renderToast: (mode)->
+    {actions, editModes} = @context
+    return null unless editModes.has(mode)
+    message = Messages[mode]
+    onDismiss = =>
+      actions.setMode(mode, false)
+    h Toast, {message, onDismiss, timeout: 0, intent: Intent.SUCCESS}
+
+  render: ->
+    h 'div.notifications', [
+      @renderToast(ADD_PART)
+      @renderToast(LINK)
+    ]
+
+class Overlay extends StatefulComponent
   @defaultProps: {
     # Distance we take as a click before switching to drag
     clickDistance: 10
@@ -21,7 +51,25 @@ class Overlay extends Component
     super props
     @state = {
       inProgressAnnotation: null
+      editModes: new Set()
+      shiftKey: false
     }
+
+  componentWillReceiveProps: (nextProps)=>
+    return if nextProps.editingRect == @props.editingRect
+    return if nextProps.editingRect?
+    @updateState {editModes: {$set: new Set()}}
+
+  selectAnnotation: (ix)=>(event)=>
+    {actions, editModes} = @contextValue()
+    # Make sure we don't activate the general
+    # general click or drag handlers
+    event.stopPropagation()
+    if editModes.has(LINK)
+      do actions.addLink(ix)
+      actions.setMode(LINK, false)
+    else
+      do actions.selectAnnotation(ix)
 
   renderAnnotations: ->
     {inProgressAnnotation} = @state
@@ -45,15 +93,6 @@ class Overlay extends Component
         maxPosition: {width, height}
       }
 
-      onClick = (event)=>
-        # Make sure we don't activate the general
-        # general click or drag handlers
-        event.stopPropagation()
-        if event.shiftKey
-          do actions.addLink(ix)
-        else
-          do actions.selectAnnotation(ix)
-
       if _editing
         return h ActiveTag, {
           delete: actions.deleteAnnotation(ix)
@@ -62,9 +101,9 @@ class Overlay extends Component
           enterLinkMode: ->
           opts...
         }
-      return h Tag, {onClick, opts...}
+      return h Tag, {onClick: @selectAnnotation(ix), opts...}
 
-  render: ->
+  renderInterior: ->
     {editingRect, width, height, image_tags,
      scaleFactor, tags, rest...} = @props
     size = {width, height}
@@ -73,7 +112,9 @@ class Overlay extends Component
       selectIsOpen = false
 
     onClick = @disableEditing
+
     h 'div', [
+      h ModalNotifications
       h TypeSelector, {
         tags,
         isOpen: selectIsOpen
@@ -83,6 +124,21 @@ class Overlay extends Component
       h 'div.overlay', {style: size, onClick}, @renderAnnotations()
       h AnnotationLinks, {image_tags, scaleFactor, tags, size...}
     ]
+
+  contextValue: =>
+    {actions} = @props
+    {editModes, shiftKey} = @state
+    if shiftKey then editModes = SHIFT_MODES
+    actions.setMode = @setMode
+    {editModes, shiftKey, actions, update: @updateState}
+
+  setMode: (mode, val)=>
+    val ?= not @state.editModes.has(mode)
+    action = if val then "$add" else "$remove"
+    @updateState {editModes: {[action]: [mode]}}
+
+  render: ->
+    h EditorContext.Provider, {value: @contextValue()}, @renderInterior()
 
   selectTag: (tag)=>
     # Selects tag for active annotation
@@ -119,25 +175,27 @@ class Overlay extends Component
     @setState {inProgressAnnotation: rect}
 
   handleAddAnnotation: =>
-    {shiftKey} = event.sourceEvent
     {actions, editingRect} = @props
     {inProgressAnnotation: r} = @state
     @setState {inProgressAnnotation: null}
 
     return unless r?
-    if shiftKey and editingRect?
+    {editModes} = @contextValue()
+    if editModes.has(ADD_PART) and editingRect?
       # We are adding a box to the currently
       # selected annotation
       fn = actions.updateAnnotation(editingRect)
       fn {boxes: {$push: r.boxes}}
+      # Disable linking mode
     else
       actions.appendAnnotation r
+    @setMode(ADD_PART, false)
 
   disableEditing: =>
     {actions,editingRect} = @props
-    if editingRect?
-      __ = {editingRect: {$set: null}}
-      actions.updateState __
+    return unless editingRect?
+    __ = {editingRect: {$set: null}}
+    actions.updateState __
 
   toggleSelect: =>
     return unless @props.editingRect?
@@ -163,7 +221,16 @@ class Overlay extends Component
         #prevent typing "O" in omnibar input
         preventDefault: true
       }
+      h Hotkey, {
+        label: "Expose secondary commands"
+        combo: "shift"
+        global: true
+        onKeyDown: @handleShift(true)
+      }
     ]
+
+  handleShift: (val)=> =>
+    @setState {shiftKey: val}
 
   componentDidMount: ->
     el = select findDOMNode @
@@ -175,6 +242,11 @@ class Overlay extends Component
       .clickDistance @props.clickDistance
 
     el.call @edgeDrag
+
+    select(document).on 'keyup', (d)=>
+      if @state.shiftKey and not event.shiftKey
+        do @handleShift(false)
+
 
 Overlay = HotkeysTarget(Overlay)
 

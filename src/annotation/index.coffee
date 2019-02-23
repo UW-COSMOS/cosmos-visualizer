@@ -5,6 +5,8 @@ import {DragRectangle, Rectangle} from './drag-rect'
 import {Select} from '@blueprintjs/select'
 import {Navbar, MenuItem, Button, Intent} from '@blueprintjs/core'
 import chroma from 'chroma-js'
+import {EditMode} from '../enum'
+import {EditorContext} from '../overlay/context'
 
 ToolButton = (props)->
   h Button, {small: true, minimal: true, props...}
@@ -60,25 +62,16 @@ class Tag extends Component
         bounds: d,
         update,
         color,
-      rest...}, @deleteButton(i)
+      rest...}, @boxContent(i)
 
-  deleteButton: (i)=>
-    {update, boxes} = @props
-    return null if boxes.length <= 1
-    h ToolButton, {
-      icon: 'cross'
-      className: 'delete-rect'
-      intent: Intent.DANGER
-      onClick: => update {boxes: {$splice: [[i,1]]}}
-    }
-
+  boxContent: ->
   render: =>
     {boxes, update, name, tags, tag_id, rest...} = @props
     isActive = update?
     overallBounds = tagBounds(boxes)
 
     c = @color()
-    alpha = 0.2
+    alpha = 0.3
     if @isSelected()
       alpha = 0.6
     color = c.alpha(alpha).css()
@@ -104,6 +97,7 @@ class Tag extends Component
   renderControls: => null
 
 class ActiveTag extends Tag
+  @contextType: EditorContext
   @defaultProps: {
     enterLinkMode: ->
   }
@@ -114,6 +108,7 @@ class ActiveTag extends Tag
 
   renderLinkButton: =>
     {update, enterLinkMode} = @props
+    {actions: {setMode}, editModes} = @context
     removeLink = ->
       update {linked_to: {$set: null}}
 
@@ -124,7 +119,18 @@ class ActiveTag extends Tag
       }
     return h ToolButton, {
       icon: 'new-link'
-      onClick: enterLinkMode
+      intent: if editModes.has(EditMode.LINK) then Intent.SUCCESS
+      onClick: -> setMode(EditMode.LINK)
+    }
+
+  boxContent: (i)=>
+    {update, boxes} = @props
+    return null if boxes.length <= 1
+    h ToolButton, {
+      icon: 'cross'
+      className: 'delete-rect'
+      intent: Intent.DANGER
+      onClick: => update {boxes: {$splice: [[i,1]]}}
     }
 
   renderControls: =>
@@ -132,6 +138,7 @@ class ActiveTag extends Tag
     return null if not @isSelected()
     currentTag = tags.find (d)-> d.tag_id == tag_id
     className = @editingMenuPosition()
+    {actions: {setMode}, editModes} = @context
 
     # Make sure clicks on the control panel don't dismiss it
     # due to the competing overlay click handler
@@ -144,6 +151,11 @@ class ActiveTag extends Tag
         onClick: onSelect
       }
       @renderLinkButton()
+      h ToolButton, {
+        icon: 'insert'
+        intent: if editModes.has(EditMode.ADD_PART) then Intent.SUCCESS
+        onClick: -> setMode(EditMode.ADD_PART)
+      }
       h ToolButton, {
         icon: 'cross'
         intent: Intent.DANGER
