@@ -5,4 +5,9 @@ Role = Object.freeze({
   VIEW_RESULTS: 'view-results'
 })
 
+EditMode = Object.freeze({
+  LINK: 'link'
+  ADD_PART: 'add-part'
+})
+
 export {Role}
