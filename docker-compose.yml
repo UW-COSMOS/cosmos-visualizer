@@ -41,3 +41,5 @@ services:
       - 34365
     volumes:
       - ./frontend:/user
+      - /user/node_modules
+      - /user/.cache
