@@ -85,15 +85,20 @@ class Tag extends Component
 
   renderControls: => null
 
+ToolButton = (props)->
+  h Button, {small: true, minimal: true, props...}
 
 class ActiveTag extends Tag
+  @defaultProps: {
+    enterLinkMode: ->
+  }
   setTag: (tag)=>
     {update} = @props
     console.log tag
     update {tag_id: {$set: tag.tag_id}}
 
   renderControls: =>
-    {tags, tag_id, delete: deleteRectangle, onSelect} = @props
+    {tags, tag_id, linked_to, delete: deleteRectangle, onSelect, enterLinkMode} = @props
     return null if not @isSelected()
     currentTag = tags.find (d)-> d.tag_id == tag_id
     className = @editingMenuPosition()
@@ -103,18 +108,24 @@ class ActiveTag extends Tag
     onClick = (event)->
       event.stopPropagation()
 
+    if not linked_to?
+      linkButton = h ToolButton, {
+        icon: 'new-link'
+        onClick: enterLinkMode
+      }
+    else
+      linkButton = h ToolButton, {
+        icon: 'ungroup-objects'
+      }
+
     h 'div.rect-controls', {className, onClick, style: {pointerEvents: 'visible'}}, [
-      h Button, {
-        text: "Change type"
-        small: true
-        className: 'select-box'
-        minimal: true
+      h ToolButton, {
+        icon: 'tag'
         onClick: onSelect
       }
-      h Button, {
+      linkButton
+      h ToolButton, {
         icon: 'cross'
-        minimal: true
-        small: true
         intent: Intent.DANGER
         onClick: deleteRectangle
       }
