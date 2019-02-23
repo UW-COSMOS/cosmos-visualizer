@@ -113,7 +113,7 @@ div.rect
     &>*
       margin 3px
 
-div.image-container div.notifications
+div.notifications
   position absolute
   top 0
   left 0
@@ -124,8 +124,35 @@ div.image-container div.notifications
   div.bp3-toast:first-child
     margin-top 0
 
+  div.edit-mode
+    padding 3px 3px 3px 8px
+    width 150px
+    display flex
+    margin-bottom 5px
+    height 36px
+    flex-direction row
+    align-items center
+    &>*
+      display block
+    .bp3-button
+      display flex
+    .message
+      flex-grow 1
+      font-style italic
+    .mode
+      font-weight bold
+      font-size 0.9em
+      text-transform uppercase
+      color: #444
+      padding-right 0.5em
+    &.link
+      background-color: #ccffaa
+    &.add-part
+      background-color: #aaddff
+
 svg.annotation-links
   position absolute
   top 0
   left 0
   pointer-events none
+

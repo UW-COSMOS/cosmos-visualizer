@@ -11,28 +11,43 @@ import {StatefulComponent} from '../util'
 import {EditorContext} from './context'
 
 import {EditMode} from '../enum'
-import {Toast, Toaster, Position} from '@blueprintjs/core'
+import {Card, Button} from '@blueprintjs/core'
+import classNames from 'classnames'
 
 import './main.styl'
 
 {ADD_PART, LINK} = EditMode
-
-Messages = {
-  [ADD_PART]: "Add part"
-  [LINK]: "Add link"
-}
-
 SHIFT_MODES = new Set([LINK, ADD_PART])
 
 class ModalNotifications extends Component
   @contextType: EditorContext
+  Messages: {
+    [ADD_PART]: "Add part"
+    [LINK]: "Add link"
+  }
   renderToast: (mode)->
-    {actions, editModes} = @context
+    {actions, editModes, shiftKey} = @context
     return null unless editModes.has(mode)
-    message = Messages[mode]
-    onDismiss = =>
+    message = @Messages[mode]
+    onClick = (event)=>
+      event.stopPropagation()
       actions.setMode(mode, false)
-    h Toast, {message, onDismiss, timeout: 0, intent: Intent.SUCCESS}
+
+    deleteButton = null
+    if not shiftKey
+      deleteButton = h Button, {
+        minimal: true,
+        icon: 'cross',
+        intent: Intent.DANGER,
+        onClick
+      }
+
+    className = classNames("edit-mode", mode)
+    h Card, {className, icon: null}, [
+      h 'span.mode', "Mode"
+      h 'span.message', message
+      deleteButton
+    ]
 
   render: ->
     h 'div.notifications', [
@@ -123,7 +138,6 @@ class Overlay extends StatefulComponent
     onClick = @disableEditing
 
     h 'div', [
-      h ModalNotifications
       h TypeSelector, {
         tags,
         isOpen: selectIsOpen
@@ -132,6 +146,7 @@ class Overlay extends StatefulComponent
       }
       h 'div.overlay', {style: size, onClick}, @renderAnnotations()
       h AnnotationLinks, {image_tags, scaleFactor, tags, size...}
+      h ModalNotifications
     ]
 
   contextValue: =>
