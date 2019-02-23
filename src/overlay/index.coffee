@@ -59,6 +59,7 @@ class Overlay extends Component
           delete: actions.deleteAnnotation(ix)
           update: actions.updateAnnotation(ix)
           onSelect: @toggleSelect
+          enterLinkMode: ->
           opts...
         }
       return h Tag, {onClick, opts...}

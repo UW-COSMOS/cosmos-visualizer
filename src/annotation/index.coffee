@@ -6,6 +6,9 @@ import {Select} from '@blueprintjs/select'
 import {Navbar, MenuItem, Button, Intent} from '@blueprintjs/core'
 import chroma from 'chroma-js'
 
+ToolButton = (props)->
+  h Button, {small: true, minimal: true, props...}
+
 tagBounds = (boxes)->
   return [
     min boxes, (d)->d[0]
@@ -50,9 +53,24 @@ class Tag extends Component
     className = null
     if update?
       className = 'active'
+
     h 'div.tag', {className}, boxes.map (d, i)=>
       update = @tagUpdater(i)
-      h Rectangle, {bounds: d, update, color, rest...}
+      h Rectangle, {
+        bounds: d,
+        update,
+        color,
+      rest...}, @deleteButton(i)
+
+  deleteButton: (i)=>
+    {update, boxes} = @props
+    return null if boxes.length <= 1
+    h ToolButton, {
+      icon: 'cross'
+      className: 'delete-rect'
+      intent: Intent.DANGER
+      onClick: => update {boxes: {$splice: [[i,1]]}}
+    }
 
   render: =>
     {boxes, update, name, tags, tag_id, rest...} = @props
@@ -85,9 +103,6 @@ class Tag extends Component
 
   renderControls: => null
 
-ToolButton = (props)->
-  h Button, {small: true, minimal: true, props...}
-
 class ActiveTag extends Tag
   @defaultProps: {
     enterLinkMode: ->
@@ -97,8 +112,23 @@ class ActiveTag extends Tag
     console.log tag
     update {tag_id: {$set: tag.tag_id}}
 
+  renderLinkButton: =>
+    {update, enterLinkMode} = @props
+    removeLink = ->
+      update {linked_to: {$set: null}}
+
+    if @props.linked_to?
+      return h ToolButton, {
+        icon: 'ungroup-objects'
+        onClick: removeLink
+      }
+    return h ToolButton, {
+      icon: 'new-link'
+      onClick: enterLinkMode
+    }
+
   renderControls: =>
-    {tags, tag_id, linked_to, delete: deleteRectangle, onSelect, enterLinkMode} = @props
+    {tags, tag_id, linked_to, update, delete: deleteRectangle, onSelect, enterLinkMode} = @props
     return null if not @isSelected()
     currentTag = tags.find (d)-> d.tag_id == tag_id
     className = @editingMenuPosition()
@@ -108,22 +138,12 @@ class ActiveTag extends Tag
     onClick = (event)->
       event.stopPropagation()
 
-    if not linked_to?
-      linkButton = h ToolButton, {
-        icon: 'new-link'
-        onClick: enterLinkMode
-      }
-    else
-      linkButton = h ToolButton, {
-        icon: 'ungroup-objects'
-      }
-
     h 'div.rect-controls', {className, onClick, style: {pointerEvents: 'visible'}}, [
       h ToolButton, {
         icon: 'tag'
         onClick: onSelect
       }
-      linkButton
+      @renderLinkButton()
       h ToolButton, {
         icon: 'cross'
         intent: Intent.DANGER
