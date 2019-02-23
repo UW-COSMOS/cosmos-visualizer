@@ -94,8 +94,9 @@ class Overlay extends StatefulComponent
         maxPosition: {width, height}
       }
 
+      props = opts
       if _editing
-        return h ActiveTag, {
+        props = {
           delete: actions.deleteAnnotation(ix)
           update: actions.updateAnnotation(ix)
           onSelect: @toggleSelect
@@ -103,13 +104,15 @@ class Overlay extends StatefulComponent
           opts...
         }
       onMouseDown = =>
-        return if editingRect == ix
+        #return if editingRect == ix
         do @selectAnnotation(ix)
         @setState {clickingInRect: ix}
         # Don't allow dragging
         event.stopPropagation()
 
-      return h Tag, {onMouseDown, opts...}
+      return h ActiveTag, {
+        onMouseDown, props...
+      }
 
   renderInterior: ->
     {editingRect, width, height, image_tags,

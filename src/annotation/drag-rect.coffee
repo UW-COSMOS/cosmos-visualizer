@@ -106,7 +106,7 @@ class DragRectangle extends Component
 
     {dragInteraction} = @
     h StaticRectangle, {rest..., className, isSelected, onClick}, [
-      h DragHandles, {dragInteraction}
+      if @props.update? then h(DragHandles, {dragInteraction}) else null
       children
     ]
 
@@ -133,6 +133,7 @@ class DragRectangle extends Component
     dx = client.x-source.x
     dy = client.y-source.y
     {update, minSize, maxPosition, scaleFactor} = @props
+    return unless update?
     scaleFactor ?= 1
 
     if side.includes('top')
@@ -187,8 +188,6 @@ class DragRectangle extends Component
     el.call @dragInteraction()
 
 Rectangle = (props)->
-  if props.update?
-    return h DragRectangle, props
-  return h StaticRectangle, props
+  return h DragRectangle, props
 
 export {DragRectangle, Rectangle}
