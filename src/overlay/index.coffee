@@ -101,7 +101,12 @@ class Overlay extends StatefulComponent
           enterLinkMode: ->
           opts...
         }
-      return h Tag, {onClick: @selectAnnotation(ix), opts...}
+      onMouseDown = =>
+        console.log "Clicked rect"
+        return if editingRect == ix
+        do @selectAnnotation(ix)
+
+      return h Tag, {onClick: @selectAnnotation(ix), onMouseDown, opts...}
 
   renderInterior: ->
     {editingRect, width, height, image_tags,

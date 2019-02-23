@@ -68,6 +68,12 @@ class StaticRectangle extends Component
 
     h 'div.rect', {style, onClick, className}, children
 
+  componentDidMount: ->
+    {onMouseDown} = @props
+    return unless onMouseDown?
+    el = select findDOMNode @
+    el.on 'mousedown', onMouseDown
+
 class DragRectangle extends Component
   @defaultProps: {
     minSize: {width: 10, height: 10}
