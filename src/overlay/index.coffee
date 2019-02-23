@@ -53,6 +53,7 @@ class Overlay extends StatefulComponent
       inProgressAnnotation: null
       editModes: new Set()
       shiftKey: false
+      clickingInRect: null
     }
 
   componentWillReceiveProps: (nextProps)=>
@@ -102,11 +103,13 @@ class Overlay extends StatefulComponent
           opts...
         }
       onMouseDown = =>
-        console.log "Clicked rect"
         return if editingRect == ix
         do @selectAnnotation(ix)
+        @setState {clickingInRect: ix}
+        # Don't allow dragging
+        event.stopPropagation()
 
-      return h Tag, {onClick: @selectAnnotation(ix), onMouseDown, opts...}
+      return h Tag, {onMouseDown, opts...}
 
   renderInterior: ->
     {editingRect, width, height, image_tags,
@@ -159,6 +162,7 @@ class Overlay extends StatefulComponent
     {x,y} = subject
     {clickDistance, editingRect, currentTag,
      scaleFactor, editingEnabled, image_tags} = @props
+    {clickingInRect} = @state
     return if not editingEnabled
 
     # Make sure we color with the tag this will be
@@ -186,7 +190,7 @@ class Overlay extends StatefulComponent
     # We are adding a new annotation
     boxes = [[x,y,x+width,y+height]]
     rect = {boxes, tag_id: currentTag}
-    @setState {inProgressAnnotation: rect}
+    @setState {inProgressAnnotation: rect, clickingInRect: null}
 
   handleAddAnnotation: =>
     {actions, editingRect} = @props

@@ -69,7 +69,7 @@ class StaticRectangle extends Component
     h 'div.rect', {style, onClick, className}, children
 
   componentDidMount: ->
-    {onMouseDown} = @props
+    {onMouseDown, onClick} = @props
     return unless onMouseDown?
     el = select findDOMNode @
     el.on 'mousedown', onMouseDown
