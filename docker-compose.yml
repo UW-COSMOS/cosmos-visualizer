@@ -39,6 +39,10 @@ services:
       - '34365:34365'
     expose:
       - 34365
+    environment:
+      # Public URL is settable from the
+      # local environment
+      - PUBLIC_URL
     volumes:
       - ./frontend:/user
       - /user/node_modules
