@@ -61,7 +61,7 @@ class App extends Component
       subtitleText = "View training data"
     else if role == Role.VIEW_RESULTS
       editingEnabled = false
-      nextImageEndpoint = "/image/prediction"
+      nextImageEndpoint = "/image/next_prediction"
       subtitleText = "View results"
       permalinkRoute = "/view-results"
 
