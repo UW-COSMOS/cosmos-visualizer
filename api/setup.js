@@ -75,7 +75,35 @@ async function setup() {
 
     let stats = fs.statSync(join(folder, entry))
     // For each entry check if it is a directory
-    if (!stats.isDirectory()) continue
+    if (!stats.isDirectory()){
+        // It's a file!
+                let parts = entry.split('_')
+                if (!parts.length) continue
+                let doc_id = parts[0]
+                let page_no = parts[2]
+                let file_path = join(folder, entry);
+                let row = await db.oneOrNone("SELECT image_id FROM image WHERE doc_id=$1 AND page_no=$2", [doc_id, page_no]);
+                let image_id = null
+                    if (row == null) {
+                        image_id = uuidv4();
+                    } else {
+                        image_id = row.image_id;
+                    }
+
+                // add image -- does nothing if docid, pageno exit
+                await db.query(insertImage, [
+                        image_id,
+                        doc_id,
+                        page_no,
+                        file_path
+                        ]);
+
+                // associate image_id to stack
+                await db.query(insertImageStack, [
+                        image_id,
+                        datasetName
+                        ]);
+    } else {
     // Now we know this is a document
     let doc_id = entry
     // Get all the pages for this document and insert them into the database
@@ -105,6 +133,7 @@ async function setup() {
         image_id,
         datasetName
       ]);
+    }
     }
   }
 }
