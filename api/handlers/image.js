@@ -19,6 +19,7 @@ module.exports = ()=> {
 
   const handler = async (req, res, next, plugins) => {
     const {db} = plugins;
+    console.log(req.query.image_id)
     if (req.query.image_id === 'next') {
       type='annotation';
       let row = await db.one(`
@@ -78,7 +79,7 @@ module.exports = ()=> {
         return res.error(req, res, next, 'An internal error occurred', 500)
       }
       res.reply(req, res, next, row);
-    } else if ( req.query.image_id === 'prediction') {
+    } else if ( req.query.image_id === 'next_prediction') {
         //TODO : this type should key into the stack_type column in the stack table instead of the stack_id like it does now
       type='prediction';
       let where = 'WHERE true'
@@ -99,6 +100,7 @@ module.exports = ()=> {
           ORDER BY random()
           LIMIT 1`, params);
 
+          console.log(row)
         if (!row) {
           return res.reply(req, res, next, []);
         } else {

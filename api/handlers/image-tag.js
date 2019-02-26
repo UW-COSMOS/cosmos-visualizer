@@ -25,6 +25,24 @@ async function handleGet(req, res, next, plugins) {
   }
 
   try {
+    console.log(`
+      SELECT
+        it.image_tag_id,
+        it.image_stack_id,
+        it.linked_to,
+        tag.tag_id,
+        tag.name,
+        bbox_array(geometry) boxes,
+        it.tagger,
+        it.validator,
+        it.created
+      FROM tag
+      JOIN image_tag it
+        ON it.tag_id = tag.tag_id
+      JOIN image_stack USING (image_stack_id)
+      WHERE image_stack.image_id = $(image_id)
+      ${where.length ? ' AND ' + where.join(' AND ') : ''}
+    `, params);
     let tags = await db.any(`
       SELECT
         it.image_tag_id,
