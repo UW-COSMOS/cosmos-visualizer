@@ -5,4 +5,11 @@ Role = Object.freeze({
   VIEW_RESULTS: 'view-results'
 })
 
-export {Role}
+EditMode = Object.freeze({
+  NORMAL: 'normal'
+  LINK: 'link'
+  ADD_PART: 'add-part'
+  SHIFT: 'shift'
+})
+
+export {Role, EditMode}

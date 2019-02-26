@@ -39,7 +39,7 @@ Handle = ({side, margin})->
 
   className = side
 
-  return h 'div', {style, className, __data__: side}
+  return h 'div.drag-handle', {style, className, __data__: side}
 
 class StaticRectangle extends Component
   @defaultProps: {
@@ -68,6 +68,30 @@ class StaticRectangle extends Component
 
     h 'div.rect', {style, onClick, className}, children
 
+  componentDidMount: ->
+    {onMouseDown, onClick} = @props
+    return unless onMouseDown?
+    el = select findDOMNode @
+    el.on 'mousedown', onMouseDown
+
+class DragHandles extends Component
+  render: ->
+    h 'div.handles', [
+      h Handle, {side: 'top'}
+      h Handle, {side: 'bottom'}
+      h Handle, {side: 'left'}
+      h Handle, {side: 'right'}
+      h Handle, {side: 'top right', margin: 6}
+      h Handle, {side: 'bottom right', margin: 6}
+      h Handle, {side: 'top left', margin: 6}
+      h Handle, {side: 'bottom left', margin: 6}
+    ]
+  componentDidMount: ->
+    {dragInteraction} = @props
+    el = select findDOMNode @
+    el.selectAll 'div.drag-handle'
+      .call dragInteraction()
+
 class DragRectangle extends Component
   @defaultProps: {
     minSize: {width: 10, height: 10}
@@ -75,24 +99,14 @@ class DragRectangle extends Component
   render: ->
     {children, rest...} = @props
     margin = 4
-    ew = {top: margin, bottom: margin, width: 2*margin}
-    ns = {left: margin, right: margin, height: 2*margin}
     className = 'draggable'
     isSelected = true
     onClick = (e)->
       e.stopPropagation()
 
+    {dragInteraction} = @
     h StaticRectangle, {rest..., className, isSelected, onClick}, [
-      h 'div.handles', [
-        h Handle, {side: 'top'}
-        h Handle, {side: 'bottom'}
-        h Handle, {side: 'left'}
-        h Handle, {side: 'right'}
-        h Handle, {side: 'top right', margin: 6}
-        h Handle, {side: 'bottom right', margin: 6}
-        h Handle, {side: 'top left', margin: 6}
-        h Handle, {side: 'bottom left', margin: 6}
-      ]
+      if @props.update? then h(DragHandles, {dragInteraction}) else null
       children
     ]
 
@@ -119,6 +133,7 @@ class DragRectangle extends Component
     dx = client.x-source.x
     dy = client.y-source.y
     {update, minSize, maxPosition, scaleFactor} = @props
+    return unless update?
     scaleFactor ?= 1
 
     if side.includes('top')
@@ -160,24 +175,19 @@ class DragRectangle extends Component
     update {bounds: {$set: [x,y,x+width,y+height]}}
     event.sourceEvent.stopPropagation()
 
-  componentDidMount: ->
-    el = select findDOMNode @
+  dragInteraction: =>
     {handleDrag} = @
-
-    edgeDrag = drag()
+    return drag()
       .subject @dragSubject
       .on "drag", ->
         d = @getAttribute('__data__')
         handleDrag(d)
 
-    el.selectAll '.handles div'
-      .call edgeDrag
-
-    el.call edgeDrag
+  componentDidMount: ->
+    el = select findDOMNode @
+    el.call @dragInteraction()
 
 Rectangle = (props)->
-  if props.update?
-    return h DragRectangle, props
-  return h StaticRectangle, props
+  return h DragRectangle, props
 
 export {DragRectangle, Rectangle}

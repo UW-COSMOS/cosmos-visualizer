@@ -13,6 +13,7 @@ import {StatefulComponent} from './util'
 import {AppToaster} from './toaster'
 import {Overlay} from './overlay'
 import {APIContext} from './api'
+import {InfoDialog} from './info-dialog'
 
 # Updates props for a rectangle
 # from API signature to our internal signature
@@ -28,6 +29,7 @@ class UIMain extends StatefulComponent
   constructor: (props)->
     super props
     @state = {
+      infoDialogIsOpen: false
       currentImage: null
       editingRect: null
       currentTag: null
@@ -72,6 +74,9 @@ class UIMain extends StatefulComponent
       spec.rectStore[i] = {linked_to: {$set: null}}
     @updateState spec
 
+  updateCurrentTag: (tag_id)=> =>
+    @updateState {currentTag: {$set: tag_id}}
+
   selectAnnotation: (i)=> =>
     @updateState {editingRect: {$set: i}}
 
@@ -110,6 +115,7 @@ class UIMain extends StatefulComponent
       selectAnnotation: @selectAnnotation
       appendAnnotation: @appendAnnotation
       updateState: @updateState
+      updateCurrentTag: @updateCurrentTag
       addLink: @addLink
     }
 
@@ -144,13 +150,6 @@ class UIMain extends StatefulComponent
     {subtitleText} = @props
     return null if not subtitleText?
     return h Navbar.Heading, {className: 'subtitle'}, subtitleText
-
-  renderInstructions: =>
-    {editingEnabled} = @props
-    text = "Saving disabled"
-    if editingEnabled
-      text = "Click + drag to create item. Click existing item to adjust."
-    return h Navbar.Heading, {className: "instructions"}, h(Text, text)
 
   renderPersistenceButtonArray: =>
     # Persist data to backend if editing is enabled
@@ -199,15 +198,38 @@ class UIMain extends StatefulComponent
       onClick: @getImageToDisplay
     }
 
+  displayKeyboardShortcuts: =>
+    # Blueprint doesn't allow us to show keyboard shortcuts programmatically
+    # without simulating the keycode. Wait for resolution of
+    # https://github.com/palantir/blueprint/issues/1590
+    @setState {infoDialogIsOpen: false}
+    document.dispatchEvent(new KeyboardEvent('keydown', {
+      which: 47, keyCode: 47, shiftKey: true, bubbles: true }))
+
+  displayInfoBox: (isOpen)=> =>
+    isOpen ?= true
+    @setState {infoDialogIsOpen: isOpen}
+
+  renderInfoDialog: =>
+    {infoDialogIsOpen: isOpen} = @state
+    {editingEnabled} = @props
+    {displayKeyboardShortcuts} = @
+    h InfoDialog, {isOpen, onClose: @displayInfoBox(false), editingEnabled, displayKeyboardShortcuts}
+
   render: ->
     h 'div.main', [
       h Navbar, {fixedToTop: true}, [
         h Navbar.Group, [
-          h 'a', {href: '/'}, [
-            h Navbar.Heading, "Image tagger"
-          ]
+          h Navbar.Heading, null,  (
+            h 'a', {href: '/'}, [
+              h 'h1', "Image tagger"
+            ]
+          )
           @renderSubtitle()
-          @renderInstructions()
+          h Button, {
+            icon: 'info-sign'
+            onClick: @displayInfoBox()
+          }, "Usage"
         ]
         h Navbar.Group, {align: Alignment.RIGHT}, [
           @renderImageLink()
@@ -218,6 +240,7 @@ class UIMain extends StatefulComponent
         ]
       ]
       @renderImageContainer()
+      @renderInfoDialog()
     ]
 
   saveData: =>

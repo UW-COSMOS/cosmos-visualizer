@@ -30,6 +30,11 @@ html
 
 .bp3-navbar
   background-color: #eee
+  .bp3-navbar-heading a
+    text-decoration none
+    color: #444444
+  h1
+    font-size 1.2em
 
 
 .main-toaster
@@ -85,30 +90,69 @@ div.rect
       cursor: nesw-resize
     .top.left, .right.bottom
       cursor: nwse-resize
+  .delete-rect
+    right 2px
+    top 2px
+    position absolute
   div.tag-name
     position absolute
     font-weight 600
     top -16px
     font-size 12px
   div.rect-controls
-    z-index 50
+    z-index 10
     position absolute
     background-color #eee
-    border 1px solid #aaa
-    border-radius 3px
-    width 180px
+    border 1px solid #ccc
+    border-radius 5px
+    min-width: 122px
     &.top
-      top -50px
+      top -20px
     &.bottom
-      bottom -50px
-    .select-box
-      width 128px
-      text-align left
+      bottom -36px
     &>*
-      margin 5px
+      margin 3px
+
+div.notifications
+  position absolute
+  top 0
+  left 0
+  margin 10px
+  div.bp3-toast
+    margin-top: 8px
+    padding: 2px
+  div.bp3-toast:first-child
+    margin-top 0
+
+  div.edit-mode
+    padding 3px 3px 3px 8px
+    width 150px
+    display flex
+    margin-bottom 5px
+    height 36px
+    flex-direction row
+    align-items center
+    &>*
+      display block
+    .bp3-button
+      display flex
+    .message
+      flex-grow 1
+      font-style italic
+    .mode
+      font-weight bold
+      font-size 0.9em
+      text-transform uppercase
+      color: #444
+      padding-right 0.5em
+    &.link
+      background-color: #ccffaa
+    &.add-part
+      background-color: #aaddff
 
 svg.annotation-links
   position absolute
   top 0
   left 0
   pointer-events none
+

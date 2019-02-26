@@ -2,4 +2,4 @@
 
 git submodule update --init
 npm install
-parcel --hmr-port 34365 index.html
+parcel --hmr-port 34365 --public-url "$PUBLIC_URL" index.html
