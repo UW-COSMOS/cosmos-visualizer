@@ -42,7 +42,10 @@ services:
     environment:
       # Public URL is settable from the
       # local environment
-      - PUBLIC_URL
+      - PUBLIC_URL=/
+      - API_BASE_URL=/image-tagger/api
+      - IMAGE_BASE_URL=/image-tagger/images/
+
     volumes:
       - ./frontend:/user
       - /user/node_modules
