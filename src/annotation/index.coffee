@@ -5,6 +5,7 @@ import {DragRectangle, Rectangle} from './drag-rect'
 import {Select} from '@blueprintjs/select'
 import {Navbar, MenuItem, Button, Intent} from '@blueprintjs/core'
 import chroma from 'chroma-js'
+import classNames from 'classnames'
 import {EditMode} from '../enum'
 import {EditorContext} from '../overlay/context'
 
@@ -29,6 +30,11 @@ tagColor = ({tags, tag_id})->
     chroma(tagData.color)
 
 class Tag extends Component
+  @contextType: EditorContext
+  @defaultProps: {
+    enterLinkMode: ->
+    locked: false
+  }
   tagUpdater: (ix)=>
     {update} = @props
     return null unless update?
@@ -41,17 +47,11 @@ class Tag extends Component
   color: => tagColor(@props)
 
   isSelected: =>
-    {update} = @props
-    return update?
+    {update, locked} = @props
+    return update? and not locked
 
-  renderTags: =>
-    {boxes, update, color, rest...} = @props
-    alpha = 0.2
-    if @isSelected()
-      alpha = 0.6
-
-    c = @color()
-    color = c.alpha(alpha).css()
+  renderTags: (color)=>
+    {boxes, update, rest...} = @props
 
     className = null
     if update?
@@ -65,24 +65,28 @@ class Tag extends Component
         color,
       rest...}, @boxContent(i)
 
-  boxContent: ->
   render: =>
-    {boxes, update, name, tags, tag_id, rest...} = @props
-    isActive = update?
+    {boxes, update, name, tags, tag_id, locked, rest...} = @props
     overallBounds = tagBounds(boxes)
 
     c = @color()
     alpha = 0.3
     if @isSelected()
       alpha = 0.6
+    if locked
+      alpha = 0.1
+
     color = c.alpha(alpha).css()
     textColor = c.darken(2)
 
     tagData = tags.find (d)->d.tag_id == tag_id
     name = h 'div.tag-name', {style: {color: textColor}}, tagData.name
+    if locked
+      name = null
 
 
-    h 'div.contents', [
+    className = classNames 'annotation', {locked}
+    h 'div.contents', {className}, [
       h Rectangle, {
         bounds: overallBounds,
         color, backgroundColor: 'none',
@@ -92,16 +96,9 @@ class Tag extends Component
         name
         @renderControls()
       ]
-      @renderTags()
+      @renderTags(color)
     ]
 
-  renderControls: => null
-
-class ActiveTag extends Tag
-  @contextType: EditorContext
-  @defaultProps: {
-    enterLinkMode: ->
-  }
   setTag: (tag)=>
     {update} = @props
     console.log tag
@@ -173,4 +170,4 @@ class ActiveTag extends Tag
         return 'top'
     return 'bottom'
 
-export {Tag, ActiveTag, tagCenter, tagBounds, tagColor}
+export {Tag, tagCenter, tagBounds, tagColor}

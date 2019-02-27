@@ -89,7 +89,7 @@ class Overlay extends StatefulComponent
       do actions.selectAnnotation(ix)
 
   renderAnnotations: ->
-    {inProgressAnnotation} = @state
+    {inProgressAnnotation, lockedTags} = @state
     {image_tags, tags, width, height,
      editingRect, actions, scaleFactor} = @props
 
@@ -98,7 +98,8 @@ class Overlay extends StatefulComponent
       image_tags = [image_tags..., inProgressAnnotation]
 
     image_tags.map (d, ix)=>
-      _editing = ix == editingRect
+      locked = lockedTags.has(d.tag_id)
+      _editing = ix == editingRect and not locked
 
       opacity = if _editing then 0.5 else 0.3
 
@@ -108,11 +109,11 @@ class Overlay extends StatefulComponent
         tags
         scaleFactor
         maxPosition: {width, height}
+        locked
       }
 
-      props = opts
       if _editing
-        props = {
+        opts = {
           delete: actions.deleteAnnotation(ix)
           update: actions.updateAnnotation(ix)
           onSelect: @toggleSelect
@@ -127,7 +128,7 @@ class Overlay extends StatefulComponent
         event.stopPropagation()
 
       return h ActiveTag, {
-        onMouseDown, props...
+        onMouseDown, opts...
       }
 
   toggleTagLock: (tagId)=> =>
@@ -191,8 +192,9 @@ class Overlay extends StatefulComponent
     {x,y} = subject
     {clickDistance, editingRect, currentTag,
      scaleFactor, editingEnabled, image_tags} = @props
-    {clickingInRect} = @state
+    {clickingInRect, lockedTags} = @state
     return if not editingEnabled
+    return if lockedTags.has(currentTag)
 
     # Make sure we color with the tag this will be
     {editModes} = @contextValue()
