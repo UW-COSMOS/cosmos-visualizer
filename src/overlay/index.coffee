@@ -69,6 +69,7 @@ class Overlay extends StatefulComponent
       editModes: new Set()
       shiftKey: false
       clickingInRect: null
+      lockedTags: new Set()
     }
 
   componentWillReceiveProps: (nextProps)=>
@@ -129,17 +130,27 @@ class Overlay extends StatefulComponent
         onMouseDown, props...
       }
 
+  toggleTagLock: (tagId)=> =>
+    {lockedTags} = @state
+    if lockedTags.has(tagId)
+      lockedTags.delete(tagId)
+    else
+      lockedTags.add(tagId)
+    @updateState {lockedTags: {$set: lockedTags}}
+
   renderInterior: ->
     {editingRect, width, height, image_tags,
      scaleFactor, tags, rest...} = @props
     size = {width, height}
-    {selectIsOpen} = @state
+    {selectIsOpen, lockedTags} = @state
 
     onClick = @disableEditing
 
     h 'div', [
       h TypeSelector, {
-        tags,
+        tags
+        lockedTags
+        toggleLock: @toggleTagLock
         isOpen: selectIsOpen
         onClose: => @setState {selectIsOpen: false}
         onItemSelect: @selectTag
