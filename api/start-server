@@ -1,0 +1,42 @@
+#!/bin/sh
+
+# Wait until PostgreSQL is available
+# and then set up the schema
+node setup.js "/images/" "default"
+
+run_app() {
+  # If we have mounted a debug directory,
+  # proceed with nodemon in that directory
+  # (this is a debug convenience that may be more
+  # trouble than it's worth)
+  if [ -d /debug-src ]; then
+    ln -s /src/node_modules /debug-src/node_modules
+    cp /src/api_key.js /debug-src/api_key.js
+    cd /debug-src
+    nodemon --ignore 'node_modules/**' index.js
+  else
+    node index.js
+  fi
+}
+
+if [ -z "${IMAGE_TAGGER_API_MODE}" ]
+then
+    echo "No startup mode specified -- assumed prediction ingest."
+    IMAGE_TAGGER_API_MODE='prediction'
+fi
+
+if [ "$IMAGE_TAGGER_API_MODE" = "prediction" ]
+then
+  run_app
+  # Not Guess this happens afterwards?
+  #python import_predictions.py /xml /images
+elif [ "$IMAGE_TAGGER_API_MODE" = "annotate" ]
+then
+  #node setup.js images dummy_import &
+  run_app
+else
+  echo "I don't know what to do."
+  exit 1
+fi
+
+

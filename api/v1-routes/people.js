@@ -1,6 +1,45 @@
-const async = require('async')
 const uuidv4 = require('uuid/v4')
 const apiKey = require('../api_key')
+const {wrapHandler} = require('../handlers/util')
+
+const handler = async (req, res, next, plugins) => {
+  const {db} = plugins;
+  if (req.method === 'GET') {
+    let where = (req.query.person_id != 'all') ? `WHERE person_id = ?` : ''
+    let params = (req.query.person_id != 'all') ? [ req.query.person_id ] : []
+    let people = await db.any(`
+      SELECT
+        person_id,
+        name,
+        tagger,
+        validator,
+        created
+      FROM person
+      ${where}`, params);
+    res.reply(req, res, next, people);
+  } else {
+    // Validate the input
+    let incoming = req.body;
+
+    if (!incoming.name) {
+      return res.error(req, res, next, 'A "name" must be provided', 400)
+    }
+    if (!incoming.key || incoming.key != apiKey) {
+      return res.error(req, res, next, 'You do not have permission to create a person', 400)
+    }
+    let person_id = uuidv4()
+
+    try {
+      let params = [person_id, incoming.name, incoming.tagger || true, incoming.validator || false ];
+      db.none(`
+        INSERT INTO person (person_id, name, tagger, validator)
+        VALUES ($1, $2, $3, $4)`, params);
+      res.reply(req, res, next, {'person_id': person_id});
+    } catch(error) {
+      return res.error(req, res, next, 'Something went wrong while adding the person', 500)
+    }
+  }
+}
 
 module.exports = {
   path: '/people/:person_id?',
@@ -56,42 +95,5 @@ module.exports = {
   examples: [
     '/api/v1/people/abc123',
   ],
-  handler: (req, res, next, plugins) => {
-    if (req.method === 'GET') {
-      let where = (req.query.person_id != 'all') ? `WHERE person_id = ?` : ''
-      let params = (req.query.person_id != 'all') ? [ req.query.person_id ] : []
-      plugins.db.all(`
-        SELECT
-          person_id,
-          name,
-          tagger,
-          validator,
-          created
-        FROM people
-        ${where}
-      `, params, (error, people) => {
-        res.reply(req, res, next, people)
-      })
-    } else {
-      // Validate the input
-      let incoming = req.body
-
-      if (!incoming.name) {
-        return res.error(req, res, next, 'A "name" must be provided', 400)
-      }
-      if (!incoming.key || incoming.key != apiKey) {
-        return res.error(req, res, next, 'You do not have permission to create a person', 400)
-      }
-      let person_id = uuidv4()
-      plugins.db.run(`
-        INSERT INTO people (person_id, name, tagger, validator)
-        VALUES (?, ?, ?, ?)
-      `, [person_id, incoming.name, incoming.tagger || true, incoming.validator || false ], (error) => {
-        if (error) {
-          return res.error(req, res, next, 'Somethig went wrong while adding the person', 500)
-        }
-        res.reply(req, res, next, {'person_id': person_id})
-      })
-    }
-  }
+  handler: wrapHandler(handler)
 }

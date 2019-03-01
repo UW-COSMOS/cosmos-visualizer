@@ -1,7 +1,28 @@
 const express = require('express')
 const bodyParser = require('body-parser')
+const Larkin = require('@macrostrat/larkin')
+const fs = require('fs')
+
+const db = require("./database-connection")
+
 const app = express()
-const v1 = require('./v1')
+
+// Define a new larkin instance
+let v1 = new Larkin({
+  version: 1,
+  license: 'MIT',
+  description: 'Routes for powering image-tagger'
+})
+
+// Add postgres
+v1.registerPlugin('db', db)
+
+//Recursively read all the route definition files in the folder /routes and register them
+for (var file of fs.readdirSync(`${__dirname}/v1-routes`)) {
+  // Make sure we don't accidentally read something like .DS_Store
+  if (file.split('.').pop() !== 'js') continue
+  v1.registerRoute(require(`./v1-routes/${file}`))
+}
 
 app.disable('x-powered-by')
 

@@ -13,7 +13,10 @@
     "@macrostrat/larkin": "git+https://github.com/UW-Macrostrat/larkin.git",
     "async": "^2.6.1",
     "body-parser": "^1.18.3",
-    "sqlite3": "^4.0.4",
+    "express": "^4.16.4",
+    "pg-native": "^3.0.0",
+    "pg-promise": "^8.5.5",
+    "tsparser": "^1.0.2",
     "uuid": "^3.3.2"
   }
 }
