@@ -75,6 +75,7 @@ class UIMain extends StatefulComponent
     @updateState spec
 
   updateCurrentTag: (tag_id)=> =>
+    console.log "Current tag: #{tag_id}"
     @updateState {currentTag: {$set: tag_id}}
 
   selectAnnotation: (i)=> =>

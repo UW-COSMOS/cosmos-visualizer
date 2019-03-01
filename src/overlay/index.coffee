@@ -3,8 +3,9 @@ import h from 'react-hyperscript'
 import {select, event} from 'd3-selection'
 import {drag} from 'd3-drag'
 import {findDOMNode} from 'react-dom'
-import {Hotkey, Hotkeys, HotkeysTarget, Intent} from "@blueprintjs/core"
-import {Tag, ActiveTag, tagColor} from '../annotation'
+import {Hotkey, Hotkeys,
+        HotkeysTarget, Intent} from "@blueprintjs/core"
+import {Tag, tagColor} from '../annotation'
 import {AnnotationLinks} from './annotation-links'
 import {TypeSelector} from './type-selector'
 import {StatefulComponent} from '../util'
@@ -127,21 +128,40 @@ class Overlay extends StatefulComponent
         # Don't allow dragging
         event.stopPropagation()
 
-      return h ActiveTag, {
+      return h Tag, {
         onMouseDown, opts...
       }
 
   toggleTagLock: (tagId)=> =>
     {lockedTags} = @state
+    {currentTag, tags, actions} = @props
     if lockedTags.has(tagId)
       lockedTags.delete(tagId)
     else
       lockedTags.add(tagId)
+
+    # Check if locked and then get next unlocked tag
+    ix = tags.findIndex (d)-> d.tag_id==currentTag
+    forward = true
+    console.log ix
+    while lockedTags.has(tags[ix].tag_id)
+      ix += if forward then 1 else -1
+      if ix > tags.length-1
+        forward = false
+        ix -= 1
+      if ix < 0
+        forward = true
+
+    nextTag = tags[ix].tag_id
+
+    if nextTag != currentTag
+      do actions.updateCurrentTag(nextTag)
+
     @updateState {lockedTags: {$set: lockedTags}}
 
   renderInterior: ->
     {editingRect, width, height, image_tags,
-     scaleFactor, tags, rest...} = @props
+     scaleFactor, tags, currentTag, rest...} = @props
     size = {width, height}
     {selectIsOpen, lockedTags} = @state
 
@@ -151,6 +171,7 @@ class Overlay extends StatefulComponent
       h TypeSelector, {
         tags
         lockedTags
+        currentTag
         toggleLock: @toggleTagLock
         isOpen: selectIsOpen
         onClose: => @setState {selectIsOpen: false}
@@ -194,7 +215,8 @@ class Overlay extends StatefulComponent
      scaleFactor, editingEnabled, image_tags} = @props
     {clickingInRect, lockedTags} = @state
     return if not editingEnabled
-    return if lockedTags.has(currentTag)
+    if lockedTags.has(currentTag)
+      throw "Attempting to create a locked tag"
 
     # Make sure we color with the tag this will be
     {editModes} = @contextValue()

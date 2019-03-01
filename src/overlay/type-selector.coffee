@@ -40,7 +40,7 @@ class TypeSelector extends Component
       keys: ["name", "description"]
     }
     fuse = null
-    {tags, lockedTags, toggleLock, onItemSelect, rest...} = @props
+    {tags, lockedTags, toggleLock, onItemSelect, currentTag, rest...} = @props
 
     h Omnibar, {
       rest...
@@ -48,9 +48,10 @@ class TypeSelector extends Component
       items: tags
       resetOnSelect: true
       itemListRenderer: (obj)=>
+        console.log currentTag
         {filteredItems, activeItem} = obj
         h 'div.item-list', null, filteredItems.map (d)=>
-          active = d == activeItem
+          active = d.tag_id == currentTag
           locked = lockedTags.has(d.tag_id)
           onClick = =>
             onItemSelect(d)
