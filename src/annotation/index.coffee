@@ -4,7 +4,6 @@ import {min, max} from 'd3-array'
 import {DragRectangle, Rectangle} from './drag-rect'
 import {Select} from '@blueprintjs/select'
 import {Navbar, MenuItem, Button, Intent} from '@blueprintjs/core'
-import chroma from 'chroma-js'
 import classNames from 'classnames'
 import {EditMode} from '../enum'
 import {EditorContext} from '../overlay/context'
@@ -24,11 +23,6 @@ tagCenter = (boxes)->
   d = tagBounds(boxes)
   return [(d[0]+d[2])/2, (d[1]+d[3])/2]
 
-tagColor = ({tags, tag_id})->
-    tagData = tags.find (d)->d.tag_id == tag_id
-    tagData ?= {color: 'black'}
-    chroma(tagData.color)
-
 class Tag extends Component
   @contextType: EditorContext
   @defaultProps: {
@@ -47,8 +41,8 @@ class Tag extends Component
   color: => tagColor(@props)
 
   isSelected: =>
-    {update, locked} = @props
-    return update? and not locked
+    {update} = @props
+    return update?
 
   renderTags: (color)=>
     {boxes, update, rest...} = @props
@@ -66,27 +60,24 @@ class Tag extends Component
       rest...}, @boxContent(i)
 
   render: =>
-    {boxes, update, name, tags, tag_id, locked, rest...} = @props
+    {tags} = @context
+    {boxes, update, name, tag_id, rest...} = @props
     overallBounds = tagBounds(boxes)
 
-    c = @color()
+    c = @context.helpers.tagColor(tag_id)
     alpha = 0.3
     if @isSelected()
       alpha = 0.6
-    if locked
-      alpha = 0.1
 
     color = c.alpha(alpha).css()
     textColor = c.darken(2)
 
     tagData = tags.find (d)->d.tag_id == tag_id
     name = h 'div.tag-name', {style: {color: textColor}}, tagData.name
-    if locked
-      name = null
 
-
-    className = classNames 'annotation', {locked}
-    h 'div.contents', {className}, [
+    active = @isSelected()
+    className = classNames {active}
+    h 'div.annotation', {className}, [
       h Rectangle, {
         bounds: overallBounds,
         color, backgroundColor: 'none',
@@ -132,7 +123,8 @@ class Tag extends Component
     }
 
   renderControls: =>
-    {tags, tag_id, linked_to, update, delete: deleteRectangle, onSelect, enterLinkMode} = @props
+    {tags} = @context
+    {tag_id, linked_to, update, delete: deleteRectangle, onSelect, enterLinkMode} = @props
     return null if not @isSelected()
     currentTag = tags.find (d)-> d.tag_id == tag_id
     className = @editingMenuPosition()
@@ -162,7 +154,8 @@ class Tag extends Component
     ]
 
   editingMenuPosition: =>
-    {boxes, maxPosition, scaleFactor} = @props
+    {imageSize: maxPosition, scaleFactor} = @context
+    {boxes} = @props
     [x,y,maxX,maxY] = boxes[0]
     maxY /= scaleFactor
     if maxPosition?
@@ -170,4 +163,24 @@ class Tag extends Component
         return 'top'
     return 'bottom'
 
-export {Tag, tagCenter, tagBounds, tagColor}
+class LockedTag extends Component
+  @contextType: EditorContext
+
+  render: =>
+    {boxes, tag_id, rest...} = @props
+    {scaleFactor, imageSize: maxPosition} = @context
+
+    c = @context.helpers.tagColor(tag_id)
+    alpha = 0.2
+    color = c.alpha(alpha).css()
+
+    h 'div.annotation.locked', boxes.map (d, i)=>
+      h Rectangle, {
+        bounds: d,
+        color,
+        scaleFactor,
+        maxPosition,
+        rest...
+      }
+
+export {Tag, LockedTag, tagCenter, tagBounds}

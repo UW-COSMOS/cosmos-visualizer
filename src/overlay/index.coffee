@@ -5,12 +5,13 @@ import {drag} from 'd3-drag'
 import {findDOMNode} from 'react-dom'
 import {Hotkey, Hotkeys,
         HotkeysTarget, Intent} from "@blueprintjs/core"
-import {Tag, tagColor} from '../annotation'
+import {Tag, LockedTag, tagColor} from '../annotation'
 import {AnnotationLinks} from './annotation-links'
 import {TypeSelector} from './type-selector'
 import {StatefulComponent} from '../util'
 import {EditorContext} from './context'
 
+import chroma from 'chroma-js'
 import {EditMode} from '../enum'
 import {Card, Button} from '@blueprintjs/core'
 import classNames from 'classnames'
@@ -100,6 +101,9 @@ class Overlay extends StatefulComponent
 
     image_tags.map (d, ix)=>
       locked = lockedTags.has(d.tag_id)
+      if locked
+        return h LockedTag, {tags, d...}
+
       _editing = ix == editingRect and not locked
 
       opacity = if _editing then 0.5 else 0.3
@@ -182,12 +186,30 @@ class Overlay extends StatefulComponent
       h ModalNotifications
     ]
 
+  tagColor: (tag_id)=>
+    {tags} = @props
+    tagData = tags.find (d)->d.tag_id == tag_id
+    tagData ?= {color: 'black'}
+    chroma(tagData.color)
+
   contextValue: =>
-    {actions} = @props
+    {actions, tags, currentTag, scaleFactor, width, height} = @props
     {editModes, shiftKey} = @state
     if shiftKey then editModes = SHIFT_MODES
     actions.setMode = @setMode
-    {editModes, shiftKey, actions, update: @updateState}
+    helpers = {tagColor: @tagColor}
+
+    return {
+      tags
+      currentTag
+      scaleFactor
+      imageSize: {width, height}
+      editModes
+      shiftKey
+      actions
+      helpers
+      update: @updateState
+    }
 
   setMode: (mode, val)=>
     val ?= not @state.editModes.has(mode)

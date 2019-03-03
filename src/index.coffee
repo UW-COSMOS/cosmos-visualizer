@@ -15,7 +15,6 @@ FocusStyleManager.onlyShowFocusOnTabs()
 
 AppHolder = (props)=>
   {baseURL, rest...} = props
-
   h APIProvider, {baseURL}, [
     h App, {rest...}
   ]
