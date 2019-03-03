@@ -43,8 +43,8 @@ services:
       # Public URL is settable from the
       # local environment
       - PUBLIC_URL=/
-      - API_BASE_URL=/image-tagger/api
-      - IMAGE_BASE_URL=/image-tagger/images/
+      - API_BASE_URL=/api
+      - IMAGE_BASE_URL=/images/
 
     volumes:
       - ./frontend:/user
