@@ -27,7 +27,6 @@ class Tag extends Component
   @contextType: EditorContext
   @defaultProps: {
     enterLinkMode: ->
-    locked: false
   }
   tagUpdater: (ix)=>
     {update} = @props
@@ -37,8 +36,6 @@ class Tag extends Component
       {bounds: subSpec} = spec
       return unless subSpec?
       update {boxes: {[ix]: subSpec}}
-
-  color: => tagColor(@props)
 
   isSelected: =>
     {update} = @props
