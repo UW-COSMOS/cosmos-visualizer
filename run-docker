@@ -2,4 +2,8 @@
 
 git submodule update --init
 npm install
+
+# Make sure we nuke previous dist files, for some
+# reason this matters
+rm -rf dist/*.*
 parcel --hmr-port 34365 --public-url "$PUBLIC_URL" index.html
