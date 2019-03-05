@@ -5,7 +5,7 @@ import {drag} from 'd3-drag'
 import {findDOMNode} from 'react-dom'
 import {Hotkey, Hotkeys,
         HotkeysTarget, Intent} from "@blueprintjs/core"
-import {Tag, LockedTag, tagColor} from '../annotation'
+import {Tag, LockedTag} from '../annotation'
 import {AnnotationLinks} from './annotation-links'
 import {TypeSelector} from './type-selector'
 import {StatefulComponent} from '../util'
@@ -71,7 +71,6 @@ class Overlay extends StatefulComponent
       editModes: new Set()
       shiftKey: false
       clickingInRect: null
-      lockedTags: new Set()
     }
 
   componentWillReceiveProps: (nextProps)=>
@@ -91,8 +90,8 @@ class Overlay extends StatefulComponent
       do actions.selectAnnotation(ix)
 
   renderAnnotations: ->
-    {inProgressAnnotation, lockedTags} = @state
-    {image_tags, tags, width, height,
+    {inProgressAnnotation} = @state
+    {image_tags, tags, width, height, lockedTags
      editingRect, actions, scaleFactor} = @props
 
     if inProgressAnnotation?
@@ -136,38 +135,12 @@ class Overlay extends StatefulComponent
         onMouseDown, opts...
       }
 
-  toggleTagLock: (tagId)=> =>
-    {lockedTags} = @state
-    {currentTag, tags, actions} = @props
-    if lockedTags.has(tagId)
-      lockedTags.delete(tagId)
-    else
-      lockedTags.add(tagId)
-
-    # Check if locked and then get next unlocked tag
-    ix = tags.findIndex (d)-> d.tag_id==currentTag
-    forward = true
-    console.log ix
-    while lockedTags.has(tags[ix].tag_id)
-      ix += if forward then 1 else -1
-      if ix > tags.length-1
-        forward = false
-        ix -= 1
-      if ix < 0
-        forward = true
-
-    nextTag = tags[ix].tag_id
-
-    if nextTag != currentTag
-      do actions.updateCurrentTag(nextTag)
-
-    @updateState {lockedTags: {$set: lockedTags}}
-
   renderInterior: ->
     {editingRect, width, height, image_tags,
-     scaleFactor, tags, currentTag, rest...} = @props
+     scaleFactor, tags, currentTag, lockedTags, actions,
+     rest...} = @props
     size = {width, height}
-    {selectIsOpen, lockedTags} = @state
+    {selectIsOpen} = @state
 
     onClick = @disableEditing
 
@@ -176,7 +149,7 @@ class Overlay extends StatefulComponent
         tags
         lockedTags
         currentTag
-        toggleLock: @toggleTagLock
+        toggleLock: actions.toggleTagLock
         isOpen: selectIsOpen
         onClose: => @setState {selectIsOpen: false}
         onItemSelect: @selectTag
@@ -234,8 +207,9 @@ class Overlay extends StatefulComponent
     {subject} = event
     {x,y} = subject
     {clickDistance, editingRect, currentTag,
-     scaleFactor, editingEnabled, image_tags} = @props
-    {clickingInRect, lockedTags} = @state
+     scaleFactor, editingEnabled,
+     lockedTags, image_tags} = @props
+    {clickingInRect} = @state
     return if not editingEnabled
     if lockedTags.has(currentTag)
       throw "Attempting to create a locked tag"

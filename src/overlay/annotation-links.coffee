@@ -1,10 +1,10 @@
 import {Component} from 'react'
 import h from 'react-hyperscript'
+import {EditorContext} from '../overlay/context'
 import {bboxPolygon, featureCollection,
         polygonToLine,
         nearestPointOnLine,
         centroid, combine} from '@turf/turf'
-import {tagColor} from '../annotation'
 
 class MarkerBox extends Component
   @id: (color)->
@@ -41,6 +41,7 @@ class MarkerArrow extends Component
     )
 
 class AnnotationLinks extends Component
+  @contextType: EditorContext
   renderDefs: (links)->
     colors = new Set links.map((l)->l.color.hex())
     h 'defs', Array.from(colors).map (c)-> [
@@ -67,6 +68,7 @@ class AnnotationLinks extends Component
 
   computeLinks: =>
     {image_tags, scaleFactor, tags} = @props
+    {tagColor} = @context.helpers
 
     boxPolygon = (boxes)->
       polys = boxes
@@ -98,7 +100,7 @@ class AnnotationLinks extends Component
 
       coords = [c1...,c2...].map (d)->d/scaleFactor*1000
 
-      color = tagColor({tags, tag_id: fromTag.tag_id})
+      color = tagColor(fromTag.tag_id)
       links.push {coords, color}
 
     return links

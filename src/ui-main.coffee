@@ -39,6 +39,7 @@ class UIMain extends StatefulComponent
       imageBaseURL: null
       scaleFactor: null
       windowWidth: window.innerWidth
+      lockedTags: new Set()
     }
 
   updateAnnotation: (i)=>(updateSpec)=>
@@ -105,20 +106,20 @@ class UIMain extends StatefulComponent
   renderImageContainer: =>
     {editingEnabled} = @props
     {currentImage, editingRect, scaleFactor
-      rectStore, tagStore, currentTag} = @state
+      rectStore, tagStore, currentTag, lockedTags} = @state
     return null unless currentImage?
     style = @scaledSize()
     onClick = @createAnnotation
 
-    actions = {
-      deleteAnnotation: @deleteAnnotation
-      updateAnnotation: @updateAnnotation
-      selectAnnotation: @selectAnnotation
-      appendAnnotation: @appendAnnotation
-      updateState: @updateState
-      updateCurrentTag: @updateCurrentTag
-      addLink: @addLink
-    }
+    actions = do =>
+      {deleteAnnotation,
+       updateAnnotation,
+       selectAnnotation,
+       appendAnnotation,
+       updateCurrentTag,
+       toggleTagLock,
+       updateState,
+       addLink} = @
 
     h 'div.image-container', {style}, [
       h 'img', {src: @imageURL(currentImage), style...}
@@ -129,10 +130,36 @@ class UIMain extends StatefulComponent
         scaleFactor
         image_tags: rectStore
         tags: tagStore
+        lockedTags
         currentTag
         actions
       }
     ]
+
+  toggleTagLock: (tagId)=> =>
+    {tagStore, currentTag, lockedTags} = @state
+
+    if lockedTags.has(tagId)
+      lockedTags.delete(tagId)
+    else
+      lockedTags.add(tagId)
+
+    # Check if locked and then get next unlocked tag
+    ix = tagStore.findIndex (d)-> d.tag_id==currentTag
+    forward = true
+    while lockedTags.has(tagStore[ix].tag_id)
+      ix += if forward then 1 else -1
+      if ix > tagStore.length-1
+        forward = false
+        ix -= 1
+      if ix < 0
+        forward = true
+
+    nextTag = tagStore[ix].tag_id
+    spec = {lockedTags: {$set: lockedTags}}
+    if nextTag != currentTag
+      spec.currentTag = {$set: nextTag}
+    @updateState spec
 
   clearChanges: =>
     {initialRectStore} = @state
