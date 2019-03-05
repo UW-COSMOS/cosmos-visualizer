@@ -1,12 +1,18 @@
 # Image-Tagger
 
-Image-tagger is a *really* basic web UI that allows the definition of rectangular
+Image-tagger is basic web UI that allows the definition of rectangular
 tagged areas on images for an arbitrary list of object categories. It is designed
-for rapid, distributed generation of training data for machine learning models.
-Rectangular areas are sufficient for the initially envisioned use case of
-categorizing parts of a scientific paper (figures, tables, etc.).
+for both rapid, distributed generation of training data for machine learning models
+and viewing of model classification results.
+This frontend was created to support the COSMOS knowledge-base extraction pipeline.
 
-Unlike other tools of its ilk, image-tagger is completely decoupled from its backend.
+Rectangular areas were sufficient for the initially envisioned use case of
+categorizing parts of a scientific paper (figures, tables, etc.), but the ability
+to define multi-rectangular tags was added recently to allow the incorporation
+of entities split over lines.
+
+Unlike similar tools, image-tagger is open-source, client-side software. It is
+completely decoupled from its backend.
 It requires specification of a base API route on initialization; this API can be
 implemented however but is expected to have several routes:
 
