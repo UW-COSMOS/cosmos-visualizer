@@ -39,6 +39,7 @@ window.createUI = (opts={})->
 
   console.log publicURL, baseURL, imageBaseURL
 
+  # Image base url is properly set here
   el = document.getElementById('app')
   __ = h AppHolder, {baseURL, imageBaseURL, publicURL}
   render __, el

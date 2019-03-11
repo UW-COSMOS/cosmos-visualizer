@@ -1,7 +1,15 @@
 #!/bin/sh
 
+# If not in development mode, we do not need to build the
+# frontend files, so we simply exit.
+[ -z "$DEBUG" ] && exit 0;
+
 git submodule update --init
 npm install
+
+echo "PUBLIC_URL: $PUBLIC_URL"
+echo "API_BASE_URL: $API_BASE_URL"
+echo "IMAGE_BASE_URL: $IMAGE_BASE_URL"
 
 # Make sure we nuke previous dist files, for some
 # reason this matters
