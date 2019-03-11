@@ -11,9 +11,5 @@ ENV IMAGE_BASE_URL="/images/"
 EXPOSE 1234
 EXPOSE 34365
 
-#COPY *.* /user/
-
-#RUN parcel build index.html
-
 # Should change to straight build
 CMD ["./run-docker"]

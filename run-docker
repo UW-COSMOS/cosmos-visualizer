@@ -1,10 +1,6 @@
 #!/bin/sh
 
-# If not in development mode, we do not need to build the
-# frontend files, so we simply exit.
-[ -z "$DEBUG" ] && exit 0;
-
-git submodule update --init
+(cd ui-components & npm install)
 npm install
 
 echo "PUBLIC_URL: $PUBLIC_URL"
@@ -14,4 +10,12 @@ echo "IMAGE_BASE_URL: $IMAGE_BASE_URL"
 # Make sure we nuke previous dist files, for some
 # reason this matters
 rm -rf dist/*.*
-parcel --hmr-port 34365 --public-url "$PUBLIC_URL" index.html
+
+# If not in development mode, we do not need to build the
+# frontend files, so we simply exit.
+if [ -z "$DEBUG" ]; then
+  parcel build --public-url "$PUBLIC_URL" index.html
+  exit 0
+fi
+
+parcel watch --hmr-port 34365 --public-url "$PUBLIC_URL" index.html
