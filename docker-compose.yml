@@ -58,7 +58,8 @@ services:
     expose:
       - 8051
     environment:
-      - PG_CONN_STR=postgresql://postgres:@db:5432/cosmos_figs
+      - PG_CONN_STR=postgresql://postgres:@db:5432/annotations
+      - PG_EQUATION_SCHEMA=equations
     volumes:
       - ./kb_output:/app/output
       - ./kb_output/img/:/app/img
