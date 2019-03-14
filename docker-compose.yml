@@ -60,6 +60,6 @@ services:
     environment:
       - PG_CONN_STR=postgresql://postgres:@db:5432/cosmos_figs
     volumes:
-      - ./kb_output:/app/output
-      - ./kb_output/img/:/app/img
+      - ./_data/kb_output:/app/output
+      - ./_data/kb_output/img/:/app/img
     command: $PG_CONN_STR python server.py
