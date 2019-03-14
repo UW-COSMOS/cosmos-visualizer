@@ -15,7 +15,7 @@ from shutil import copyfile
 
 
 #conn = psycopg2.connect('postgres://postgres@db:5432/annotations')
-conn = psycopg2.connect('postgres://postgres@localhost:54321/annotations')
+conn = psycopg2.connect('postgres://postgres@localhost:54322/annotations')
 cur_images = conn.cursor()
 cur = conn.cursor()
 cur.execute("SELECT tag_id, name FROM tag;")
@@ -46,11 +46,14 @@ if __name__ == '__main__':
             _ = glob.glob("%s/%s" % (png_path, image_filepath))[0]
 #            image_filepath = glob.glob("%s/%s*png" % (png_path, xml.replace(xml_path, "").replace(".xml","")))[0]
         except: # something funny in the xml -- try to fall back on filename consistency
-            image_filepath = os.path.basename(xml).replace(".xml",".png")
-            _ = glob.glob("%s/%s" % (png_path, image_filepath))
-            if _ == []:
-                print("Couldn't find PNG associated with %s! Skipping." % xml)
-                continue
+	    image_filepath = os.path.basename(xml).replace(".xml",".png")
+	    print("%s/%s" % (png_path, image_filepath.replace(".pdf", "*.pdf").replace(".png", "_*.png")))
+	    check = glob.glob("%s/%s" % (png_path, image_filepath.replace(".pdf", "*.pdf").replace(".png", "_*.png")))
+	    if check == [] or len(check)>1:
+		print("Couldn't find PNG associated with %s! Skipping." % xml)
+		continue
+	    else:
+		image_filepath = check[0].replace(png_path + "/", "")
         imge = Image.open(os.path.join(png_path, image_filepath))
         image_width, image_height = imge.size
 #        reported_width = int(doc.xpath("size/width/text()")[0])
@@ -58,6 +61,7 @@ if __name__ == '__main__':
 
         # doc_id = TODO: need to map these back to the GDD docid
         doc_id, page_no = os.path.basename(xml).split(".pdf_")
+        doc_id = doc_id.replace("_input", "")
         page_no = int(os.path.splitext(page_no)[0])
         # page_no = TODO
 
