@@ -1,3 +1,6 @@
 [submodule "frontend"]
 	path = frontend
 	url = git://github.com/UW-COSMOS/image-tagger.git
+[submodule "kb_visualizer"]
+	path = kb_visualizer
+	url = https://github.com/UW-COSMOS/kb_visualizer.git
