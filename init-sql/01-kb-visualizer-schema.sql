@@ -84,10 +84,15 @@ SELECT
 	equation_img
 	sentence_id,
 	sentence_offset,
-	sentence_text
+	sentence_text,
+    image.image_id,
+    image.doc_id,
+    image.page_no
 FROM collected_geometry c
 JOIN input i
-  ON i.row_number = c.row_number;
+  ON i.row_number = c.row_number
+JOIN image 
+  ON image.doc_id = i.document_name AND image.page_no = substring(i.sentence_img, '_(\d+)\/'::text)::integer;
 
 DROP MATERIALIZED VIEW equations.sentence;
 CREATE MATERIALIZED VIEW equations.sentence AS
@@ -150,7 +155,12 @@ SELECT
 	sent_paragraph_id,
 	sent_ner_tags,
 	sent_name,
-	sent_lemmas
+	sent_lemmas,
+    image.image_id,
+    image.doc_id,
+    image.page_no
 FROM collected_geometry c
 JOIN input i
-  ON i.row_number = c.row_number;
+  ON i.row_number = c.row_number
+JOIN image 
+  ON image.doc_id = i.document_name AND image.page_no = substring(i.sentence_img, '_(\d+)\/'::text)::integer;
