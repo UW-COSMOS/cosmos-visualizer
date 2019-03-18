@@ -22,6 +22,7 @@ services:
     volumes:
       - ./_data/images:/images/
       - ./api:/debug-src
+      - ./init-sql:/init-sql
   db:
     image: mdillon/postgis:11
     volumes:

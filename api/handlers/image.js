@@ -88,16 +88,34 @@ module.exports = ()=> {
       if (req.query.stack_id) { 
           where += "\n AND stack_id = $2"
         params.push(req.query.stack_id)
-       }
+      }
+      // Make sure we only get images with phrases or tags
 
       try {
-        let row = await db.one(`
-          ${baseSelect}
-          JOIN image_tag it
-          USING (image_stack_id)
-          ${where}
-          ORDER BY random()
-          LIMIT 1`, params);
+        // Override this query for now to return images with extracted
+        // phrases
+        //let row = await db.one(`
+          //${baseSelect}
+          //LEFT JOIN image_tag it
+          //USING (image_stack_id)
+          //${where}
+          //ORDER BY random()
+          //LIMIT 1`, params);
+        let row = await db.one(`SELECT
+           i.image_id,
+           i.doc_id,
+           i.page_no,
+           stack_id stack,
+           file_path,
+           i.created
+         FROM image i
+         JOIN image_stack istack USING (image_id)
+         JOIN stack USING (stack_id)
+               JOIN equations.phrase p
+               ON p.image_id = i.image_id
+               WHERE true
+               ORDER BY random()
+               LIMIT 1`);
 
         if (!row) {
           return res.reply(req, res, next, []);

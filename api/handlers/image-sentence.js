@@ -30,6 +30,7 @@ async function handleGet(req, res, next, plugins) {
         row_number,
         bbox_array(geometry) boxes,
         equation_text,
+        tag_id,
         symbols,
         sentence_text
       FROM equations.sentence

@@ -9,34 +9,19 @@ async function handleGet(req, res, next, plugins) {
   params['image_id'] = req.query.image_id;
   params['stack_id'] = req.query.stack_id || 'default'
 
-//  if ('validated' in req.query && req.query.validated === true) {
-//    where.push(`it.validator IS NOT NULL`)
-//  } else if ('validated' in req.query && req.query.validated === false) {
-//    where.push(`it.validator IS NULL`)
-//  }
-
-//  // TODO: Make sure this is a valid validator
-//  if ('validator' in req.query) {
-//    where.push(`tagger != $(tagger)
-//      AND (validator != $(validator)
-//       OR validator IS NULL)`)
-//    params['tagger'] = req.query.validator
-//    params['validator'] = req.query.validator
-//  }
-
   try {
     let tags = await db.any(`
       SELECT
         row_number,
         bbox_array(geometry) boxes,
         text,
+        tag_id,
         equation_text,
         symbols,
-        phrases, 
+        phrases,
         sentence_text
       FROM equations.phrase
       WHERE phrase.image_id = $(image_id)
-      ${where.length ? ' AND ' + where.join(' AND ') : ''}
     `, params);
 
     res.reply(req, res, next, tags);

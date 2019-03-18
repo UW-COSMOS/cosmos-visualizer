@@ -10,6 +10,7 @@ import sqlite3
 import psycopg2
 import glob
 import os, sys
+import re
 from PIL import Image
 from shutil import copyfile
 
@@ -36,6 +37,8 @@ if __name__ == '__main__':
         stack = "default"
 
     cur.execute("INSERT INTO stack (stack_id, stack_type) VALUES (%s, %s) ON CONFLICT DO NOTHING;", (stack, "prediction"))
+
+    image_prefix_regex = re.compile('^\/images\/?')
 
     for xml in glob.glob("%s/*.xml" % xml_path):
         with open(xml) as fin:
@@ -72,6 +75,9 @@ if __name__ == '__main__':
             image_id = uuid.uuid4()
         else:
             image_id = check[0]
+
+        # Get rid of leading `/images` if it exists
+        image_filepath = image_prefix_regex.sub(image_filepath,"")
 
         cur.execute("INSERT INTO image (image_id, doc_id, page_no, file_path) VALUES (%s, %s, %s, %s) ON CONFLICT DO NOTHING;", (str(image_id), doc_id, page_no, image_filepath))
         cur.execute("INSERT INTO image_stack (image_id, stack_id) VALUES (%s, %s) RETURNING image_stack_id", (str(image_id), stack))
