@@ -68,10 +68,11 @@ SELECT
 FROM unnested_bboxes
 GROUP BY row_number
 )
-SELECT
+SELECT DISTINCT ON (geometry) -- Should NOT need this distinct clause
 	c.row_number,
 	geometry,
-	document_name,
+  document_name,
+  'phrase' AS tag_id,
 	id,
 	text,
 	document_id,
@@ -91,7 +92,7 @@ SELECT
 FROM collected_geometry c
 JOIN input i
   ON i.row_number = c.row_number
-JOIN image 
+JOIN image
   ON image.doc_id = i.document_name AND image.page_no = substring(i.sentence_img, '_(\d+)\/'::text)::integer;
 
 DROP MATERIALIZED VIEW equations.sentence;
@@ -134,7 +135,8 @@ GROUP BY row_number
 SELECT
 	c.row_number,
 	geometry,
-	document_name,
+  document_name,
+  'sentence' AS tag_id,
 	id,
 	document_id,
 	equation_id,
@@ -156,11 +158,12 @@ SELECT
 	sent_ner_tags,
 	sent_name,
 	sent_lemmas,
-    image.image_id,
-    image.doc_id,
-    image.page_no
+  image.image_id,
+  image.doc_id,
+  image.page_no
 FROM collected_geometry c
 JOIN input i
   ON i.row_number = c.row_number
-JOIN image 
-  ON image.doc_id = i.document_name AND image.page_no = substring(i.sentence_img, '_(\d+)\/'::text)::integer;
+JOIN image
+  ON image.doc_id = i.document_name
+ AND image.page_no = substring(i.sentence_img, '_(\d+)\/'::text)::integer;

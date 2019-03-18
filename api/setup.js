@@ -92,6 +92,9 @@ async function setup() {
                 page_no = page_no.replace(".png", "")
                 let doc_id = parts[0]
                 let file_path = join(folder, entry);
+                // Get rid of leading `/images` in path
+                file_path = file_path.replace(/^\/?images\/?/, "")
+
                 let row = await db.oneOrNone("SELECT image_id FROM image WHERE doc_id=$1 AND page_no=$2", [doc_id, page_no]);
                 let image_id = null
                     if (row == null) {
