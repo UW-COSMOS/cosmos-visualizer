@@ -307,6 +307,18 @@ class UIMain extends StatefulComponent
       color ?= cscale[ix]
       {tag_id, color, name}
 
+    tags.push {
+      tag_id: "phrase"
+      name: "Phrase"
+      color: "#fca"
+    }
+
+    tags.push {
+      tag_id: "sentence"
+      name: "Sentence"
+      color: "#acf"
+    }
+
     @setState {
       tagStore: tags
       currentTag: tags[0].tag_id
@@ -380,7 +392,13 @@ class UIMain extends StatefulComponent
     return if prevState.currentImage == currentImage
     return unless currentImage?
     {image_id} = @state.currentImage
-    image_tags = await @context.get "#{imageRoute}/#{image_id}/tags?validated=false"
+
+    image_tags = []
+    for route in ["tags?validated=false", "sentences", "phrases"]
+      t = await @context.get "#{imageRoute}/#{image_id}/#{route}"
+      image_tags = image_tags.concat(t)
+
+    console.log image_tags
     @setState {rectStore: image_tags, initialRectStore: image_tags}
 
   didUpdateWindowSize: (prevProps, prevState)->

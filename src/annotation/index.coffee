@@ -70,7 +70,10 @@ class Tag extends Component
     textColor = c.darken(2)
 
     tagData = tags.find (d)->d.tag_id == tag_id
-    name = h 'div.tag-name', {style: {color: textColor}}, tagData.name
+    # Sometimes we don't return tags
+    console.log @props
+    tagData ?= {}
+    name = h 'div.tag-name', {style: {color: textColor}}, tagData.name or name
 
     active = @isSelected()
     className = classNames {active}
@@ -112,6 +115,10 @@ class Tag extends Component
   boxContent: (i)=>
     {update, boxes} = @props
     return null if boxes.length <= 1
+
+    # Need actual logic here
+    editingDisabled = true
+    return null if editingDisabled
     h ToolButton, {
       icon: 'cross'
       className: 'delete-rect'
