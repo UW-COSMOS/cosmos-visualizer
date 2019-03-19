@@ -174,7 +174,7 @@ CREATE MATERIALIZED VIEW equations.equation AS
       equation_id,
      ST_MakeEnvelope(equation_left,equation_top,equation_right,equation_bottom) geometry,
    document_name,
-   'sentence' AS tag_id,
+   'equation' AS tag_id,
      equation_text,
    image.image_id,
    image.doc_id,
@@ -183,3 +183,21 @@ CREATE MATERIALIZED VIEW equations.equation AS
  JOIN image
    ON image.doc_id = i.document_name
   AND image.page_no = substring(i.equation_img, '_(\d+)\/'::text)::integer;
+
+DROP MATERIALIZED VIEW equations.variable;
+CREATE MATERIALIZED VIEW equations.variable AS
+ SELECT DISTINCT
+      equation_id,
+      id, 
+     ST_MakeEnvelope(var_left,var_top,var_right,var_bottom) geometry,
+   document_name,
+   'variable' AS tag_id,
+     equation_text,
+    text,
+   image.image_id,
+   image.doc_id,
+   image.page_no
+ FROM equations.output i
+ JOIN image
+   ON image.doc_id = i.document_name
+  AND image.page_no = substring(i.sentence_img, '_(\d+)\/'::text)::integer;

@@ -12,16 +12,18 @@ async function handleGet(req, res, next, plugins) {
   try {
     let tags = await db.any(`
       SELECT
-        equation_id, 
+        equation_id,
+        id,
         bbox_array(geometry),
-        equation_text,
-        tag_id,
         document_name,
+        tag_id,
+        equation_text,
+        text,
+        image_id,
         doc_id,
-        page_no,
-        image_id
-      FROM equations.equation
-      WHERE equation.image_id = $(image_id)
+        page_no
+      FROM equations.variable
+      WHERE variable.image_id = $(image_id)
     `, params);
 
     res.reply(req, res, next, tags);
