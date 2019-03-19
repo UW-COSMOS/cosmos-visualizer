@@ -167,3 +167,19 @@ JOIN input i
 JOIN image
   ON image.doc_id = i.document_name
  AND image.page_no = substring(i.sentence_img, '_(\d+)\/'::text)::integer;
+
+DROP MATERIALIZED VIEW equations.equation;
+CREATE MATERIALIZED VIEW equations.equation AS
+ SELECT DISTINCT
+      equation_id,
+     ST_MakeEnvelope(equation_left,equation_top,equation_right,equation_bottom) geometry,
+   document_name,
+   'sentence' AS tag_id,
+     equation_text,
+   image.image_id,
+   image.doc_id,
+   image.page_no
+ FROM equations.output i
+ JOIN image
+   ON image.doc_id = i.document_name
+  AND image.page_no = substring(i.equation_img, '_(\d+)\/'::text)::integer;
