@@ -9,6 +9,108 @@ SELECT unnest(arr[ix:ix]);
 $$
 LANGUAGE sql;
 
+CREATE TABLE IF NOT EXISTS equations.output (
+        document_name text,
+        id int, 
+        text text,
+        document_id int,
+        equation_id int,
+        equation_text text,
+        equation_offset text, 
+        sentence_id int,
+        sentence_offset int,
+        sentence_text text,
+        score float,
+        var_top	int,
+        var_bottom int,
+        var_left int,
+        var_right int,
+        var_page int,
+        sent_xpath text,
+        sent_words text[],
+        sent_top text[],
+        sent_table_id int,
+        sent_section_id int,
+        sent_row_start int,
+        sent_row_end int,
+        sent_right int[],
+        sent_position int,
+        sent_pos_tags text[],
+        sent_paragraph_id int,
+        sent_page int[],
+        sent_ner_tags text[],
+        sent_name text,
+        sent_lemmas text[],
+        sent_left int[],
+        sent_html_tag text,
+        sent_html_attrs text[],
+        sent_document_id int,
+        sent_dep_parents text[],
+        sent_dep_labels text[],
+        sent_col_start int,
+        sent_col_end int,
+        sent_char_offsets int[],
+        sent_cell_id int,
+        sent_bottom int[],
+        sent_abs_char_offsets int[],
+        equation_top int,
+        equation_bottom	int,
+        equation_left int,
+        equation_right int,
+        equation_page int,
+        equation_text_duplicate text,
+        symbols text[],
+        phrases text[],
+        phrases_top text[],
+        phrases_bottom text[],
+        phrases_left text[],
+        phrases_right text[],
+        phrases_page text[],
+        sentence_img text,
+        equation_img text,
+        UNIQUE (document_name, id)
+        );
+
+CREATE TABLE IF NOT EXISTS equations.figures (
+        target_img_path text,
+        target_unicode text,
+        target_tesseract text,
+        assoc_img_path text,
+        assoc_unicode text,
+        assoc_tesseract text,
+        html_file text,
+        UNIQUE (target_img_path)
+        );
+
+CREATE TABLE IF NOT EXISTS equations.tables (
+        target_img_path text,
+        target_unicode text,
+        target_tesseract text,
+        assoc_img_path text,
+        assoc_unicode text,
+        assoc_tesseract text,
+        html_file text,
+        UNIQUE (target_img_path)
+        );
+
+CREATE VIEW equations.figures_and_tables AS ( SELECT figures.target_img_path,
+        figures.target_unicode,
+        figures.target_tesseract,
+        figures.assoc_img_path,
+        figures.assoc_unicode,
+        figures.assoc_tesseract,
+        figures.html_file
+        FROM equations.figures
+        UNION
+        SELECT tables.target_img_path,
+        tables.target_unicode,
+        tables.target_tesseract,
+        tables.assoc_img_path,
+        tables.assoc_unicode,
+        tables.assoc_tesseract,
+        tables.html_file
+        FROM equations.tables);
+
 /*
 Unnest 2d array into 1d array
 */
@@ -39,7 +141,6 @@ SELECT array_agg(v ORDER BY j) matrix  FROM (
 ) t
 $$ LANGUAGE sql IMMUTABLE;
 
-DROP MATERIALIZED VIEW equations.phrase;
 CREATE MATERIALIZED VIEW equations.phrase AS
 WITH input AS (
 SELECT
@@ -108,7 +209,6 @@ JOIN image
   ON image.doc_id = i.document_name
  AND image.page_no = substring(i.sentence_img,'_(\d+)\/'::text)::integer;
 
-DROP MATERIALIZED VIEW equations.sentence;
 CREATE MATERIALIZED VIEW equations.sentence AS
 WITH input AS (
 SELECT DISTINCT ON (sentence_text)
@@ -181,7 +281,6 @@ JOIN image
   ON image.doc_id = i.document_name
  AND image.page_no = substring(i.sentence_img, '_(\d+)\/'::text)::integer;
 
-DROP MATERIALIZED VIEW equations.equation;
 CREATE MATERIALIZED VIEW equations.equation AS
  SELECT DISTINCT
    equation_id,
@@ -198,7 +297,6 @@ CREATE MATERIALIZED VIEW equations.equation AS
    ON image.doc_id = i.document_name
   AND image.page_no = substring(i.equation_img, '_(\d+)\/'::text)::integer;
 
-DROP MATERIALIZED VIEW equations.variable;
 CREATE MATERIALIZED VIEW equations.variable AS
 SELECT DISTINCT
   equation_id,
