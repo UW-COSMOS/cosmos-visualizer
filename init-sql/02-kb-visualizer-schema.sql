@@ -1,6 +1,13 @@
 -- should be earlier
 CREATE SCHEMA IF NOT EXISTS equations;
 
+CREATE OR REPLACE FUNCTION array_slice(arr anyarray, ix integer)
+RETURNS anyelement
+AS
+$$
+SELECT unnest(arr[ix:ix]);
+$$
+LANGUAGE sql;
 
 CREATE TABLE IF NOT EXISTS equations.output (
         document_name text,
@@ -164,33 +171,37 @@ FROM bboxes
 collected_geometry AS (
 SELECT
   row_number,
-  ST_Union(ST_Collect(
+  array_agg(
       ARRAY[ST_MakeEnvelope(box[1],box[2],box[3],box[4])]
-  )) geometry
+  ) geometry
 FROM unnested_bboxes
 GROUP BY row_number
 )
-SELECT DISTINCT ON (geometry) -- Should NOT need this distinct clause
-	c.row_number,
-	geometry,
+SELECT -- Should NOT need this distinct clause
+  c.row_number,
+  array_slice(geometry, (row_number() OVER (PARTITION BY equation_id ORDER BY id))::integer) geometry,
+  array_slice(
+    phrases, (
+      row_number() OVER (PARTITION BY equation_id ORDER BY id)
+    )::integer
+  ) AS text,
   document_name,
   'phrase' AS tag_id,
-	id,
-	text,
-	document_id,
-	equation_text,
-	equation_offset,
-	symbols,
-	phrases,
-	phrases_page,
-	sentence_img,
-	equation_img
-	sentence_id,
-	sentence_offset,
-	sentence_text,
-    image.image_id,
-    image.doc_id,
-    image.page_no
+  id,
+  document_id,
+  equation_id,
+  equation_text,
+  equation_offset,
+  symbols,
+  phrases_page,
+  sentence_img,
+  equation_img
+  sentence_id,
+  sentence_offset,
+  sentence_text,
+  image.image_id,
+  image.doc_id,
+  image.page_no
 FROM collected_geometry c
 JOIN input i
   ON i.row_number = c.row_number
@@ -272,11 +283,12 @@ JOIN image
 
 CREATE MATERIALIZED VIEW equations.equation AS
  SELECT DISTINCT
-      equation_id,
-     ST_MakeEnvelope(equation_left,equation_top,equation_right,equation_bottom) geometry,
+   equation_id,
+   ST_MakeEnvelope(equation_left,equation_top,equation_right,equation_bottom) geometry,
    document_name,
    'equation' AS tag_id,
-     equation_text,
+  equation_text,
+   equation_text AS text,
    image.image_id,
    image.doc_id,
    image.page_no
@@ -286,18 +298,18 @@ CREATE MATERIALIZED VIEW equations.equation AS
   AND image.page_no = substring(i.equation_img, '_(\d+)\/'::text)::integer;
 
 CREATE MATERIALIZED VIEW equations.variable AS
- SELECT DISTINCT
-      equation_id,
-      id, 
-     ST_MakeEnvelope(var_left,var_top,var_right,var_bottom) geometry,
-   document_name,
-   'variable' AS tag_id,
-     equation_text,
-    text,
-   image.image_id,
-   image.doc_id,
-   image.page_no
- FROM equations.output i
- JOIN image
+SELECT DISTINCT
+  equation_id,
+  id,
+  ST_MakeEnvelope(var_left,var_top,var_right,var_bottom) geometry,
+  document_name,
+  'variable' AS tag_id,
+  equation_text,
+  text,
+  image.image_id,
+  image.doc_id,
+  image.page_no
+FROM equations.output i
+JOIN image
   ON i.document_name like concat('%', image.doc_id, '%')
-  AND image.page_no = substring(i.sentence_img, '_(\d+)\/'::text)::integer;
+ AND image.page_no = substring(i.sentence_img, '_(\d+)\/'::text)::integer;

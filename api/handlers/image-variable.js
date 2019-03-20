@@ -14,7 +14,7 @@ async function handleGet(req, res, next, plugins) {
       SELECT
         equation_id,
         id,
-        bbox_array(geometry),
+        bbox_array(geometry) boxes,
         document_name,
         tag_id,
         equation_text,
