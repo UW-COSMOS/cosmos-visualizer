@@ -12,8 +12,8 @@ async function handleGet(req, res, next, plugins) {
   try {
     let tags = await db.any(`
       SELECT
-        equation_id, 
-        bbox_array(geometry),
+        equation_id,
+        bbox_array(geometry) boxes,
         equation_text,
         tag_id,
         document_name,
