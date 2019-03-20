@@ -18,7 +18,6 @@ async function handleGet(req, res, next, plugins) {
         tag_id,
         equation_text,
         symbols,
-        phrases,
         sentence_text
       FROM equations.phrase
       WHERE phrase.image_id = $(image_id)
