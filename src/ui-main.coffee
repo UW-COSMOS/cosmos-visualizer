@@ -319,6 +319,18 @@ class UIMain extends StatefulComponent
       color: "#acf"
     }
 
+    tags.push {
+      tag_id: "equation"
+      name: "Equation"
+      color: "#f22"
+    }
+
+    tags.push {
+      tag_id: "variable"
+      name: "Variable"
+      color: "#41f"
+    }
+
     @setState {
       tagStore: tags
       currentTag: tags[0].tag_id
@@ -394,7 +406,7 @@ class UIMain extends StatefulComponent
     {image_id} = @state.currentImage
 
     image_tags = []
-    for route in ["tags?validated=false", "sentences", "phrases"]
+    for route in ["tags?validated=false", "sentences", "phrases","equations","variables"]
       t = await @context.get "#{imageRoute}/#{image_id}/#{route}"
       image_tags = image_tags.concat(t)
 

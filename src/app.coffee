@@ -7,6 +7,7 @@ import {APIContext} from './api'
 import {UIMain} from './ui-main'
 import {Role} from './enum'
 import {LoginForm} from './login-form'
+import {ResultsViewer} from './results-viewer'
 
 class App extends Component
   @contextType: APIContext
@@ -46,6 +47,9 @@ class App extends Component
     allowSaveWithoutChanges = false
     editingEnabled = true
 
+    # Go to specific image by default, if set
+    {params: {imageId}} = match
+
     if role == Role.TAG and id?
       extraSaveData = {tagger: id}
       subtitleText = "Tag"
@@ -65,8 +69,6 @@ class App extends Component
       subtitleText = "View results"
       permalinkRoute = "/view-results"
 
-    # Go to specific image by default, if set
-    {params: {imageId}} = match
     # This is a hack to disable "NEXT" for now
     # on permalinked images
     navigationEnabled
