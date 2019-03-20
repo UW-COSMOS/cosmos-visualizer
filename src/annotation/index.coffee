@@ -59,6 +59,8 @@ class Tag extends Component
   render: =>
     {tags} = @context
     {boxes, update, name, tag_id, rest...} = @props
+
+    console.log @props
     overallBounds = tagBounds(boxes)
 
     c = @context.helpers.tagColor(tag_id)

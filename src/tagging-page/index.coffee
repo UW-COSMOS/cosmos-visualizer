@@ -406,9 +406,9 @@ class TaggingPage extends StatefulComponent
     {image_id} = @state.currentImage
 
     image_tags = []
-    for route in ["tags?validated=false", "phrases","equations","variables"]
-      t = await @context.get "#{imageRoute}/#{image_id}/#{route}"
-      image_tags = image_tags.concat(t)
+    route = "tags?validated=false"
+    t = await @context.get "#{imageRoute}/#{image_id}/#{route}"
+    image_tags = image_tags.concat(t)
 
     @setState {rectStore: image_tags, initialRectStore: image_tags}
 
