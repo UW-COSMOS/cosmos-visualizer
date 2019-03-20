@@ -4,10 +4,6 @@
 # and then set up the schema
 node setup.js "/images/" "default"
 
-# Set up phrases and associated schema
-cat /init-sql/01-kb-visualizer-schema.sql \
-| psql -U postgres -h db -p 5432 annotations
-
 run_app() {
   # If we have mounted a debug directory,
   # proceed with nodemon in that directory

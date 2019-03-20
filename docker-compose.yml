@@ -26,7 +26,7 @@ services:
   db:
     image: mdillon/postgis:11
     volumes:
-      - ./setup:/docker-entrypoint-initdb.d/
+      - ./init-sql:/docker-entrypoint-initdb.d/
       - ./_data/pg-cluster:/var/lib/postgresql/data
     environment:
       - POSTGRES_DB=annotations

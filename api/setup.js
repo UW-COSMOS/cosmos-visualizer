@@ -64,9 +64,6 @@ async function setup() {
     }
   }
 
-  await runFromFile("schema.sql");
-  await runFromFile("tag-data.sql");
-
   await db.query(insertStack, [
     datasetName,
     "annotation"
