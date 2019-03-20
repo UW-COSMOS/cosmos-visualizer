@@ -9,16 +9,16 @@ import {Link} from 'react-router-dom'
 import {Navbar, Button, ButtonGroup
         Intent, Alignment, Text, Icon} from "@blueprintjs/core"
 
-import {StatefulComponent} from './util'
-import {AppToaster} from './toaster'
-import {Overlay} from './overlay'
-import {APIContext} from './api'
-import {InfoDialog} from './info-dialog'
+import {StatefulComponent} from '../util'
+import {AppToaster} from '../toaster'
+import {Overlay} from '../overlay'
+import {APIContext} from '../api'
+import {InfoDialog} from '../info-dialog'
 
 # Updates props for a rectangle
 # from API signature to our internal signature
 # TODO: make handle multiple boxes
-class UIMain extends StatefulComponent
+class TaggingPage extends StatefulComponent
   @defaultProps: {
     allowSaveWithoutChanges: false
     editingEnabled: true
@@ -406,11 +406,10 @@ class UIMain extends StatefulComponent
     {image_id} = @state.currentImage
 
     image_tags = []
-    for route in ["tags?validated=false", "sentences", "phrases","equations","variables"]
+    for route in ["tags?validated=false", "phrases","equations","variables"]
       t = await @context.get "#{imageRoute}/#{image_id}/#{route}"
       image_tags = image_tags.concat(t)
 
-    console.log image_tags
     @setState {rectStore: image_tags, initialRectStore: image_tags}
 
   didUpdateWindowSize: (prevProps, prevState)->
@@ -430,4 +429,4 @@ class UIMain extends StatefulComponent
     @didUpdateImage.apply(@,arguments)
     @didUpdateWindowSize.apply(@,arguments)
 
-export {UIMain}
+export {TaggingPage}

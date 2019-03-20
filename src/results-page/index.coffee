@@ -1,10 +1,10 @@
 import h from 'react-hyperscript'
 import {Component} from 'react'
-import {UIMain} from '../ui-main'
+import {TaggingPage} from '../tagging-page'
 
-class ResultsViewer extends Component
+class ResultsPage extends Component
   render: ->
-    h UIMain, {
+    h TaggingPage, {
       editingEnabled: false
       nextImageEndpoint: '/image/next_prediction'
       subtitleText: "View results"
@@ -13,4 +13,4 @@ class ResultsViewer extends Component
       @props...
     }
 
-export {ResultsViewer}
+export {ResultsPage}

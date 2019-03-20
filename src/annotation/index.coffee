@@ -71,7 +71,6 @@ class Tag extends Component
 
     tagData = tags.find (d)->d.tag_id == tag_id
     # Sometimes we don't return tags
-    console.log @props
     tagData ?= {}
     name = h 'div.tag-name', {style: {color: textColor}}, tagData.name or name
 

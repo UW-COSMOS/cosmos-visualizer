@@ -4,10 +4,10 @@ import h from 'react-hyperscript'
 import {BrowserRouter as Router, Route, Redirect, Switch} from 'react-router-dom'
 
 import {APIContext} from './api'
-import {UIMain} from './ui-main'
 import {Role} from './enum'
 import {LoginForm} from './login-form'
-import {ResultsViewer} from './results-viewer'
+import {ResultsPage} from './results-page'
+import {TaggingPage} from './tagging-page'
 
 class App extends Component
   @contextType: APIContext
@@ -68,6 +68,15 @@ class App extends Component
       nextImageEndpoint = "/image/next_prediction"
       subtitleText = "View results"
       permalinkRoute = "/view-results"
+      return h ResultsPage, {
+        imageRoute
+        extraSaveData
+        permalinkRoute
+        initialImage: imageId
+        allowSaveWithoutChanges
+        subtitleText
+        @props...
+      }
 
     # This is a hack to disable "NEXT" for now
     # on permalinked images
@@ -77,7 +86,7 @@ class App extends Component
 
     console.log "Setting up UI with role #{role}"
     console.log "Image id: #{imageId}"
-    return h UIMain, {
+    return h TaggingPage, {
       imageRoute
       extraSaveData
       permalinkRoute
