@@ -2,7 +2,9 @@
 
 # Wait until PostgreSQL is available
 # and then set up the schema
-node setup.js "/images/" "default"
+
+# importing now centralized -- just commenting out for the moment, though IAR - 20.Mar.2019
+#node setup.js "/images/" "default"
 
 run_app() {
   # If we have mounted a debug directory,

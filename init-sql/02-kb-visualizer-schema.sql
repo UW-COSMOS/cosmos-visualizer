@@ -195,7 +195,8 @@ FROM collected_geometry c
 JOIN input i
   ON i.row_number = c.row_number
 JOIN image
-  ON image.doc_id = i.document_name AND image.page_no = substring(i.sentence_img, '_(\d+)\/'::text)::integer;
+  ON i.document_name like concat('%', image.doc_id, '%')
+AND image.page_no = substring(i.sentence_img, '_(\d+)\/'::text)::integer;
 
 CREATE MATERIALIZED VIEW equations.sentence AS
 WITH input AS (
@@ -266,7 +267,7 @@ FROM collected_geometry c
 JOIN input i
   ON i.row_number = c.row_number
 JOIN image
-  ON image.doc_id = i.document_name
+  ON i.document_name like concat('%', image.doc_id, '%')
  AND image.page_no = substring(i.sentence_img, '_(\d+)\/'::text)::integer;
 
 CREATE MATERIALIZED VIEW equations.equation AS
@@ -281,7 +282,7 @@ CREATE MATERIALIZED VIEW equations.equation AS
    image.page_no
  FROM equations.output i
  JOIN image
-   ON image.doc_id = i.document_name
+  ON i.document_name like concat('%', image.doc_id, '%')
   AND image.page_no = substring(i.equation_img, '_(\d+)\/'::text)::integer;
 
 CREATE MATERIALIZED VIEW equations.variable AS
@@ -298,5 +299,5 @@ CREATE MATERIALIZED VIEW equations.variable AS
    image.page_no
  FROM equations.output i
  JOIN image
-   ON image.doc_id = i.document_name
+  ON i.document_name like concat('%', image.doc_id, '%')
   AND image.page_no = substring(i.sentence_img, '_(\d+)\/'::text)::integer;

@@ -68,6 +68,7 @@ CREATE TABLE IF NOT EXISTS image_tag (
   geometry geometry(MULTIPOLYGON) NOT NULL,
   created timestamp DEFAULT now() NOT NULL, -- time of tag creation
   UNIQUE (image_tag_id, tagger, validator),
+  UNIQUE (image_stack_id, geometry, tag_id),
   FOREIGN KEY (linked_to, tagger, validator)
   REFERENCES image_tag(image_tag_id, tagger, validator)
 );
