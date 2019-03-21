@@ -18,7 +18,7 @@ import {InfoDialog} from '../info-dialog'
 # Updates props for a rectangle
 # from API signature to our internal signature
 # TODO: make handle multiple boxes
-class TaggingPage extends StatefulComponent
+class ResultsPageInner extends StatefulComponent
   @defaultProps: {
     allowSaveWithoutChanges: false
     editingEnabled: true
@@ -39,60 +39,10 @@ class TaggingPage extends StatefulComponent
       imageBaseURL: null
       scaleFactor: null
       windowWidth: window.innerWidth
-      lockedTags: new Set()
     }
-
-  updateAnnotation: (i)=>(updateSpec)=>
-    spec = {rectStore: {[i]: updateSpec}}
-    if updateSpec.tag_id?
-      spec.currentTag = updateSpec.tag_id
-    @updateState spec
-
-  addLink: (i)=> =>
-    # Add a link to another annotation
-    {editingRect, rectStore} = @state
-    {image_tag_id} = rectStore[i]
-    if not editingRect?
-      throw "Annotation must be selected to add a link"
-    if editingRect == i
-      throw "Cannot create self-referential link"
-    spec = {
-      rectStore: {[editingRect]: {linked_to: {$set: image_tag_id}}}
-    }
-    @updateState spec
-
-  deleteAnnotation: (i)=> =>
-    {rectStore, editingRect} = @state
-    spec = {
-      rectStore: {$splice: [[i,1]]}
-    }
-    if editingRect? and i == editingRect
-      spec.editingRect = {$set: null}
-    # Zero out links to this annotation
-    {image_tag_id} = rectStore[editingRect]
-    for rect,i in rectStore
-      continue unless rect.linked_to == image_tag_id
-      spec.rectStore[i] = {linked_to: {$set: null}}
-    @updateState spec
-
-  updateCurrentTag: (tag_id)=> =>
-    console.log "Current tag: #{tag_id}"
-    @updateState {currentTag: {$set: tag_id}}
 
   selectAnnotation: (i)=> =>
     @updateState {editingRect: {$set: i}}
-
-  appendAnnotation: (rect)=>
-    return unless rect?
-    {currentTag, rectStore} = @state
-    rect.tag_id = currentTag
-    # Create UUID on client side to allow
-    # linking
-    rect.image_tag_id = uuidv4()
-    @updateState {
-      rectStore: {$push: [rect]}
-      editingRect: {$set: rectStore.length}
-    }
 
   scaledSize: =>
     {currentImage, scaleFactor} = @state
@@ -112,21 +62,13 @@ class TaggingPage extends StatefulComponent
     onClick = @createAnnotation
 
     actions = do =>
-      {deleteAnnotation,
-       updateAnnotation,
-       selectAnnotation,
-       appendAnnotation,
-       updateCurrentTag,
-       toggleTagLock,
-       updateState,
-       addLink} = @
+      {selectAnnotation} = @
 
     h 'div.image-container', {style}, [
       h 'img', {src: @imageURL(currentImage), style...}
       h Overlay, {
         style...
-        editingRect
-        editingEnabled
+        editingEnabled: false
         scaleFactor
         image_tags: rectStore
         tags: tagStore
@@ -135,44 +77,6 @@ class TaggingPage extends StatefulComponent
         actions
       }
     ]
-
-  toggleTagLock: (tagId)=> =>
-    {tagStore, currentTag, lockedTags} = @state
-
-    if lockedTags.has(tagId)
-      lockedTags.delete(tagId)
-    else
-      lockedTags.add(tagId)
-
-    # Check if locked and then get next unlocked tag
-    ix = tagStore.findIndex (d)-> d.tag_id==currentTag
-    forward = true
-    while lockedTags.has(tagStore[ix].tag_id)
-      ix += if forward then 1 else -1
-      if ix > tagStore.length-1
-        forward = false
-        ix -= 1
-      if ix < 0
-        forward = true
-
-    nextTag = tagStore[ix].tag_id
-    spec = {lockedTags: {$set: lockedTags}}
-    if nextTag != currentTag
-      spec.currentTag = {$set: nextTag}
-    @updateState spec
-
-  clearChanges: =>
-    {initialRectStore} = @state
-    @updateState {
-      rectStore: {$set: initialRectStore}
-      editingRect: {$set: null}
-    }
-
-  uiHasChanges: =>
-    {rectStore, initialRectStore} = @state
-    if initialRectStore.length == rectStore.length == 0
-      return false
-    return rectStore != initialRectStore
 
   renderImageLink: =>
     {permalinkRoute, initialImage} = @props
@@ -191,11 +95,9 @@ class TaggingPage extends StatefulComponent
   renderNextImageButton: =>
     {navigationEnabled} = @props
     return null unless navigationEnabled
-    hasChanges = @uiHasChanges()
     h Button, {
       intent: Intent.PRIMARY, text: "Next image",
       rightIcon: 'chevron-right'
-      disabled: hasChanges
       onClick: @getImageToDisplay
     }
 
@@ -268,38 +170,23 @@ class TaggingPage extends StatefulComponent
     cscale = chroma.scale('viridis')
       .colors(data.length)
 
-    tags = data.map (d, ix)->
-      {tag_id, color, name} = d
-
-      if not name?
-        name = tag_id.replace "-", " "
-        name = name.charAt(0).toUpperCase()+name.slice(1)
-      color ?= cscale[ix]
-      {tag_id, color, name}
-
-    tags.push {
-      tag_id: "phrase"
-      name: "Phrase"
-      color: "#fca"
-    }
-
-    tags.push {
-      tag_id: "sentence"
-      name: "Sentence"
-      color: "#acf"
-    }
-
-    tags.push {
-      tag_id: "equation"
-      name: "Equation"
-      color: "#f22"
-    }
-
-    tags.push {
-      tag_id: "variable"
-      name: "Variable"
-      color: "#41f"
-    }
+    tags = [{
+        tag_id: "phrase"
+        name: "Phrase"
+        color: "#fca"
+      }, {
+        tag_id: "sentence"
+        name: "Sentence"
+        color: "#acf"
+      }, {
+        tag_id: "equation"
+        name: "Equation"
+        color: "#f22"
+      }, {
+        tag_id: "variable"
+        name: "Variable"
+        color: "#41f"
+      }]
 
     @setState {
       tagStore: tags
@@ -401,7 +288,7 @@ class TaggingPage extends StatefulComponent
 
 class ResultsPage extends Component
   render: ->
-    h TaggingPage, {
+    h ResultsPageInner, {
       editingEnabled: false
       nextImageEndpoint: '/image/next_prediction'
       subtitleText: "View results"

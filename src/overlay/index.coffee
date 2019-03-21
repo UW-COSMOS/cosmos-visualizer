@@ -63,6 +63,7 @@ class Overlay extends StatefulComponent
     clickDistance: 10
     editingEnabled: true
     selectIsOpen: false
+    lockedTags: new Set([])
   }
   constructor: (props)->
     super props
@@ -149,7 +150,7 @@ class Overlay extends StatefulComponent
         tags
         lockedTags
         currentTag
-        toggleLock: actions.toggleTagLock
+        toggleLock: actions.toggleTagLock or ->
         isOpen: selectIsOpen
         onClose: => @setState {selectIsOpen: false}
         onItemSelect: @selectTag

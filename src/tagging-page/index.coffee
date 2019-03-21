@@ -307,30 +307,6 @@ class TaggingPage extends StatefulComponent
       color ?= cscale[ix]
       {tag_id, color, name}
 
-    tags.push {
-      tag_id: "phrase"
-      name: "Phrase"
-      color: "#fca"
-    }
-
-    tags.push {
-      tag_id: "sentence"
-      name: "Sentence"
-      color: "#acf"
-    }
-
-    tags.push {
-      tag_id: "equation"
-      name: "Equation"
-      color: "#f22"
-    }
-
-    tags.push {
-      tag_id: "variable"
-      name: "Variable"
-      color: "#41f"
-    }
-
     @setState {
       tagStore: tags
       currentTag: tags[0].tag_id
