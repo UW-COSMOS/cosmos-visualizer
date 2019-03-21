@@ -61,8 +61,7 @@ class ResultsPageInner extends StatefulComponent
     style = @scaledSize()
     onClick = @createAnnotation
 
-    actions = do =>
-      {selectAnnotation} = @
+    actions = do => {selectAnnotation} = @
 
     h 'div.image-container', {style}, [
       h 'img', {src: @imageURL(currentImage), style...}
@@ -246,8 +245,7 @@ class ResultsPageInner extends StatefulComponent
     }
 
   componentDidMount: ->
-    @context.get("/tags/all")
-      .then @setupTags
+    @setupTags()
     @getImageToDisplay()
 
     window.addEventListener 'resize', =>
