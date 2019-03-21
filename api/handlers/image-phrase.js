@@ -21,7 +21,10 @@ async function handleGet(req, res, next, plugins) {
         sentence_text
       FROM equations.phrase
       WHERE phrase.image_id = $(image_id)
+        AND geometry IS NOT null
     `, params);
+    // We should *not* have to filter out null geometries
+    // because they shouldn't exist but whatever
 
     res.reply(req, res, next, tags);
 
