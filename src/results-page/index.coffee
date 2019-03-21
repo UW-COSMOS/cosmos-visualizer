@@ -174,33 +174,6 @@ class TaggingPage extends StatefulComponent
       return false
     return rectStore != initialRectStore
 
-  renderSubtitle: =>
-    {subtitleText} = @props
-    return null if not subtitleText?
-    return h Navbar.Heading, {className: 'subtitle'}, subtitleText
-
-  renderPersistenceButtonArray: =>
-    # Persist data to backend if editing is enabled
-    return [] unless @props.editingEnabled
-    {allowSaveWithoutChanges} = @props
-    {rectStore, initialRectStore} = @state
-    clearRectText = "Clear changes"
-    if initialRectStore.length != 0
-      clearRectText = "Reset changes"
-    hasChanges = @uiHasChanges()
-    return [
-      h Button, {
-        intent: Intent.SUCCESS, text: "Save",
-        icon: 'floppy-disk',
-        onClick: @saveData
-        disabled: not hasChanges and not allowSaveWithoutChanges
-      }
-      h Button, {
-        intent: Intent.DANGER, text: clearRectText,
-        icon: 'trash', disabled: not hasChanges
-        onClick: @clearChanges
-      }]
-
   renderImageLink: =>
     {permalinkRoute, initialImage} = @props
     {currentImage} = @state
@@ -250,10 +223,10 @@ class TaggingPage extends StatefulComponent
         h Navbar.Group, [
           h Navbar.Heading, null,  (
             h 'a', {href: '/'}, [
-              h 'h1', "Image tagger"
+              h 'h1', "COSMOS"
             ]
           )
-          @renderSubtitle()
+          h Navbar.Heading, {className: 'subtitle'}, 'Model Results'
           h Button, {
             icon: 'info-sign'
             onClick: @displayInfoBox()
@@ -261,10 +234,7 @@ class TaggingPage extends StatefulComponent
         ]
         h Navbar.Group, {align: Alignment.RIGHT}, [
           @renderImageLink()
-          h ButtonGroup, [
-            @renderPersistenceButtonArray()...
-            @renderNextImageButton()
-          ]
+          @renderNextImageButton()
         ]
       ]
       @renderImageContainer()
