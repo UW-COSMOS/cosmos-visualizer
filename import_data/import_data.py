@@ -21,18 +21,21 @@ Description: # TODO
 """
 import uuid
 import lxml.etree as etree
-import sqlite3
 import psycopg2
 import glob
 import os, sys
 import fnmatch
 import re
-from PIL import Image
 from shutil import copyfile
 
 image_prefix_regex = re.compile('^\/images\/?')
 
-conn = psycopg2.connect('postgres://postgres@localhost:54321/annotations')
+PG_CONN_STR = os.getenv("PG_CONN_STR")
+if PG_CONN_STR is None:
+    PG_CONN_STR="postgresql://postgres:@db:5432/annotations"
+
+print("Connecting to %s" % PG_CONN_STR)
+conn = psycopg2.connect(PG_CONN_STR)
 cur_images = conn.cursor()
 cur = conn.cursor()
 
@@ -48,6 +51,21 @@ def obfuscate_png(arg1):
     """
     pass
 
+
+def parse_docid_and_page_no(filename):
+    """
+    TODO: Docstring for parse_docid.
+
+    Args:
+        arg1 (TODO): TODO
+
+    Returns: TODO
+
+    """
+    doc_id, page_no = os.path.basename(filename).split(".pdf_")
+    doc_id = doc_id.replace("_input", "")
+    page_no = int(os.path.splitext(page_no)[0])
+    return doc_id, page_no
 
 def parse_docid_and_page_no(filename):
     """
