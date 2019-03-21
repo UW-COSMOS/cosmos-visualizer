@@ -5,7 +5,7 @@ import {Select} from '@blueprintjs/select'
 import {MenuItem, Button, Card, ButtonGroup} from '@blueprintjs/core'
 import {BrowserRouter as Router, Route, Link} from 'react-router-dom'
 
-import {Role} from './enum'
+import {UserRole} from './enum'
 
 class LoginForm extends Component
   @defaultProps: {
@@ -46,8 +46,8 @@ class LoginForm extends Component
     h 'div.mode-control', [
       h 'h4', "Select a role"
       h ButtonGroup, {fill:true}, [
-        h Button, {text: "Tag", onClick: selectRole(Role.TAG)}
-        h Button, {text: "Validate", onClick: selectRole(Role.VALIDATE)}
+        h Button, {text: "Tag", onClick: selectRole(UserRole.TAG)}
+        h Button, {text: "Validate", onClick: selectRole(UserRole.VALIDATE)}
       ]
     ]
 
@@ -58,8 +58,8 @@ class LoginForm extends Component
     h Card, {className: 'login-form'}, [
       h 'h3.bp3-heading', 'Image tagger'
       h ButtonGroup, {fill: true}, [
-        h Button, {text: "View training data", onClick: selectRole(Role.VIEW_TRAINING)}
-        h Button, {text: "View results", onClick: selectRole(Role.VIEW_RESULTS)}
+        h Button, {text: "View training data", onClick: selectRole(UserRole.VIEW_TRAINING)}
+        h Button, {text: "View results", onClick: selectRole(UserRole.VIEW_RESULTS)}
       ]
       h "h4", "Select a user to edit"
       @renderRoleControl()

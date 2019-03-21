@@ -1,4 +1,4 @@
-Role = Object.freeze({
+UserRole = Object.freeze({
   TAG: 'tag'
   VALIDATE: 'validate'
   VIEW_TRAINING: 'view-training'
@@ -12,4 +12,9 @@ EditMode = Object.freeze({
   SHIFT: 'shift'
 })
 
-export {Role, EditMode}
+AppMode = Object.freeze({
+  TAGGING: 'tagging'
+  RESULTS: 'results'
+})
+
+export {UserRole, EditMode, AppMode}

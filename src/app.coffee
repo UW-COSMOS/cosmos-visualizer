@@ -4,7 +4,7 @@ import h from 'react-hyperscript'
 import {BrowserRouter as Router, Route, Redirect, Switch} from 'react-router-dom'
 
 import {APIContext} from './api'
-import {Role} from './enum'
+import {AppMode, UserRole} from './enum'
 import {LoginForm} from './login-form'
 import {ResultsPage} from './results-page'
 import {TaggingPage} from './tagging-page'
@@ -22,7 +22,8 @@ class App extends Component
   allRequiredOptionsAreSet: =>
     {role, person} = @state
     return false unless role?
-    return false if not person? and (role == Role.TAG or role == Role.VALIDATE)
+    return false if not person? and (
+      role == UserRole.TAG or role == UserRole.VALIDATE)
     return true
 
   renderAction: ({match})=>
@@ -50,20 +51,20 @@ class App extends Component
     # Go to specific image by default, if set
     {params: {imageId}} = match
 
-    if role == Role.TAG and id?
+    if role == UserRole.TAG and id?
       extraSaveData = {tagger: id}
       subtitleText = "Tag"
-    else if role == Role.VALIDATE and id?
+    else if role == UserRole.VALIDATE and id?
       extraSaveData = {validator: id}
       nextImageEndpoint = "/image/validate"
       # Tags can be validated even when unchanged
       allowSaveWithoutChanges = true
       subtitleText = "Validate"
-    else if role == Role.VIEW_TRAINING
+    else if role == UserRole.VIEW_TRAINING
       editingEnabled = false
       nextImageEndpoint = "/image/validate"
       subtitleText = "View training data"
-    else if role == Role.VIEW_RESULTS
+    else if role == UserRole.VIEW_RESULTS
       editingEnabled = false
       nextImageEndpoint = "/image/next_prediction"
       subtitleText = "View results"
@@ -99,6 +100,9 @@ class App extends Component
       @props...
     }
 
+  renderHomepage: =>
+    @renderLoginForm()
+
   renderLoginForm: =>
     {person, people, role} = @state
     return null unless people?
@@ -115,11 +119,11 @@ class App extends Component
     h Router, {basename: publicURL}, [
       h 'div.app-main', [
         h Switch, [
-          h Route, {path: '/', exact: true, render: @renderLoginForm}
+          h Route, {path: '/', exact: true, render: @renderHomepage}
           # Legacy route for viewing training data
-          h Route, {path: '/view/:imageId', render: @renderUI(Role.VIEW_TRAINING)}
-          h Route, {path: '/view-training/:imageId', render: @renderUI(Role.VIEW_TRAINING)}
-          h Route, {path: '/view-results/:imageId', render: @renderUI(Role.VIEW_RESULTS)}
+          h Route, {path: '/view/:imageId', render: @renderUI(UserRole.VIEW_TRAINING)}
+          h Route, {path: '/view-training/:imageId', render: @renderUI(UserRole.VIEW_TRAINING)}
+          h Route, {path: '/view-results/:imageId', render: @renderUI(UserRole.VIEW_RESULTS)}
           h Route, {path: '/action/:role', render: @renderAction}
         ]
       ]
@@ -134,7 +138,7 @@ class App extends Component
     validator = validator == 1
     role = null
     if tagger == 1 and validator != 1
-      role = Role.TAG
+      role = UserRole.TAG
     @setState {person: item, role}
     localStorage.setItem('person', JSON.stringify(item))
 
