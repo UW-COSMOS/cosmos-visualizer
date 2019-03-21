@@ -179,7 +179,11 @@ GROUP BY row_number
 )
 SELECT -- Should NOT need this distinct clause
   c.row_number,
-  array_slice(geometry, (row_number() OVER (PARTITION BY equation_id ORDER BY id))::integer) geometry,
+  array_slice(
+    geometry, (
+      row_number() OVER (PARTITION BY equation_id ORDER BY id)
+    )::integer
+  ) geometry,
   array_slice(
     phrases, (
       row_number() OVER (PARTITION BY equation_id ORDER BY id)
@@ -209,6 +213,7 @@ JOIN image
   ON image.doc_id = i.document_name
  AND image.page_no = substring(i.sentence_img,'_(\d+)\/'::text)::integer;
 
+DROP MATERIALIZED VIEW equations.sentence;
 CREATE MATERIALIZED VIEW equations.sentence AS
 WITH input AS (
 SELECT DISTINCT ON (sentence_text)
@@ -281,6 +286,7 @@ JOIN image
   ON image.doc_id = i.document_name
  AND image.page_no = substring(i.sentence_img, '_(\d+)\/'::text)::integer;
 
+DROP MATERIALIZED VIEW equations.equation;
 CREATE MATERIALIZED VIEW equations.equation AS
  SELECT DISTINCT
    equation_id,
@@ -297,14 +303,15 @@ CREATE MATERIALIZED VIEW equations.equation AS
    ON image.doc_id = i.document_name
   AND image.page_no = substring(i.equation_img, '_(\d+)\/'::text)::integer;
 
+DROP MATERIALIZED VIEW equations.variable;
 CREATE MATERIALIZED VIEW equations.variable AS
 SELECT DISTINCT
-  equation_id,
-  id,
+  array_agg(equation_id) equation_id,
+  min(id) id,
   ST_MakeEnvelope(var_left,var_top,var_right,var_bottom) geometry,
   document_name,
   'variable' AS tag_id,
-  equation_text,
+  array_agg(equation_text) equation_text,
   text,
   image.image_id,
   image.doc_id,
@@ -312,4 +319,6 @@ SELECT DISTINCT
 FROM equations.output i
 JOIN image
   ON image.doc_id = i.document_name
- AND image.page_no = substring(i.sentence_img, '_(\d+)\/'::text)::integer;
+ AND image.page_no = substring(i.sentence_img, '_(\d+)\/'::text)::integer
+GROUP BY geometry, document_name,
+         text, image.image_id, image.doc_id, image.page_no;
