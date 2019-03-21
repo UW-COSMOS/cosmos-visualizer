@@ -27,6 +27,7 @@
     "fuse.js": "^3.4.2",
     "immutability-helper": "^2.8.1",
     "linklocal": "^2.8.2",
+    "parcel-plugin-react-markdown": "0.0.1",
     "react": "^16.8.2",
     "react-dom": "^16.8.2",
     "react-hyperscript": "^3.2.0",

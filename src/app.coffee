@@ -6,11 +6,15 @@ import {BrowserRouter as Router, Route, Redirect, Switch} from 'react-router-dom
 import {APIContext} from './api'
 import {AppMode, UserRole} from './enum'
 import {LoginForm} from './login-form'
+import {ResultsLandingPage} from './results/landing-page'
 import {ResultsPage} from './results-page'
 import {TaggingPage} from './tagging-page'
 
 class App extends Component
   @contextType: APIContext
+  @defaultProps: {
+    appMode: AppMode.RESULTS
+  }
   constructor: (props)->
     super props
     @state = {
@@ -101,7 +105,12 @@ class App extends Component
     }
 
   renderHomepage: =>
-    @renderLoginForm()
+    if @props.appMode == AppMode.TAGGING
+      return @renderLoginForm()
+    {role} = @state
+    if role? and role == UserRole.VIEW_RESULTS
+      return h Redirect, {to: "/action/#{role}"}
+    h ResultsLandingPage, {setRole: @setRole}
 
   renderLoginForm: =>
     {person, people, role} = @state

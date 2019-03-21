@@ -166,9 +166,6 @@ class ResultsPageInner extends StatefulComponent
 
   setupTags: (data)=>
 
-    cscale = chroma.scale('viridis')
-      .colors(data.length)
-
     tags = [{
         tag_id: "phrase"
         name: "Phrase"
