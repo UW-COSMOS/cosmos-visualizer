@@ -268,96 +268,105 @@ def import_kb(output_path):
             """)
     conn.commit()
 
-    with open(output_path + "figures.csv") as f:
-        copy_sql = """
-            COPY equations.figures_tmp(
-                target_img_path,
-                target_unicode,
-                target_tesseract,
-                assoc_img_path,
-                assoc_unicode,
-                assoc_tesseract,
-                html_file) FROM STDIN WITH DELIMITER ',' CSV HEADER;
-                """
-        cur.copy_expert(sql=copy_sql, file=f)
-        conn.commit()
-    with open(output_path + "tables.csv") as f:
-        copy_sql = """
-            COPY equations.tables_tmp(
-                target_img_path,
-                target_unicode,
-                target_tesseract,
-                assoc_img_path,
-                assoc_unicode,
-                assoc_tesseract,
-                html_file) FROM STDIN WITH DELIMITER ',' CSV HEADER;
-                """
-        cur.copy_expert(sql=copy_sql, file=f)
-        conn.commit()
-    with open(output_path + "output.csv") as f:
-        copy_sql = """
-            COPY equations.output_tmp(
-                document_name,
-                id,
-                text,
-                document_id,
-                equation_id,
-                equation_text,
-                equation_offset,
-                sentence_id,
-                sentence_offset,
-                sentence_text,
-                score,
-                var_top,
-                var_bottom,
-                var_left,
-                var_right,
-                var_page,
-                sent_xpath,
-                sent_words,
-                sent_top,
-                sent_table_id,
-                sent_section_id,
-                sent_row_start,
-                sent_row_end,
-                sent_right,
-                sent_position,
-                sent_pos_tags,
-                sent_paragraph_id,
-                sent_page,
-                sent_ner_tags,
-                sent_name,
-                sent_lemmas,
-                sent_left,
-                sent_html_tag,
-                sent_html_attrs,
-                sent_document_id,
-                sent_dep_parents,
-                sent_dep_labels,
-                sent_col_start,
-                sent_col_end,
-                sent_char_offsets,
-                sent_cell_id,
-                sent_bottom,
-                sent_abs_char_offsets,
-                equation_top,
-                equation_bottom,
-                equation_left,
-                equation_right,
-                equation_page,
-                equation_text_duplicate,
-                symbols,
-                phrases,
-                phrases_top,
-                phrases_bottom,
-                phrases_left,
-                phrases_right,
-                phrases_page,
-                sentence_img,
-                equation_img) FROM STDIN WITH DELIMITER ',' CSV HEADER;
-                """
-        cur.copy_expert(sql=copy_sql, file=f)
-        conn.commit()
+    try:
+        with open(output_path + "figures.csv") as f:
+            copy_sql = """
+                COPY equations.figures_tmp(
+                    target_img_path,
+                    target_unicode,
+                    target_tesseract,
+                    assoc_img_path,
+                    assoc_unicode,
+                    assoc_tesseract,
+                    html_file) FROM STDIN WITH DELIMITER ',' CSV HEADER;
+                    """
+            cur.copy_expert(sql=copy_sql, file=f)
+            conn.commit()
+    except IOError:
+        print("WARNING! Could not find figures.csv KB dump.")
+    try:
+        with open(output_path + "tables.csv") as f:
+            copy_sql = """
+                COPY equations.tables_tmp(
+                    target_img_path,
+                    target_unicode,
+                    target_tesseract,
+                    assoc_img_path,
+                    assoc_unicode,
+                    assoc_tesseract,
+                    html_file) FROM STDIN WITH DELIMITER ',' CSV HEADER;
+                    """
+            cur.copy_expert(sql=copy_sql, file=f)
+            conn.commit()
+    except IOError:
+        print("WARNING! Could not find tables.csv KB dump.")
+    try:
+        with open(output_path + "output.csv") as f:
+            copy_sql = """
+                COPY equations.output_tmp(
+                    document_name,
+                    id,
+                    text,
+                    document_id,
+                    equation_id,
+                    equation_text,
+                    equation_offset,
+                    sentence_id,
+                    sentence_offset,
+                    sentence_text,
+                    score,
+                    var_top,
+                    var_bottom,
+                    var_left,
+                    var_right,
+                    var_page,
+                    sent_xpath,
+                    sent_words,
+                    sent_top,
+                    sent_table_id,
+                    sent_section_id,
+                    sent_row_start,
+                    sent_row_end,
+                    sent_right,
+                    sent_position,
+                    sent_pos_tags,
+                    sent_paragraph_id,
+                    sent_page,
+                    sent_ner_tags,
+                    sent_name,
+                    sent_lemmas,
+                    sent_left,
+                    sent_html_tag,
+                    sent_html_attrs,
+                    sent_document_id,
+                    sent_dep_parents,
+                    sent_dep_labels,
+                    sent_col_start,
+                    sent_col_end,
+                    sent_char_offsets,
+                    sent_cell_id,
+                    sent_bottom,
+                    sent_abs_char_offsets,
+                    equation_top,
+                    equation_bottom,
+                    equation_left,
+                    equation_right,
+                    equation_page,
+                    equation_text_duplicate,
+                    symbols,
+                    phrases,
+                    phrases_top,
+                    phrases_bottom,
+                    phrases_left,
+                    phrases_right,
+                    phrases_page,
+                    sentence_img,
+                    equation_img) FROM STDIN WITH DELIMITER ',' CSV HEADER;
+                    """
+            cur.copy_expert(sql=copy_sql, file=f)
+            conn.commit()
+    except IOError:
+        print("WARNING! Could not find output.csv KB dump.")
     cur.execute("INSERT INTO equations.output SELECT * FROM equations.output_tmp ON CONFLICT DO NOTHING; DROP TABLE equations.output_tmp;")
     cur.execute("INSERT INTO equations.figures SELECT * FROM equations.figures_tmp ON CONFLICT DO NOTHING; DROP TABLE equations.figures_tmp;")
     cur.execute("INSERT INTO equations.tables SELECT * FROM equations.tables_tmp ON CONFLICT DO NOTHING; DROP TABLE equations.tables_tmp;")
@@ -372,7 +381,6 @@ def import_kb(output_path):
     return 0
 
 def main():
-    # TODO: update conn string handling -- assume we're always in a docker-compose with db??
 
     # Need as input: pile of xml, pile of pngs
     if len(sys.argv) <= 2:
@@ -380,7 +388,7 @@ def main():
         sys.exit(1)
 
     # TODO: use new directory structure
-
+    # TODO: stack support
     # TODO: graceful failure -- import as much as possible, please.
 
     output_path = sys.argv[1]
