@@ -1,4 +1,13 @@
 const PGPromise = require('pg-promise');
-const pgp = PGPromise({promiseLib: Promise, pgNative: true});
+
+const initOptions = {
+  promiseLib: Promise,
+  pgNative: true,
+  query(e) {
+    console.log(e.query);
+  }
+}
+
+const pgp = PGPromise(initOptions);
 module.exports = pgp("postgres://postgres@db:5432/annotations");
 
