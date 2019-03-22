@@ -271,6 +271,25 @@ class TaggingPage extends StatefulComponent
       @renderInfoDialog()
     ]
 
+  __saveDataInner: (image, tags)=>
+    endpoint = "/image/#{image.image_id}/tags"
+    try
+      data = await @context.post(endpoint, tags)
+      AppToaster.show {
+        message: "Saved data!"
+        intent: Intent.SUCCESS
+      }
+      return data
+    catch err
+      AppToaster.show ErrorMessage {
+        title: "Could not save tags"
+        method: 'POST'
+        endpoint: endpoint
+        error: err.toString()
+        data: tags
+      }
+      throw err
+
   saveData: =>
     {currentImage, rectStore} = @state
     {extraSaveData} = @props
@@ -282,7 +301,7 @@ class TaggingPage extends StatefulComponent
     }
 
     try
-      newData = await @context.saveData(currentImage, saveItem)
+      newData = await @__saveDataInner(currentImage, saveItem)
       @updateState {
         rectStore: {$set: newData}
         initialRectStore: {$set: newData}

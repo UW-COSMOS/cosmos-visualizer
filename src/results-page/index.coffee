@@ -142,28 +142,6 @@ class ResultsPageInner extends StatefulComponent
       @renderInfoDialog()
     ]
 
-  saveData: =>
-    {currentImage, rectStore} = @state
-    {extraSaveData} = @props
-    extraSaveData ?= {}
-
-    saveItem = {
-      tags: rectStore
-      extraSaveData...
-    }
-
-    try
-      newData = await @context.saveData(currentImage, saveItem)
-      @updateState {
-        rectStore: {$set: newData}
-        initialRectStore: {$set: newData}
-      }
-      return true
-    catch err
-      console.log "Save rejected"
-      console.log err
-      return false
-
   setupTags: (data)=>
 
     tags = [{

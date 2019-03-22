@@ -14,7 +14,7 @@ import {TaggingPage} from './tagging-page'
 class App extends Component
   @contextType: APIContext
   @defaultProps: {
-    appMode: AppMode.RESULTS
+    appMode: AppMode.TAGGING
   }
   constructor: (props)->
     super props
