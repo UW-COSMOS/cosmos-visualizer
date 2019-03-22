@@ -24,11 +24,15 @@ import lxml.etree as etree
 import psycopg2
 import glob
 import os, sys
+import shutil
 import fnmatch
 import re
+import string
+from random import choice
 from shutil import copyfile
 
 image_prefix_regex = re.compile('^\/images\/?')
+obs_regex = re.compile(r'im[0-9a-zA-Z]{16}')
 
 PG_CONN_STR = os.getenv("PG_CONN_STR")
 if PG_CONN_STR is None:
@@ -39,7 +43,7 @@ conn = psycopg2.connect(PG_CONN_STR)
 cur_images = conn.cursor()
 cur = conn.cursor()
 
-def obfuscate_png(arg1):
+def obfuscate_png(filepath, png_path):
     """
     TODO: Docstring for obfuscate_png.
 
@@ -49,23 +53,14 @@ def obfuscate_png(arg1):
     Returns: TODO
 
     """
-    pass
+    check = obs_regex.search(filepath)
+    if check is not None: # already contains obfuscation
+        return filepath
 
-
-def parse_docid_and_page_no(filename):
-    """
-    TODO: Docstring for parse_docid.
-
-    Args:
-        arg1 (TODO): TODO
-
-    Returns: TODO
-
-    """
-    doc_id, page_no = os.path.basename(filename).split(".pdf_")
-    doc_id = doc_id.replace("_input", "")
-    page_no = int(os.path.splitext(page_no)[0])
-    return doc_id, page_no
+    image_str = 'im%s' % ''.join(choice(string.ascii_letters + string.digits) for i in range(16))
+    new_filepath = filepath.replace(".png", "_%s.png" % image_str)
+    shutil.move(os.path.join(png_path, filepath), os.path.join(png_path, new_filepath))
+    return new_filepath
 
 def parse_docid_and_page_no(filename):
     """
@@ -79,10 +74,10 @@ def parse_docid_and_page_no(filename):
     """
     doc_id, page_no = os.path.basename(filename).split(".pdf_")
     doc_id = doc_id.replace("_input", "")
-    page_no = int(os.path.splitext(page_no)[0])
+    page_no = int(os.path.splitext(page_no)[0].split("_")[0])
     return doc_id, page_no
 
-def import_image(image_filepath):
+def import_image(image_filepath, png_path):
     """
     From an image's filepath (TODO: filename?), get the docid + page_no, check
     if the page image exists in the db, and return the image_id (inserting as needed)
@@ -101,11 +96,10 @@ def import_image(image_filepath):
     check = cur.fetchone()
     if check is None:
         image_id = uuid.uuid4()
+        image_filepath = obfuscate_png(image_filepath, png_path)
     else: # repeat image
         print("\tImage already in database.")
         return check[0]
-
-    # TODO: obfuscate png path
 
     cur.execute("INSERT INTO image (image_id, doc_id, page_no, file_path) VALUES (%s, %s, %s, %s) ON CONFLICT (image_id) DO UPDATE SET image_id=EXCLUDED.image_id RETURNING image_id;", (str(image_id), doc_id, page_no, image_filepath))
     conn.commit()
@@ -147,7 +141,7 @@ def import_xml(xml_path, png_path, stack):
                 else:
                     image_filepath = check[0].replace(png_path + "/", "")
 
-            image_id = import_image(image_filepath)
+            image_id = import_image(image_filepath, png_path)
 
             cur.execute("INSERT INTO image_stack (image_id, stack_id) VALUES (%s, %s) ON CONFLICT (image_id, stack_id) DO UPDATE SET image_id=EXCLUDED.image_id RETURNING image_stack_id", (str(image_id), stack))
             image_stack_id = cur.fetchone()[0]
@@ -401,6 +395,10 @@ def main():
     cur.execute("INSERT INTO stack (stack_id, stack_type) VALUES (%s, %s) ON CONFLICT DO NOTHING;", (stack, "prediction"))
     conn.commit()
 
+    for image_filepath in glob.glob(png_path + "*.png"):
+        # TODO: this only checks the main dir. Is that ok?
+        image_filepath = os.path.basename(image_filepath)
+        import_image(image_filepath, png_path)
     import_xml(output_path, png_path, stack)
     import_kb(output_path)
 
