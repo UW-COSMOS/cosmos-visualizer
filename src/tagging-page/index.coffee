@@ -12,7 +12,7 @@ import {Navbar, Button, ButtonGroup
 import {StatefulComponent} from '../util'
 import {AppToaster} from '../toaster'
 import {Overlay} from '../overlay'
-import {APIContext} from '../api'
+import {APIContext, ErrorMessage} from '../api'
 import {InfoDialog} from '../info-dialog'
 
 # Updates props for a rectangle
@@ -271,25 +271,6 @@ class TaggingPage extends StatefulComponent
       @renderInfoDialog()
     ]
 
-  __saveDataInner: (image, tags)=>
-    endpoint = "/image/#{image.image_id}/tags"
-    try
-      data = await @context.post(endpoint, tags)
-      AppToaster.show {
-        message: "Saved data!"
-        intent: Intent.SUCCESS
-      }
-      return data
-    catch err
-      AppToaster.show ErrorMessage {
-        title: "Could not save tags"
-        method: 'POST'
-        endpoint: endpoint
-        error: err.toString()
-        data: tags
-      }
-      throw err
-
   saveData: =>
     {currentImage, rectStore} = @state
     {extraSaveData} = @props
@@ -299,15 +280,29 @@ class TaggingPage extends StatefulComponent
       tags: rectStore
       extraSaveData...
     }
+    endpoint = "/image/#{currentImage.image_id}/tags"
 
     try
-      newData = await @__saveDataInner(currentImage, saveItem)
+      newData = await @context.post(endpoint, saveItem, {
+        handleError: false
+      })
+      AppToaster.show {
+        message: "Saved data!"
+        intent: Intent.SUCCESS
+      }
       @updateState {
         rectStore: {$set: newData}
         initialRectStore: {$set: newData}
       }
       return true
     catch err
+      AppToaster.show ErrorMessage {
+        title: "Could not save tags"
+        method: 'POST'
+        endpoint: endpoint
+        error: err.toString()
+        data: saveItem
+      }
       console.log "Save rejected"
       console.log err
       return false

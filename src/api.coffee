@@ -37,11 +37,6 @@ class APIProviderShim extends Component
   }
   constructor: (props)->
     super props
-    if not @props.baseURL
-      AppToaster.show {
-        message: "No API endpoint specified. Using test routes.",
-        intent: Intent.WARNING
-      }
 
   onError: (route, opts)->
     {error} = opts
@@ -65,5 +60,6 @@ class APIProviderShim extends Component
 export {
   APIProviderShim as APIProvider,
   APIConsumer,
-  APIContext
+  APIContext,
+  ErrorMessage
 }
