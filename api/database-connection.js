@@ -1,11 +1,12 @@
 const PGPromise = require('pg-promise');
 
-const initOptions = {
+let initOptions = {
   promiseLib: Promise,
   pgNative: true,
-  query(e) {
-    console.log(e.query);
-  }
+}
+
+if (process.env.DEBUG) {
+  initOptions.query = (e)=>{console.log(e.query)}
 }
 
 const pgp = PGPromise(initOptions);
