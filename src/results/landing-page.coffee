@@ -1,6 +1,7 @@
 import {Component} from 'react'
 import h from 'react-hyperscript'
 import Info from './info.md'
+import {Redirect} from 'react-router-dom'
 
 import {MenuItem, Button, Card, ButtonGroup} from '@blueprintjs/core'
 import {BrowserRouter as Router, Route, Link} from 'react-router-dom'
@@ -14,7 +15,9 @@ class ResultsLandingPage extends Component
 
   render: ->
     {setRole} = @props
-    selectRole = (role)=> => setRole(role)
+    selectRole = (role)=> =>
+      console.log "Selected role #{role}"
+      setRole(role)
 
     h Card, {className: 'results-landing-page'}, [
       h 'h2.bp3-heading', [
@@ -26,13 +29,15 @@ class ResultsLandingPage extends Component
         h ButtonGroup, {vertical: true}, [
           h Button, {
             large: true,
-            text: "Page-level extractions",
+            key: UserRole.VIEW_RESULTS
+            text: "Model entity extractions",
             onClick: selectRole(UserRole.VIEW_RESULTS)
           }
           h Button, {
             large: true,
-            text: "Searchable corpus",
-            onClick: selectRole(UserRole.VIEW_TRAINING)
+            text: "Searchable knowledge base",
+            key: UserRole.VIEW_KNOWLEDGE_BASE
+            onClick: selectRole(UserRole.VIEW_KNOWLEDGE_BASE)
           }
 
         ]

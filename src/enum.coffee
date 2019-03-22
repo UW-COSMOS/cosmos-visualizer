@@ -3,6 +3,7 @@ UserRole = Object.freeze({
   VALIDATE: 'validate'
   VIEW_TRAINING: 'view-training'
   VIEW_RESULTS: 'view-results'
+  VIEW_KNOWLEDGE_BASE: 'view-knowledge-base'
 })
 
 EditMode = Object.freeze({

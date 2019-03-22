@@ -7,6 +7,7 @@ import {APIContext} from './api'
 import {AppMode, UserRole} from './enum'
 import {LoginForm} from './login-form'
 import {ResultsLandingPage} from './results/landing-page'
+import {KnowledgeBaseFilterView} from './knowledge-base'
 import {ResultsPage} from './results-page'
 import {TaggingPage} from './tagging-page'
 
@@ -108,8 +109,11 @@ class App extends Component
     if @props.appMode == AppMode.TAGGING
       return @renderLoginForm()
     {role} = @state
+    console.log role
     if role? and role == UserRole.VIEW_RESULTS
       return h Redirect, {to: "/action/#{role}"}
+    if role? and role == UserRole.VIEW_KNOWLEDGE_BASE
+      return h Redirect, {to: "/knowledge-base"}
     h ResultsLandingPage, {setRole: @setRole}
 
   renderLoginForm: =>
@@ -133,6 +137,10 @@ class App extends Component
           h Route, {path: '/view/:imageId', render: @renderUI(UserRole.VIEW_TRAINING)}
           h Route, {path: '/view-training/:imageId', render: @renderUI(UserRole.VIEW_TRAINING)}
           h Route, {path: '/view-results/:imageId', render: @renderUI(UserRole.VIEW_RESULTS)}
+          h Route, {
+            path: '/knowledge-base',
+            render: => h(KnowledgeBaseFilterView)
+          }
           h Route, {path: '/action/:role', render: @renderAction}
         ]
       ]
