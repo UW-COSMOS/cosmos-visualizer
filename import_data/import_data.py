@@ -27,6 +27,10 @@ import os, sys
 import shutil
 import fnmatch
 import re
+from watchdog.observers import Observer
+from watchdog.events import FileSystemEventHandler
+import watchdog
+import time
 import string
 from random import choice
 from shutil import copyfile
@@ -38,10 +42,53 @@ PG_CONN_STR = os.getenv("PG_CONN_STR")
 if PG_CONN_STR is None:
     PG_CONN_STR="postgresql://postgres:@db:5432/annotations"
 
-print("Connecting to %s" % PG_CONN_STR)
-conn = psycopg2.connect(PG_CONN_STR)
-cur_images = conn.cursor()
-cur = conn.cursor()
+conn_attempts = 0
+connected = False
+while conn_attempts < 5 and not connected:
+    try:
+        print("Connecting to %s" % PG_CONN_STR)
+        conn = psycopg2.connect(PG_CONN_STR)
+        cur_images = conn.cursor()
+        cur = conn.cursor()
+        connected = True
+    except:
+        conn_attempts += 1
+        print("Could not connect! Waiting 10 seconds and trying again. Attempt %s of 5" % conn_attempts)
+        time.sleep(10)
+
+class Watcher():
+
+    def __init__(self, output_dir, png_path, stack):
+        self.output_dir = output_dir
+        self.png_path = png_path
+        self.stack = stack
+        self.event_handler = watchdog.events.PatternMatchingEventHandler(patterns=["*.xml", "*.csv", "*.png"],
+                ignore_patterns=[],
+                ignore_directories=True)
+        self.event_handler.on_created = self.on_created
+        self.observer = Observer()
+        self.observer.schedule(self.event_handler, self.output_dir, recursive=True)
+        print("Watching for output files in %s" % self.output_dir)
+        self.observer.start()
+
+    def on_created(self, event):
+        if event.is_directory:
+            return None
+
+        elif event.event_type == 'created':
+            # Take any action here when a file is first created.
+            print("Received created event - %s." % event.src_path)
+            print("Scanning everything again, I guess")
+            for image_filepath in glob.glob(self.png_path + "*.png"):
+                # TODO: this only checks the main dir. Is that ok?
+                image_filepath = os.path.basename(image_filepath)
+                import_image(image_filepath, self.png_path)
+            import_xml(self.output_dir, self.png_path, self.stack)
+            import_kb(self.output_dir)
+
+    def stop(self):
+        self.observer.stop()
+        self.observer.join()
 
 def obfuscate_png(filepath, png_path):
     """
@@ -396,13 +443,21 @@ def main():
     conn.commit()
 
     for image_filepath in glob.glob(png_path + "*.png"):
-        # TODO: this only checks the main dir. Is that ok?
         image_filepath = os.path.basename(image_filepath)
         import_image(image_filepath, png_path)
     import_xml(output_path, png_path, stack)
     import_kb(output_path)
 
+    # watch for changes in the output dir
+    w = Watcher(output_path, png_path, stack)
+    try:
+        while True:
+            time.sleep(30)
+    except:
+        w.stop()
+
 
 
 if __name__ == '__main__':
     main()
+
