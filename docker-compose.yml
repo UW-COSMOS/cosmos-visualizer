@@ -51,7 +51,6 @@ services:
       - ./frontend:/user
       - /user/node_modules
       - /user/.cache
-
   kb_visualizer:
     build: kb_visualizer
     ports:
