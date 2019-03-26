@@ -14,7 +14,7 @@ import {TaggingPage} from './tagging-page'
 class App extends Component
   @contextType: APIContext
   @defaultProps: {
-    appMode: AppMode.TAGGING
+    appMode: AppMode.RESULTS
   }
   constructor: (props)->
     super props
@@ -138,8 +138,8 @@ class App extends Component
           h Route, {path: '/view-training/:imageId', render: @renderUI(UserRole.VIEW_TRAINING)}
           h Route, {path: '/view-results/:imageId', render: @renderUI(UserRole.VIEW_RESULTS)}
           h Route, {
-            path: '/knowledge-base',
-            render: => h(KnowledgeBaseFilterView)
+            path: '/knowledge-base'
+            render: => h KnowledgeBaseFilterView
           }
           h Route, {path: '/action/:role', render: @renderAction}
         ]

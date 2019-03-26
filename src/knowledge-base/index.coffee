@@ -1,20 +1,50 @@
 import h from 'react-hyperscript'
 import {Component} from 'react'
-import {APIContext, APIResultsView} from '@macrostrat/ui-components'
+import {StatefulComponent, APIContext, APIResultView} from '@macrostrat/ui-components'
 import './main.styl'
 
 class KnowledgeBaseFilterView extends Component
   @contextType: APIContext
-  render: ->
+  constructor: (props)->
+    super props
+    @state = {
+      doc_ids: []
+      types: []
+      filter: {}
+      query: null
+    }
+
+  renderExtractions: (data)=>
+    h 'div', 'Data'
+
+
+  render: =>
+    {query} = @state
     h 'div#knowledge-base-filter', [
       h 'h1', [
         'COSMOS ',
         h 'span.subtle', 'Knowledge base filter'
       ]
       h APIResultView, {
-        route: '/model/document'
-        params: {all: true}
-      }
+        route: '/model/extraction'
+        params: {query}
+      }, @renderExtractions
     ]
+
+  getTypes: ->
+    {doc_id} = @state.filter
+    types = await get '/model/extraction-type', {doc_id}
+    @setState {types}
+
+  componentDidMount: ->
+    {get} = @context
+
+    doc_ids = await get '/model/document', {all: true}
+    @setState {doc_ids}
+
+  componentDidUpdate: (prevProps, prevState)->
+    return if @state.filter.doc_id == prevState.filter.doc_id
+    @getTypes()
+
 
 export {KnowledgeBaseFilterView}
