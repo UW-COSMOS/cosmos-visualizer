@@ -13,6 +13,8 @@ RUN rm -rf /tmp
 RUN npm install -g nodemon
 
 COPY ./*.* /src/
+COPY ./v1-routes/ /src/v1-routes/
+COPY ./handlers/ /src/handlers/
 WORKDIR /src
 RUN rm -f /src/node_modules /src/api_key.js
 RUN npm install
