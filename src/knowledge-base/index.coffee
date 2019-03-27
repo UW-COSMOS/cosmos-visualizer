@@ -11,12 +11,19 @@ class KnowledgeBaseFilterView extends Component
       doc_ids: []
       types: []
       filter: {}
-      query: null
+      query: ""
     }
 
-  renderExtractions: (data)=>
-    h 'div', 'Data'
-
+  renderExtractions: (response)=>
+    {data} = response
+    console.log data
+    h 'div.results', data.map (i)->
+      src = i.target_img_path.replace "img/", "/kb-images/"
+      h 'div', [
+        h 'img', {src}
+        h 'p', i.target_unicode
+        h 'p', i.assoc_unicode
+      ]
 
   render: =>
     {query} = @state
