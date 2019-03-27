@@ -28,6 +28,12 @@ class ResultsLandingPage extends Component
       h 'div.actions', [
         h ButtonGroup, {vertical: true}, [
           h Button, {
+            large: true
+            key: UserRole.VIEW_BBOX_RESULTS
+            text: "Bounding box extractions"
+            onClick: selectRole(UserRole.VIEW_BBOX_RESULTS)
+          }
+          h Button, {
             large: true,
             key: UserRole.VIEW_RESULTS
             text: "Model entity extractions",
