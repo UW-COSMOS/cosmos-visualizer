@@ -1,7 +1,8 @@
 import h from 'react-hyperscript'
 import {Component} from 'react'
 import update from 'immutability-helper'
-import {StatefulComponent, APIContext, APIResultView} from '@macrostrat/ui-components'
+import {StatefulComponent, APIContext,
+        PagedAPIView, APIResultView} from '@macrostrat/ui-components'
 import {InputGroup} from '@blueprintjs/core'
 import './main.styl'
 
@@ -21,6 +22,7 @@ class KnowledgeBaseFilterView extends Component
     @setState newState
 
   renderExtractions: (response)=>
+    console.log response
     {data} = response
     console.log data
     h 'div.results', data.map (i)->
@@ -39,9 +41,11 @@ class KnowledgeBaseFilterView extends Component
         h 'span.subtle', 'Knowledge base filter'
       ]
       @renderSearchbar()
-      h APIResultView, {
+      h PagedAPIView, {
         route: '/model/extraction'
         params: {query}
+        topPagination: true
+        bottomPagination: false
       }, @renderExtractions
     ]
 
