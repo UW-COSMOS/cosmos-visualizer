@@ -58,7 +58,6 @@ CREATE TABLE IF NOT EXISTS equations.output (
         equation_left int,
         equation_right int,
         equation_page int,
-        equation_text_duplicate text,
         symbols text[],
         phrases text[],
         phrases_top text[],
