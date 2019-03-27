@@ -8,8 +8,6 @@ KBImage = (props)->
 
 class ModelExtraction extends Component
   render: ->
-    {data} = response
-
     fig = null
     if @props.assoc_img_path?
       fig = h KBImage, {path: @props.assoc_img_path}

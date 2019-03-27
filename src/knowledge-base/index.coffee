@@ -4,6 +4,7 @@ import update from 'immutability-helper'
 import {StatefulComponent, APIContext,
         PagedAPIView, APIResultView} from '@macrostrat/ui-components'
 import {InputGroup} from '@blueprintjs/core'
+import {ModelExtraction} from './model-extraction'
 import './main.styl'
 
 class KnowledgeBaseFilterView extends Component
@@ -26,12 +27,7 @@ class KnowledgeBaseFilterView extends Component
     {data} = response
     console.log data
     h 'div.results', data.map (i)->
-      src = i.target_img_path.replace "img/", "/kb-images/"
-      h 'div', [
-        h 'img', {src}
-        h 'p', i.target_unicode
-        h 'p', i.assoc_unicode
-      ]
+      h ModelExtraction, i
 
   render: =>
     {query} = @state
