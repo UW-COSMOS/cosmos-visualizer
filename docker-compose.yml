@@ -9,8 +9,8 @@ services:
       - frontend
     volumes:
       - ./_data/logs:/logs
-      - ./_data/images:/images:ro
-      - ./_data/kb_output/img:/kb-images:ro
+      - ./_data/output_from_pipeline/images:/images:ro
+      - ./_data/output_from_pipeline/html/img:/kb-images:ro
       - ./frontend/dist:/frontend:ro
       - ./nginx.conf:/etc/nginx/nginx.conf:ro
   image-tagger-api:

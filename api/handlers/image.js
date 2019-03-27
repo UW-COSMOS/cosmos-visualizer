@@ -111,8 +111,6 @@ module.exports = ()=> {
          FROM image i
          JOIN image_stack istack USING (image_id)
          JOIN stack USING (stack_id)
-               JOIN equations.phrase p
-               ON p.image_id = i.image_id
                WHERE true
                ORDER BY random()
                LIMIT 1`);
