@@ -29,9 +29,9 @@ class ResultsLandingPage extends Component
         h ButtonGroup, {vertical: true}, [
           h Button, {
             large: true
-            key: UserRole.VIEW_BBOX_RESULTS
+            key: UserRole.VIEW_EXTRACTIONS
             text: "Bounding box extractions"
-            onClick: selectRole(UserRole.VIEW_BBOX_RESULTS)
+            onClick: selectRole(UserRole.VIEW_EXTRACTIONS)
           }
           h Button, {
             large: true,

@@ -236,7 +236,7 @@ class ResultsPageInner extends StatefulComponent
     {image_id} = @state.currentImage
 
     image_tags = []
-    for route in ["tags", "phrases","equations","variables"]
+    for route in ["phrases","equations","variables"]
       t = await @context.get "#{imageRoute}/#{image_id}/#{route}"
       image_tags = image_tags.concat(t)
 
