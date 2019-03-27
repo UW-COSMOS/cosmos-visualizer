@@ -69,6 +69,11 @@ class App extends Component
       editingEnabled = false
       nextImageEndpoint = "/image/validate"
       subtitleText = "View training data"
+    else if role == UserRole.VIEW_EXTRACTIONS
+      editingEnabled = false
+      nextImageEndpoint = "/image/next_prediction"
+      subtitleText = "View extractions"
+      permalinkRoute = "/view-extractions"
     else if role == UserRole.VIEW_RESULTS
       editingEnabled = false
       nextImageEndpoint = "/image/next_prediction"
@@ -112,6 +117,8 @@ class App extends Component
     console.log role
     if role? and role == UserRole.VIEW_RESULTS
       return h Redirect, {to: "/action/#{role}"}
+    if role? and role == UserRole.VIEW_EXTRACTIONS
+      return h Redirect, {to: "/action/#{role}"}
     if role? and role == UserRole.VIEW_KNOWLEDGE_BASE
       return h Redirect, {to: "/knowledge-base"}
     h ResultsLandingPage, {setRole: @setRole}
@@ -136,6 +143,7 @@ class App extends Component
           # Legacy route for viewing training data
           h Route, {path: '/view/:imageId', render: @renderUI(UserRole.VIEW_TRAINING)}
           h Route, {path: '/view-training/:imageId', render: @renderUI(UserRole.VIEW_TRAINING)}
+          h Route, {path: '/view-extractions/:imageId', render: @renderUI(UserRole.VIEW_EXTRACTIONS)}
           h Route, {path: '/view-results/:imageId', render: @renderUI(UserRole.VIEW_RESULTS)}
           h Route, {
             path: '/knowledge-base'
