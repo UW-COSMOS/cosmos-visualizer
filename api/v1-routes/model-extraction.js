@@ -6,23 +6,31 @@ async function handler(req, res, next, plugins) {
   params['btype'] = req.query.type || '\\w+';
   params['query'] = req.query.query || '\\w+';
 
-  let q = `SELECT *
+  // We limit query results by default now,
+  // (for pagination) which may not be appropriate in general
+  params['offset'] = req.query.offset || 0;
+  params['limit'] = req.query.limit || 10;
+
+  let base = `SELECT *
     FROM equations.figures_and_tables
     WHERE target_img_path ~ '$<doc_id:raw>.*$<btype:raw>\\d'`;
 
   const query = req.query.query || "";
   if (query != '') {
-    q += "AND target_unicode ilike '%%$<query:raw>%%'"
+    base += "AND target_unicode ilike '%%$<query:raw>%%'"
   }
 
-  if (query.length < 2) {
-    q += " LIMIT 10"
-  }
-
-
+  const countQ = base.replace("*", "count(*)")
+  // For pagination
+  const q = base+" OFFSET $<offset> LIMIT $<limit>"
   try {
-    let types = await db.any(q, params);
-    res.reply(req,res, next, types);
+    // This is inefficient, maybe a separate request
+    // to get count is in order?
+    const {count} = await db.one(countQ, params);
+    res.set('x-total-count', count);
+
+    const types = await db.any(q, params);
+    res.reply(req, res, next, types);
   } catch (error) {
     return res.error(req, res, next, error.toString(), 500);
   }
@@ -40,6 +48,15 @@ const params = {
   'query': {
     'type': 'text',
     'description': 'String to search for'
+  },
+  // Make compatible with pagination
+  'offset': {
+    'type': 'integer',
+    'description': 'Query offset'
+  },
+  'limit': {
+    'type': 'integer',
+    'description': 'Query result limit'
   }
 };
 
