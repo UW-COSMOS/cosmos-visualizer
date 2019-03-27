@@ -92,15 +92,44 @@ module.exports = ()=> {
       // Make sure we only get images with phrases or tags
 
       try {
-        // Override this query for now to return images with extracted
-        // phrases
-        //let row = await db.one(`
-          //${baseSelect}
-          //LEFT JOIN image_tag it
-          //USING (image_stack_id)
-          //${where}
-          //ORDER BY random()
-          //LIMIT 1`, params);
+          let row = await db.one(`SELECT
+           i.image_id,
+           i.doc_id,
+           i.page_no,
+           stack_id stack,
+           file_path,
+           i.created
+         FROM image i
+         JOIN image_stack istack USING (image_id)
+         JOIN stack USING (stack_id)
+               WHERE true
+               ORDER BY random()
+               LIMIT 1`);
+        if (!row) {
+          return res.reply(req, res, next, []);
+        } else {
+          return res.reply(req, res, next, row);
+        }
+
+      } catch(error) {
+        console.log(error)
+        return res.error(req, res, next, 'An internal error occurred', 500)
+      }
+      res.reply(req, res, next, row);
+    } else if ( req.query.image_id === 'next_eqn_prediction') {
+        //TODO : this type should key into the stack_type column in the stack table instead of the stack_id like it does now
+      type='prediction';
+      let where = 'WHERE true'
+      let params = []
+      where += "\nAND stack_type = $1"
+        params.push(type)
+      if (req.query.stack_id) { 
+          where += "\n AND stack_id = $2"
+        params.push(req.query.stack_id)
+      }
+      // Make sure we only get images with phrases or tags
+
+      try {
         let row = await db.one(`SELECT
            i.image_id,
            i.doc_id,
@@ -111,6 +140,8 @@ module.exports = ()=> {
          FROM image i
          JOIN image_stack istack USING (image_id)
          JOIN stack USING (stack_id)
+               JOIN equations.equation p
+               ON p.image_id = i.image_id
                WHERE true
                ORDER BY random()
                LIMIT 1`);
@@ -126,6 +157,7 @@ module.exports = ()=> {
         return res.error(req, res, next, 'An internal error occurred', 500)
       }
       res.reply(req, res, next, row);
+
     } else {
       let row = await db.one(`
         ${baseSelect}
