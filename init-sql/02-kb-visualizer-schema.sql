@@ -264,7 +264,7 @@ SELECT
 	sentence_id,
 	sentence_offset,
 	sentence_text,
-	sent_page[0] sentence_page, -- assume that everything is on the same page
+	sent_page[1] sentence_page, -- assume that everything is on the same page
 	sent_words,
 	sent_table_id,
 	sent_section_id,
@@ -282,7 +282,7 @@ JOIN input i
   ON i.row_number = c.row_number
 JOIN image
   ON i.document_name like concat('%', image.doc_id, '%')
- AND image.page_no = substring(i.sentence_img, '_(\d+)\/'::text)::integer;
+ AND image.page_no = i.sent_page[1];
 
 CREATE MATERIALIZED VIEW equations.equation AS
  SELECT DISTINCT
@@ -294,11 +294,12 @@ CREATE MATERIALIZED VIEW equations.equation AS
    equation_text AS text,
    image.image_id,
    image.doc_id,
-   image.page_no
+   image.page_no,
+    substring(i.equation_img, '_(\d+)\/'::text)::integer
  FROM equations.output i
  JOIN image
   ON i.document_name like concat('%', image.doc_id, '%')
-  AND image.page_no = substring(i.equation_img, '_(\d+)\/'::text)::integer;
+  AND image.page_no = i.sent_page[1];
 
 CREATE MATERIALIZED VIEW equations.variable AS
 SELECT DISTINCT
@@ -315,6 +316,6 @@ SELECT DISTINCT
 FROM equations.output i
 JOIN image
   ON i.document_name like concat('%', image.doc_id, '%')
- AND image.page_no = substring(i.sentence_img, '_(\d+)\/'::text)::integer
+ AND image.page_no = i.sent_page[1]
 GROUP BY geometry, document_name,
          text, image.image_id, image.doc_id, image.page_no;
