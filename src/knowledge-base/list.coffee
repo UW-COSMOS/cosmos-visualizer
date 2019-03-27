@@ -1,12 +1,13 @@
 import h from 'react-hyperscript'
 import {Component} from 'react'
-import {Callout, Icon, Card, InputGroup, Menu, MenuItem, Popover, Button, Position} from '@blueprintjs/core'
+import {Callout, Icon, Card, InputGroup, Menu,
+        MenuItem, Popover, Button, Position} from '@blueprintjs/core'
 import {PagedAPIView, StatefulComponent} from '@macrostrat/ui-components'
-import {SessionInfoLink} from './session-component/info-card'
+import {ModelExtraction} from './model-extraction'
 
-class SessionListComponent extends StatefulComponent
+class ExtractionListComponent extends StatefulComponent
   @defaultProps: {
-    apiEndpoint: '/api/v1/session'
+    apiEndpoint: '/model/extraction'
     filterFields: {
       'sample_id': "Sample"
       'project_name': "Project"
@@ -62,11 +63,11 @@ class SessionListComponent extends StatefulComponent
     }
 
 
-    h 'div.data-view#session-list', [
+    h 'div.data-view#extraction-list', [
       h Callout, {
         icon: 'info-sign',
-        title: "Analytical sessions"
-      }, "This page contains the core data view for laboratory analytical data"
+        title: "Knowledge base extractions"
+      }, "This page presents a searchable interface to extracted knowledge-base components"
       h PagedAPIView, {
         className: 'data-frame'
         extraPagination: filterBox
@@ -76,8 +77,8 @@ class SessionListComponent extends StatefulComponent
         bottomPagination: false
         perPage: 10
       }, (data)->
-        h 'div', null, data.map (d)-> h(SessionInfoLink, d)
+        h 'div', null, data.map (d)-> h(ModelExtraction, d)
     ]
 
-export {SessionListComponent}
+export {ExtractionListComponent}
 

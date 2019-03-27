@@ -1,6 +1,8 @@
 import h from 'react-hyperscript'
 import {Component} from 'react'
+import update from 'immutability-helper'
 import {StatefulComponent, APIContext, APIResultView} from '@macrostrat/ui-components'
+import {InputGroup} from '@blueprintjs/core'
 import './main.styl'
 
 class KnowledgeBaseFilterView extends Component
@@ -13,6 +15,10 @@ class KnowledgeBaseFilterView extends Component
       filter: {}
       query: ""
     }
+
+  updateState: (spec)=>
+    newState = update @state, spec
+    @setState newState
 
   renderExtractions: (response)=>
     {data} = response
@@ -32,11 +38,23 @@ class KnowledgeBaseFilterView extends Component
         'COSMOS ',
         h 'span.subtle', 'Knowledge base filter'
       ]
+      @renderSearchbar()
       h APIResultView, {
         route: '/model/extraction'
         params: {query}
       }, @renderExtractions
     ]
+
+  updateQuery: (event)=>
+    {value} = event.target
+    @updateState {query: {$set: value}}
+
+  renderSearchbar: ->
+    h InputGroup, {
+      leftIcon: 'search'
+      placeholder: "Search extractions"
+      onChange: @updateQuery
+    }
 
   getTypes: ->
     {doc_id} = @state.filter
