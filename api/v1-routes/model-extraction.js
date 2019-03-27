@@ -15,6 +15,11 @@ async function handler(req, res, next, plugins) {
     q += "AND target_unicode ilike '%%$<query:raw>%%'"
   }
 
+  if (query.length < 2) {
+    q += " LIMIT 10"
+  }
+
+
   try {
     let types = await db.any(q, params);
     res.reply(req,res, next, types);
