@@ -65,3 +65,13 @@ services:
       - ./_data/kb_output:/app/output
       - ./_data/kb_output/img/:/app/img
     command: $PG_CONN_STR python server.py
+
+  import_data:
+    build: import_data
+    environment:
+      - PG_CONN_STR=postgresql://postgres:@db:5432/annotations
+    volumes:
+      - ./_data/output_from_pipeline:/output
+      - ./_data/output_from_pipeline/images:/images
+
+

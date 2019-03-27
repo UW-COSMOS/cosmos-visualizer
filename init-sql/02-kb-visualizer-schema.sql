@@ -58,7 +58,6 @@ CREATE TABLE IF NOT EXISTS equations.output (
         equation_left int,
         equation_right int,
         equation_page int,
-        equation_text_duplicate text,
         symbols text[],
         phrases text[],
         phrases_top text[],
@@ -210,10 +209,9 @@ FROM collected_geometry c
 JOIN input i
   ON i.row_number = c.row_number
 JOIN image
-  ON image.doc_id = i.document_name
- AND image.page_no = substring(i.sentence_img,'_(\d+)\/'::text)::integer;
+  ON i.document_name like concat('%', image.doc_id, '%')
+AND image.page_no = substring(i.sentence_img, '_(\d+)\/'::text)::integer;
 
-DROP MATERIALIZED VIEW equations.sentence;
 CREATE MATERIALIZED VIEW equations.sentence AS
 WITH input AS (
 SELECT DISTINCT ON (sentence_text)
@@ -283,10 +281,9 @@ FROM collected_geometry c
 JOIN input i
   ON i.row_number = c.row_number
 JOIN image
-  ON image.doc_id = i.document_name
+  ON i.document_name like concat('%', image.doc_id, '%')
  AND image.page_no = substring(i.sentence_img, '_(\d+)\/'::text)::integer;
 
-DROP MATERIALIZED VIEW equations.equation;
 CREATE MATERIALIZED VIEW equations.equation AS
  SELECT DISTINCT
    equation_id,
@@ -300,10 +297,9 @@ CREATE MATERIALIZED VIEW equations.equation AS
    image.page_no
  FROM equations.output i
  JOIN image
-   ON image.doc_id = i.document_name
+  ON i.document_name like concat('%', image.doc_id, '%')
   AND image.page_no = substring(i.equation_img, '_(\d+)\/'::text)::integer;
 
-DROP MATERIALIZED VIEW equations.variable;
 CREATE MATERIALIZED VIEW equations.variable AS
 SELECT DISTINCT
   array_agg(equation_id) equation_id,
@@ -318,7 +314,7 @@ SELECT DISTINCT
   image.page_no
 FROM equations.output i
 JOIN image
-  ON image.doc_id = i.document_name
+  ON i.document_name like concat('%', image.doc_id, '%')
  AND image.page_no = substring(i.sentence_img, '_(\d+)\/'::text)::integer
 GROUP BY geometry, document_name,
          text, image.image_id, image.doc_id, image.page_no;
