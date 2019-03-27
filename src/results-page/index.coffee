@@ -263,7 +263,7 @@ class ResultsPage extends Component
   render: ->
     h ResultsPageInner, {
       editingEnabled: false
-      nextImageEndpoint: '/image/next_prediction'
+      nextImageEndpoint: '/image/next_eqn_prediction'
       subtitleText: "View results"
       permalinkRoute: "/view-results"
       navigationEnabled: true
