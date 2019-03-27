@@ -56,6 +56,11 @@ while conn_attempts < 5 and not connected:
         print("Could not connect! Waiting 10 seconds and trying again. Attempt %s of 5" % conn_attempts)
         time.sleep(10)
 
+tag_map = {}
+cur.execute("SELECT tag_id, name FROM tag;")
+for tag in cur:
+    tag_map[tag[1]] = tag[0]
+
 class Watcher():
 
     def __init__(self, output_dir, png_path, stack):
@@ -63,7 +68,7 @@ class Watcher():
         self.png_path = png_path
         self.stack = stack
         self.event_handler = watchdog.events.PatternMatchingEventHandler(patterns=["*.xml", "*.csv", "*.png"],
-                ignore_patterns=[],
+                ignore_patterns=["*/html*/*.png"],
                 ignore_directories=True)
         self.event_handler.on_created = self.on_created
         self.observer = Observer()
@@ -77,14 +82,19 @@ class Watcher():
 
         elif event.event_type == 'created':
             # Take any action here when a file is first created.
-            print("Received created event - %s." % event.src_path)
-            print("Scanning everything again, I guess")
-            for image_filepath in glob.glob(self.png_path + "*.png"):
-                # TODO: this only checks the main dir. Is that ok?
-                image_filepath = os.path.basename(image_filepath)
-                import_image(image_filepath, self.png_path)
-            import_xml(self.output_dir, self.png_path, self.stack)
-            import_kb(self.output_dir)
+            if event.src_path.endswith(".png"):
+                import_image(os.path.basename(event.src_path), self.png_path)
+            elif event.src_path.endswith(".xml"):
+                import_xml(os.path.basename(event.src_path), os.path.dirname(event.src_path), self.png_path, self.stack)
+            elif event.src_path.endswith(".csv"):
+                if "output.csv" in event.src_path:
+                    import_equations(event.src_path)
+                elif "tables.csv" in event.src_path:
+                    import_tables(event.src_path)
+                elif "figures.csv" in event.src_path:
+                    import_figures(event.src_path)
+            else:
+                print("WARNING! Not sure what to do with file (%s)" % event.src_path)
 
     def stop(self):
         self.observer.stop()
@@ -135,7 +145,7 @@ def import_image(image_filepath, png_path):
     Returns: image_id (UUID) - db-level internal id for the image.
     """
     # Get rid of leading `/images` if it exists
-    print("Importing image %s" % image_filepath)
+#    print("Importing image %s" % image_filepath)
 
     doc_id, page_no = parse_docid_and_page_no(image_filepath)
 
@@ -145,7 +155,6 @@ def import_image(image_filepath, png_path):
         image_id = uuid.uuid4()
         image_filepath = obfuscate_png(image_filepath, png_path)
     else: # repeat image
-        print("\tImage already in database.")
         return check[0]
 
     cur.execute("INSERT INTO image (image_id, doc_id, page_no, file_path) VALUES (%s, %s, %s, %s) ON CONFLICT (image_id) DO UPDATE SET image_id=EXCLUDED.image_id RETURNING image_id;", (str(image_id), doc_id, page_no, image_filepath))
@@ -153,7 +162,43 @@ def import_image(image_filepath, png_path):
     image_id = cur.fetchone()[0]
     return image_id
 
-def import_xml(xml_path, png_path, stack):
+def import_xml(xml_filename, xml_path, png_path, stack):
+    with open(os.path.join(xml_path, xml_filename)) as fin:
+        doc = etree.parse(fin)
+
+    # try to find the image associated with this xml
+    try:
+        image_filepath = doc.xpath("//filename/text()")[0]
+        _ = glob.glob("%s/%s" % (png_path, image_filepath))[0]
+#            image_filepath = glob.glob("%s/%s*png" % (png_path, xml_filename.replace(xml_path, "").replace(".xml","")))[0]
+    except: # something funny in the xml -- try to fall back on filename consistency
+        image_filepath = os.path.basename(xml_filename).replace(".xml",".png")
+        check = glob.glob("%s/%s" % (png_path, image_filepath.replace(".pdf", "*.pdf").replace(".png", "_*.png")))
+        if check == [] or len(check)>1:
+            print("Couldn't find page-level PNG associated with %s! Skipping." % xml_filename)
+            return
+        else:
+            image_filepath = check[0].replace(png_path + "/", "")
+
+    image_id = import_image(image_filepath, png_path)
+
+    cur.execute("INSERT INTO image_stack (image_id, stack_id) VALUES (%s, %s) ON CONFLICT (image_id, stack_id) DO UPDATE SET image_id=EXCLUDED.image_id RETURNING image_stack_id", (str(image_id), stack))
+    image_stack_id = cur.fetchone()[0]
+
+    # loop through tags
+    for record in doc.xpath("//object"):
+        image_tag_id = uuid.uuid4()
+        tag_name = record.xpath('name/text()')[0]
+        tag_id = tag_map[tag_name]
+        xmin = int(record.xpath('bndbox/xmin/text()')[0])
+        ymin = int(record.xpath('bndbox/ymin/text()')[0])
+        xmax = int(record.xpath('bndbox/xmax/text()')[0])
+        ymax = int(record.xpath('bndbox/ymax/text()')[0])
+
+        cur.execute("INSERT INTO image_tag (image_tag_id, image_stack_id, tag_id, geometry, tagger) VALUES (%s, %s, %s, ST_Collect(ARRAY[ST_MakeEnvelope(%s, %s, %s, %s)]), %s) ON CONFLICT DO NOTHING;", (str(image_tag_id), image_stack_id, tag_id, xmin, ymin, xmax, ymax, 'COSMOS'))
+        conn.commit()
+
+def import_xmls(xml_path, png_path, stack):
     """
     TODO: Docstring for import_xml.
 
@@ -163,65 +208,81 @@ def import_xml(xml_path, png_path, stack):
     Returns: TODO
 
     """
-    cur.execute("SELECT tag_id, name FROM tag;")
-    tag_map = {}
-    for tag in cur:
-        tag_map[tag[1]] = tag[0]
 
     for root, dirnames, filenames in os.walk(xml_path):
-        for xml in fnmatch.filter(filenames, '*.xml'):
-            xml = os.path.join(root, xml)
-            with open(xml) as fin:
-                doc = etree.parse(fin)
-
-            # try to find the image associated with this xml
-            try:
-                image_filepath = doc.xpath("//filename/text()")[0]
-                _ = glob.glob("%s/%s" % (png_path, image_filepath))[0]
-    #            image_filepath = glob.glob("%s/%s*png" % (png_path, xml.replace(xml_path, "").replace(".xml","")))[0]
-            except: # something funny in the xml -- try to fall back on filename consistency
-                image_filepath = os.path.basename(xml).replace(".xml",".png")
-                check = glob.glob("%s/%s" % (png_path, image_filepath.replace(".pdf", "*.pdf").replace(".png", "_*.png")))
-                if check == [] or len(check)>1:
-                    print("Couldn't find page-level PNG associated with %s! Skipping." % xml)
-                    continue
-                else:
-                    image_filepath = check[0].replace(png_path + "/", "")
-
-            image_id = import_image(image_filepath, png_path)
-
-            cur.execute("INSERT INTO image_stack (image_id, stack_id) VALUES (%s, %s) ON CONFLICT (image_id, stack_id) DO UPDATE SET image_id=EXCLUDED.image_id RETURNING image_stack_id", (str(image_id), stack))
-            image_stack_id = cur.fetchone()[0]
-
-            # loop through tags
-            for record in doc.xpath("//object"):
-                image_tag_id = uuid.uuid4()
-                tag_name = record.xpath('name/text()')[0]
-                tag_id = tag_map[tag_name]
-                xmin = int(record.xpath('bndbox/xmin/text()')[0])
-                ymin = int(record.xpath('bndbox/ymin/text()')[0])
-                xmax = int(record.xpath('bndbox/xmax/text()')[0])
-                ymax = int(record.xpath('bndbox/ymax/text()')[0])
-
-                cur.execute("INSERT INTO image_tag (image_tag_id, image_stack_id, tag_id, geometry, tagger) VALUES (%s, %s, %s, ST_Collect(ARRAY[ST_MakeEnvelope(%s, %s, %s, %s)]), %s) ON CONFLICT DO NOTHING;", (str(image_tag_id), image_stack_id, tag_id, xmin, ymin, xmax, ymax, 'COSMOS'))
-                conn.commit()
+        for xml_filename in fnmatch.filter(filenames, '*.xml'):
+            import_xml(xml_filename, root, png_path, stack)
 
     return 0
 
-def import_kb(output_path):
-    """
-    TODO: Docstring for import_kb.
+def import_figures(figure_kb_path):
+    cur.execute("""
+    CREATE TABLE IF NOT EXISTS equations.figures_tmp (
+            target_img_path text,
+            target_unicode text,
+            target_tesseract text,
+            assoc_img_path text,
+            assoc_unicode text,
+            assoc_tesseract text,
+            html_file text,
+            UNIQUE (target_img_path)
+            );
+            """)
+    conn.commit()
+    try:
+        with open(figure_kb_path) as f:
+            copy_sql = """
+                COPY equations.figures_tmp(
+                    target_img_path,
+                    target_unicode,
+                    target_tesseract,
+                    assoc_img_path,
+                    assoc_unicode,
+                    assoc_tesseract,
+                    html_file) FROM STDIN WITH DELIMITER ',' CSV HEADER;
+                    """
+            cur.copy_expert(sql=copy_sql, file=f)
+            conn.commit()
+    except IOError:
+        print("WARNING! Could not find figures.csv KB dump.")
 
-    Args:
-        arg1 (TODO): TODO
+    cur.execute("INSERT INTO equations.figures SELECT * FROM equations.figures_tmp ON CONFLICT DO NOTHING; DROP TABLE equations.figures_tmp;")
+    conn.commit()
 
-    Returns: TODO
+def import_tables(table_kb_path):
+    cur.execute("""
+    CREATE TABLE IF NOT EXISTS equations.tables_tmp (
+            target_img_path text,
+            target_unicode text,
+            target_tesseract text,
+            assoc_img_path text,
+            assoc_unicode text,
+            assoc_tesseract text,
+            html_file text,
+            UNIQUE (target_img_path)
+            );
+            """)
+    conn.commit()
+    try:
+        with open(table_kb_path) as f:
+            copy_sql = """
+                COPY equations.tables_tmp(
+                    target_img_path,
+                    target_unicode,
+                    target_tesseract,
+                    assoc_img_path,
+                    assoc_unicode,
+                    assoc_tesseract,
+                    html_file) FROM STDIN WITH DELIMITER ',' CSV HEADER;
+                    """
+            cur.copy_expert(sql=copy_sql, file=f)
+            conn.commit()
+    except IOError:
+        print("WARNING! Could not find tables.csv KB dump.")
+    cur.execute("INSERT INTO equations.tables SELECT * FROM equations.tables_tmp ON CONFLICT DO NOTHING; DROP TABLE equations.tables_tmp;")
+    conn.commit()
 
-    """
-
-    # TODO: can we/should we enforce that the image exists already?
-    #   it's tricky because these CSVs are actually run-level files, not doc level
-    # TODO: do the csv-to-tmp copy, tmp-to-table inserts
+def import_equations(equation_kb_path):
     cur.execute("""
         CREATE TABLE IF NOT EXISTS equations.output_tmp (
             document_name text,
@@ -272,7 +333,6 @@ def import_kb(output_path):
             equation_left int,
             equation_right int,
             equation_page int,
-            equation_text_duplicate text,
             symbols text[],
             phrases text[],
             phrases_top text[],
@@ -284,65 +344,10 @@ def import_kb(output_path):
             equation_img text,
             UNIQUE (document_name, id)
             );
-
-    CREATE TABLE IF NOT EXISTS equations.figures_tmp (
-            target_img_path text,
-            target_unicode text,
-            target_tesseract text,
-            assoc_img_path text,
-            assoc_unicode text,
-            assoc_tesseract text,
-            html_file text,
-            UNIQUE (target_img_path)
-            );
-
-    CREATE TABLE IF NOT EXISTS equations.tables_tmp (
-            target_img_path text,
-            target_unicode text,
-            target_tesseract text,
-            assoc_img_path text,
-            assoc_unicode text,
-            assoc_tesseract text,
-            html_file text,
-            UNIQUE (target_img_path)
-            );
             """)
     conn.commit()
-
     try:
-        with open(output_path + "figures.csv") as f:
-            copy_sql = """
-                COPY equations.figures_tmp(
-                    target_img_path,
-                    target_unicode,
-                    target_tesseract,
-                    assoc_img_path,
-                    assoc_unicode,
-                    assoc_tesseract,
-                    html_file) FROM STDIN WITH DELIMITER ',' CSV HEADER;
-                    """
-            cur.copy_expert(sql=copy_sql, file=f)
-            conn.commit()
-    except IOError:
-        print("WARNING! Could not find figures.csv KB dump.")
-    try:
-        with open(output_path + "tables.csv") as f:
-            copy_sql = """
-                COPY equations.tables_tmp(
-                    target_img_path,
-                    target_unicode,
-                    target_tesseract,
-                    assoc_img_path,
-                    assoc_unicode,
-                    assoc_tesseract,
-                    html_file) FROM STDIN WITH DELIMITER ',' CSV HEADER;
-                    """
-            cur.copy_expert(sql=copy_sql, file=f)
-            conn.commit()
-    except IOError:
-        print("WARNING! Could not find tables.csv KB dump.")
-    try:
-        with open(output_path + "output.csv") as f:
+        with open(equation_kb_path) as f:
             copy_sql = """
                 COPY equations.output_tmp(
                     document_name,
@@ -393,7 +398,6 @@ def import_kb(output_path):
                     equation_left,
                     equation_right,
                     equation_page,
-                    equation_text_duplicate,
                     symbols,
                     phrases,
                     phrases_top,
@@ -409,8 +413,6 @@ def import_kb(output_path):
     except IOError:
         print("WARNING! Could not find output.csv KB dump.")
     cur.execute("INSERT INTO equations.output SELECT * FROM equations.output_tmp ON CONFLICT DO NOTHING; DROP TABLE equations.output_tmp;")
-    cur.execute("INSERT INTO equations.figures SELECT * FROM equations.figures_tmp ON CONFLICT DO NOTHING; DROP TABLE equations.figures_tmp;")
-    cur.execute("INSERT INTO equations.tables SELECT * FROM equations.tables_tmp ON CONFLICT DO NOTHING; DROP TABLE equations.tables_tmp;")
     conn.commit()
     cur.execute("""
         REFRESH MATERIALIZED VIEW equations.equation;
@@ -419,6 +421,21 @@ def import_kb(output_path):
         REFRESH MATERIALIZED VIEW equations.variable;
         """)
     conn.commit()
+
+def import_kb(output_path):
+    """
+    TODO: Docstring for import_kb.
+
+    Args:
+        arg1 (TODO): TODO
+
+    Returns: TODO
+
+    """
+    import_figures(output_path + "figures.csv")
+    import_tables(output_path + "tables.csv")
+    import_equations(output_path + "output.csv")
+
     return 0
 
 def main():
@@ -445,7 +462,7 @@ def main():
     for image_filepath in glob.glob(png_path + "*.png"):
         image_filepath = os.path.basename(image_filepath)
         import_image(image_filepath, png_path)
-    import_xml(output_path, png_path, stack)
+    import_xmls(output_path, png_path, stack)
     import_kb(output_path)
 
     # watch for changes in the output dir
@@ -455,6 +472,7 @@ def main():
             time.sleep(30)
     except:
         w.stop()
+        raise
 
 
 
