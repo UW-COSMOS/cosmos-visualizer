@@ -8,15 +8,23 @@ KBImage = (props)->
 
 class ModelExtraction extends Component
   render: ->
+    {index} = @props
+    console.log @props
+
     fig = null
     if @props.assoc_img_path?
       fig = h KBImage, {path: @props.assoc_img_path}
 
-    h 'div', [
-      fig
-      h KBImage, {path: @props.target_img_path}
-      h 'p', @props.target_unicode
-      h 'p', @props.assoc_unicode
+    h 'div.model-extraction', [
+      h 'div.index', index
+      h 'div.images', [
+        fig
+        h KBImage, {path: @props.target_img_path}
+      ]
+      h 'div', [
+        h 'p', @props.target_unicode
+        h 'p', @props.assoc_unicode
+      ]
     ]
 
 export {ModelExtraction}
