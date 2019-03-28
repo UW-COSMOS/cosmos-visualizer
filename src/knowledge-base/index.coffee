@@ -7,7 +7,7 @@ import {InputGroup} from '@blueprintjs/core'
 import {ModelExtraction} from './model-extraction'
 import './main.styl'
 
-class KnowledgeBaseFilterView extends Component
+class KnowledgeBaseFilterView extends StatefulComponent
   @contextType: APIContext
   constructor: (props)->
     super props
@@ -18,12 +18,7 @@ class KnowledgeBaseFilterView extends Component
       query: ""
     }
 
-  updateState: (spec)=>
-    newState = update @state, spec
-    @setState newState
-
   renderExtractions: (response)=>
-    console.log response
     {data} = response
     console.log data
     h 'div.results', data.map (i)->
