@@ -20,7 +20,6 @@ class KnowledgeBaseFilterView extends StatefulComponent
 
   renderExtractions: (response)=>
     {data} = response
-    console.log data
     h 'div.results', data.map (d,i)->
       h ModelExtraction, {d..., index: i}
 

@@ -5,12 +5,31 @@
     top: 0px
 
   position relative
-  div.model-extraction
-    margin 1em 0 2em
+
+  div.pagination-controls
     display flex
     flex-direction row
-    div.index
-      flex none
+    justify-content space-between
+    margin-top 1em
+
+  div.model-extraction
+    border-top 2px solid #ccc
+    padding-top 1em
+    margin 1em 0 2em
+    display flex
+    flex-direction column
+    h2
+      font-size 14px
+    div.extracted-entity>.main
+      &>div.kb-image-container
+        flex 2
+      &>*
+        flex 1
+      div.text
+        margin-left 1em
+        font-size 10px
+      display flex
+      flex-direction row
     &>div
       flex 1
       position relative
