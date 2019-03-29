@@ -6,7 +6,8 @@ async function handler(req, res, next, plugins) {
     // Simple and hacky!
     let types = [
       {id: 'Figure', name: 'Figure'},
-      {id: 'Table', name: 'Table'}
+      {id: 'Table', name: 'Table'},
+      {id: 'Equation', name: 'Equation'}
     ];
     res.reply(req,res, next, types);
   } catch (error) {
