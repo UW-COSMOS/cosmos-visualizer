@@ -92,23 +92,37 @@ CREATE TABLE IF NOT EXISTS equations.tables (
         UNIQUE (target_img_path)
         );
 
-CREATE VIEW equations.figures_and_tables AS ( SELECT figures.target_img_path,
-        figures.target_unicode,
-        figures.target_tesseract,
-        figures.assoc_img_path,
-        figures.assoc_unicode,
-        figures.assoc_tesseract,
-        figures.html_file
-        FROM equations.figures
-        UNION
-        SELECT tables.target_img_path,
-        tables.target_unicode,
-        tables.target_tesseract,
-        tables.assoc_img_path,
-        tables.assoc_unicode,
-        tables.assoc_tesseract,
-        tables.html_file
-        FROM equations.tables);
+CREATE OR REPLACE VIEW equations.figures_and_tables AS
+SELECT
+  figures.target_img_path,
+  figures.target_unicode,
+  figures.target_tesseract,
+  figures.assoc_img_path,
+  figures.assoc_unicode,
+  figures.assoc_tesseract,
+  figures.html_file
+FROM equations.figures
+UNION
+SELECT
+  tables.target_img_path,
+  tables.target_unicode,
+  tables.target_tesseract,
+  tables.assoc_img_path,
+  tables.assoc_unicode,
+  tables.assoc_tesseract,
+  tables.html_file
+FROM equations.tables
+UNION
+SELECT
+  sentence_img target_img_path,
+  string_agg(sentence_text, ' ') target_unicode,
+  NULL target_tesseract,
+  equation_img assoc_img_path,
+  equation_text assoc_unicode,
+  NULL assoc_tesseract,
+  NULL html_file
+FROM equations.output
+GROUP BY sentence_img, equation_img, equation_text;
 
 /*
 Unnest 2d array into 1d array

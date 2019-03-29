@@ -1,24 +1,13 @@
 async function handler(req, res, next, plugins) {
   const {db} = plugins;
   let params = {};
-  params['doc_id'] = req.query.doc_id || '\\w+' // Get all documents by default
-  params['stack_id'] = req.query.stack_id || 'default' // not needed yet, but will be
-
-  const regex = '^(?:img/){1}(?:${doc_id:raw})(?:_input.pdf).*\/(.*[^\\d])(:?\\d+.png)$'
 
   try {
-    let types = await db.any(
-      `WITH a AS (
-      SELECT DISTINCT
-        substring(
-          target_img_path, '$(regex)'
-        ) AS type
-      FROM equations.figures_and_tables
-      )
-      SELECT * FROM a
-      WHERE type IS NOT null
-      ORDER BY type ASC`, params
-    );
+    // Simple and hacky!
+    let types = [
+      {id: 'Figure', name: 'Figure'},
+      {id: 'Table', name: 'Table'}
+    ];
     res.reply(req,res, next, types);
   } catch (error) {
     return res.error(req, res, next,
@@ -26,27 +15,24 @@ async function handler(req, res, next, plugins) {
   }
 };
 
+const params = {
+  'all': {
+    'type': 'boolean',
+    'description': 'Return all results'
+  }
+};
+
 module.exports = {
   path: '/model/extraction-type',
   displayPath: '/model/extraction-type',
   methods: ['GET'],
-  description: 'Retrieve model extracted entity types',
-  parameters: {
-    'doc_id': {
-      'type': 'text',
-      'description': 'Document on which to focus'
-    },
-  },
+  description: 'Retrieve model-extracted entity types',
+  parameters: params,
   requiredParameters: [ ],
   requiresOneOf: [ ],
-  fields: {
-    'doc_id': {
-      'type': 'text',
-      'description': 'Document on which to focus'
-    },
-  },
+  fields: params,
   examples: [
-    '/api/v1/model/extraction-type?doc_id=1',
+    '/api/model/extraction-type?all=true',
   ],
   handler: handler
 }

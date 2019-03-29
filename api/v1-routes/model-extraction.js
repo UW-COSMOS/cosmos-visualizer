@@ -13,7 +13,7 @@ async function handler(req, res, next, plugins) {
 
   let base = `SELECT *
     FROM equations.figures_and_tables
-    WHERE target_img_path ~ '$<doc_id:raw>.*$<btype:raw>\\d'`;
+    WHERE concat(target_img_path, assoc_img_path) ~ '$<btype:raw>\\d'`;
 
   const query = req.query.query || "";
   if (query != '') {
