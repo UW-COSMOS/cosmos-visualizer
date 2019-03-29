@@ -224,8 +224,7 @@ def import_figures(figure_kb_path):
             assoc_img_path text,
             assoc_unicode text,
             assoc_tesseract text,
-            html_file text,
-            UNIQUE (target_img_path)
+            html_file text
             );
             """)
     conn.commit()
@@ -258,8 +257,7 @@ def import_tables(table_kb_path):
             assoc_img_path text,
             assoc_unicode text,
             assoc_tesseract text,
-            html_file text,
-            UNIQUE (target_img_path)
+            html_file text
             );
             """)
     conn.commit()
@@ -341,8 +339,7 @@ def import_equations(equation_kb_path):
             phrases_right text[],
             phrases_page text[],
             sentence_img text,
-            equation_img text,
-            UNIQUE (document_name, id)
+            equation_img text
             );
             """)
     conn.commit()
@@ -469,7 +466,13 @@ def main():
     w = Watcher(output_path, png_path, stack)
     try:
         while True:
-            time.sleep(30)
+            time.sleep(60)
+            # temp hack to scan regularly
+            for image_filepath in glob.glob(png_path + "*.png"):
+                image_filepath = os.path.basename(image_filepath)
+                import_image(image_filepath, png_path)
+            import_xmls(output_path, png_path, stack)
+            import_kb(output_path)
     except:
         w.stop()
         raise
