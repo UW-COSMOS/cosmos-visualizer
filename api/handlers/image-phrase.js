@@ -21,6 +21,7 @@ async function handleGet(req, res, next, plugins) {
         sentence_text
       FROM equations.phrase
       WHERE phrase.image_id = $(image_id)
+       AND phrase_page::integer = page_no::integer
         AND geometry IS NOT null
     `, params);
     // We should *not* have to filter out null geometries
