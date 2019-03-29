@@ -13,6 +13,8 @@ class KBExtraction extends Component
   render: ->
     {unicode, path, className, title} = @props
     entityType = basename(path, '.png').replace(/\d+$/, "")
+    if entityType == "Body Text"
+      return null
 
     className = classNames(className, "extracted-entity")
 

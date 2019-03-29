@@ -17,7 +17,6 @@ class KnowledgeBaseFilterView extends StatefulComponent
       types: []
       filterParams: {
         query: ""
-        btype: null
       }
     }
 
@@ -51,16 +50,21 @@ class KnowledgeBaseFilterView extends StatefulComponent
 
     menuItems = types.map (d)=>
       onClick = =>
-        @updateState {filterParams: {btype: {$set: d.id}}}
+        @updateState {filterParams: {type: {$set: d.id}}}
       h Button, {minimal: true, onClick}, d.name
+
+    onClick = =>
+      {type, val...} = @state.filterParams
+      @updateState {filterParams: {$set: val}}
+    menuItems.push h Button, {minimal: true, onClick}, "All types"
 
 
     content = h Menu, menuItems
     position = Position.BOTTOM_RIGHT
 
-    type = @state.filterParams.btype or "All types"
+    type = @state.filterParams.type or "All types"
     rightElement = h Popover, {content, position}, [
-      h Button, {minimal: true, icon: "filter"}, types
+      h Button, {minimal: true, icon: "filter"}, type
     ]
 
     h InputGroup, {
@@ -71,8 +75,11 @@ class KnowledgeBaseFilterView extends StatefulComponent
     }
 
   getTypes: ->
-    types = await get '/model/extraction-type', {all: true}
-    console.log types
+    types = [
+      {id: 'Figure', name: 'Figure'},
+      {id: 'Table', name: 'Table'},
+      {id: 'Equation', name: 'Equation'}
+    ]
     @setState {types}
 
   componentDidMount: ->
