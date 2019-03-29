@@ -26,10 +26,6 @@ class KBExtraction extends Component
           ]
           h KBImage, {path}
         ]
-        h 'div.text', [
-          h 'h4', 'Unicode'
-          h 'p.text', unicode
-        ]
       ]
     ]
 

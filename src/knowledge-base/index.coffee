@@ -4,7 +4,7 @@ import update from 'immutability-helper'
 import {StatefulComponent, APIContext,
         PagedAPIView, APIResultView} from '@macrostrat/ui-components'
 import {Link} from 'react-router-dom'
-import {InputGroup} from '@blueprintjs/core'
+import {InputGroup, Popover, Button, Menu, Position} from '@blueprintjs/core'
 import {ModelExtraction} from './model-extraction'
 import './main.styl'
 
@@ -15,8 +15,10 @@ class KnowledgeBaseFilterView extends StatefulComponent
     @state = {
       doc_ids: []
       types: []
-      filter: {}
-      query: ""
+      filterParams: {
+        query: ""
+        btype: null
+      }
     }
 
   renderExtractions: (data)=>
@@ -24,7 +26,7 @@ class KnowledgeBaseFilterView extends StatefulComponent
       h ModelExtraction, {d..., index: i}
 
   render: =>
-    {query} = @state
+    {filterParams} = @state
     h 'div#knowledge-base-filter', [
       h 'h1', [
         h Link, {to: '/'}, 'COSMOS'
@@ -34,7 +36,7 @@ class KnowledgeBaseFilterView extends StatefulComponent
       @renderSearchbar()
       h PagedAPIView, {
         route: '/model/extraction'
-        params: {query}
+        params: filterParams
         topPagination: true
         bottomPagination: false
       }, @renderExtractions
@@ -42,28 +44,38 @@ class KnowledgeBaseFilterView extends StatefulComponent
 
   updateQuery: (event)=>
     {value} = event.target
-    @updateState {query: {$set: value}}
+    @updateState {filterParams: {query: {$set: value}}}
 
   renderSearchbar: ->
+    {types} = @state
+
+    menuItems = types.map (d)=>
+      onClick = =>
+        @updateState {filterParams: {btype: {$set: d.id}}}
+      h Button, {minimal: true, onClick}, d.name
+
+
+    content = h Menu, menuItems
+    position = Position.BOTTOM_RIGHT
+
+    type = @state.filterParams.btype or "All types"
+    rightElement = h Popover, {content, position}, [
+      h Button, {minimal: true, icon: "filter"}, types
+    ]
+
     h InputGroup, {
       leftIcon: 'search'
       placeholder: "Search extractions"
       onChange: @updateQuery
+      rightElement
     }
 
   getTypes: ->
-    {doc_id} = @state.filter
-    types = await get '/model/extraction-type', {doc_id}
+    types = await get '/model/extraction-type', {all: true}
+    console.log types
     @setState {types}
 
   componentDidMount: ->
-    {get} = @context
-
-    doc_ids = await get '/model/document', {all: true}
-    @setState {doc_ids}
-
-  componentDidUpdate: (prevProps, prevState)->
-    return if @state.filter.doc_id == prevState.filter.doc_id
     @getTypes()
 
 
