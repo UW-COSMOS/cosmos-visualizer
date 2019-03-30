@@ -202,6 +202,11 @@ SELECT -- Should NOT need this distinct clause
       row_number() OVER (PARTITION BY equation_id ORDER BY id)
     )::integer
   ) AS text,
+  LEFT(array_slice(
+    phrases_page, (
+      row_number() OVER (PARTITION BY equation_id ORDER BY id)
+      )::integer
+  ), 1) AS phrase_page,
   document_name,
   'phrase' AS tag_id,
   id,
@@ -224,7 +229,7 @@ JOIN input i
   ON i.row_number = c.row_number
 JOIN image
   ON i.document_name like concat('%', image.doc_id, '%')
-AND image.page_no = substring(i.sentence_img, '_(\d+)\/'::text)::integer;
+AND image.page_no = substring(i.sentence_img, '_(\d+)\/'::text)::integer AND image.page_no = substring(i.equation_img, '_(\d+)\/'::text)::integer;
 
 CREATE MATERIALIZED VIEW equations.sentence AS
 WITH input AS (
@@ -313,7 +318,7 @@ CREATE MATERIALIZED VIEW equations.equation AS
  FROM equations.output i
  JOIN image
   ON i.document_name like concat('%', image.doc_id, '%')
-  AND image.page_no = i.sent_page[1];
+  AND image.page_no = substring(i.equation_img, '_(\d+)\/'::text)::integer ;
 
 CREATE MATERIALIZED VIEW equations.variable AS
 SELECT DISTINCT

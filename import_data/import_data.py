@@ -35,6 +35,8 @@ import string
 from random import choice
 from shutil import copyfile
 
+VERBOSE = False
+
 image_prefix_regex = re.compile('^\/images\/?')
 obs_regex = re.compile(r'im[0-9a-zA-Z]{16}')
 
@@ -94,7 +96,8 @@ class Watcher():
                 elif "figures.csv" in event.src_path:
                     import_figures(event.src_path)
             else:
-                print("WARNING! Not sure what to do with file (%s)" % event.src_path)
+                if VERBOSE:
+                    print("WARNING! Not sure what to do with file (%s)" % event.src_path)
 
     def stop(self):
         self.observer.stop()
@@ -175,7 +178,8 @@ def import_xml(xml_filename, xml_path, png_path, stack):
         image_filepath = os.path.basename(xml_filename).replace(".xml",".png")
         check = glob.glob("%s/%s" % (png_path, image_filepath.replace(".pdf", "*.pdf").replace(".png", "_*.png")))
         if check == [] or len(check)>1:
-            print("Couldn't find page-level PNG associated with %s! Skipping." % xml_filename)
+            if VERBOSE:
+                print("Couldn't find page-level PNG associated with %s! Skipping." % xml_filename)
             return
         else:
             image_filepath = check[0].replace(png_path + "/", "")
@@ -224,8 +228,7 @@ def import_figures(figure_kb_path):
             assoc_img_path text,
             assoc_unicode text,
             assoc_tesseract text,
-            html_file text,
-            UNIQUE (target_img_path)
+            html_file text
             );
             """)
     conn.commit()
@@ -244,7 +247,8 @@ def import_figures(figure_kb_path):
             cur.copy_expert(sql=copy_sql, file=f)
             conn.commit()
     except IOError:
-        print("WARNING! Could not find figures.csv KB dump.")
+        if VERBOSE:
+            print("WARNING! Could not find figures.csv KB dump.")
 
     cur.execute("INSERT INTO equations.figures SELECT * FROM equations.figures_tmp ON CONFLICT DO NOTHING; DROP TABLE equations.figures_tmp;")
     conn.commit()
@@ -258,8 +262,7 @@ def import_tables(table_kb_path):
             assoc_img_path text,
             assoc_unicode text,
             assoc_tesseract text,
-            html_file text,
-            UNIQUE (target_img_path)
+            html_file text
             );
             """)
     conn.commit()
@@ -278,7 +281,8 @@ def import_tables(table_kb_path):
             cur.copy_expert(sql=copy_sql, file=f)
             conn.commit()
     except IOError:
-        print("WARNING! Could not find tables.csv KB dump.")
+        if VERBOSE:
+            print("WARNING! Could not find tables.csv KB dump.")
     cur.execute("INSERT INTO equations.tables SELECT * FROM equations.tables_tmp ON CONFLICT DO NOTHING; DROP TABLE equations.tables_tmp;")
     conn.commit()
 
@@ -341,8 +345,7 @@ def import_equations(equation_kb_path):
             phrases_right text[],
             phrases_page text[],
             sentence_img text,
-            equation_img text,
-            UNIQUE (document_name, id)
+            equation_img text
             );
             """)
     conn.commit()
@@ -411,7 +414,8 @@ def import_equations(equation_kb_path):
             cur.copy_expert(sql=copy_sql, file=f)
             conn.commit()
     except IOError:
-        print("WARNING! Could not find output.csv KB dump.")
+        if VERBOSE:
+            print("WARNING! Could not find output.csv KB dump.")
     cur.execute("INSERT INTO equations.output SELECT * FROM equations.output_tmp ON CONFLICT DO NOTHING; DROP TABLE equations.output_tmp;")
     conn.commit()
     cur.execute("""
@@ -469,7 +473,13 @@ def main():
     w = Watcher(output_path, png_path, stack)
     try:
         while True:
-            time.sleep(30)
+            time.sleep(60)
+            # temp hack to scan regularly
+            for image_filepath in glob.glob(png_path + "*.png"):
+                image_filepath = os.path.basename(image_filepath)
+                import_image(image_filepath, png_path)
+            import_xmls(output_path, png_path, stack)
+            import_kb(output_path)
     except:
         w.stop()
         raise

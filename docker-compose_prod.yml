@@ -9,6 +9,7 @@ services:
       volumes:
         - ./_data/logs:/logs
         - ${PIPELINE_OUTPUT}/images:/images:ro
+        - ${PIPELINE_OUTPUT}/html/img:/kb-images:ro
 
     image-tagger-api:
       image: uwcosmos/cosmos_viz_api
@@ -23,20 +24,6 @@ services:
         - "54321:5432"
       expose:
         - 5432
-
-    kb_visualizer:
-      image: uwcosmos/cosmos_viz_kbviz
-      ports:
-        - "8051:8051"
-      expose:
-        - 8051
-      environment:
-        - PG_CONN_STR=postgresql://postgres:@db:5432/annotations 
-        - PG_EQUATION_SCHEMA=equations
-      volumes:
-        - ./_data/kb_output:/app/output
-        - ./_data/kb_output/img/:/app/img
-      command: $PG_CONN_STR python server.py
 
     import_data:
       image: uwcosmos/cosmos_viz_import_data
