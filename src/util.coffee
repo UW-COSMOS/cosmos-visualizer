@@ -1,9 +1,17 @@
-import {Component} from 'react'
-import update from 'immutability-helper'
+import h from 'react-hyperscript'
+import {Navbar} from '@blueprintjs/core'
 
-class StatefulComponent extends Component
-  updateState: (spec)=>
-    newState = update @state, spec
-    @setState newState
+PageHeader = (props)->
+  {children, title, subtitle} = props
+  title ?= 'COSMOS'
+  h Navbar.Group, [
+    h Navbar.Heading, null,  (
+      h 'a', {href: '/'}, [
+        h 'h1', title
+      ]
+    )
+    h Navbar.Heading, {className: 'subtitle'}, subtitle
+    children
+  ]
 
-export {StatefulComponent}
+export {PageHeader}

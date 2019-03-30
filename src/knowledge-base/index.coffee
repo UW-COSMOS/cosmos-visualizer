@@ -4,8 +4,9 @@ import update from 'immutability-helper'
 import {StatefulComponent, APIContext,
         PagedAPIView, APIResultView} from '@macrostrat/ui-components'
 import {Link} from 'react-router-dom'
-import {InputGroup, Popover, Button, Menu, Position, Navbar} from '@blueprintjs/core'
+import {InputGroup, Popover, Button, Menu, MenuItem, Position, Navbar} from '@blueprintjs/core'
 import {ModelExtraction} from './model-extraction'
+import {PageHeader} from '../util'
 import './main.styl'
 
 class KnowledgeBaseFilterView extends StatefulComponent
@@ -28,14 +29,7 @@ class KnowledgeBaseFilterView extends StatefulComponent
     {filterParams} = @state
     h 'div#knowledge-base-filter.main', [
       h Navbar, {className: 'inline-navbar'}, [
-        h Navbar.Group, [
-          h Navbar.Heading, null,  (
-            h 'a', {href: '/'}, [
-              h 'h1', "COSMOS"
-            ]
-          )
-          h Navbar.Heading, {className: 'subtitle'}, 'Knowledge base filter'
-        ]
+        h PageHeader, {subtitle: 'Knowledge base filter'}
       ]
       @renderSearchbar()
       h PagedAPIView, {
@@ -56,12 +50,13 @@ class KnowledgeBaseFilterView extends StatefulComponent
     menuItems = types.map (d)=>
       onClick = =>
         @updateState {filterParams: {type: {$set: d.id}}}
-      h Button, {minimal: true, onClick}, d.name
+      h Menu.Item, {onClick, text: d.name}
 
     onClick = =>
       {type, val...} = @state.filterParams
       @updateState {filterParams: {$set: val}}
-    menuItems.push h Button, {minimal: true, onClick}, "All types"
+    menuItems.push h Menu.Divider
+    menuItems.push h Menu.Item, {onClick, text: "All types"}
 
 
     content = h Menu, menuItems
@@ -69,7 +64,7 @@ class KnowledgeBaseFilterView extends StatefulComponent
 
     type = @state.filterParams.type or "All types"
     rightElement = h Popover, {content, position}, [
-      h Button, {minimal: true, icon: "filter"}, type
+      h Button, {minimal: true, rightIcon: "filter"}, type
     ]
 
     h InputGroup, {

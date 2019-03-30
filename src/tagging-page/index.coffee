@@ -9,7 +9,8 @@ import {Link} from 'react-router-dom'
 import {Navbar, Button, ButtonGroup
         Intent, Alignment, Text, Icon} from "@blueprintjs/core"
 
-import {StatefulComponent} from '../util'
+import {StatefulComponent} from '@macrostrat/ui-components'
+import {PageHeader} from '../util'
 import {AppToaster} from '../toaster'
 import {Overlay} from '../overlay'
 import {APIContext, ErrorMessage} from '../api'
@@ -174,11 +175,6 @@ class TaggingPage extends StatefulComponent
       return false
     return rectStore != initialRectStore
 
-  renderSubtitle: =>
-    {subtitleText} = @props
-    return null if not subtitleText?
-    return h Navbar.Heading, {className: 'subtitle'}, subtitleText
-
   renderPersistenceButtonArray: =>
     # Persist data to backend if editing is enabled
     return [] unless @props.editingEnabled
@@ -245,15 +241,10 @@ class TaggingPage extends StatefulComponent
     h InfoDialog, {isOpen, onClose: @displayInfoBox(false), editingEnabled, displayKeyboardShortcuts}
 
   render: ->
+    {subtitleText} = @props
     h 'div.main', [
       h Navbar, {fixedToTop: true}, [
-        h Navbar.Group, [
-          h Navbar.Heading, null,  (
-            h 'a', {href: '/'}, [
-              h 'h1', "Image tagger"
-            ]
-          )
-          @renderSubtitle()
+        h PageHeader, {subtitle: subtitleText}, [
           h Button, {
             icon: 'info-sign'
             onClick: @displayInfoBox()

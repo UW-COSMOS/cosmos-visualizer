@@ -5,10 +5,11 @@ import {drag} from 'd3-drag'
 import {findDOMNode} from 'react-dom'
 import {Hotkey, Hotkeys,
         HotkeysTarget, Intent} from "@blueprintjs/core"
+import {StatefulComponent} from '@macrostrat/ui-components'
+
 import {Tag, LockedTag} from '../annotation'
 import {AnnotationLinks} from './annotation-links'
 import {TypeSelector} from './type-selector'
-import {StatefulComponent} from '../util'
 import {EditorContext} from './context'
 
 import chroma from 'chroma-js'
@@ -99,6 +100,7 @@ class Overlay extends StatefulComponent
       editingRect = null
       image_tags = [image_tags..., inProgressAnnotation]
 
+    console.log image_tags
     image_tags.map (d, ix)=>
       locked = lockedTags.has(d.tag_id)
       if locked

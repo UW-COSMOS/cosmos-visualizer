@@ -9,7 +9,8 @@ import {Link} from 'react-router-dom'
 import {Navbar, Button, ButtonGroup
         Intent, Alignment, Text, Icon} from "@blueprintjs/core"
 
-import {StatefulComponent} from '../util'
+import {StatefulComponent} from '@macrostrat/ui-components'
+import {PageHeader} from '../util'
 import {AppToaster} from '../toaster'
 import {Overlay} from '../overlay'
 import {APIContext} from '../api'
@@ -121,13 +122,7 @@ class ResultsPageInner extends StatefulComponent
   render: ->
     h 'div.main', [
       h Navbar, {fixedToTop: true}, [
-        h Navbar.Group, [
-          h Navbar.Heading, null,  (
-            h 'a', {href: '/'}, [
-              h 'h1', "COSMOS"
-            ]
-          )
-          h Navbar.Heading, {className: 'subtitle'}, 'Model Results'
+        h PageHeader, {subtitle: "Model results"}, [
           h Button, {
             icon: 'info-sign'
             onClick: @displayInfoBox()
@@ -238,6 +233,7 @@ class ResultsPageInner extends StatefulComponent
     image_tags = []
     for route in ["phrases","equations","variables"]
       t = await @context.get "#{imageRoute}/#{image_id}/#{route}"
+      continue unless t?
       image_tags = image_tags.concat(t)
 
     @setState {rectStore: image_tags, initialRectStore: image_tags}

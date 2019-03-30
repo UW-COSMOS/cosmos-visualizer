@@ -1,7 +1,7 @@
 import {Component, memo} from 'react'
 import h from 'react-hyperscript'
 import classNames from 'classnames'
-import {APIResultView} from '@macrostrat/ui-components'
+import {APIResultView, LinkCard} from '@macrostrat/ui-components'
 import {basename} from 'path'
 
 KBImage = (props)->
@@ -72,20 +72,18 @@ class GeoDeepDiveSwatchInner extends Component
     {id: doi} = identifier.find (d)->d.type == 'doi'
     console.log @props
 
-    h 'a.gdd-article', {href: url, target: '_blank'}, [
-      h 'div', [
-        h AuthorList, {authors: author}
-        ", "
-        h 'span.title', title
-        ", "
-        h 'span.journal', journal
-        ", "
-        h VolumeNumber, {volume, number}
-        h 'span.year', year
-        ", "
-        h 'span.doi-title', 'doi: '
-        h 'span.doi', doi
-      ]
+    h LinkCard, {href: url, target: '_blank', interactive: true, className: 'gdd-article'}, [
+      h AuthorList, {authors: author}
+      ", "
+      h 'span.title', title
+      ", "
+      h 'span.journal', journal
+      ", "
+      h VolumeNumber, {volume, number}
+      h 'span.year', year
+      ", "
+      h 'span.doi-title', 'doi: '
+      h 'span.doi', doi
     ]
 
 class GeoDeepDiveSwatch extends Component
