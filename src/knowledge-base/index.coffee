@@ -4,7 +4,7 @@ import update from 'immutability-helper'
 import {StatefulComponent, APIContext,
         PagedAPIView, APIResultView} from '@macrostrat/ui-components'
 import {Link} from 'react-router-dom'
-import {InputGroup, Popover, Button, Menu, Position} from '@blueprintjs/core'
+import {InputGroup, Popover, Button, Menu, Position, Navbar} from '@blueprintjs/core'
 import {ModelExtraction} from './model-extraction'
 import './main.styl'
 
@@ -26,11 +26,16 @@ class KnowledgeBaseFilterView extends StatefulComponent
 
   render: =>
     {filterParams} = @state
-    h 'div#knowledge-base-filter', [
-      h 'h1', [
-        h Link, {to: '/'}, 'COSMOS'
-        " "
-        h 'span.subtle', 'Knowledge base filter'
+    h 'div#knowledge-base-filter.main', [
+      h Navbar, {className: 'inline-navbar'}, [
+        h Navbar.Group, [
+          h Navbar.Heading, null,  (
+            h 'a', {href: '/'}, [
+              h 'h1', "COSMOS"
+            ]
+          )
+          h Navbar.Heading, {className: 'subtitle'}, 'Knowledge base filter'
+        ]
       ]
       @renderSearchbar()
       h PagedAPIView, {

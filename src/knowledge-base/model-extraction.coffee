@@ -23,8 +23,6 @@ class KBExtraction extends Component
         h 'div.kb-image-container', [
           h 'h2', [
             entityType
-            " "
-            h 'span.entity-type', "(#{title})"
           ]
           h KBImage, {path}
         ]
@@ -117,13 +115,13 @@ class ModelExtraction extends Component
       }
 
     h 'div.model-extraction', [
-      assoc
       h KBExtraction, {
         title: "Extracted entity"
         className: 'target'
         path: @props.target_img_path
         unicode: @props.target_unicode
       }
+      assoc
       h GeoDeepDiveSwatch, {docid}
     ]
 
