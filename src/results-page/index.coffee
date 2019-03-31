@@ -9,7 +9,7 @@ import {Link} from 'react-router-dom'
 import {Navbar, Button, ButtonGroup
         Intent, Alignment, Text, Icon} from "@blueprintjs/core"
 
-import {StatefulComponent} from '@macrostrat/ui-components'
+import {StatefulComponent, LinkButton} from '@macrostrat/ui-components'
 import {PageHeader} from '../util'
 import {AppToaster} from '../toaster'
 import {Overlay} from '../overlay'
@@ -129,6 +129,7 @@ class ResultsPageInner extends StatefulComponent
           }, "Usage"
         ]
         h Navbar.Group, {align: Alignment.RIGHT}, [
+          h LinkButton, {to: "/"}, "View tag extractions"
           @renderImageLink()
           @renderNextImageButton()
         ]
