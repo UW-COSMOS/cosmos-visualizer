@@ -10,7 +10,7 @@ import {Navbar, Button, ButtonGroup
         Intent, Alignment, Text, Icon} from "@blueprintjs/core"
 
 import {StatefulComponent} from '@macrostrat/ui-components'
-import {PageHeader} from '../util'
+import {PageHeader, PermalinkButton} from '../util'
 import {AppToaster} from '../toaster'
 import {Overlay} from '../overlay'
 import {APIContext, ErrorMessage} from '../api'
@@ -241,7 +241,7 @@ class TaggingPage extends StatefulComponent
     h InfoDialog, {isOpen, onClose: @displayInfoBox(false), editingEnabled, displayKeyboardShortcuts}
 
   render: ->
-    {subtitleText} = @props
+    {subtitleText, currentImage: image} = @props
     h 'div.main', [
       h Navbar, {fixedToTop: true}, [
         h PageHeader, {subtitle: subtitleText}, [
@@ -251,7 +251,7 @@ class TaggingPage extends StatefulComponent
           }, "Usage"
         ]
         h Navbar.Group, {align: Alignment.RIGHT}, [
-          @renderImageLink()
+          h PermalinkButton, {image}
           h ButtonGroup, [
             @renderPersistenceButtonArray()...
             @renderNextImageButton()

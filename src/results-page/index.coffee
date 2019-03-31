@@ -5,16 +5,24 @@ import uuidv4 from 'uuid/v4'
 import {findDOMNode} from 'react-dom'
 import 'd3-jetpack'
 import chroma from 'chroma-js'
-import {Link} from 'react-router-dom'
+import {Link, withRouter} from 'react-router-dom'
 import {Navbar, Button, ButtonGroup
         Intent, Alignment, Text, Icon} from "@blueprintjs/core"
 
 import {StatefulComponent, LinkButton} from '@macrostrat/ui-components'
-import {PageHeader} from '../util'
+import {PageHeader, PermalinkButton} from '../util'
 import {AppToaster} from '../toaster'
 import {Overlay} from '../overlay'
 import {APIContext} from '../api'
 import {InfoDialog} from '../info-dialog'
+
+ExtractionsButton = ({image})=>
+  return null unless image?
+  h LinkButton, {
+    to: "/view-extractions/#{image.image_id}"
+    disabled: not image?
+    text: "View tag extractions"
+  }
 
 # Updates props for a rectangle
 # from API signature to our internal signature
@@ -79,20 +87,6 @@ class ResultsPage extends StatefulComponent
       }
     ]
 
-  renderImageLink: =>
-    {permalinkRoute, initialImage} = @props
-    {currentImage} = @state
-    return null unless currentImage?
-    {image_id} = currentImage
-    className = "bp3-button bp3-icon-bookmark"
-    text = "Permalink"
-
-    if image_id == initialImage
-      # We are at a permalink right now
-      className += " bp3-disabled"
-      text = h [h('span', [text, " to image "]), h('code', image_id)]
-    h Link, {to: "#{permalinkRoute}/#{image_id}", className}, text
-
   renderNextImageButton: =>
     {navigationEnabled} = @props
     return null unless navigationEnabled
@@ -120,17 +114,9 @@ class ResultsPage extends StatefulComponent
     {displayKeyboardShortcuts} = @
     h InfoDialog, {isOpen, onClose: @displayInfoBox(false), editingEnabled, displayKeyboardShortcuts}
 
-  renderExtractionsButton: =>
-    {currentImage} = state
-    return null unless currentImage?
-    h LinkButton, {
-      to: "/view-extractions/#{currentImage.image_id}"
-      disabled: not currentImage?
-      text: "View tag extractions"
-    }
-
   render: ->
-    {subtitleText} = @props
+    {subtitleText, permalinkRoute} = @props
+    {currentImage: image} = @state
     h 'div.main', [
       h Navbar, {fixedToTop: true}, [
         h PageHeader, {subtitle: subtitleText}, [
@@ -140,8 +126,8 @@ class ResultsPage extends StatefulComponent
           }, "Usage"
         ]
         h Navbar.Group, {align: Alignment.RIGHT}, [
-          @renderExtractionsButton
-          @renderImageLink()
+          h ExtractionsButton, {image}
+          h PermalinkButton, {permalinkRoute, image}
           @renderNextImageButton()
         ]
       ]
