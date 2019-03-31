@@ -1,7 +1,7 @@
 module.exports = {
   path: '/image/:image_id/variables',
   displayPath: '/image/:image_id/variables',
-  methods: ['GET', 'POST'],
+  methods: ['GET'],
   description: 'Retrieve variables on a given image',
   parameters: {
     'image_id': {
@@ -24,5 +24,5 @@ module.exports = {
   examples: [
     '/api/v1/image/2/equations',
   ],
-  handler: require("../handlers/image-variable")("image_variable")
+  handler: require("../handlers/image-variable")
 }

@@ -8,7 +8,11 @@ async function handler(req, res, next, plugins) {
 
   // We limit query results by default now,
   // (for pagination) which may not be appropriate in general
-  params['offset'] = req.query.offset || 0;
+  let offs = req.query.offset || 0;
+  if (offs < 0) {
+    offs = 0;
+  }
+  params['offset'] = offs;
   params['limit'] = req.query.limit || 10;
 
   let base = `SELECT *

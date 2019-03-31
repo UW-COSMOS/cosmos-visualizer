@@ -1,7 +1,7 @@
 module.exports = {
   path: '/image/:image_id/sentences',
   displayPath: '/image/:image_id/sentences',
-  methods: ['GET', 'POST'],
+  methods: ['GET'],
   description: 'Retrieve phrases associated with equations for a given image',
   parameters: {
     'image_id': {
@@ -24,5 +24,5 @@ module.exports = {
   examples: [
     '/api/v1/image/2/sentences',
   ],
-  handler: require("../handlers/image-sentence")("image_sentence")
+  handler: require("../handlers/image-sentence")
 }

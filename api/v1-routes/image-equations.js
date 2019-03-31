@@ -1,7 +1,7 @@
 module.exports = {
   path: '/image/:image_id/equations',
   displayPath: '/image/:image_id/equations',
-  methods: ['GET', 'POST'],
+  methods: ['GET'],
   description: 'Retrieve equations on a given image',
   parameters: {
     'image_id': {
@@ -24,5 +24,5 @@ module.exports = {
   examples: [
     '/api/v1/image/2/equations',
   ],
-  handler: require("../handlers/image-equation")("image_equation")
+  handler: require("../handlers/image-equation")
 }
