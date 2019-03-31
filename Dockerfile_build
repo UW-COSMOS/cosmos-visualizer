@@ -1,0 +1,28 @@
+FROM node:8
+RUN npm install -g parcel-bundler linklocal
+
+WORKDIR /user/
+
+ENV PUBLIC_URL="."
+ENV API_BASE_URL="/api"
+ENV IMAGE_BASE_URL="/images/"
+
+EXPOSE 1234
+EXPOSE 34365
+
+COPY . /user
+
+WORKDIR /user/ui-components/
+RUN  npm install
+
+WORKDIR /user/
+RUN  npm install
+
+
+RUN parcel build --public-url "$PUBLIC_URL" index.html
+
+FROM nginx:1.15
+
+COPY --from=0 /user/dist /frontend
+COPY ./nginx.conf /etc/nginx/nginx.conf
+RUN touch /frontend/dummy

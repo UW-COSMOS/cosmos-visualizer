@@ -1,6 +1,6 @@
 import {Component} from 'react'
 import h from 'react-hyperscript'
-import {EditorContext} from '../overlay/context'
+import {EditorContext} from './context'
 import {bboxPolygon, featureCollection,
         polygonToLine,
         nearestPointOnLine,

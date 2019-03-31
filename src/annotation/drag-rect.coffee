@@ -97,16 +97,17 @@ class DragRectangle extends Component
     minSize: {width: 10, height: 10}
   }
   render: ->
-    {children, rest...} = @props
+    {children, update, rest...} = @props
     margin = 4
-    className = 'draggable'
+    className = if update? then 'draggable' else null
+
     isSelected = true
     onClick = (e)->
       e.stopPropagation()
 
     {dragInteraction} = @
     h StaticRectangle, {rest..., className, isSelected, onClick}, [
-      if @props.update? then h(DragHandles, {dragInteraction}) else null
+      if update? then h(DragHandles, {dragInteraction}) else null
       children
     ]
 

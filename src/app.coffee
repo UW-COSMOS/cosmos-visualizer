@@ -4,11 +4,14 @@ import h from 'react-hyperscript'
 import {BrowserRouter as Router, Route, Redirect, Switch} from 'react-router-dom'
 
 import {APIContext} from './api'
-import {UIMain} from './ui-main'
-import {Role} from './enum'
+import {AppMode, UserRole} from './enum'
 import {LoginForm} from './login-form'
+import {ResultsLandingPage} from './landing-page'
+import {KnowledgeBaseFilterView} from './knowledge-base'
+import {ResultsPage} from './results-page'
+import {TaggingPage} from './tagging-page'
 
-class App extends Component
+class TaggingApplication extends Component
   @contextType: APIContext
   constructor: (props)->
     super props
@@ -21,7 +24,8 @@ class App extends Component
   allRequiredOptionsAreSet: =>
     {role, person} = @state
     return false unless role?
-    return false if not person? and (role == Role.TAG or role == Role.VALIDATE)
+    return false if not person? and (
+      role == UserRole.TAG or role == UserRole.VALIDATE)
     return true
 
   renderAction: ({match})=>
@@ -46,27 +50,19 @@ class App extends Component
     allowSaveWithoutChanges = false
     editingEnabled = true
 
-    if role == Role.TAG and id?
+    # Go to specific image by default, if set
+    {params: {imageId}} = match
+
+    if role == UserRole.TAG and id?
       extraSaveData = {tagger: id}
       subtitleText = "Tag"
-    else if role == Role.VALIDATE and id?
+    else if role == UserRole.VALIDATE and id?
       extraSaveData = {validator: id}
       nextImageEndpoint = "/image/validate"
       # Tags can be validated even when unchanged
       allowSaveWithoutChanges = true
       subtitleText = "Validate"
-    else if role == Role.VIEW_TRAINING
-      editingEnabled = false
-      nextImageEndpoint = "/image/validate"
-      subtitleText = "View training data"
-    else if role == Role.VIEW_RESULTS
-      editingEnabled = false
-      nextImageEndpoint = "/image/next_prediction"
-      subtitleText = "View results"
-      permalinkRoute = "/view-results"
 
-    # Go to specific image by default, if set
-    {params: {imageId}} = match
     # This is a hack to disable "NEXT" for now
     # on permalinked images
     navigationEnabled
@@ -75,7 +71,7 @@ class App extends Component
 
     console.log "Setting up UI with role #{role}"
     console.log "Image id: #{imageId}"
-    return h UIMain, {
+    return h TaggingPage, {
       imageRoute
       extraSaveData
       permalinkRoute
@@ -87,6 +83,19 @@ class App extends Component
       subtitleText
       @props...
     }
+
+  renderHomepage: =>
+    if @props.appMode == AppMode.TAGGING
+      return @renderLoginForm()
+    {role} = @state
+    console.log role
+    if role? and role == UserRole.VIEW_RESULTS
+      return h Redirect, {to: "/action/#{role}"}
+    if role? and role == UserRole.VIEW_EXTRACTIONS
+      return h Redirect, {to: "/action/#{role}"}
+    if role? and role == UserRole.VIEW_KNOWLEDGE_BASE
+      return h Redirect, {to: "/knowledge-base"}
+    h ResultsLandingPage, {setRole: @setRole}
 
   renderLoginForm: =>
     {person, people, role} = @state
@@ -104,11 +113,12 @@ class App extends Component
     h Router, {basename: publicURL}, [
       h 'div.app-main', [
         h Switch, [
-          h Route, {path: '/', exact: true, render: @renderLoginForm}
+          h Route, {
+            path: '/',
+            exact: true,
+            render: @renderHomepage
+          }
           # Legacy route for viewing training data
-          h Route, {path: '/view/:imageId', render: @renderUI(Role.VIEW_TRAINING)}
-          h Route, {path: '/view-training/:imageId', render: @renderUI(Role.VIEW_TRAINING)}
-          h Route, {path: '/view-results/:imageId', render: @renderUI(Role.VIEW_RESULTS)}
           h Route, {path: '/action/:role', render: @renderAction}
         ]
       ]
@@ -123,7 +133,7 @@ class App extends Component
     validator = validator == 1
     role = null
     if tagger == 1 and validator != 1
-      role = Role.TAG
+      role = UserRole.TAG
     @setState {person: item, role}
     localStorage.setItem('person', JSON.stringify(item))
 
@@ -137,5 +147,85 @@ class App extends Component
     p = localStorage.getItem('person')
     return unless p?
     @setState {person: JSON.parse(p)}
+
+ViewerPage = ({match, rest...})=>
+  # Go to specific image by default, if set
+  {params: {imageId}} = match
+
+  # This is a hack to disable "NEXT" for now
+  # on permalinked images
+  if imageId? and not rest.navigationEnabled?
+    rest.navigationEnabled = false
+
+  return h TaggingPage, {
+    initialImage: imageId
+    allowSaveWithoutChanges: false
+    editingEnabled: false
+    rest...
+  }
+
+ViewResults = ({match, rest...})=>
+  # Go to specific image by default, if set
+  {params: {imageId}} = match
+
+  # This is a hack to disable "NEXT" for now
+  # on permalinked images
+  if imageId? and not rest.navigationEnabled?
+    rest.navigationEnabled = false
+
+  return h ResultsPage, {
+    imageRoute: '/image'
+    permalinkRoute: '/view-results'
+    subtitleText: "View results"
+    nextImageEndpoint: '/image/next_eqn_prediction'
+    match...
+  }
+
+class App extends Component
+  @contextType: APIContext
+  @defaultProps: {
+    appMode: AppMode.RESULTS
+  }
+  render: ->
+    {publicURL} = @props
+    h Router, {basename: publicURL}, [
+      h 'div.app-main', [
+        h Switch, [
+          h Route, {
+            path: '/',
+            exact: true,
+            component: ResultsLandingPage
+          }
+          h Route, {
+            path: '/view-training/:imageId?',
+            render: (props)=>
+              h ViewerPage, {
+                permalinkRoute: "/view-training"
+                nextImageEndpoint: "/image/validate"
+                subtitleText: "View training data"
+                props...
+              }
+          }
+          h Route, {
+            path: '/view-extractions/:imageId?',
+            render: (props)=>
+              h ViewerPage, {
+                nextImageEndpoint: "/image/next_prediction"
+                subtitleText: "View extractions"
+                permalinkRoute: "/view-extractions"
+                props...
+              }
+          }
+          h Route, {
+            path: '/view-results/:imageId?',
+            component: ViewResults
+          }
+          h Route, {
+            path: '/knowledge-base'
+            component: KnowledgeBaseFilterView
+          }
+        ]
+      ]
+    ]
 
 export {App}

@@ -9,16 +9,17 @@ import {Link} from 'react-router-dom'
 import {Navbar, Button, ButtonGroup
         Intent, Alignment, Text, Icon} from "@blueprintjs/core"
 
-import {StatefulComponent} from './util'
-import {AppToaster} from './toaster'
-import {Overlay} from './overlay'
-import {APIContext} from './api'
-import {InfoDialog} from './info-dialog'
+import {StatefulComponent} from '@macrostrat/ui-components'
+import {PageHeader, PermalinkButton} from '../util'
+import {AppToaster} from '../toaster'
+import {APIContext, ErrorMessage} from '../api'
+import {InfoDialog} from '../info-dialog'
+import {ImageContainer} from '../image-container'
 
 # Updates props for a rectangle
 # from API signature to our internal signature
 # TODO: make handle multiple boxes
-class UIMain extends StatefulComponent
+class TaggingPage extends StatefulComponent
   @defaultProps: {
     allowSaveWithoutChanges: false
     editingEnabled: true
@@ -37,8 +38,6 @@ class UIMain extends StatefulComponent
       rectStore: []
       initialRectStore: []
       imageBaseURL: null
-      scaleFactor: null
-      windowWidth: window.innerWidth
       lockedTags: new Set()
     }
 
@@ -94,22 +93,11 @@ class UIMain extends StatefulComponent
       editingRect: {$set: rectStore.length}
     }
 
-  scaledSize: =>
-    {currentImage, scaleFactor} = @state
-    return null unless currentImage?
-    scaleFactor ?= 1
-    {height, width} = currentImage
-    height /= scaleFactor
-    width /= scaleFactor
-    return {width,height}
-
   renderImageContainer: =>
     {editingEnabled} = @props
-    {currentImage, editingRect, scaleFactor
+    {currentImage, editingRect
       rectStore, tagStore, currentTag, lockedTags} = @state
     return null unless currentImage?
-    style = @scaledSize()
-    onClick = @createAnnotation
 
     actions = do =>
       {deleteAnnotation,
@@ -121,20 +109,16 @@ class UIMain extends StatefulComponent
        updateState,
        addLink} = @
 
-    h 'div.image-container', {style}, [
-      h 'img', {src: @imageURL(currentImage), style...}
-      h Overlay, {
-        style...
-        editingRect
-        editingEnabled
-        scaleFactor
-        image_tags: rectStore
-        tags: tagStore
-        lockedTags
-        currentTag
-        actions
-      }
-    ]
+    h ImageContainer, {
+      editingRect
+      editingEnabled
+      image: currentImage
+      imageTags: rectStore
+      tags: tagStore
+      lockedTags
+      currentTag
+      actions
+    }
 
   toggleTagLock: (tagId)=> =>
     {tagStore, currentTag, lockedTags} = @state
@@ -174,11 +158,6 @@ class UIMain extends StatefulComponent
       return false
     return rectStore != initialRectStore
 
-  renderSubtitle: =>
-    {subtitleText} = @props
-    return null if not subtitleText?
-    return h Navbar.Heading, {className: 'subtitle'}, subtitleText
-
   renderPersistenceButtonArray: =>
     # Persist data to backend if editing is enabled
     return [] unless @props.editingEnabled
@@ -200,20 +179,6 @@ class UIMain extends StatefulComponent
         icon: 'trash', disabled: not hasChanges
         onClick: @clearChanges
       }]
-
-  renderImageLink: =>
-    {permalinkRoute, initialImage} = @props
-    {currentImage} = @state
-    return null unless currentImage?
-    {image_id} = currentImage
-    className = "bp3-button bp3-icon-bookmark"
-    text = "Permalink"
-
-    if image_id == initialImage
-      # We are at a permalink right now
-      className += " bp3-disabled"
-      text = h [h('span', [text, " to image "]), h('code', image_id)]
-    h Link, {to: "#{permalinkRoute}/#{image_id}", className}, text
 
   renderNextImageButton: =>
     {navigationEnabled} = @props
@@ -245,22 +210,17 @@ class UIMain extends StatefulComponent
     h InfoDialog, {isOpen, onClose: @displayInfoBox(false), editingEnabled, displayKeyboardShortcuts}
 
   render: ->
+    {subtitleText, currentImage: image} = @props
     h 'div.main', [
       h Navbar, {fixedToTop: true}, [
-        h Navbar.Group, [
-          h Navbar.Heading, null,  (
-            h 'a', {href: '/'}, [
-              h 'h1', "Image tagger"
-            ]
-          )
-          @renderSubtitle()
+        h PageHeader, {subtitle: subtitleText}, [
           h Button, {
             icon: 'info-sign'
             onClick: @displayInfoBox()
           }, "Usage"
         ]
         h Navbar.Group, {align: Alignment.RIGHT}, [
-          @renderImageLink()
+          h PermalinkButton, {image}
           h ButtonGroup, [
             @renderPersistenceButtonArray()...
             @renderNextImageButton()
@@ -280,15 +240,29 @@ class UIMain extends StatefulComponent
       tags: rectStore
       extraSaveData...
     }
+    endpoint = "/image/#{currentImage.image_id}/tags"
 
     try
-      newData = await @context.saveData(currentImage, saveItem)
+      newData = await @context.post(endpoint, saveItem, {
+        handleError: false
+      })
+      AppToaster.show {
+        message: "Saved data!"
+        intent: Intent.SUCCESS
+      }
       @updateState {
         rectStore: {$set: newData}
         initialRectStore: {$set: newData}
       }
       return true
     catch err
+      AppToaster.show ErrorMessage {
+        title: "Could not save tags"
+        method: 'POST'
+        endpoint: endpoint
+        error: err.toString()
+        data: saveItem
+      }
       console.log "Save rejected"
       console.log err
       return false
@@ -312,25 +286,6 @@ class UIMain extends StatefulComponent
       currentTag: tags[0].tag_id
     }
 
-  imageURL: (image)=>
-    {imageBaseURL} = @props
-    imageBaseURL ?= ""
-    return imageBaseURL + image.file_path
-
-  ensureImageDimensions: ({width, height, rest...})=>
-    # Make sure we have image dimensions set before loading an image
-    # into the UI
-    imageURL = @imageURL(rest)
-    new Promise (resolve, reject)->
-      if width? and height?
-        resolve({width, height, rest...})
-        return
-      img = new Image()
-      img.onload = ->
-        {width, height} = @
-        resolve({width,height, rest...})
-      img.src = imageURL
-
   getImageToDisplay: =>
     {nextImageEndpoint: imageToDisplay, imageRoute, initialImage} = @props
     {currentImage} = @state
@@ -346,7 +301,6 @@ class UIMain extends StatefulComponent
     if Array.isArray(d) and d.length == 1
       # API returns a single-item array
       d = d[0]
-    d = await @ensureImageDimensions(d)
 
     rectStore = []
     @setState {
@@ -369,9 +323,6 @@ class UIMain extends StatefulComponent
       .then @setupTags
     @getImageToDisplay()
 
-    window.addEventListener 'resize', =>
-      @setState {windowWidth: window.innerWidth}
-
   didUpdateImage: (prevProps, prevState)->
     {currentImage} = @state
     # This supports flipping between images and predicted images
@@ -380,24 +331,15 @@ class UIMain extends StatefulComponent
     return if prevState.currentImage == currentImage
     return unless currentImage?
     {image_id} = @state.currentImage
-    image_tags = await @context.get "#{imageRoute}/#{image_id}/tags?validated=false"
+
+    image_tags = []
+    route = "tags?validated=false"
+    t = await @context.get "#{imageRoute}/#{image_id}/#{route}"
+    image_tags = image_tags.concat(t)
+
     @setState {rectStore: image_tags, initialRectStore: image_tags}
-
-  didUpdateWindowSize: (prevProps, prevState)->
-    {windowWidth, scaleFactor, currentImage} = @state
-    return if scaleFactor? and prevState.windowWidth == windowWidth
-    return unless currentImage?
-    {width} = currentImage
-    targetSize = Math.min 2000, windowWidth-24
-    # Clamp to integer scalings for simplicity
-    scaleFactor = width/targetSize
-    if scaleFactor < 1
-      scaleFactor = 1
-
-    @setState {scaleFactor}
 
   componentDidUpdate: ->
     @didUpdateImage.apply(@,arguments)
-    @didUpdateWindowSize.apply(@,arguments)
 
-export {UIMain}
+export {TaggingPage}

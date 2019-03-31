@@ -6,7 +6,7 @@ import {Select} from '@blueprintjs/select'
 import {Navbar, MenuItem, Button, Intent} from '@blueprintjs/core'
 import classNames from 'classnames'
 import {EditMode} from '../enum'
-import {EditorContext} from '../overlay/context'
+import {EditorContext} from '../image-overlay/context'
 
 ToolButton = (props)->
   h Button, {small: true, minimal: true, props...}
@@ -59,6 +59,7 @@ class Tag extends Component
   render: =>
     {tags} = @context
     {boxes, update, name, tag_id, rest...} = @props
+
     overallBounds = tagBounds(boxes)
 
     c = @context.helpers.tagColor(tag_id)
@@ -70,7 +71,9 @@ class Tag extends Component
     textColor = c.darken(2)
 
     tagData = tags.find (d)->d.tag_id == tag_id
-    name = h 'div.tag-name', {style: {color: textColor}}, tagData.name
+    # Sometimes we don't return tags
+    tagData ?= {}
+    name = h 'div.tag-name', {style: {color: textColor}}, tagData.name or name
 
     active = @isSelected()
     className = classNames {active}
@@ -112,6 +115,10 @@ class Tag extends Component
   boxContent: (i)=>
     {update, boxes} = @props
     return null if boxes.length <= 1
+
+    # Need actual logic here
+    editingDisabled = true
+    return null if editingDisabled
     h ToolButton, {
       icon: 'cross'
       className: 'delete-rect'
