@@ -1,7 +1,7 @@
 import {Component, createContext} from 'react'
 import h from 'react-hyperscript'
 import {select} from 'd3-selection'
-import {Overlay} from '../overlay'
+import {ImageOverlay} from '../image-overlay'
 import {APIContext} from '../api'
 
 class ImageContainer extends Component
@@ -56,7 +56,7 @@ class ImageContainer extends Component
 
     h 'div.image-container', {style}, [
       h 'img', {src: @imageURL(image), style...}
-      h Overlay, {
+      h ImageOverlay, {
         style...
         scaleFactor
         image_tags: imageTags
