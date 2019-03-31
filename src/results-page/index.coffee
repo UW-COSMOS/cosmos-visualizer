@@ -191,6 +191,8 @@ class ResultsPage extends StatefulComponent
       continue unless t?
       image_tags = image_tags.concat(t)
 
+    console.log image_tags
+
     @setState {rectStore: image_tags, initialRectStore: image_tags}
 
   componentDidUpdate: ->

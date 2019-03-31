@@ -1,4 +1,6 @@
 import h from 'react-hyperscript'
+import styled from '@emotion/styled'
+
 import {Link, withRouter} from 'react-router-dom'
 import {Navbar} from '@blueprintjs/core'
 import {LinkButton} from '@macrostrat/ui-components'
@@ -35,5 +37,16 @@ PermalinkButton = withRouter (props)->
     text
   }
 
+_ = ({subtitle, children, rest...})->
+  h Navbar, {rest...}, [
+    h PageHeader, {subtitle}
+    children
+  ]
 
-export {PageHeader, PermalinkButton}
+InlineNavbar = styled(_)"""
+  border-radius: 4px;
+  margin-bottom: 1em;
+  margin-top: 1em;
+"""
+
+export {PageHeader, PermalinkButton, InlineNavbar}
