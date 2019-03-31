@@ -1,12 +1,11 @@
 import {Component} from 'react'
 import h from 'react-hyperscript'
-import Info from './info.md'
 import {Redirect} from 'react-router-dom'
-
 import {MenuItem, Button, Card, ButtonGroup} from '@blueprintjs/core'
 import {BrowserRouter as Router, Route, Link} from 'react-router-dom'
 
 import {UserRole} from '../enum'
+import Info from './info.md'
 
 class ResultsLandingPage extends Component
   @defaultProps: {
@@ -45,7 +44,6 @@ class ResultsLandingPage extends Component
             key: UserRole.VIEW_KNOWLEDGE_BASE
             onClick: selectRole(UserRole.VIEW_KNOWLEDGE_BASE)
           }
-
         ]
       ]
     ]

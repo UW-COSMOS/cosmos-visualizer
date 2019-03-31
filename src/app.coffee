@@ -139,12 +139,28 @@ class App extends Component
     h Router, {basename: publicURL}, [
       h 'div.app-main', [
         h Switch, [
-          h Route, {path: '/', exact: true, render: @renderHomepage}
+          h Route, {
+            path: '/',
+            exact: true,
+            render: @renderHomepage
+          }
           # Legacy route for viewing training data
-          h Route, {path: '/view/:imageId', render: @renderUI(UserRole.VIEW_TRAINING)}
-          h Route, {path: '/view-training/:imageId', render: @renderUI(UserRole.VIEW_TRAINING)}
-          h Route, {path: '/view-extractions/:imageId', render: @renderUI(UserRole.VIEW_EXTRACTIONS)}
-          h Route, {path: '/view-results/:imageId', render: @renderUI(UserRole.VIEW_RESULTS)}
+          h Route, {
+            path: '/view/:imageId',
+            render: @renderUI(UserRole.VIEW_TRAINING)
+          }
+          h Route, {
+            path: '/view-training/:imageId',
+            render: @renderUI(UserRole.VIEW_TRAINING)
+          }
+          h Route, {
+            path: '/view-extractions/:imageId',
+            render: @renderUI(UserRole.VIEW_EXTRACTIONS)
+          }
+          h Route, {
+            path: '/view-results/:imageId',
+            render: @renderUI(UserRole.VIEW_RESULTS)
+          }
           h Route, {
             path: '/knowledge-base'
             render: => h KnowledgeBaseFilterView
