@@ -23,8 +23,9 @@ class KnowledgeBaseFilterView extends StatefulComponent
     }
 
   renderExtractions: (data)=>
+    {query} = @state.filterParams
     h 'div.results', data.map (d,i)->
-      h ModelExtraction, {d..., index: i}
+      h ModelExtraction, {d..., index: i, query}
 
   render: =>
     {filterParams} = @state
@@ -56,7 +57,6 @@ class KnowledgeBaseFilterView extends StatefulComponent
       @updateState {filterParams: {$set: val}}
     menuItems.push h Menu.Divider
     menuItems.push h Menu.Item, {onClick, text: "All types"}
-
 
     content = h Menu, menuItems
     position = Position.BOTTOM_RIGHT

@@ -9,11 +9,23 @@ import {BrowserRouter as Router, Route, Link} from 'react-router-dom'
 import {InlineNavbar} from '../util'
 import {UserRole} from '../enum'
 import Info from './info.md'
+import Credits from './credits.md'
 
-
-LargeInsetText = styled.div"""
-  font-size: 1.2em;
+InsetText = styled.div"""
   padding: 0 0.2em;
+"""
+
+LargeInsetText = styled(InsetText)"""
+  font-size: 1.2em;
+"""
+
+CreditsText = styled(InsetText)"""
+  margin-top: 8em;
+  color: #888;
+  font-size: 0.8em;
+  ul {
+    padding-left: 1em;
+  }
 """
 
 ModelButton_ = (props)->
@@ -85,6 +97,9 @@ class ResultsLandingPage extends Component
           }, "Knowledge base of equations, figures, and tables extracted from page-level
               information and searchable based on contextual information linked by the model."
         ]
+      ]
+      h CreditsText, [
+        h Credits
       ]
     ]
 
