@@ -1,7 +1,7 @@
 import {Component, memo} from 'react'
 import h from 'react-hyperscript'
 import classNames from 'classnames'
-import {APIResultView, GDDReferenceCard} from '@macrostrat/ui-components'
+import {GDDReferenceCard} from '@macrostrat/ui-components'
 import {basename} from 'path'
 import {memoize} from 'underscore'
 import styled from '@emotion/styled'

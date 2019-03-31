@@ -1,7 +1,7 @@
 import {Component} from 'react'
 import h from 'react-hyperscript'
 import styled from '@emotion/styled'
-import {LinkButton, LinkCard} from '@macrostrat/ui-components'
+import {LinkButton, LinkCard, APIResultView} from '@macrostrat/ui-components'
 import {Redirect} from 'react-router-dom'
 import {MenuItem, Button, Card, ButtonGroup} from '@blueprintjs/core'
 import {BrowserRouter as Router, Route, Link} from 'react-router-dom'
@@ -20,7 +20,7 @@ LargeInsetText = styled(InsetText)"""
 """
 
 CreditsText = styled(InsetText)"""
-  margin-top: 8em;
+  margin-top: 2em;
   color: #888;
   font-size: 0.8em;
   ul {
@@ -59,6 +59,44 @@ ModelButton = styled(ModelButton_)"""
   }
 """
 
+ModelInfo = styled.div"""
+  span.res {
+    font-style: italic;
+  }
+"""
+
+Res = ({data, id})->
+  val = "–"
+  if data?
+    val = data[id]
+  h 'span.res', [
+    h 'span.value', val
+    " #{id}"
+  ]
+
+ModelInfoBox = ->
+  res = h APIResultView, {
+    route: "/model/info"
+    params: {stack_id: "default"}
+    placeholder: null
+  }, (data)=>
+    R = ({id})-> h Res, {data, id}
+    h ModelInfo, [
+      h 'p', [
+        "This results set contains "
+        h R, {id: 'figures'}
+        ", "
+        h R, {id: 'tables'}
+        ", and "
+        h R, {id: 'equations'}
+        " extracted by the COSMOS model from "
+        h R, {id: 'documents'}
+        " ("
+        h R, {id: 'pages'}
+        ")."
+      ]
+    ]
+
 
 class ResultsLandingPage extends Component
   @defaultProps: {
@@ -75,6 +113,8 @@ class ResultsLandingPage extends Component
       h InlineNavbar, {subtitle: "Model results"}
       h LargeInsetText, [
         h Info
+        h ModelInfoBox
+        h 'p', "Several interfaces to the COSMOS model and its resulting knowledge base are accessible below:"
       ]
       h 'div.actions', [
         h ButtonGroup, {vertical: true}, [
@@ -83,7 +123,7 @@ class ResultsLandingPage extends Component
             index: 1
             title: "Page-level extractions"
           }, "Regions of interest extracted and classified
-              for further knowledge-base processing"
+              for further knowledge-base processing."
           h ModelButton, {
             to: "/view-results"
             index: 2

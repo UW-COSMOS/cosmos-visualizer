@@ -1,4 +1,4 @@
-This web application contains model results for the prototype **COSMOS**
+This instance of the *COSMOS visualizer* web application contains model results for the prototype **COSMOS**
 knowledge-base extraction pipeline.
 The [server, database, and
 API](https://github.com/UW-COSMOS/cosmos-result-visualizer) and
