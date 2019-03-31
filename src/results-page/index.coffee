@@ -176,9 +176,6 @@ class ResultsPage extends StatefulComponent
     @setupTags()
     @getImageToDisplay()
 
-    window.addEventListener 'resize', =>
-      @setState {windowWidth: window.innerWidth}
-
   didUpdateImage: (prevProps, prevState)->
     {currentImage} = @state
     # This supports flipping between images and predicted images

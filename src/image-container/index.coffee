@@ -49,8 +49,8 @@ class ImageContainer extends Component
     return imageBaseURL + image.file_path
 
   render: =>
-    {actions, editingEnabled, image, tags, imageTags, rest...} = @props
-    {scaleFactor} = @state
+    {actions, editingEnabled, tags, imageTags, rest...} = @props
+    {scaleFactor, image} = @state
     return null unless image?
     style = @scaledSize()
 
@@ -91,6 +91,10 @@ class ImageContainer extends Component
       scaleFactor = 1
 
     @setState {scaleFactor}
+
+  componentDidMount: ->
+    window.addEventListener 'resize', =>
+      @setState {windowWidth: window.innerWidth}
 
   componentDidUpdate: ->
     @didUpdateWindowSize.apply(@,arguments)
