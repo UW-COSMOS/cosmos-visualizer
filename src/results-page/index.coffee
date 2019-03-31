@@ -12,9 +12,9 @@ import {Navbar, Button, ButtonGroup
 import {StatefulComponent, LinkButton} from '@macrostrat/ui-components'
 import {PageHeader, PermalinkButton} from '../util'
 import {AppToaster} from '../toaster'
-import {Overlay} from '../overlay'
 import {APIContext} from '../api'
 import {InfoDialog} from '../info-dialog'
+import {ImageContainer} from '../image-container'
 
 ExtractionsButton = ({image})=>
   return null unless image?
@@ -47,45 +47,25 @@ class ResultsPage extends StatefulComponent
       rectStore: []
       initialRectStore: []
       imageBaseURL: null
-      scaleFactor: null
-      windowWidth: window.innerWidth
     }
 
   selectAnnotation: (i)=> =>
     @updateState {editingRect: {$set: i}}
 
-  scaledSize: =>
-    {currentImage, scaleFactor} = @state
-    return null unless currentImage?
-    scaleFactor ?= 1
-    {height, width} = currentImage
-    height /= scaleFactor
-    width /= scaleFactor
-    return {width,height}
-
   renderImageContainer: =>
-    {editingEnabled} = @props
-    {currentImage, editingRect, scaleFactor
-      rectStore, tagStore, currentTag, lockedTags} = @state
-    return null unless currentImage?
-    style = @scaledSize()
-    onClick = @createAnnotation
+    {currentImage, rectStore, tagStore, currentTag, lockedTags} = @state
 
     actions = do => {selectAnnotation} = @
 
-    h 'div.image-container', {style}, [
-      h 'img', {src: @imageURL(currentImage), style...}
-      h Overlay, {
-        style...
-        editingEnabled: false
-        scaleFactor
-        image_tags: rectStore
-        tags: tagStore
-        lockedTags
-        currentTag
-        actions
-      }
-    ]
+    h ImageContainer, {
+      image: currentImage
+      imageTags: rectStore
+      tags: tagStore
+      editingEnabled: false
+      lockedTags
+      currentTag
+      actions
+    }
 
   renderNextImageButton: =>
     {navigationEnabled} = @props
@@ -160,25 +140,6 @@ class ResultsPage extends StatefulComponent
       currentTag: tags[0].tag_id
     }
 
-  imageURL: (image)=>
-    {imageBaseURL} = @context
-    imageBaseURL ?= ""
-    return imageBaseURL + image.file_path
-
-  ensureImageDimensions: ({width, height, rest...})=>
-    # Make sure we have image dimensions set before loading an image
-    # into the UI
-    imageURL = @imageURL(rest)
-    new Promise (resolve, reject)->
-      if width? and height?
-        resolve({width, height, rest...})
-        return
-      img = new Image()
-      img.onload = ->
-        {width, height} = @
-        resolve({width,height, rest...})
-      img.src = imageURL
-
   getImageToDisplay: =>
     {nextImageEndpoint: imageToDisplay, imageRoute, initialImage} = @props
     {currentImage} = @state
@@ -194,7 +155,6 @@ class ResultsPage extends StatefulComponent
     if Array.isArray(d) and d.length == 1
       # API returns a single-item array
       d = d[0]
-    d = await @ensureImageDimensions(d)
 
     rectStore = []
     @setState {
@@ -209,7 +169,7 @@ class ResultsPage extends StatefulComponent
         "."
       ]
       intent: Intent.PRIMARY
-      timeout: 2000
+      timeout: 1000
     }
 
   componentDidMount: ->
@@ -236,21 +196,7 @@ class ResultsPage extends StatefulComponent
 
     @setState {rectStore: image_tags, initialRectStore: image_tags}
 
-  didUpdateWindowSize: (prevProps, prevState)->
-    {windowWidth, scaleFactor, currentImage} = @state
-    return if scaleFactor? and prevState.windowWidth == windowWidth
-    return unless currentImage?
-    {width} = currentImage
-    targetSize = Math.min 2000, windowWidth-24
-    # Clamp to integer scalings for simplicity
-    scaleFactor = width/targetSize
-    if scaleFactor < 1
-      scaleFactor = 1
-
-    @setState {scaleFactor}
-
   componentDidUpdate: ->
     @didUpdateImage.apply(@,arguments)
-    @didUpdateWindowSize.apply(@,arguments)
 
 export {ResultsPage}

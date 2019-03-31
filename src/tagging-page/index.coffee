@@ -110,7 +110,6 @@ class TaggingPage extends StatefulComponent
       rectStore, tagStore, currentTag, lockedTags} = @state
     return null unless currentImage?
     style = @scaledSize()
-    onClick = @createAnnotation
 
     actions = do =>
       {deleteAnnotation,
