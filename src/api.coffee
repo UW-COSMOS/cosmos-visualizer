@@ -35,9 +35,6 @@ class APIProviderShim extends Component
   @defaultProps: {
     baseURL: null
   }
-  constructor: (props)->
-    super props
-
   onError: (route, opts)->
     {error} = opts
     AppToaster.show ErrorMessage {
@@ -48,14 +45,14 @@ class APIProviderShim extends Component
     }
 
   render: ->
-    {children, baseURL} = @props
+    {baseURL, rest...} = @props
     {onError} = @
     h APIProvider, {
       baseURL,
       onError,
       unwrapResponse: (res)->
         return res.data
-      children
+      rest...
     }
 
 export {

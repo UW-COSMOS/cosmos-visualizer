@@ -318,7 +318,7 @@ class TaggingPage extends StatefulComponent
     }
 
   imageURL: (image)=>
-    {imageBaseURL} = @props
+    {imageBaseURL} = @context
     imageBaseURL ?= ""
     return imageBaseURL + image.file_path
 

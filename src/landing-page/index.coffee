@@ -1,5 +1,6 @@
 import {Component} from 'react'
 import h from 'react-hyperscript'
+import {LinkButton} from '@macrostrat/ui-components'
 import {Redirect} from 'react-router-dom'
 import {MenuItem, Button, Card, ButtonGroup} from '@blueprintjs/core'
 import {BrowserRouter as Router, Route, Link} from 'react-router-dom'
@@ -26,23 +27,20 @@ class ResultsLandingPage extends Component
       h Info
       h 'div.actions', [
         h ButtonGroup, {vertical: true}, [
-          h Button, {
+          h LinkButton, {
+            to: "/view-extractions"
             large: true
-            key: UserRole.VIEW_EXTRACTIONS
             text: "Bounding box extractions"
-            onClick: selectRole(UserRole.VIEW_EXTRACTIONS)
           }
-          h Button, {
+          h LinkButton, {
             large: true,
-            key: UserRole.VIEW_RESULTS
+            to: "/view-results"
             text: "Model entity extractions",
-            onClick: selectRole(UserRole.VIEW_RESULTS)
           }
-          h Button, {
+          h LinkButton, {
             large: true,
             text: "Searchable knowledge base",
-            key: UserRole.VIEW_KNOWLEDGE_BASE
-            onClick: selectRole(UserRole.VIEW_KNOWLEDGE_BASE)
+            to: "/knowledge-base"
           }
         ]
       ]

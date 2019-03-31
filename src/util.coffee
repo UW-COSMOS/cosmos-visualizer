@@ -1,4 +1,5 @@
 import h from 'react-hyperscript'
+import {Link} from 'react-router-dom'
 import {Navbar} from '@blueprintjs/core'
 
 PageHeader = (props)->
@@ -6,7 +7,7 @@ PageHeader = (props)->
   title ?= 'COSMOS'
   h Navbar.Group, [
     h Navbar.Heading, null,  (
-      h 'a', {href: '/'}, [
+      h Link, {to: '/'}, [
         h 'h1', title
       ]
     )

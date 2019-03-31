@@ -19,12 +19,13 @@ import {InfoDialog} from '../info-dialog'
 # Updates props for a rectangle
 # from API signature to our internal signature
 # TODO: make handle multiple boxes
-class ResultsPageInner extends StatefulComponent
+class ResultsPage extends StatefulComponent
   @defaultProps: {
     allowSaveWithoutChanges: false
     editingEnabled: true
     navigationEnabled: true
     imageRoute: '/image'
+    apiRoutes: ["phrases","equations","variables"]
   }
   @contextType: APIContext
   constructor: (props)->
@@ -119,17 +120,27 @@ class ResultsPageInner extends StatefulComponent
     {displayKeyboardShortcuts} = @
     h InfoDialog, {isOpen, onClose: @displayInfoBox(false), editingEnabled, displayKeyboardShortcuts}
 
+  renderExtractionsButton: =>
+    {currentImage} = state
+    return null unless currentImage?
+    h LinkButton, {
+      to: "/view-extractions/#{currentImage.image_id}"
+      disabled: not currentImage?
+      text: "View tag extractions"
+    }
+
   render: ->
+    {subtitleText} = @props
     h 'div.main', [
       h Navbar, {fixedToTop: true}, [
-        h PageHeader, {subtitle: "Model results"}, [
+        h PageHeader, {subtitle: subtitleText}, [
           h Button, {
             icon: 'info-sign'
             onClick: @displayInfoBox()
           }, "Usage"
         ]
         h Navbar.Group, {align: Alignment.RIGHT}, [
-          h LinkButton, {to: "/"}, "View tag extractions"
+          @renderExtractionsButton
           @renderImageLink()
           @renderNextImageButton()
         ]
@@ -164,7 +175,7 @@ class ResultsPageInner extends StatefulComponent
     }
 
   imageURL: (image)=>
-    {imageBaseURL} = @props
+    {imageBaseURL} = @context
     imageBaseURL ?= ""
     return imageBaseURL + image.file_path
 
@@ -232,7 +243,7 @@ class ResultsPageInner extends StatefulComponent
     {image_id} = @state.currentImage
 
     image_tags = []
-    for route in ["phrases","equations","variables"]
+    for route in @props.apiRoutes
       t = await @context.get "#{imageRoute}/#{image_id}/#{route}"
       continue unless t?
       image_tags = image_tags.concat(t)
@@ -255,16 +266,5 @@ class ResultsPageInner extends StatefulComponent
   componentDidUpdate: ->
     @didUpdateImage.apply(@,arguments)
     @didUpdateWindowSize.apply(@,arguments)
-
-class ResultsPage extends Component
-  render: ->
-    h ResultsPageInner, {
-      editingEnabled: false
-      nextImageEndpoint: '/image/next_eqn_prediction'
-      subtitleText: "View results"
-      permalinkRoute: "/view-results"
-      navigationEnabled: true
-      @props...
-    }
 
 export {ResultsPage}
