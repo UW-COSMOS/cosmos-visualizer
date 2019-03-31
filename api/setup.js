@@ -64,9 +64,6 @@ async function setup() {
     }
   }
 
-  await runFromFile("schema.sql");
-  await runFromFile("tag-data.sql");
-
   await db.query(insertStack, [
     datasetName,
     "annotation"
@@ -79,9 +76,22 @@ async function setup() {
         // It's a file!
                 let parts = entry.split('_')
                 if (!parts.length) continue
+                // total mess as of 17.Mar.2019 -- IAR:
+                // really need to clean up pipelines that lead us here.
+                // sometimes it's docid_input.pdf_pageno.png (CHTC)
+                // sometimes it's docid.pdf_pageno.png (default)
+                // sometimes it's docid.pdf_pageno_hash.png (by hand to prevent page-level scraping)
+                if (parts.length >= 3) {
+                    var page_no = parts[2]
+                } else {
+                    var page_no = parts[1]
+                }
+                page_no = page_no.replace(".png", "")
                 let doc_id = parts[0]
-                let page_no = parts[2]
                 let file_path = join(folder, entry);
+                // Get rid of leading `/images` in path
+                file_path = file_path.replace(/^\/?images\/?/, "")
+
                 let row = await db.oneOrNone("SELECT image_id FROM image WHERE doc_id=$1 AND page_no=$2", [doc_id, page_no]);
                 let image_id = null
                     if (row == null) {
