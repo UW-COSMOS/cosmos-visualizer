@@ -6,7 +6,7 @@ import {Select} from '@blueprintjs/select'
 import {Navbar, MenuItem, Button, Intent} from '@blueprintjs/core'
 import classNames from 'classnames'
 import {EditMode} from '../enum'
-import {EditorContext} from '../overlay/context'
+import {EditorContext} from '../image-overlay/context'
 
 ToolButton = (props)->
   h Button, {small: true, minimal: true, props...}

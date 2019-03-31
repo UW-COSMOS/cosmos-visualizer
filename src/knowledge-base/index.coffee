@@ -4,9 +4,10 @@ import update from 'immutability-helper'
 import {StatefulComponent, APIContext,
         PagedAPIView, APIResultView} from '@macrostrat/ui-components'
 import {Link} from 'react-router-dom'
-import {InputGroup, Popover, Button, Menu, MenuItem, Position, Navbar} from '@blueprintjs/core'
+import {InputGroup, Popover, Button, Menu,
+        Position, Navbar} from '@blueprintjs/core'
 import {ModelExtraction} from './model-extraction'
-import {PageHeader} from '../util'
+import {InlineNavbar} from '../util'
 import './main.styl'
 
 class KnowledgeBaseFilterView extends StatefulComponent
@@ -22,15 +23,14 @@ class KnowledgeBaseFilterView extends StatefulComponent
     }
 
   renderExtractions: (data)=>
+    {query} = @state.filterParams
     h 'div.results', data.map (d,i)->
-      h ModelExtraction, {d..., index: i}
+      h ModelExtraction, {d..., index: i, query}
 
   render: =>
     {filterParams} = @state
     h 'div#knowledge-base-filter.main', [
-      h Navbar, {className: 'inline-navbar'}, [
-        h PageHeader, {subtitle: 'Knowledge base filter'}
-      ]
+      h InlineNavbar, {subtitle: 'Knowledge base filter'}
       @renderSearchbar()
       h PagedAPIView, {
         route: '/model/extraction'
@@ -57,7 +57,6 @@ class KnowledgeBaseFilterView extends StatefulComponent
       @updateState {filterParams: {$set: val}}
     menuItems.push h Menu.Divider
     menuItems.push h Menu.Item, {onClick, text: "All types"}
-
 
     content = h Menu, menuItems
     position = Position.BOTTOM_RIGHT

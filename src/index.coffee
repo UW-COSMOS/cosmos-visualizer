@@ -8,9 +8,9 @@ import {App} from './app'
 import {APIProvider} from './api'
 
 AppHolder = (props)=>
-  {baseURL, rest...} = props
-  h APIProvider, {baseURL}, [
-    h App, {rest...}
+  {baseURL, imageBaseURL, rest...} = props
+  h APIProvider, {baseURL, imageBaseURL}, [
+    h App, {imageBaseURL, rest...}
   ]
 
 window.createUI = (opts={})->

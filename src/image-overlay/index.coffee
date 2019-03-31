@@ -58,7 +58,7 @@ class ModalNotifications extends Component
       @renderToast(LINK)
     ]
 
-class Overlay extends StatefulComponent
+class ImageOverlay extends StatefulComponent
   @defaultProps: {
     # Distance we take as a click before switching to drag
     clickDistance: 10
@@ -317,6 +317,6 @@ class Overlay extends StatefulComponent
       if @state.shiftKey and not event.shiftKey
         do @handleShift(false)
 
-Overlay = HotkeysTarget(Overlay)
+ImageOverlay = HotkeysTarget(ImageOverlay)
 
-export {Overlay}
+export {ImageOverlay}
