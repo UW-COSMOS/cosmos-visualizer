@@ -66,27 +66,12 @@ This will create `annotations.sqlite` and import the metadata of those documents
 npm start
 ````
 
+## Credits
 
-## Routes
+This work was funded by DARPA ASKE HR00111990013.
 
-#### /image/:image_id  
-**Methods**: `GET`  
-**Description**: Return or create annotations. The `image_id` parameter can be replaced with `next` to get a random image for annotation or `validate` to get a random image for validation.  
-**Parameters**:
-  + `validated` : Boolean : when used with `validate`, returns only images that have or have not already been validated
+- Visualizer: Daven Quinn, Ian Ross
+- Model: Ankur Goswami, Josh McGrath, Paul Luh, and Zifan Liu
+- Integration: Ian Ross
+- Project lead: Theodoros Rekatsinas, Shanan Peters, and Miron Livny
 
-#### /image/:image_id/tags  
-**Methods**: `GET`, `POST`  
-**Description**: Return or create annotations.
-
-
-#### /tags/:tag_id?  
-**Methods**: `GET`  
-**Description**: Get available tags and their descriptions. All tags can be retrieved by passing `all` as the `tag_id`
-
-
-#### /people/:person_id?
-**Methods**: `GET`, `POST`  
-**Description**: Return or create users.  
-**Parameters**:  
-  + `key` : String : required when creating a new user
