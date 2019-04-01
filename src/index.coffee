@@ -9,10 +9,10 @@ import {APIProvider} from './api'
 import {ImageStoreProvider} from './image-container'
 
 AppHolder = (props)=>
-  {baseURL, imageBaseURL, rest...} = props
+  {baseURL, imageBaseURL, publicURL, rest...} = props
   h APIProvider, {baseURL}, [
-    h ImageStoreProvider, {baseURL: imageBaseURL}, [
-      h App, {imageBaseURL, rest...}
+    h ImageStoreProvider, {baseURL: imageBaseURL, publicURL}, [
+      h App, {imageBaseURL, publicURL, rest...}
     ]
   ]
 
@@ -23,11 +23,18 @@ window.createUI = (opts={})->
     # Attempt to set parameters from environment variables
     # This will fail if bundled on a different system, presumably,
     # so we wrap in try/catch.
-    publicURL ?= process.env.PUBLIC_URL
-    baseURL ?= process.env.API_BASE_URL
-    imageBaseURL ?= process.env.IMAGE_BASE_URL
+    publicURL = process.env.PUBLIC_URL
+    baseURL = process.env.API_BASE_URL
+    imageBaseURL = process.env.IMAGE_BASE_URL
   catch error
     console.log error
+
+  console.log """
+  Environment variables:
+  PUBLIC_URL: #{process.env.PUBLIC_URL}
+  API_BASE_URL: #{process.env.API_BASE_URL}
+  IMAGE_BASE_URL: #{process.env.IMAGE_BASE_URL}
+  """
 
   # Set reasonable defaults
   publicURL ?= "/"
