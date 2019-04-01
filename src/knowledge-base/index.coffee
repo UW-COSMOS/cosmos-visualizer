@@ -7,6 +7,7 @@ import {Link} from 'react-router-dom'
 import {InputGroup, Popover, Button, Menu,
         Position, Navbar} from '@blueprintjs/core'
 import {ModelExtraction} from './model-extraction'
+
 import {InlineNavbar} from '../util'
 import './main.styl'
 

@@ -35,7 +35,7 @@ class KBExtraction extends Component
       ]
     ]
 
-toLowerCase = memoize (t)->
+sanitize = memoize (t)->
   t.toLowerCase()
 
 MatchSpan = styled.span"""
@@ -60,11 +60,11 @@ MatchParagraph = styled.p"""
 TextMatch = (props)->
   {query, text, entityType} = props
   return null unless text?
-  matchText = toLowerCase(text)
+  text = sanitize(text)
 
   return null unless query?
   return null if query == ""
-  ix = matchText.indexOf(query.toLowerCase())
+  ix = text.indexOf(sanitize(query))
   console.log ix
   ixEnd = ix + query.length
   start = ix-100
