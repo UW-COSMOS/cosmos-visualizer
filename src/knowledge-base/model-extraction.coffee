@@ -88,33 +88,50 @@ TextMatch = (props)->
 
 class ModelExtraction extends Component
   render: ->
-    {query} = @props
-    # Stupid hack
+    {query, target_img_path, target_unicode,
+     assoc_img_path, assoc_unicode} = @props
+
+    main_img_path = null
+    main_unicode = null
+
+    assoc = null
+    if assoc_img_path?
+      main_img_path = assoc_img_path
+      main_unicode
+      assoc = h KBExtraction, {
+        title: "Associated entity"
+        path: assoc_img_path
+        unicode: assoc_unicode
+      }
+
+    # Don't assume existence of target
+    target = null
+    if target_img_path?
+      main_img_path = target_img_path
+      main_unicode = target_unicode
+      target = h KBExtraction, {
+        title: "Extracted entity"
+        className: 'target'
+        path: target_img_path
+        unicode: target_unicode
+      }
+
+    # We don't have a result unless either main or target are defined
+    return null unless main_img_path?
+
     try
-      docid = @props.target_img_path.match(/([a-f0-9]{24})/g)[0]
+      # Stupid hack
+      docid = main_img_path.match(/([a-f0-9]{24})/g)[0]
       gddCard = h GDDReferenceCard, {docid}
     catch
       gddCard = null
 
-    assoc = null
-    if @props.assoc_img_path?
-      assoc = h KBExtraction, {
-        title: "Associated entity"
-        path: @props.assoc_img_path
-        unicode: @props.assoc_unicode
-      }
-
     h 'div.model-extraction', [
-      h KBExtraction, {
-        title: "Extracted entity"
-        className: 'target'
-        path: @props.target_img_path
-        unicode: @props.target_unicode
-      }
+      target
       assoc
       h TextMatch, {
-        entityType: getEntityType(@props.target_img_path),
-        text: @props.target_unicode,
+        entityType: getEntityType(main_img_path),
+        text: main_unicode,
         query
       }
       gddCard
