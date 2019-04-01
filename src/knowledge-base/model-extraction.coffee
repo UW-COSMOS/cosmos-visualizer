@@ -2,14 +2,19 @@ import {Component, memo} from 'react'
 import h from 'react-hyperscript'
 import classNames from 'classnames'
 import {GDDReferenceCard} from '@macrostrat/ui-components'
-import {basename} from 'path'
+import {join, basename} from 'path'
 import {memoize} from 'underscore'
 import styled from '@emotion/styled'
+import {ImageStoreContext} from '../image-container'
 
-KBImage = (props)->
-  {path, rest...} = props
-  src = path.replace "img/", "/kb-images/"
-  h 'img', {src, rest...}
+class KBImage extends Component
+  @contextType: ImageStoreContext
+  render: ->
+    {publicURL} = @context
+    {path, rest...} = @props
+    fn = path.replace "img/", ""
+    src = join(publicURL,"kb-images", fn)
+    h 'img', {src, rest...}
 
 getEntityType = (path)->
   # Hack to get entity type from image path

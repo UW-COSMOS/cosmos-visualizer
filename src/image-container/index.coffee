@@ -9,10 +9,10 @@ ImageStoreContext = createContext({})
 
 class ImageStoreProvider extends Component
   render: ->
-    {baseURL, children} = @props
+    {baseURL, publicURL, children} = @props
     if not baseURL?
       throw "baseURL for image store must be set in context"
-    value = {baseURL}
+    value = {baseURL, publicURL}
     h ImageStoreContext.Provider, {value}, children
 
 class ImageContainer extends Component
