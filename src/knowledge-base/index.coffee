@@ -7,6 +7,7 @@ import {Link} from 'react-router-dom'
 import {InputGroup, Popover, Button, Menu,
         Position, Navbar} from '@blueprintjs/core'
 import {ModelExtraction} from './model-extraction'
+import {debounce} from 'underscore'
 
 import {InlineNavbar} from '../util'
 import './main.styl'
@@ -67,10 +68,12 @@ class KnowledgeBaseFilterView extends StatefulComponent
       h Button, {minimal: true, rightIcon: "filter"}, type
     ]
 
+    updateQuery = debounce(@updateQuery,500)
+
     h InputGroup, {
       leftIcon: 'search'
       placeholder: "Search extractions"
-      onChange: @updateQuery
+      onChange: updateQuery
       rightElement
     }
 
