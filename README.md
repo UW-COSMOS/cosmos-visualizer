@@ -1,6 +1,17 @@
-# image-tagger-api
+# COSMOS visualizer
 
-Providers for https://github.com/UW-Macrostrat/image-tagger
+The **COSMOS** visualizer is the main application that stores and visualizes
+training and model-result data for the **COSMOS** knowledge-base extraction
+pipeline. It constitutes the backing data store and API powering the
+[**COSMOS** visualizer frontend](https://github.com/UW-COSMOS/cosmos-visualizer-frontend),
+a set of web-based UI components.
+
+The visualizer includes several components:
+
+- A **PostgreSQL** database server that contains training data and model extractions
+- A **node express**-based API that bridges the data store and user interface
+- The visualizer frontend (packaged as a submodule)
+- A set of **python** scripts to import structured model output into the extractions database.
 
 ## Setup
 
