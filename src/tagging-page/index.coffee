@@ -210,7 +210,8 @@ class TaggingPage extends StatefulComponent
     h InfoDialog, {isOpen, onClose: @displayInfoBox(false), editingEnabled, displayKeyboardShortcuts}
 
   render: ->
-    {subtitleText, currentImage: image} = @props
+    {subtitleText, permalinkRoute} = @props
+    {currentImage: image} = @state
     h 'div.main', [
       h Navbar, {fixedToTop: true}, [
         h PageHeader, {subtitle: subtitleText}, [
@@ -220,7 +221,7 @@ class TaggingPage extends StatefulComponent
           }, "Usage"
         ]
         h Navbar.Group, {align: Alignment.RIGHT}, [
-          h PermalinkButton, {image}
+          h PermalinkButton, {permalinkRoute, image}
           h ButtonGroup, [
             @renderPersistenceButtonArray()...
             @renderNextImageButton()
