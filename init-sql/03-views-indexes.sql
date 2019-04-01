@@ -1,4 +1,5 @@
 CREATE SCHEMA IF NOT EXISTS model_results;
+CREATE EXTENSION IF NOT EXISTS pg_trgm;
 
 DROP MATERIALIZED VIEW model_results.entity;
 CREATE MATERIALIZED VIEW model_results.entity AS
@@ -24,3 +25,7 @@ SELECT
   html_file,
   path_data
 FROM a;
+
+CREATE INDEX trgm_idx_model_results_entity
+ON model_results.entity
+USING gin (target_unicode gin_trgm_ops);
