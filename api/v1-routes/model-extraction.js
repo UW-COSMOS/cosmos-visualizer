@@ -16,19 +16,8 @@ async function handler(req, res, next, plugins) {
   params['limit'] = req.query.limit || 10;
 
   let base = `
-    WITH a AS (
-    SELECT
-      trim(regexp_replace(target_unicode, '\\s+', ' ', 'g')) target_unicode,
-      target_img_path,
-      target_tesseract,
-      assoc_img_path,
-      assoc_unicode,
-      assoc_tesseract,
-      html_file
-    FROM equations.figures_and_tables
-    )
-    SELECT * FROM a
-    WHERE concat(target_img_path, assoc_img_path) ~ '$<btype:raw>\\d'`;
+    SELECT * FROM model_results.entity
+    WHERE path_data ~ '$<btype:raw>\\d'`;
 
   const q_ = req.query.query || "";
   if (q_ != '') {

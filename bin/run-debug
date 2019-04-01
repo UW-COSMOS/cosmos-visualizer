@@ -5,4 +5,6 @@ export DEBUG=1
 # to be set to _actual_ public base URL if reloaded.
 export PUBLIC_URL="/cosmos"
 export PIPELINE_OUTPUT="/projects/cosmos/cosmos-visualizer/_data/final_results"
+
+docker-compose down
 docker-compose up $@

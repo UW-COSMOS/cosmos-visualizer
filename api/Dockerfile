@@ -11,17 +11,17 @@ RUN rm -rf /tmp
 
 # For development
 RUN npm install -g nodemon
+WORKDIR /src
+
+COPY package.json /src/
+RUN npm install
 
 COPY ./*.* /src/
 COPY ./v1-routes/ /src/v1-routes/
 COPY ./handlers/ /src/handlers/
-WORKDIR /src
-RUN rm -f /src/node_modules /src/api_key.js
-RUN npm install
 
 # Install all the application modules
-COPY ./setup-secret-key ./api_key.js.example ./start-server /src/
-RUN ./setup-secret-key
+COPY ./start-server /src/
 
 CMD ["./start-server"]
 

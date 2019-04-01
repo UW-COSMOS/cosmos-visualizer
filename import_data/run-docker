@@ -1,0 +1,13 @@
+#!/bin/sh
+
+while ! $(psql -h db -p 5432 -U postgres annotations > /dev/null 2>&1) ; do
+  echo "Waiting for database..."
+  sleep 1
+done
+
+echo "Running database initialization SQL"
+cat /init-sql/*.sql | psql -U postgres -h db -p 5432 annotations
+
+echo "Importing images"
+python import_data.py /output/ /images/ results
+
