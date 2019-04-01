@@ -8,66 +8,61 @@ a set of web-based UI components.
 
 The visualizer includes several components:
 
-- A **PostgreSQL** database server that contains training data and model extractions
-- A **node express**-based API that bridges the data store and user interface
-- The visualizer frontend (packaged as a submodule)
-- A set of **python** scripts to import structured model output into the extractions database.
+- A **PostgreSQL** database server that contains training data and model extractions.
+- A **node express**-based API that bridges the data store and user interface.
+- The [visualizer frontend](https://github.com/UW-COSMOS/cosmos-visualizer-frontend) **React** app.
+- A **Python**-based importer to move structured model output into the extractions database.
+
+Each of these components can be built as a separate **Docker** container and orchestrated
+with **docker-compose**. The entire assemblage can be run with `docker-compose up`. This is
+the preferred way to set up, develop, and run this software.
 
 ## Setup
 
-First install dependencies  
-````
-npm install
-````
+### Running for production
 
-Next, you will need to create an API key used for authenticated requests. Start
-by copying the template file to a new file  
-````
-cp api_key.js.example api_key.js
-````
+The production implementation of the visualizer pulls images from Dockerhub instead of
+building them locally. Run this version on a set of documents
+by setting the `PIPELINE_OUTPUT` environment variable to the path to the output to visualize, and then running
+`docker-compose -f docker-compose_prod.yml` in the root directory of this repository.
 
-Add a unique string to `api_key.js`. The recommended method is to create a UUID
-using the following command:  
-````
-node -e "const uuidv4 = require('uuid/v4'); console.log(uuidv4());"
-````
+### Running for development
 
-`image-tagger-api` uses an SQLite database to store image metadata and annotations
-and must be set up before running. The setup script expects a directory of documents
-where each sub-folder is the name of the document, and each contains a folder named
-`png` that contains images in the format `page_<page_no>.png`
+Debug mode enables hot-reloading of the API and compilation of frontend javascript code.
 
-````
-my_documents
-  documentA
-    png
-      page_1.png
-      page_2.png
-  documentB
-    png
-      page_1.png
-      page_2.png
-````
+To start, make sure you have the latest version of all submodules with `git submodule update --init`.
+Data should be put in the `_data/output-from-pipeline` directory by default. The **PostgreSQL**
+cluster will be initialized in the `_data/pg-cluster` directory.
 
-Run the setup script, pointing it at the folder of documents. It takes two parameters:
-1) the name of the directory, and optionally 2) a name for this import of documents, which
-defaults to the name of the directory if omitted:
+A debug wrapper script, `bin/run-debug`, wraps `docker-compose` to provide the appropriate `DEBUG=1` environment
+variable for hot-reloading and local development. The development server will then be accessible at `http://localhost:5002`.
+
+## File structure
+
+The `PIPELINE_OUTPUT` data directory of each model output collection
+should maintain a the following format:
 
 ````
-node setup.js my_documents import1
+_data/output_from_pipeline
+├── html
+│   ├── img     <knowledge-base
+│   │   │        extraction images>
+│   │   ├── 5512feb1e1382394b500c4e7.pdf_1
+│   │   ├── 55684840e1382382d70cf603.pdf_8
+│   │   └── 55684840e1382382d70cf603.pdf_9
+│   └── merged
+├── html_out
+│   ├── equations
+│   ├── html
+│   └── words
+├── output.csv
+├── tables.csv
+├── figures.csv
+├── images      <page-level images>
+└── xml         <xml extractions>
 ````
 
-This will create `annotations.sqlite` and import the metadata of those documents
-
-
-## Running
-
-````
-npm start
-````
-
-
-## Routes
+## API Routes
 
 #### /image/:image_id  
 **Methods**: `GET`  
