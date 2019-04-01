@@ -82,22 +82,25 @@ ModelInfoBox = ->
     R = ({id})-> h Res, {data, id}
     h ModelInfo, [
       h 'p', [
-        "This instance of the "
+        "This instance of "
         h 'b', "COSMOS Visualizer"
-        " web application contains
-        model results for the COSMOS
-        knowledge-base construction pipeline. "
-        "The knowledge base exposed here contains "
-        h R, {id: 'figures'}
-        ", "
-        h R, {id: 'tables'}
-        ", and "
-        h R, {id: 'equations'}
-        " extracted from "
+        " exposes a knowledge base covering "
+        #"model results for the  "
+        #"The knowledge base exposed here contains "
+        #h R, {id: 'figures'}
+        #", "
+        #h R, {id: 'tables'}
+        #", and "
+        #h R, {id: 'equations'}
+        #" extracted from "
         h R, {id: 'documents'}
         " ("
         h R, {id: 'pages'}
-        ")."
+        ")"
+        " assembled by the "
+        h 'b', "COSMOS"
+        " pipeline. "
+        "Several interfaces to the extractions and knowledge base are accessible below:"
       ]
     ]
 
@@ -117,7 +120,6 @@ class ResultsLandingPage extends Component
       h InlineNavbar, {subtitle: "Model results"}
       h LargeInsetText, [
         h ModelInfoBox
-        h 'p', "Several interfaces to the extractions and knowledge base are accessible below:"
       ]
       h 'div.actions', [
         h ButtonGroup, {vertical: true}, [
