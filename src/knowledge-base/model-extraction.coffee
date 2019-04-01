@@ -90,7 +90,11 @@ class ModelExtraction extends Component
   render: ->
     {query} = @props
     # Stupid hack
-    docid = @props.target_img_path.match(/([a-f0-9]{24})/g)[0]
+    try
+      docid = @props.target_img_path.match(/([a-f0-9]{24})/g)[0]
+      gddCard = h GDDReferenceCard, {docid}
+    catch
+      gddCard = null
 
     assoc = null
     if @props.assoc_img_path?
@@ -113,7 +117,7 @@ class ModelExtraction extends Component
         text: @props.target_unicode,
         query
       }
-      h GDDReferenceCard, {docid}
+      gddCard
     ]
 
 export {ModelExtraction}
