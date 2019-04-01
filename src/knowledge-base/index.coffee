@@ -42,8 +42,7 @@ class KnowledgeBaseFilterView extends StatefulComponent
       }, @renderExtractions
     ]
 
-  updateQuery: (event)=>
-    {value} = event.target
+  updateQuery: (value)=>
     @updateState {filterParams: {query: {$set: value}}}
 
   renderSearchbar: ->
@@ -68,12 +67,16 @@ class KnowledgeBaseFilterView extends StatefulComponent
       h Button, {minimal: true, rightIcon: "filter"}, type
     ]
 
+
+
     updateQuery = debounce(@updateQuery,500)
+    onChange = (event)->
+      updateQuery(event.target.value)
 
     h InputGroup, {
       leftIcon: 'search'
       placeholder: "Search extractions"
-      onChange: updateQuery
+      onChange
       rightElement
     }
 
