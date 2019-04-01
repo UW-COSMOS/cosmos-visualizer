@@ -82,11 +82,17 @@ _data/output_from_pipeline
 
 #### /people/:person_id?
 **Methods**: `GET`, `POST`  
-**Description**: Return or create users.  
-**Parameters**:  
-  + `key` : String : required when creating a new user
-  
-  
+**Description**: Return users.  
+
+## Credits
+
+This work was funded by DARPA ASKE HR00111990013.
+
+- Visualizer: Daven Quinn, Ian Ross
+- Model: Ankur Goswami, Josh McGrath, Paul Luh, and Zifan Liu
+- Integration: Ian Ross
+- Project lead: Theodoros Rekatsinas, Shanan Peters, and Miron Livny
+
 ## License and Acknowledgements
 All development work supported by DAPRA ASKE HR00111990013 and UW-Madison.
 
