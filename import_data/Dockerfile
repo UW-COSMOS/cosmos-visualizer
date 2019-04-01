@@ -6,10 +6,10 @@ RUN apk update &&\
 RUN apk add libxml2-dev libxslt-dev
 
 WORKDIR /src
-COPY requirements.txt /src
-RUN \
-    pip install -r requirements.txt
+COPY ./requirements.txt /src/
+RUN pip install -r requirements.txt
 
-COPY import_data.py /src
+COPY ./run-docker /src
+COPY ./import_data.py /src
 
-CMD python import_data.py /output/ /images/ results
+CMD sh run-docker

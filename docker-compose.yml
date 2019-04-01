@@ -27,7 +27,6 @@ services:
   db:
     image: mdillon/postgis:11
     volumes:
-      - ./init-sql:/docker-entrypoint-initdb.d/
       - ./_data/pg-cluster:/var/lib/postgresql/data
     environment:
       - POSTGRES_DB=annotations
@@ -35,6 +34,14 @@ services:
       - "54321:5432"
     expose:
       - 5432
+  import_data:
+    build: import_data
+    environment:
+      - PG_CONN_STR=postgresql://postgres:@db:5432/annotations
+    volumes:
+      - ./init-sql:/init-sql
+      - ./_data/output_from_pipeline:/output
+      - ./_data/output_from_pipeline/images:/images
   frontend:
     build: frontend
     ports:
@@ -52,13 +59,4 @@ services:
       - ./frontend:/user
       - /user/node_modules
       - /user/.cache
-
-  import_data:
-    build: import_data
-    environment:
-      - PG_CONN_STR=postgresql://postgres:@db:5432/annotations
-    volumes:
-      - ./_data/output_from_pipeline:/output
-      - ./_data/output_from_pipeline/images:/images
-
 
