@@ -6,11 +6,14 @@ import {render} from 'react-dom'
 import h from 'react-hyperscript'
 import {App} from './app'
 import {APIProvider} from './api'
+import {ImageStoreProvider} from './image-container'
 
 AppHolder = (props)=>
   {baseURL, imageBaseURL, rest...} = props
-  h APIProvider, {baseURL, imageBaseURL}, [
-    h App, {imageBaseURL, rest...}
+  h APIProvider, {baseURL}, [
+    h ImageStoreProvider, {baseURL: imageBaseURL}, [
+      h App, {imageBaseURL, rest...}
+    ]
   ]
 
 window.createUI = (opts={})->
