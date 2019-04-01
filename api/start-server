@@ -6,7 +6,6 @@
 # trouble than it's worth)
 if [ -d /debug-src ]; then
 ln -s /src/node_modules /debug-src/node_modules
-cp /src/api_key.js /debug-src/api_key.js
 cd /debug-src
 nodemon --ignore 'node_modules/**' index.js
 else
