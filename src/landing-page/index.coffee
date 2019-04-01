@@ -87,7 +87,7 @@ ModelInfoBox = ->
         " web application contains
         model results for the COSMOS
         knowledge-base construction pipeline. "
-        "This knowledge base contains "
+        "The knowledge base exposed here contains "
         h R, {id: 'figures'}
         ", "
         h R, {id: 'tables'}
