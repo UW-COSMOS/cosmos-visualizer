@@ -8,7 +8,6 @@ import {BrowserRouter as Router, Route, Link} from 'react-router-dom'
 
 import {InlineNavbar} from '../util'
 import {UserRole} from '../enum'
-import Info from './info.md'
 import Credits from './credits.md'
 
 InsetText = styled.div"""

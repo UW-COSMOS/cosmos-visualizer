@@ -3,6 +3,7 @@ import h from 'react-hyperscript'
 import {select} from 'd3-selection'
 import {ImageOverlay} from '../image-overlay'
 import {APIContext} from '../api'
+import {join} from 'path'
 
 class ImageContainer extends Component
   @defaultProps: {
@@ -46,7 +47,7 @@ class ImageContainer extends Component
   imageURL: (image)=>
     {imageBaseURL} = @context
     imageBaseURL ?= ""
-    return imageBaseURL + image.file_path
+    return join(imageBaseURL, image.file_path)
 
   render: =>
     {actions, editingEnabled, tags, imageTags, rest...} = @props
