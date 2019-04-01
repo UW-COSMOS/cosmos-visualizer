@@ -15,12 +15,23 @@ async function handler(req, res, next, plugins) {
   params['offset'] = offs;
   params['limit'] = req.query.limit || 10;
 
-  let base = `SELECT *
+  let base = `
+    WITH a AS (
+    SELECT
+      trim(regexp_replace(target_unicode, '\\s+', ' ', 'g')) target_unicode,
+      target_img_path,
+      target_tesseract,
+      assoc_img_path,
+      assoc_unicode,
+      assoc_tesseract,
+      html_file
     FROM equations.figures_and_tables
+    )
+    SELECT * FROM a
     WHERE concat(target_img_path, assoc_img_path) ~ '$<btype:raw>\\d'`;
 
-  const query = req.query.query || "";
-  if (query != '') {
+  const q_ = req.query.query || "";
+  if (q_ != '') {
     base += "AND target_unicode ilike '%%$<query:raw>%%'"
   }
 
