@@ -94,3 +94,7 @@ This entire build process can be automated by building the `Dockerfile`
 in the main repository. Running with the environment variable
 `DEBUG=1` will build the UI with watch mode enabled.
 
+## Credits
+
+This work was funded by DARPA ASKE HR00111990013.
+User-interface developed by [Daven Quinn](https://davenquinn.com).
