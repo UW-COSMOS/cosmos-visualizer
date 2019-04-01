@@ -5,13 +5,23 @@ import {ImageOverlay} from '../image-overlay'
 import {APIContext} from '../api'
 import {join} from 'path'
 
+ImageStoreContext = createContext({})
+
+class ImageStoreProvider extends Component
+  render: ->
+    {baseURL, children} = @props
+    if not baseURL?
+      throw "baseURL for image store must be set in context"
+    value = {baseURL}
+    h ImageStoreContext.Provider, {value}, children
+
 class ImageContainer extends Component
   @defaultProps: {
     actions: {}
     tags: []
     image: null
   }
-  @contextType: APIContext
+  @contextType: ImageStoreContext
 
   constructor: (props)->
     super props
@@ -45,9 +55,8 @@ class ImageContainer extends Component
     return {width,height}
 
   imageURL: (image)=>
-    {imageBaseURL} = @context
-    imageBaseURL ?= ""
-    return join(imageBaseURL, image.file_path)
+    {baseURL} = @context
+    return join(baseURL, image.file_path)
 
   render: =>
     {actions, editingEnabled, tags, imageTags, rest...} = @props
@@ -100,4 +109,4 @@ class ImageContainer extends Component
   componentDidUpdate: ->
     @didUpdateWindowSize.apply(@,arguments)
 
-export {ImageContainer}
+export {ImageContainer, ImageStoreContext, ImageStoreProvider}

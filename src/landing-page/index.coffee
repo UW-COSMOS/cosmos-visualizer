@@ -87,7 +87,7 @@ ModelInfoBox = ->
         " web application contains
         model results for the COSMOS
         knowledge-base construction pipeline. "
-        "This knowledge base contains "
+        "The knowledge base exposed here contains "
         h R, {id: 'figures'}
         ", "
         h R, {id: 'tables'}
@@ -117,7 +117,7 @@ class ResultsLandingPage extends Component
       h InlineNavbar, {subtitle: "Model results"}
       h LargeInsetText, [
         h ModelInfoBox
-        h 'p', "Several interfaces to the COSMOS extractions and knowledge base are accessible below:"
+        h 'p', "Several interfaces to the extractions and knowledge base are accessible below:"
       ]
       h 'div.actions', [
         h ButtonGroup, {vertical: true}, [
