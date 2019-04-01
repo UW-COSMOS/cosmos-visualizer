@@ -1,20 +1,49 @@
-# Image-Tagger
+# COSMOS visualizer frontend
 
-Image-tagger is basic web UI that allows the definition of rectangular
+The **COSMOS** visualizer frontend is a set of user interface components
+that implement tagging and results-viewing functionality to support the
+**COSMOS** knowledge-base extraction pipeline. The goal is to create a set
+of user-interface components to enable training of the model and interaction
+with its output.
+
+The web components are built using [React](https://reactjs.org)
+and [Coffeescript](https://coffeescript.org), with standard
+user-interface primitives provided by [Blueprint.js](https://blueprintjs.com)
+and [the Macrostrat project](https://github.com/UW-Macrostrat/ui-components)
+
+## Image-Tagger
+
+Image-Tagger is a basic web UI that allows the definition of rectangular
 tagged areas on images for an arbitrary list of object categories. It is designed
 for both rapid, distributed generation of training data for machine learning models
 and viewing of model classification results.
-This frontend was created to support the COSMOS knowledge-base extraction pipeline.
 
-Rectangular areas were sufficient for the initially envisioned use case of
-categorizing parts of a scientific paper (figures, tables, etc.), but the ability
-to define multi-rectangular tags was added recently to allow the incorporation
-of entities split over lines.
+Rectangular areas were sufficient for initial tagging of
+parts of a scientific paper (figures, tables, etc.). However, the ability
+to define multi-rectangular tags was added to allow the tagging and
+representation of textual entities split over multiple lines, or tokenized
+into individual words. In addition, the interface supports tagging relationships between
+entities.
 
-Unlike similar tools, image-tagger is open-source, client-side software. It is
-completely decoupled from its backend.
-It requires specification of a base API route on initialization; this API can be
-implemented however but is expected to have several routes:
+Unlike similar tools, Image-Tagger is open-source, client-side software,
+decoupled from its backend (although it works best with
+the [**COSMOS visualizer**](https://github.com/UW-COSMOS/cosmos-visualizer).
+
+## Results viewer
+
+The **COSMOS** results viewer [**DEMO**](http://birdnest.geology.wisc.edu/cosmos/)
+exposes page- and token-level model extractions from the
+**COSMOS** pipeline for introspection. It also implements knowledge-base
+search functionality over the extracted model results.
+The viewer is built on the same UI components as the Image-Tagger
+interface and requires a similar API backend to
+function.
+
+## API interface
+
+The visualizer frontend is a client-side application that requires
+specification of a base API route on initialization; this API can be
+implemented in any way. Image-Tagger requires a simple API interface:
 
 - `/image [GET]`: returns the URL of the next image to tag, and
   its natural size `{url, width, height}`
@@ -27,30 +56,20 @@ implemented however but is expected to have several routes:
 - `image/<id>/tags [POST]`: set tags on an image, as
   an array of `{x,y,width,height,tag: tag.id}` objects
 
+The model results viewer requires a similar API, with
+additional routes for phrases and variables. This part of
+the UI code is more tightly coupled to the API included
+with the [**COSMOS visualizer**](https://github.com/UW-COSMOS/cosmos-visualizer)
+backend.
+
 ## Options settable from environment variables
 
 Environment variables can be used to set several variables that might
 change with different locations of the server.
 
 - `PUBLIC_URL`: the URL basename the app will be served from (defaults to`/`)
-- `API_BASE_URL`: the URL path for [`image-tagger-api`](https://github.com/UW-COSMOS/image-tagger-api)
+- `API_BASE_URL`: the URL path for [`cosmos-visualizer`](https://github.com/UW-COSMOS/cosmos-visualizer) or a parallel API
 - `IMAGE_BASE_URL`: the URL path beneath which images are stored
-
-
-## Next steps
-
-A few features we might wish to add:
-
-[ ] Sub-tags (e.g. `figure > figure-part`) to define hierarchies of data.
-[ ] Scaling large images in the UI.
-[ ] Modifier tokens: array of tag-like modifiers for each tag for
-    increased semantic depth (*this could be unhelpful for some
-    workflows*)
-
-Additional API routes could be added to expand functionality,
-but have not yet been implemented:
-
-- `/images [GET]`: URL and number of tags on each potential image
 
 Of course, the images need to be accessible at whatever URL is returned by
 the API.
@@ -70,3 +89,8 @@ After this, a development version with hot reloading can be run on
 A space-efficient production build can be obtained using
 `npm run-script build` and copied to the webserver (assumed right now
 to be at the sub-directory `image-tagger/`) on the server.
+
+This entire build process can be automated by building the `Dockerfile`
+in the main repository. Running with the environment variable
+`DEBUG=1` will build the UI with watch mode enabled.
+
