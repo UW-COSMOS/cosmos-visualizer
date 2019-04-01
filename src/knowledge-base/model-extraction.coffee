@@ -59,6 +59,7 @@ MatchParagraph = styled.p"""
 
 TextMatch = (props)->
   {query, text, entityType} = props
+  return null unless text?
   matchText = toLowerCase(text)
 
   return null unless query?
