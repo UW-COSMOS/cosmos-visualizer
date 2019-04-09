@@ -179,8 +179,10 @@ module.exports = ()=> {
 
     } else {
       let row = await db.one(`
-        ${baseSelect}
-        WHERE image_id = $1`,
+        ${baseSelect.replace("stack_id stack", "array_agg(stack.stack_id) stacks")}
+        WHERE image_id = $1
+          GROUP BY image_id, doc_id, page_no, file_path, created
+          LIMIT 1`,
         [req.query.image_id]
       );
       res.reply(req, res, next, row);
