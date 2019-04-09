@@ -165,6 +165,11 @@ def import_image(image_filepath, png_path):
     image_id = cur.fetchone()[0]
     return image_id
 
+def insert_image_stack(image_id, stack_name):
+    cur.execute("INSERT INTO image_stack (image_id, stack_id) VALUES (%s, %s) ON CONFLICT (image_id, stack_id) DO UPDATE SET image_id=EXCLUDED.image_id RETURNING image_stack_id", (str(image_id), stack_name))
+    conn.commit()
+    return cur.fetchone()[0]
+
 def import_xml(xml_filename, xml_path, png_path, stack):
     with open(os.path.join(xml_path, xml_filename)) as fin:
         doc = etree.parse(fin)
@@ -186,8 +191,7 @@ def import_xml(xml_filename, xml_path, png_path, stack):
 
     image_id = import_image(image_filepath, png_path)
 
-    cur.execute("INSERT INTO image_stack (image_id, stack_id) VALUES (%s, %s) ON CONFLICT (image_id, stack_id) DO UPDATE SET image_id=EXCLUDED.image_id RETURNING image_stack_id", (str(image_id), stack))
-    image_stack_id = cur.fetchone()[0]
+    image_stack_id = insert_image_stack(image_id, stack)
 
     # loop through tags
     for record in doc.xpath("//object"):
@@ -449,40 +453,53 @@ def main():
         print("Please specify output and page image directories! python import_segmentations.py [location_of_output] [location_of_pngs]")
         sys.exit(1)
 
-    # TODO: use new directory structure
     # TODO: stack support
-    # TODO: graceful failure -- import as much as possible, please.
 
     output_path = sys.argv[1]
     png_path = sys.argv[2]
-    if len(sys.argv) == 4:
+    if len(sys.argv) == 5:
         stack = sys.argv[3]
+        stack_type = sys.argv[4]
     else:
         stack = "default"
+        stack_type = "prediction"
 
-    cur.execute("INSERT INTO stack (stack_id, stack_type) VALUES (%s, %s) ON CONFLICT DO NOTHING;", (stack, "prediction"))
+    cur.execute("SELECT id FROM stack_type")
+    stack_types = [cur.fetchall()]
+    if stack_type not in stack_type:
+        print("Invalid stack type selected! Please specify one of: %s" % stack_types)
+        print("Example usage: python import_segmentations.py [location_of_output] [location_of_pngs] [stack_name] %s" % stack_types)
+        sys.exit(1)
+
+    cur.execute("INSERT INTO stack (stack_id, stack_type) VALUES (%s, %s) ON CONFLICT DO NOTHING;", (stack, stack_type))
     conn.commit()
+
+    # TODO: import images to tag? Or toggle via stack?
+    # images can be the same, but they need to be a different image_stack
 
     for image_filepath in glob.glob(png_path + "*.png"):
         image_filepath = os.path.basename(image_filepath)
-        import_image(image_filepath, png_path)
-    import_xmls(output_path, png_path, stack)
-    import_kb(output_path)
+        image_id = import_image(image_filepath, png_path)
+        if stack_type == "annotation": # if prediction, this will get called as part of the XML import
+            insert_image_stack(image_id, stack)
+    if stack_type == "prediction":
+        import_xmls(output_path, png_path, stack)
+        import_kb(output_path)
 
     # watch for changes in the output dir
-    w = Watcher(output_path, png_path, stack)
-    try:
-        while True:
-            time.sleep(60)
-            # temp hack to scan regularly
-            for image_filepath in glob.glob(png_path + "*.png"):
-                image_filepath = os.path.basename(image_filepath)
-                import_image(image_filepath, png_path)
-            import_xmls(output_path, png_path, stack)
-            import_kb(output_path)
-    except:
-        w.stop()
-        raise
+#    w = Watcher(output_path, png_path, stack)
+#    try:
+#        while True:
+#            time.sleep(60)
+#            # temp hack to scan regularly
+#            for image_filepath in glob.glob(png_path + "*.png"):
+#                image_filepath = os.path.basename(image_filepath)
+#                import_image(image_filepath, png_path)
+#            import_xmls(output_path, png_path, stack)
+#            import_kb(output_path)
+#    except:
+#        w.stop()
+#        raise
 
 
 
