@@ -10,7 +10,8 @@ services:
         - ./_data/logs:/logs
         - ${PIPELINE_OUTPUT}/images:/images:ro
         - ${PIPELINE_OUTPUT}/html/img:/kb-images:ro
-
+      environment:
+        - VIRTUAL_HOST=birdnest.geology.wisc.edu
     image-tagger-api:
       image: uwcosmos/cosmos_viz_api
       depends_on:
