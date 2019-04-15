@@ -1,0 +1,24 @@
+version: '3'
+services:
+  temp_db_import:
+    image: mdillon/postgis:11
+    volumes:
+      - ./_data/pg-cluster_two:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=annotations
+    ports:
+      - "54322:5432"
+    expose:
+      - 5432
+
+  temp_import_data:
+    build: import_data
+    environment:
+      - DB_HOST=temp_db_import
+      - PG_CONN_STR=postgresql://postgres:@temp_db_import:5432/annotations
+    volumes:
+      - ./init-sql:/init-sql
+      - ${PIPELINE_OUTPUT}:/output
+      - ${PIPELINE_OUTPUT}/images:/images
+
+
