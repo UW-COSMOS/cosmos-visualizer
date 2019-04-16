@@ -247,7 +247,7 @@ class TaggingPage extends StatefulComponent
       tags: rectStore
       extraSaveData...
     }
-    endpoint = "/image/#{currentImage.image_id}/#{current_image.stack}/tags"
+    endpoint = "/image/#{currentImage.image_id}/#{currentImage.stack}/tags"
 
     try
       newData = await @context.post(endpoint, saveItem, {
@@ -301,7 +301,7 @@ class TaggingPage extends StatefulComponent
     # We are loading an image and
     return unless imageToDisplay?
     console.log "Getting image from endpoint #{imageToDisplay}"
-    d = await @context.get(imageToDisplay)
+    d = await @context.get(imageToDisplay, {stack_name: 'default'})
     @onImageLoaded(d)
 
   onImageLoaded: (d)=>
