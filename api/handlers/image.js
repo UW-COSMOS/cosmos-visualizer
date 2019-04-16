@@ -20,6 +20,8 @@ module.exports = ()=> {
   const handler = async (req, res, next, plugins) => {
     const {db} = plugins;
     let params=[];
+
+    /* This gets us the next ALREADY TAGGED image */
     if (req.query.image_id === 'next') {
       type='annotation';
       if (req.query.stack_name) {
