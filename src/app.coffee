@@ -28,17 +28,16 @@ class TaggingApplication extends Component
       role == UserRole.TAG or role == UserRole.VALIDATE)
     return true
 
-  renderAction: ({match})=>
-    {params: {role}} = match
+  renderUI: ({match})=>
+
+    # Go to specific image by default, if set
+    {params: {role, imageId}} = match
     {person, role: stateRole} = @state
+
     isValid = (stateRole == role)
     if not isValid
       # We need to allow the user to change roles
       return h Redirect, {to: '/'}
-
-    @renderUI(role, person)({match})
-
-  renderUI: (role, person)=> ({match})=>
 
     imageRoute = "/image"
     id = null
@@ -49,9 +48,6 @@ class TaggingApplication extends Component
     permalinkRoute = "/view-training"
     allowSaveWithoutChanges = false
     editingEnabled = true
-
-    # Go to specific image by default, if set
-    {params: {imageId}} = match
 
     if role == UserRole.TAG and id?
       extraSaveData = {tagger: id}
@@ -84,24 +80,9 @@ class TaggingApplication extends Component
       @props...
     }
 
-  renderHomepage: =>
-    if @props.appMode == AppMode.TAGGING
-      return @renderLoginForm()
-    {role} = @state
-    console.log role
-    if role? and role == UserRole.VIEW_RESULTS
-      return h Redirect, {to: "/action/#{role}"}
-    if role? and role == UserRole.VIEW_EXTRACTIONS
-      return h Redirect, {to: "/action/#{role}"}
-    if role? and role == UserRole.VIEW_KNOWLEDGE_BASE
-      return h Redirect, {to: "/knowledge-base"}
-    h ResultsLandingPage, {setRole: @setRole}
-
   renderLoginForm: =>
     {person, people, role} = @state
     return null unless people?
-    if @allRequiredOptionsAreSet()
-      return h Redirect, {to: "/action/#{role}"}
     h LoginForm, {
       person, people,
       setPerson: @setPerson
@@ -116,10 +97,10 @@ class TaggingApplication extends Component
           h Route, {
             path: '/',
             exact: true,
-            render: @renderHomepage
+            render: @renderLoginForm
           }
           # Legacy route for viewing training data
-          h Route, {path: '/action/:role', render: @renderAction}
+          h Route, {path: '/action/:role', render: @renderUI}
         ]
       ]
     ]
@@ -228,4 +209,4 @@ class App extends Component
       ]
     ]
 
-export {App}
+export {App, TaggingApplication}

@@ -4,8 +4,13 @@ import h from 'react-hyperscript'
 import {Select} from '@blueprintjs/select'
 import {MenuItem, Button, Card, ButtonGroup} from '@blueprintjs/core'
 import {BrowserRouter as Router, Route, Link} from 'react-router-dom'
+import {InfoButton} from './landing-page/buttons'
 
+import {InlineNavbar} from './util'
 import {UserRole} from './enum'
+
+ModeButton = ({mode, rest...})->
+  h InfoButton, {to: "/action/#{mode}", rest...}
 
 class LoginForm extends Component
   @defaultProps: {
@@ -41,29 +46,34 @@ class LoginForm extends Component
   renderModeControl: ->
     {setRole, person} = @props
     return null unless person?
-    selectRole = (role)=> => setRole(role)
-
-    h 'div.mode-control', [
-      h 'h4', "Select a role"
-      h ButtonGroup, {fill:true}, [
-        h Button, {text: "Tag", onClick: selectRole(UserRole.TAG)}
-        h Button, {text: "Validate", onClick: selectRole(UserRole.VALIDATE)}
-      ]
-    ]
 
   render: ->
-    {setRole, people, person} = @props
-    selectRole = (role)=> => setRole(role)
+    {people, person} = @props
 
-    h Card, {className: 'login-form'}, [
-      h 'h3.bp3-heading', 'Image tagger'
-      h ButtonGroup, {fill: true}, [
-        h Button, {text: "View training data", onClick: selectRole(UserRole.VIEW_TRAINING)}
-        h Button, {text: "View results", onClick: selectRole(UserRole.VIEW_RESULTS)}
-      ]
-      h "h4", "Select a user to edit"
+    h 'div.login-form', [
+      h InlineNavbar
+      h "h4", "User"
       @renderRoleControl()
-      @renderModeControl()
+      h 'h4', "Action"
+      h 'div.actions', [
+        h ButtonGroup, {
+          vertical: true
+        }, [
+          h ModeButton, {
+            mode: UserRole.VIEW_TRAINING
+            title: "View training data"
+            disabled: not person?
+          }, "View previously tagged images"
+          h ModeButton, {
+            mode: UserRole.TAG
+            title: "Tag"
+          }, "Create training data on untagged images"
+          h ModeButton, {
+            mode: UserRole.VALIDATE
+            title: "Validate"
+          }, "Validate already-existing tags"
+        ]
+      ]
     ]
 
 export {LoginForm}

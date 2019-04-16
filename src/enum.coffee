@@ -2,16 +2,13 @@ UserRole = Object.freeze({
   TAG: 'tag'
   VALIDATE: 'validate'
   VIEW_TRAINING: 'view-training'
-  VIEW_EXTRACTIONS: 'view-extractions'
-  VIEW_RESULTS: 'view-results'
-  VIEW_KNOWLEDGE_BASE: 'view-knowledge-base'
 })
 
 EditMode = Object.freeze({
-  NORMAL: 'normal'
-  LINK: 'link'
   ADD_PART: 'add-part'
+  NORMAL: 'normal'
   SHIFT: 'shift'
+  LINK: 'link'
 })
 
 AppMode = Object.freeze({

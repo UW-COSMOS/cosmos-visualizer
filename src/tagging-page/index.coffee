@@ -316,7 +316,7 @@ class TaggingPage extends StatefulComponent
         "."
       ]
       intent: Intent.PRIMARY
-      timeout: 2000
+      timeout: 1000
     }
 
   componentDidMount: ->

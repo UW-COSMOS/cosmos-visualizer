@@ -6,6 +6,7 @@ import {Redirect} from 'react-router-dom'
 import {MenuItem, Button, Card, ButtonGroup} from '@blueprintjs/core'
 import {BrowserRouter as Router, Route, Link} from 'react-router-dom'
 
+import {InfoButton} from './buttons'
 import {InlineNavbar} from '../util'
 import {UserRole} from '../enum'
 import Credits from './credits.md'
@@ -24,37 +25,6 @@ CreditsText = styled(InsetText)"""
   font-size: 0.8em;
   ul {
     padding-left: 1em;
-  }
-"""
-
-ModelButton_ = (props)->
-  {index, to, title, children, rest...} = props
-  if index?
-    index = h 'span.index', "#{index}. "
-  h LinkButton, {to, large: true, rest...}, [
-    h 'h3', [
-      index
-      title
-    ]
-    h 'p', children
-  ]
-
-ModelButton = styled(ModelButton_)"""
-  .bp3-button-text {
-    display: block;
-    text-align: left;
-  }
-  h3 {
-    color: #444;
-    margin-bottom: 0.5em;
-    margin-top: 0.5em;
-  }
-  span.index {
-    color: #888;
-  }
-  p {
-    font-size 0.9em;
-    color: #666;
   }
 """
 
@@ -85,14 +55,6 @@ ModelInfoBox = ->
         "This instance of "
         h 'b', "COSMOS Visualizer"
         " exposes a knowledge base covering "
-        #"model results for the  "
-        #"The knowledge base exposed here contains "
-        #h R, {id: 'figures'}
-        #", "
-        #h R, {id: 'tables'}
-        #", and "
-        #h R, {id: 'equations'}
-        #" extracted from "
         h R, {id: 'documents'}
         " ("
         h R, {id: 'pages'}
@@ -123,19 +85,19 @@ class ResultsLandingPage extends Component
       ]
       h 'div.actions', [
         h ButtonGroup, {vertical: true}, [
-          h ModelButton, {
+          h InfoButton, {
             to: "/view-extractions"
             index: 1
             title: "Page-level extractions"
           }, "Regions of interest extracted and classified
               for further knowledge-base processing."
-          h ModelButton, {
+          h InfoButton, {
             to: "/view-results"
             index: 2
             title: "Model entity extractions",
           }, "Model entities (equations, constituent variables defined in text,
               and semantically linked explanatory phrases) shown at a page level."
-          h ModelButton, {
+          h InfoButton, {
             index: 3
             title: "Searchable knowledge base",
             to: "/knowledge-base"

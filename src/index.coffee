@@ -4,7 +4,7 @@ import './main.styl'
 
 import {render} from 'react-dom'
 import h from 'react-hyperscript'
-import {App} from './app'
+import {App, TaggingApplication} from './app'
 import {APIProvider} from './api'
 import {ImageStoreProvider} from './image-container'
 
@@ -12,7 +12,7 @@ AppHolder = (props)=>
   {baseURL, imageBaseURL, publicURL, rest...} = props
   h APIProvider, {baseURL}, [
     h ImageStoreProvider, {baseURL: imageBaseURL, publicURL}, [
-      h App, {imageBaseURL, publicURL, rest...}
+      h TaggingApplication, {imageBaseURL, publicURL, rest...}
     ]
   ]
 
