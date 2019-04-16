@@ -299,6 +299,7 @@ class TaggingPage extends StatefulComponent
       .then @onImageLoaded
 
   onImageLoaded: (d)=>
+    console.log d
     if Array.isArray(d) and d.length == 1
       # API returns a single-item array
       d = d[0]

@@ -6,7 +6,7 @@ import {Redirect} from 'react-router-dom'
 import {MenuItem, Button, Card, ButtonGroup} from '@blueprintjs/core'
 import {BrowserRouter as Router, Route, Link} from 'react-router-dom'
 
-import {InfoButton} from './buttons'
+import {InfoButton} from './components'
 import {InlineNavbar} from '../util'
 import {UserRole} from '../enum'
 import Credits from './credits.md'

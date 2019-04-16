@@ -5,7 +5,7 @@ import styled from '@emotion/styled'
 import {Select} from '@blueprintjs/select'
 import {MenuItem, Button, Card, ButtonGroup} from '@blueprintjs/core'
 import {BrowserRouter as Router, Route, Link} from 'react-router-dom'
-import {InfoButton} from './landing-page/buttons'
+import {InfoButton} from './landing-page/components'
 
 import {InlineNavbar} from './util'
 import {UserRole} from './enum'
