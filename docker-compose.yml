@@ -38,6 +38,9 @@ services:
     environment:
       - DB_HOST=db
       - PG_CONN_STR=postgresql://postgres:@db:5432/annotations
+      - STACK_NAME=default
+      # STACK_TYPE should be annotation or prediction
+      - STACK_TYPE=prediction
     volumes:
       - ./init-sql:/init-sql
       - ${PIPELINE_OUTPUT}:/output

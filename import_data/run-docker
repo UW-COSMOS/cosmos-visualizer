@@ -9,5 +9,5 @@ echo "Running database initialization SQL"
 cat /init-sql/*.sql | psql -U postgres -h ${DB_HOST} -p 5432 annotations
 
 echo "Importing images"
-python import_data.py /output/ /images/ results
+python import_data.py /output/ /images/ ${STACK_NAME} ${STACK_TYPE}
 
