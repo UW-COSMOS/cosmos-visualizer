@@ -208,7 +208,12 @@ class TaggingPage extends StatefulComponent
     {infoDialogIsOpen: isOpen} = @state
     {editingEnabled} = @props
     {displayKeyboardShortcuts} = @
-    h InfoDialog, {isOpen, onClose: @displayInfoBox(false), editingEnabled, displayKeyboardShortcuts}
+    h InfoDialog, {
+      isOpen
+      onClose: @displayInfoBox(false)
+      editingEnabled
+      displayKeyboardShortcuts
+    }
 
   render: ->
     {subtitleText, permalinkRoute} = @props
@@ -242,7 +247,7 @@ class TaggingPage extends StatefulComponent
       tags: rectStore
       extraSaveData...
     }
-    endpoint = "/image/#{currentImage.image_id}/tags"
+    endpoint = "/image/#{currentImage.image_id}/#{current_image.stack}/tags"
 
     try
       newData = await @context.post(endpoint, saveItem, {
@@ -296,8 +301,8 @@ class TaggingPage extends StatefulComponent
     # We are loading an image and
     return unless imageToDisplay?
     console.log "Getting image from endpoint #{imageToDisplay}"
-    @context.get(imageToDisplay)
-      .then @onImageLoaded
+    d = await @context.get(imageToDisplay)
+    @onImageLoaded(d)
 
   onImageLoaded: (d)=>
     console.log d
@@ -333,11 +338,11 @@ class TaggingPage extends StatefulComponent
     imageRoute ?= '/image'
     return if prevState.currentImage == currentImage
     return unless currentImage?
-    {image_id} = @state.currentImage
+    {image_id, stack} = @state.currentImage
 
     image_tags = []
-    route = "tags?validated=false"
-    t = await @context.get "#{imageRoute}/#{image_id}/#{route}"
+    route = "tags"
+    t = await @context.get "#{imageRoute}/#{image_id}/#{stack}/#{route}", {validated: false}
     image_tags = image_tags.concat(t)
 
     @setState {rectStore: image_tags, initialRectStore: image_tags}
