@@ -82,9 +82,8 @@ class ImageOverlay extends StatefulComponent
 
   selectAnnotation: (ix)=>(event)=>
     {actions, editModes} = @contextValue()
-    # Make sure we don't activate the general
+    # Make sure we don't activate the
     # general click or drag handlers
-    #event.stopPropagation()
     if editModes.has(LINK)
       do actions.addLink(ix)
       actions.setMode(LINK, false)
@@ -94,7 +93,7 @@ class ImageOverlay extends StatefulComponent
   renderAnnotations: ->
     {inProgressAnnotation} = @state
     {image_tags, tags, width, height, lockedTags
-     editingRect, actions, scaleFactor} = @props
+      editingRect, actions, scaleFactor} = @props
 
     if inProgressAnnotation?
       editingRect = null

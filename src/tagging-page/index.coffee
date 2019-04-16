@@ -79,6 +79,7 @@ class TaggingPage extends StatefulComponent
     @updateState {currentTag: {$set: tag_id}}
 
   selectAnnotation: (i)=> =>
+    console.log "Selecting annotation #{i}"
     @updateState {editingRect: {$set: i}}
 
   appendAnnotation: (rect)=>
