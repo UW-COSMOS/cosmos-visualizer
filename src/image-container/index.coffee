@@ -20,6 +20,7 @@ class ImageContainer extends Component
     actions: {}
     tags: []
     image: null
+    editingEnabled: false
   }
   @contextType: ImageStoreContext
 
@@ -59,7 +60,7 @@ class ImageContainer extends Component
     return join(baseURL, image.file_path)
 
   render: =>
-    {actions, editingEnabled, tags, imageTags, rest...} = @props
+    {actions, editingEnabled, tags, currentTag, imageTags, rest...} = @props
     {scaleFactor, image} = @state
     return null unless image?
     style = @scaledSize()
@@ -70,8 +71,10 @@ class ImageContainer extends Component
         style...
         scaleFactor
         image_tags: imageTags
+        currentTag
         tags
         actions
+        editingEnabled
       }
     ]
 
