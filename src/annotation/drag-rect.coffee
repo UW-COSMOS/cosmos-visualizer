@@ -53,6 +53,9 @@ class StaticRectangle extends Component
      backgroundColor, style, rest...} = @props
     {x,y,width, height} = getSize(bounds)
 
+    # Don't render tags until we have all the data
+    return null unless scaleFactor?
+
     backgroundColor ?= color
 
     width /= scaleFactor
