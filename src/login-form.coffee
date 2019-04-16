@@ -51,7 +51,7 @@ class LoginForm extends Component
     {people, person} = @props
 
     h 'div.login-form', [
-      h InlineNavbar
+      h InlineNavbar, {subtitle: "Image tagger"}
       h "h4", "User"
       @renderRoleControl()
       h 'h4', "Action"

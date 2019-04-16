@@ -18,28 +18,32 @@ class TaggingApplication extends Component
     @state = {
       people: null
       person: null
-      role: null
     }
 
-  allRequiredOptionsAreSet: =>
-    {role, person} = @state
+  allRequiredOptionsAreSet: (role)=>
+    {person} = @state
     return false unless role?
-    return false if not person? and (
-      role == UserRole.TAG or role == UserRole.VALIDATE)
-    return true
+    # Doesn't matter what privileges we have to view tags
+    return true if role == UserRole.VIEW_TRAINING
+    # We should have a person if another option is required
+    return false unless person?
+    if role == UserRole.TAG
+      return person.tagger
+    if role == UserRole.VALIDATE
+      return person.validator
+    return false
 
   renderUI: ({match})=>
 
     # Go to specific image by default, if set
     {params: {role, imageId}} = match
-    {person, role: stateRole} = @state
+    {person} = @state
 
-    isValid = (stateRole == role)
-    if not isValid
-      # We need to allow the user to change roles
+    if not @allRequiredOptionsAreSet(role)
       return h Redirect, {to: '/'}
 
     imageRoute = "/image"
+
     id = null
     if person?
       id = person.person_id
@@ -67,6 +71,7 @@ class TaggingApplication extends Component
 
     console.log "Setting up UI with role #{role}"
     console.log "Image id: #{imageId}"
+
     return h TaggingPage, {
       imageRoute
       extraSaveData
@@ -81,12 +86,11 @@ class TaggingApplication extends Component
     }
 
   renderLoginForm: =>
-    {person, people, role} = @state
+    {person, people} = @state
     return null unless people?
     h LoginForm, {
       person, people,
       setPerson: @setPerson
-      setRole: @setRole
     }
 
   render: ->
@@ -108,18 +112,9 @@ class TaggingApplication extends Component
   setupPeople: (d)=>
     @setState {people: d}
 
-  setPerson: (item)=>
-    {tagger, validator} = item
-    tagger = tagger == 1
-    validator = validator == 1
-    role = null
-    if tagger == 1 and validator != 1
-      role = UserRole.TAG
-    @setState {person: item, role}
-    localStorage.setItem('person', JSON.stringify(item))
-
-  setRole: (role)=>
-    @setState {role}
+  setPerson: (person)=>
+    @setState {person}
+    localStorage.setItem('person', JSON.stringify(person))
 
   componentDidMount: =>
     @context.get("/people/all")
