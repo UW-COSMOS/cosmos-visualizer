@@ -58,6 +58,8 @@ class TaggingApplication extends Component
       subtitleText = "Tag"
     if role == UserRole.VIEW_TRAINING
       editingEnabled = false
+      nextImageEndpoint = "/image/validate"
+      allowSaveWithoutChanges = false
       subtitleText = "View training data"
     else if role == UserRole.VALIDATE and id?
       extraSaveData = {validator: id}
