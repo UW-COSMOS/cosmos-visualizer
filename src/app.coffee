@@ -109,6 +109,17 @@ class TaggingApplication extends Component
             render: @renderLoginForm
           }
           # Legacy route for viewing training data
+          h Route, {
+            path: '/view-training/:imageId',
+            render: (props)=>
+              h TaggingPage, {
+                navigationEnabled: false
+                editingEnabled: false
+                nextImageEndpoint: "/image/validate"
+                subtitleText: "View training data"
+                props...
+              }
+          }
           h Route, {path: '/action/:role', render: @renderUI}
         ]
       ]
