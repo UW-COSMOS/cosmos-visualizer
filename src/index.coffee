@@ -44,6 +44,10 @@ window.createUI = (opts={})->
   console.log publicURL, baseURL, imageBaseURL
 
   # Image base url is properly set here
-  el = document.getElementById('app')
+  el = document.createElement('div')
+  document.body.appendChild(el)
   __ = h AppHolder, {baseURL, imageBaseURL, publicURL}
   render __, el
+
+# Actually run the UI (changed for webpack)
+window.createUI()
