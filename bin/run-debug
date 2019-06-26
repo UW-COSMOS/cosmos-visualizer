@@ -8,6 +8,5 @@ export DEBUG=1
 export PUBLIC_URL="/"
 export PIPELINE_OUTPUT="./_data/output_from_pipeline"
 
-docker-compose down
-docker-compose up --build -d
-docker-compose logs -f
+docker-compose up --build $@
+#docker-compose logs -f $@
