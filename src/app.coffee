@@ -33,11 +33,12 @@ class TaggingApplication extends Component
       return person.validator
     return false
 
-  renderUI: ({match})=>
+  renderUI: ({match, role})=>
 
     # Go to specific image by default, if set
-    {params: {role, imageId}} = match
+    {params: {role: newRole, imageId}} = match
     {person} = @state
+    role ?= newRole
 
     if not @allRequiredOptionsAreSet(role)
       return h Redirect, {to: '/'}
@@ -112,13 +113,8 @@ class TaggingApplication extends Component
           h Route, {
             path: '/view-training/:imageId',
             render: (props)=>
-              h TaggingPage, {
-                navigationEnabled: false
-                editingEnabled: false
-                nextImageEndpoint: "/image/validate"
-                subtitleText: "View training data"
-                props...
-              }
+              role = UserRole.VIEW_TRAINING
+              @renderUI({role, props...})
           }
           h Route, {path: '/action/:role', render: @renderUI}
         ]
