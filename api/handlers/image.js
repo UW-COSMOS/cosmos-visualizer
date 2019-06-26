@@ -19,7 +19,27 @@ module.exports = ()=> {
 
   const handler = async (req, res, next, plugins) => {
     const {db} = plugins;
+    let whereStatement = 'WHERE true'
     let params=[];
+    // TODO: move all the shared filters/WHERE building out here
+    // TODO: doc_id, stack_id filters, ...
+    // TODO: doc_id parsing should only be accessible if <<SOME_SETTING_IS_TRUE>>
+
+    if (req.query.stack_name) {
+        whereStatement += `\nAND stack_id = $${params.length + 1}`
+        params.push(req.query.stack_name)
+    }
+
+    if (process.env.MAGIC_MODE === '1'){
+        if (req.query.doc_id) {
+            whereStatement += `\nAND doc_id = $${params.length + 1}`
+            params.push(req.query.doc_id)
+        }
+        if (req.query.page_no) {
+            whereStatement += `\nAND page_no = $${params.length + 1}`
+            params.push(req.query.page_no)
+        }
+    }
 
     /* This gets us the next ALREADY TAGGED image */
     if (req.query.image_id === 'next') {
@@ -38,8 +58,8 @@ module.exports = ()=> {
          `
           stackIdFilter=''
       }
-        whereStatement = `
-        WHERE (
+        whereStatement += `
+        \nAND (
               tag_start IS NULL
            OR tag_start < now() - interval '5 minutes' )
           AND image_id NOT IN (SELECT image_id FROM annotated)
@@ -48,26 +68,28 @@ module.exports = ()=> {
         ORDER BY random()
         LIMIT 1`
          params.push(type)
+      console.log(`
+        ${withStatement}
+        ${baseSelect}
+        ${whereStatement}`, params);
       let row = await db.one(`
         ${withStatement}
         ${baseSelect}
         ${whereStatement}`, params);
-      await db.query(`
-        UPDATE image
-        SET tag_start = now()
-        WHERE image_id = $1`, [row.image_id]);
+//      await db.query(`
+//        UPDATE image
+//        SET tag_start = now()
+//        WHERE image_id = $1`, [row.image_id]);
       res.reply(req, res, next, row);
 
     } else if ( req.query.image_id === 'validate') {
       type='annotation';
-      let where = 'WHERE true'
-      let params = []
       if (req.query.validated == false) {
-        where = 'WHERE validator IS NULL'
+        whereStatement += '\nAND validator IS NULL'
       } else if (req.query.validated == true) {
-        where = 'WHERE validator IS NOT NULL'
+        whereStatement += '\n AND WHERE validator IS NOT NULL'
       }
-      where += "\nAND stack_type = $1"
+      whereStatement += "\nAND stack_type = $1"
       params.push(type)
       if (req.query.stack_name) {
           where += "\nAND stack_id = $2"
@@ -79,7 +101,14 @@ module.exports = ()=> {
           ${baseSelect}
           JOIN image_tag it
           USING (image_stack_id)
-          ${where}
+          ${whereStatement}
+          ORDER BY random()
+          LIMIT 1`, params);
+        console.log(`
+          ${baseSelect}
+          JOIN image_tag it
+          USING (image_stack_id)
+          ${whereStatement}
           ORDER BY random()
           LIMIT 1`, params);
 
@@ -104,12 +133,12 @@ module.exports = ()=> {
       type='prediction';
       let params = []
       if (req.query.stack_name) { 
-          where = `\n WHERE stack_id = $${params.length + 1}`
+          whereStatement += `\n AND stack_id = $${params.length + 1}`
           params.push(req.query.stack_name)
       } else {
-          where = 'WHERE true'
+          whereStatement += 'WHERE true'
       }
-      where += `\nAND stack_type = $${params.length + 1}`
+      whereStatement += `\nAND stack_type = $${params.length + 1}`
       params.push(type)
 
       try {
@@ -123,7 +152,7 @@ module.exports = ()=> {
          FROM image i
          JOIN image_stack istack USING (image_id)
          JOIN stack USING (stack_id)
-               ${where}
+               ${whereStatement}
                ORDER BY random()
                LIMIT 1`, params);
         if (!row) {
@@ -140,12 +169,10 @@ module.exports = ()=> {
     } else if ( req.query.image_id === 'next_eqn_prediction') {
         //TODO : this type should key into the stack_type column in the stack table instead of the stack_id like it does now
       type='prediction';
-      let where = 'WHERE true'
-      let params = []
-      where += "\nAND stack_type = $1"
+      whereStatement += "\nAND stack_type = $1"
         params.push(type)
       if (req.query.stack_id) { 
-          where += "\n AND stack_id = $2"
+          whereStatement += "\n AND stack_id = $2"
         params.push(req.query.stack_id)
       }
       // Make sure we only get images with phrases or tags
@@ -180,13 +207,35 @@ module.exports = ()=> {
       res.reply(req, res, next, row);
 
     } else {
-      let row = await db.one(`
-        ${baseSelect.replace("stack_id stack", "array_agg(stack.stack_id) stacks")}
-        WHERE image_id = $1
-          GROUP BY image_id, doc_id, page_no, file_path, created
-          LIMIT 1`,
-        [req.query.image_id]
-      );
+        let row=undefined
+        if (req.query.image_id != undefined) {
+            console.log('not undefined')
+            row = await db.one(`
+                ${baseSelect.replace("stack_id stack", "array_agg(stack.stack_id) stacks")}
+                WHERE image_id = $1
+
+                  GROUP BY image_id, doc_id, page_no, file_path, created
+                  LIMIT 1`,
+                [req.query.image_id]
+            );
+        }
+        else {
+            console.log(`
+                ${baseSelect.replace("stack_id stack", "array_agg(stack.stack_id) stacks")}
+                ${whereStatement}
+                  GROUP BY image_id, doc_id, page_no, file_path, created
+                  LIMIT 1`,
+                params
+            );
+            row = await db.one(`
+                ${baseSelect.replace("stack_id stack", "array_agg(stack.stack_id) stacks")}
+                ${whereStatement}
+                  GROUP BY image_id, doc_id, page_no, file_path, created
+                  LIMIT 1`,
+                params
+            );
+        }
+      console.log
       res.reply(req, res, next, row);
     }
   }
