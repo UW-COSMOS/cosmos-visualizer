@@ -38,6 +38,8 @@ class TaggingApplication extends Component
     # Go to specific image by default, if set
     {params: {role: newRole, imageId}} = match
     {person} = @state
+    # Allow role to be overridden by programmatically
+    # set one (to support permalinks)
     role ?= newRole
 
     if not @allRequiredOptionsAreSet(role)

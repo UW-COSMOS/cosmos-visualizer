@@ -301,6 +301,7 @@ class TaggingPage extends StatefulComponent
     # We are loading an image and
     return unless imageToDisplay?
     console.log "Getting image from endpoint #{imageToDisplay}"
+    # Here we assume 'default' as the stack name which may be bad!
     d = await @context.get(imageToDisplay, {stack_name: 'default'})
     @onImageLoaded(d)
 
@@ -339,6 +340,9 @@ class TaggingPage extends StatefulComponent
     return if prevState.currentImage == currentImage
     return unless currentImage?
     {image_id, stack} = @state.currentImage
+
+    # `stacks` could be an array here.
+    stack ?= "default"
 
     image_tags = []
     route = "tags"
