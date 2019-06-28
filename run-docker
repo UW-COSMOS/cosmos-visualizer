@@ -1,6 +1,8 @@
 #!/bin/sh
 
 (cd ui-components & npm install)
+npm install -g webpack webpack-cli
+echo "Installing node modules"
 npm install
 
 echo "PUBLIC_URL: $PUBLIC_URL"
@@ -9,14 +11,17 @@ echo "IMAGE_BASE_URL: $IMAGE_BASE_URL"
 
 # Make sure we nuke previous dist files, for some
 # reason this matters
-rm -rf dist/*.*
+#rm -rf dist/*.*
 
 # If not in development mode, we do not need to build the
 # frontend files, so we simply exit.
 if [ -z "$DEBUG" ]; then
-  parcel build --public-url "$PUBLIC_URL" index.html
+  #parcel build --public-url "$PUBLIC_URL" index.html
+  webpack
   echo "Exiting"
   exit 0
 fi
 
-parcel watch --hmr-port 34365 --public-url "$PUBLIC_URL" index.html
+webpack --watch --mode=development
+
+#parcel watch --hmr-port 34365 --public-url "$PUBLIC_URL" index.html

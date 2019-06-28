@@ -1,11 +1,6 @@
-FROM node:8
+FROM node:11-alpine
 
-RUN npm install -g parcel-bundler linklocal
+RUN npm install -g linklocal webpack webpack-cli
 
-WORKDIR /user/
-
-EXPOSE 1234
-EXPOSE 34365
-
-# Should change to straight build
-CMD ["./run-docker"]
+WORKDIR /user
+CMD ["/user/run-docker"]
