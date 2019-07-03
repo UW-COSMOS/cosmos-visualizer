@@ -21,9 +21,7 @@ module.exports = ()=> {
     const {db} = plugins;
     let whereStatement = 'WHERE true'
     let params=[];
-    // TODO: move all the shared filters/WHERE building out here
-    // TODO: doc_id, stack_id filters, ...
-    // TODO: doc_id parsing should only be accessible if <<SOME_SETTING_IS_TRUE>>
+    // TODO: revisit + cleanup the query-building logic
 
     if (req.query.stack_name) {
         whereStatement += `\nAND stack_id = $${params.length + 1}`
