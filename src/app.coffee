@@ -52,7 +52,7 @@ class TaggingApplication extends Component
       id = person.person_id
     extraSaveData = null
     nextImageEndpoint = "/image/next"
-    permalinkRoute = "/view-training"
+    permalinkRoute = "/training/page"
     allowSaveWithoutChanges = false
     editingEnabled = true
 
@@ -113,7 +113,7 @@ class TaggingApplication extends Component
           }
           # Legacy route for viewing training data
           h Route, {
-            path: '/view-training/:imageId',
+            path: '/training/page/:stackId/:imageId',
             render: (props)=>
               role = UserRole.VIEW_TRAINING
               @renderUI({role, props...})
@@ -187,10 +187,10 @@ class App extends Component
             component: ResultsLandingPage
           }
           h Route, {
-            path: '/view-training/:imageId?',
+            path: '/training/page/:stackId?/:imageId?',
             render: (props)=>
               h ViewerPage, {
-                permalinkRoute: "/view-training"
+                permalinkRoute: "/training/page"
                 nextImageEndpoint: "/image/validate"
                 subtitleText: "View training data"
                 props...
@@ -202,12 +202,12 @@ class App extends Component
               h ViewerPage, {
                 nextImageEndpoint: "/image/next_prediction"
                 subtitleText: "View extractions"
-                permalinkRoute: "/view-extractions"
+                permalinkRoute: "/results/page"
                 props...
               }
           }
           h Route, {
-            path: '/view-results/:imageId?',
+            path: '/results/page/:stackId?/:imageId?',
             component: ViewResults
           }
           h Route, {
