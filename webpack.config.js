@@ -52,7 +52,8 @@ module.exports = {
       'DEBUG',
       'PUBLIC_URL',
       'API_BASE_URL',
-      'IMAGE_BASE_URL'
+      'IMAGE_BASE_URL',
+      'APPMODE'
     ])
   ]
 }
