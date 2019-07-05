@@ -59,6 +59,7 @@ services:
       - API_BASE_URL=${PUBLIC_URL}api
       - IMAGE_BASE_URL=${PUBLIC_URL}images/
       - DEBUG
+      - APPMODE=ANNOTATION
     volumes:
       - ./frontend:/user
       - /user/node_modules
