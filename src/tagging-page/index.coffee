@@ -10,7 +10,8 @@ import {Navbar, Button, ButtonGroup
         Intent, Alignment, Text, Icon} from "@blueprintjs/core"
 
 import {StatefulComponent} from '@macrostrat/ui-components'
-import {PageHeader, PermalinkButton} from '../util'
+import {PermalinkButton} from '../permalinks'
+import {PageHeader} from '../util'
 import {AppToaster} from '../toaster'
 import {APIContext, ErrorMessage} from '../api'
 import {InfoDialog} from '../info-dialog'

@@ -10,6 +10,18 @@ import {ResultsLandingPage} from './landing-page'
 import {KnowledgeBaseFilterView} from './knowledge-base'
 import {ResultsPage} from './results-page'
 import {TaggingPage} from './tagging-page'
+import {PermalinkProvider, PermalinkRoute} from './permalinks'
+
+# /annotation/{stack_id}/page/{image_id}
+
+MainRouter = ({appMode, basename, rest...})->
+  h Router, {basename}, (
+    h PermalinkProvider, {appMode}, (
+      h 'div.app-main', null, (
+        h(Switch, rest)
+      )
+    )
+  )
 
 class TaggingApplication extends Component
   @contextType: APIContext
@@ -103,24 +115,20 @@ class TaggingApplication extends Component
 
   render: ->
     {publicURL} = @props
-    h Router, {basename: publicURL}, [
-      h 'div.app-main', [
-        h Switch, [
-          h Route, {
-            path: '/',
-            exact: true,
-            render: @renderLoginForm
-          }
-          # Legacy route for viewing training data
-          h Route, {
-            path: '/training/page/:stackId/:imageId',
-            render: (props)=>
-              role = UserRole.VIEW_TRAINING
-              @renderUI({role, props...})
-          }
-          h Route, {path: '/action/:role', render: @renderUI}
-        ]
-      ]
+    h MainRouter, {basename: publicURL, appMode: AppMode.ANNOTATION}, [
+      h Route, {
+        path: '/',
+        exact: true,
+        render: @renderLoginForm
+      }
+      # Legacy route for viewing training data
+      h Route, {
+        path: '/annotation/:stackID/page/:imageId',
+        render: (props)=>
+          role = UserRole.VIEW_TRAINING
+          @renderUI({role, props...})
+      }
+      h Route, {path: '/action/:role', render: @renderUI}
     ]
 
   setupPeople: (d)=>
@@ -174,48 +182,44 @@ ViewResults = ({match, rest...})=>
 class App extends Component
   @contextType: APIContext
   @defaultProps: {
-    appMode: AppMode.RESULTS
+    appMode: AppMode.PREDICTION
   }
   render: ->
-    {publicURL} = @props
-    h Router, {basename: publicURL}, [
-      h 'div.app-main', [
-        h Switch, [
-          h Route, {
-            path: '/',
-            exact: true,
-            component: ResultsLandingPage
+    {publicURL, appMode} = @props
+    h MainRouter, {basename: publicURL, appMode}, [
+      h Route, {
+        path: '/',
+        exact: true,
+        component: ResultsLandingPage
+      }
+      h PermalinkRoute, {
+        render: (props)=>
+          h ViewerPage, {
+            permalinkRoute: "/training/page"
+            nextImageEndpoint: "/image/validate"
+            subtitleText: "View training data"
+            props...
           }
-          h Route, {
-            path: '/training/page/:stackId?/:imageId?',
-            render: (props)=>
-              h ViewerPage, {
-                permalinkRoute: "/training/page"
-                nextImageEndpoint: "/image/validate"
-                subtitleText: "View training data"
-                props...
-              }
+      }
+      # This is probably deprecated
+      h Route, {
+        path: '/view-extractions/:imageId?',
+        render: (props)=>
+          h ViewerPage, {
+            nextImageEndpoint: "/image/next_prediction"
+            subtitleText: "View extractions"
+            permalinkRoute: "/results/page"
+            props...
           }
-          h Route, {
-            path: '/view-extractions/:imageId?',
-            render: (props)=>
-              h ViewerPage, {
-                nextImageEndpoint: "/image/next_prediction"
-                subtitleText: "View extractions"
-                permalinkRoute: "/results/page"
-                props...
-              }
-          }
-          h Route, {
-            path: '/results/page/:stackId?/:imageId?',
-            component: ViewResults
-          }
-          h Route, {
-            path: '/knowledge-base'
-            component: KnowledgeBaseFilterView
-          }
-        ]
-      ]
+      }
+      h Route, {
+        path: '/prediction/:stackId/page/:imageId?',
+        component: ViewResults
+      }
+      h Route, {
+        path: '/knowledge-base'
+        component: KnowledgeBaseFilterView
+      }
     ]
 
 export {App, TaggingApplication}
