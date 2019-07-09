@@ -31,6 +31,7 @@ module.exports = ()=> {
 
   const handler = async (req, res, next, plugins) => {
     const {db} = plugins;
+    let query;
     let params={};
 
     // We always expect the stack type to be defined
@@ -53,7 +54,7 @@ module.exports = ()=> {
         `image_id NOT IN (SELECT image_id FROM annotated)`
       ];
 
-      const query = `
+      query = `
         WITH annotation_stack AS (
           SELECT *
           FROM image_stack
@@ -70,13 +71,6 @@ module.exports = ()=> {
         ORDER BY random()
         LIMIT 1`
 
-      let row = await db.one(query, params);
-
-      await recordTaggingStarted(db, row.image_id);
-
-      if (!row) { row = [] }
-      return res.reply(req, res, next, row);
-
     } else if ( req.query.image_id === 'validate') {
 
       params['stack_type'] = 'annotation'
@@ -86,80 +80,57 @@ module.exports = ()=> {
         filters.push('validator IS NOT NULL');
       }
 
-      try {
-        let row = await db.one(`
-          ${baseSelect}
-          JOIN image_tag it
-          USING (image_stack_id)
-          ${buildWhereClause(filters)}
-          ORDER BY random()
-          LIMIT 1`, params);
+      query = `
+        ${baseSelect}
+        JOIN image_tag it
+        USING (image_stack_id)
+        ${buildWhereClause(filters)}
+        ORDER BY random()
+        LIMIT 1`;
 
-        if (!row) { row = [] }
-        return res.reply(req, res, next, row);
-
-        await recordTaggingStarted(db, row.image_id);
-
-      } catch(error) {
-        console.log(error)
-        return res.error(req, res, next, 'An internal error occurred', 500)
-      }
-      res.reply(req, res, next, row);
     } else if ( req.query.image_id === 'next_prediction') {
 
       params['stack_type'] = 'prediction';
-      try {
 
-        let row = await db.one(`
-           ${baseSelect}
-           ${buildWhereClause(filters)}
-           ORDER BY random()
-           LIMIT 1`, params);
+      query = `
+       ${baseSelect}
+       ${buildWhereClause(filters)}
+       ORDER BY random()
+       LIMIT 1`;
 
-        if (!row) { row = [] }
-        return res.reply(req, res, next, row);
-
-      } catch(error) {
-        console.log(error)
-        return res.error(req, res, next, 'An internal error occurred', 500)
-      }
-      res.reply(req, res, next, row);
     } else if ( req.query.image_id === 'next_eqn_prediction') {
       //TODO : this type should key into the stack_type column in the stack table instead of the stack_id like it does now
       params['stack_type'] = 'prediction';
 
       // Make sure we only get images with phrases or tags
-
-      try {
-
-        let row = await db.one(`
-          ${baseSelect}
-          JOIN equations.equation p
-            ON p.image_id = i.image_id
-          ${buildWhereClause(filters)}
-          ORDER BY random()
-          LIMIT 1`);
-
-         if (!row) { row = [] }
-         return res.reply(req, res, next, row);
-
-      } catch(error) {
-        console.log(error)
-        return res.error(req, res, next, 'An internal error occurred', 500)
-      }
-      res.reply(req, res, next, row);
+      query = `
+        ${baseSelect}
+        JOIN equations.equation p
+          ON p.image_id = i.image_id
+        ${buildWhereClause(filters)}
+        ORDER BY random()
+        LIMIT 1`;
 
     } else {
-      // We ignore preset filters
-      let row = await db.one(`
+      // Reset parameters entirely
+      params = {'image_id': req.query.image_id};
+      // Ignore preset filters
+      query = `
         ${baseSelect.replace("stack_id,", "array_agg(stack.stack_id) stack_ids,")}
-        WHERE image_id = $1
+        WHERE image_id = $(image_id)
         GROUP BY image_id, doc_id, page_no, file_path, created
-        LIMIT 1`,
-        [req.query.image_id]
-      );
-      res.reply(req, res, next, row);
+        LIMIT 1`;
     }
+
+    let row = await db.one(query, params);
+
+    if ('stack_type' in params && params['stack_type'] === 'annotation') {
+      await recordTaggingStarted(db, row.image_id);
+    }
+
+    if (!row) { row = [] }
+    return res.reply(req, res, next, row);
+
   }
 
   return wrapHandler(handler);
