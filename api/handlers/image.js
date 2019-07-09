@@ -10,7 +10,7 @@ module.exports = ()=> {
       i.image_id,
       doc_id,
       page_no,
-      stack_id stack,
+      stack_id,
       file_path,
       i.created
     FROM image i
@@ -44,7 +44,7 @@ module.exports = ()=> {
            OR tag_start < now() - interval '5 minutes' )
           AND image_id NOT IN (SELECT image_id FROM annotated)
           AND stack_type = $${params.length + 1}
-          ${stackIdFilter} 
+          ${stackIdFilter}
         ORDER BY random()
         LIMIT 1`
          params.push(type)
@@ -103,7 +103,7 @@ module.exports = ()=> {
     } else if ( req.query.image_id === 'next_prediction') {
       type='prediction';
       let params = []
-      if (req.query.stack_name) { 
+      if (req.query.stack_name) {
           where = `\n WHERE stack_id = $${params.length + 1}`
           params.push(req.query.stack_name)
       } else {
@@ -117,7 +117,7 @@ module.exports = ()=> {
            i.image_id,
            i.doc_id,
            i.page_no,
-           stack_id stack,
+           stack_id,
            file_path,
            i.created
          FROM image i
@@ -144,7 +144,7 @@ module.exports = ()=> {
       let params = []
       where += "\nAND stack_type = $1"
         params.push(type)
-      if (req.query.stack_id) { 
+      if (req.query.stack_id) {
           where += "\n AND stack_id = $2"
         params.push(req.query.stack_id)
       }
@@ -155,7 +155,7 @@ module.exports = ()=> {
            i.image_id,
            i.doc_id,
            i.page_no,
-           stack_id stack,
+           stack_id,
            file_path,
            i.created
          FROM image i
@@ -181,7 +181,7 @@ module.exports = ()=> {
 
     } else {
       let row = await db.one(`
-        ${baseSelect.replace("stack_id stack", "array_agg(stack.stack_id) stacks")}
+        ${baseSelect.replace("stack_id,", "array_agg(stack.stack_id) stack_ids,")}
         WHERE image_id = $1
           GROUP BY image_id, doc_id, page_no, file_path, created
           LIMIT 1`,
