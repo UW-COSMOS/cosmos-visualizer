@@ -18,6 +18,7 @@ services:
     environment:
       # This should be changeable obviously
       - IMAGE_TAGGER_API_MODE=annotate
+      - MAGIC_MODE=${MAGIC_MODE}
     depends_on:
       - db
     volumes:
@@ -40,7 +41,7 @@ services:
       - PG_CONN_STR=postgresql://postgres:@db:5432/annotations
       - STACK_NAME=default
       # STACK_TYPE should be annotation or prediction
-      - STACK_TYPE=prediction
+      - STACK_TYPE=annotation
     volumes:
       - ./init-sql:/init-sql
       - ${PIPELINE_OUTPUT}:/output

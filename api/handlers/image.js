@@ -42,6 +42,16 @@ module.exports = ()=> {
     if (req.query.stack_id) {
         filters.push('stack_id = $(stack_id)');
         params['stack_id'] = req.query.stack_id;
+
+    if (process.env.MAGIC_MODE === '1'){
+        if (req.query.doc_id) {
+            filters.push('doc_id = ${doc_id}');
+            params['doc_id'] = req.query.doc_id;
+        }
+        if (req.query.page_no) {
+            filters.push('page_no = ${page_no}');
+            params['page_no'] = req.query.page_no;
+        }
     }
 
     /* This gets us the next ALREADY TAGGED image */

@@ -18,7 +18,7 @@ module.exports = {
     }
   },
   requiredParameters: [ ],
-  requiresOneOf: [ 'image_id' ],
+  requiresOneOf: [ 'image_id', 'doc_id' ],
   fields: {
     'url': {
       'type': 'text',
@@ -38,4 +38,18 @@ module.exports = {
     '/api/v1/image/next',
   ],
   handler: require("../handlers/image")()
+}
+
+if (process.env.MAGIC_MODE === '1'){
+    module.exports.parameters['doc_id'] = 
+    {
+      'type': 'text',
+      'description': `GDD docid`
+    }
+    module.exports.parameters['page_no'] = 
+    {
+      'type': 'integer',
+      'description': `Page number`
+    }
+
 }
