@@ -184,10 +184,9 @@ module.exports = ()=> {
          JOIN stack USING (stack_id)
          JOIN equations.equation p
          ON p.image_id = i.image_id
-         WHERE true
+         ${whereStatement}
          ORDER BY random()
-         LIMIT 1
-          ${whereStatement}`);
+         LIMIT 1`);
 
         if (!row) {
           return res.reply(req, res, next, []);
