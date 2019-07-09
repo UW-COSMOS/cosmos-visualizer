@@ -12,9 +12,9 @@ module.exports = {
       'type': 'boolean',
       'description': `When specifying 'next' or 'validate', will limit possible results to either images that have been validated at least once or images that have not been validated.`
     },
-    'stack_name':{
+    'stack_id':{
       'type': 'text',
-      'description': `Will filter the result to the requested 'stack' name. This allows distinction between different sets of annotations (or results). If not specified, the full collection is considered.`
+      'description': `Will filter the result to the requested 'stack_id'. This allows distinction between different sets of annotations (or results). If not specified, the full collection is considered.`
     }
   },
   requiredParameters: [ ],
