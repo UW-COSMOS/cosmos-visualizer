@@ -159,15 +159,15 @@ module.exports = ()=> {
       }
       res.reply(req, res, next, row);
     } else if ( req.query.image_id === 'next_eqn_prediction') {
-        //TODO : this type should key into the stack_type column in the stack table instead of the stack_id like it does now
+      //TODO : this type should key into the stack_type column in the stack table instead of the stack_id like it does now
       type='prediction';
-      let where = 'WHERE true'
-      let params = []
-      where += "\nAND stack_type = $1"
-        params.push(type)
+      let whereStatement = 'WHERE true'
+      let params = {}
+      whereStatement += "\nAND stack_type = $(stack_type)"
+      params['stack_type'] = type
       if (req.query.stack_id) {
-          where += "\n AND stack_id = $2"
-        params.push(req.query.stack_id)
+        whereStatement += "\n AND stack_id = $(stack_id)"
+        params['stack_id'] = req.query.stack_id
       }
       // Make sure we only get images with phrases or tags
 
@@ -182,11 +182,12 @@ module.exports = ()=> {
          FROM image i
          JOIN image_stack istack USING (image_id)
          JOIN stack USING (stack_id)
-               JOIN equations.equation p
-               ON p.image_id = i.image_id
-               WHERE true
-               ORDER BY random()
-               LIMIT 1`);
+         JOIN equations.equation p
+         ON p.image_id = i.image_id
+         WHERE true
+         ORDER BY random()
+         LIMIT 1
+          ${whereStatement}`);
 
         if (!row) {
           return res.reply(req, res, next, []);
