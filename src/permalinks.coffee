@@ -9,9 +9,15 @@ import {ImageShape} from './types'
 
 PermalinkContext = createContext {}
 
+permalinkRouteTemplate = (appMode)->
+  return "/#{appMode}/:stackId/page/:imageId"
+
 class PermalinkProvider extends Component
   @propTypes: {
-    appMode: T.oneOf([AppMode.ANNOTATION, AppMode.PREDICTION])
+    appMode: T.oneOf([
+      AppMode.ANNOTATION,
+      AppMode.PREDICTION
+    ])
   }
 
   permalinkTo: ({stack_id, image_id})=>
@@ -23,7 +29,7 @@ class PermalinkProvider extends Component
   getValue: ->
     {appMode} = @props
     {permalinkTo} = @
-    pageTemplate = "/#{appMode}/:stackId/page/:imageId"
+    pageTemplate = permalinkRouteTemplate(appMode)
     return {appMode, pageTemplate, permalinkTo}
 
   render: ->
@@ -33,14 +39,13 @@ class PermalinkProvider extends Component
 
 PermalinkButton = withRouter (props)->
   ctx = useContext(PermalinkContext)
-  {permalinkRoute, image, match} = props
+  {image, match} = props
   {params: {imageId, stackId}} = match
   return null unless image?
   {image_id, stack_id} = image
   text = "Permalink"
   disabled = false
 
-  console.log imageId, stackId, match
   if image_id == imageId and stack_id == stackId
     # We are at the permalink right now
     disabled = true
@@ -52,13 +57,13 @@ PermalinkButton = withRouter (props)->
     text
   }
 
-PermalinkButton.propTypes = {
-  image: ImageShape
+# PermalinkButton.propTypes = {
+#   image: ImageShape
+# }
+
+export {
+  PermalinkButton,
+  PermalinkProvider,
+  PermalinkContext,
+  permalinkRouteTemplate
 }
-
-PermalinkRoute = (props)->
-  ctx = useContext(PermalinkContext)
-  path = ctx.pageTemplate
-  h Route, {props..., path}
-
-export {PermalinkButton, PermalinkProvider, PermalinkRoute, PermalinkContext}

@@ -1,7 +1,7 @@
 import {Component} from 'react'
 import h from 'react-hyperscript'
 
-import {BrowserRouter as Router, Route, Redirect, Switch} from 'react-router-dom'
+import {BrowserRouter as Router, Route, Redirect, Switch, useContext} from 'react-router-dom'
 
 import {APIContext} from './api'
 import {AppMode, UserRole} from './enum'
@@ -10,9 +10,15 @@ import {ResultsLandingPage} from './landing-page'
 import {KnowledgeBaseFilterView} from './knowledge-base'
 import {ResultsPage} from './results-page'
 import {TaggingPage} from './tagging-page'
-import {PermalinkProvider, PermalinkRoute} from './permalinks'
+import {
+  PermalinkProvider,
+  PermalinkSwitch,
+  PermalinkContext,
+  permalinkRouteTemplate
+} from './permalinks'
 
 # /annotation/{stack_id}/page/{image_id}
+
 
 MainRouter = ({appMode, basename, rest...})->
   h PermalinkProvider, {appMode}, (
@@ -48,7 +54,7 @@ class TaggingApplication extends Component
   renderUI: ({match, role})=>
 
     # Go to specific image by default, if set
-    {params: {role: newRole, imageId}} = match
+    {params: {role: newRole, imageId, stackId}} = match
     {person} = @state
     # Allow role to be overridden by programmatically
     # set one (to support permalinks)
@@ -93,6 +99,8 @@ class TaggingApplication extends Component
 
     return h TaggingPage, {
       imageRoute
+      # This way of tracking stack ID is pretty dumb, potentia
+      stack_id: stackId
       extraSaveData
       navigationEnabled
       nextImageEndpoint
@@ -113,14 +121,19 @@ class TaggingApplication extends Component
 
   render: ->
     {publicURL} = @props
-    h MainRouter, {basename: publicURL, appMode: AppMode.ANNOTATION}, [
+    h MainRouter, {
+      basename: publicURL,
+      appMode: AppMode.ANNOTATION
+    }, [
       h Route, {
         path: '/',
         exact: true,
         render: @renderLoginForm
       }
-      # Legacy route for viewing training data
-      h PermalinkRoute, {
+      h Route, {
+        # This should be included from the context, but
+        # this is complicated from the react-router side
+        path: permalinkRouteTemplate(AppMode.ANNOTATION)
         render: (props)=>
           role = UserRole.VIEW_TRAINING
           @renderUI({role, props...})
@@ -188,7 +201,8 @@ class App extends Component
         exact: true,
         component: ResultsLandingPage
       }
-      h PermalinkRoute, {
+      h Route, {
+        path: permalinkRouteTemplate(appMode)
         render: (props)=>
           h ViewerPage, {
             permalinkRoute: "/training/page"
@@ -207,9 +221,9 @@ class App extends Component
             props...
           }
       }
-      h PermalinkRoute, {
-        component: ViewResults
-      }
+      # h PermalinkRoute, {
+      #   component: ViewResults
+      # }
       h Route, {
         path: '/knowledge-base'
         component: KnowledgeBaseFilterView
