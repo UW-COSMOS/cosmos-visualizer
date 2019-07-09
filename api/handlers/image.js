@@ -20,8 +20,8 @@ module.exports = ()=> {
   const baseSelect = `
     SELECT
       i.image_id,
-      doc_id,
-      page_no,
+      i.doc_id,
+      i.page_no,
       stack_id,
       file_path,
       i.created
@@ -109,19 +109,12 @@ module.exports = ()=> {
 
       params['stack_type'] = 'prediction';
       try {
-          let row = await db.one(`SELECT
-           i.image_id,
-           i.doc_id,
-           i.page_no,
-           stack_id,
-           file_path,
-           i.created
-         FROM image i
-         JOIN image_stack istack USING (image_id)
-         JOIN stack USING (stack_id)
-         ${buildWhereClause(filters)}
-         ORDER BY random()
-         LIMIT 1`, params);
+
+        let row = await db.one(`
+           ${baseSelect}
+           ${buildWhereClause(filters)}
+           ORDER BY random()
+           LIMIT 1`, params);
 
         if (!row) { row = [] }
         return res.reply(req, res, next, row);
@@ -138,21 +131,14 @@ module.exports = ()=> {
       // Make sure we only get images with phrases or tags
 
       try {
-        let row = await db.one(`SELECT
-           i.image_id,
-           i.doc_id,
-           i.page_no,
-           stack_id,
-           file_path,
-           i.created
-         FROM image i
-         JOIN image_stack istack USING (image_id)
-         JOIN stack USING (stack_id)
-         JOIN equations.equation p
-         ON p.image_id = i.image_id
-         ${buildWhereClause(filters)}
-         ORDER BY random()
-         LIMIT 1`);
+
+        let row = await db.one(`
+          ${baseSelect}
+          JOIN equations.equation p
+            ON p.image_id = i.image_id
+          ${buildWhereClause(filters)}
+          ORDER BY random()
+          LIMIT 1`);
 
          if (!row) { row = [] }
          return res.reply(req, res, next, row);
