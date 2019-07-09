@@ -1,9 +1,6 @@
 import {Component, createContext} from 'react'
 import h from 'react-hyperscript'
-import {select} from 'd3-selection'
 import uuidv4 from 'uuid/v4'
-import {findDOMNode} from 'react-dom'
-import 'd3-jetpack'
 import chroma from 'chroma-js'
 import {Link} from 'react-router-dom'
 import {Navbar, Button, ButtonGroup
