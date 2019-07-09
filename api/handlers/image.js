@@ -70,7 +70,8 @@ module.exports = ()=> {
 
       await recordTaggingStarted(db, row.image_id);
 
-      res.reply(req, res, next, row);
+      if (!row) { row = [] }
+      return res.reply(req, res, next, row);
 
     } else if ( req.query.image_id === 'validate') {
       type='annotation';
@@ -97,11 +98,8 @@ module.exports = ()=> {
           ORDER BY random()
           LIMIT 1`, params);
 
-        if (!row) {
-          return res.reply(req, res, next, []);
-        } else {
-          return res.reply(req, res, next, row);
-        }
+        if (!row) { row = [] }
+        return res.reply(req, res, next, row);
 
         await recordTaggingStarted(db, row.image_id);
 
@@ -138,12 +136,12 @@ module.exports = ()=> {
                LIMIT 1`, params);
 
         if (!row) {
-          return res.reply(req, res, next, []);
-        } else {
-          return res.reply(req, res, next, row);
+          /* NOTE: it seems odd to return an array when a single object is returned
+            by the normal route */
+          row = [];
         }
-
         return res.reply(req, res, next, row);
+
       } catch(error) {
         console.log(error)
         return res.error(req, res, next, 'An internal error occurred', 500)
@@ -179,11 +177,8 @@ module.exports = ()=> {
          ORDER BY random()
          LIMIT 1`);
 
-        if (!row) {
-          return res.reply(req, res, next, []);
-        } else {
-          return res.reply(req, res, next, row);
-        }
+         if (!row) { row = [] }
+         return res.reply(req, res, next, row);
 
       } catch(error) {
         console.log(error)
