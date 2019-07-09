@@ -1,5 +1,7 @@
 /*
 Handler for both `image` and `image_prediction` routes
+
+Takes
 */
 const {wrapHandler} = require('./util')
 
@@ -19,23 +21,42 @@ module.exports = ()=> {
 
   const handler = async (req, res, next, plugins) => {
     const {db} = plugins;
-    let params=[];
+    let params={};
 
     /* This gets us the next ALREADY TAGGED image */
     if (req.query.image_id === 'next') {
       type='annotation';
       if (req.query.stack_id) {
           withStatement = `
-            WITH annotation_stack AS (SELECT * FROM image_stack JOIN stack USING (stack_id) WHERE stack_type='annotation' AND stack_id=$${params.length + 1}),
-             annotated AS (SELECT image_id FROM image_tag JOIN annotation_stack USING (image_stack_id))
+            WITH annotation_stack AS (
+              SELECT *
+              FROM image_stack
+              JOIN stack USING (stack_id)
+              WHERE stack_type='annotation'
+                AND stack_id=$(stack_id)
+            ),
+            annotated AS (
+              SELECT image_id
+              FROM image_tag
+              JOIN annotation_stack
+              USING (image_stack_id)
+            )
              `
-          stackIdFilter=`AND stack_id=$${params.length + 1}`
-          params.push(req.query.stack_id)
+          stackIdFilter=`AND stack_id=$(stack_id)`
+          params['stack_id'] = req.query.stack_id
       } else {
           withStatement = `
-        WITH annotation_stack AS (SELECT * FROM image_stack JOIN stack USING (stack_id) WHERE stack_type='annotation'),
-         annotated AS (SELECT image_id FROM image_tag JOIN annotation_stack USING (image_stack_id))
-         `
+            WITH annotation_stack AS (
+              SELECT *
+              FROM image_stack
+              JOIN stack USING (stack_id)
+              WHERE stack_type='annotation'
+            ),
+            annotated AS (
+              SELECT image_id
+              FROM image_tag
+              JOIN annotation_stack USING (image_stack_id)
+            )`
           stackIdFilter=''
       }
         whereStatement = `
@@ -43,11 +64,11 @@ module.exports = ()=> {
               tag_start IS NULL
            OR tag_start < now() - interval '5 minutes' )
           AND image_id NOT IN (SELECT image_id FROM annotated)
-          AND stack_type = $${params.length + 1}
+          AND stack_type = $(stack_type)
           ${stackIdFilter}
         ORDER BY random()
         LIMIT 1`
-         params.push(type)
+         params['stack_type'] = type
       let row = await db.one(`
         ${withStatement}
         ${baseSelect}
@@ -102,15 +123,15 @@ module.exports = ()=> {
       res.reply(req, res, next, row);
     } else if ( req.query.image_id === 'next_prediction') {
       type='prediction';
-      let params = []
+      let params = {}
       if (req.query.stack_id) {
-          where = `\n WHERE stack_id = $${params.length + 1}`
-          params.push(req.query.stack_id)
+          where = `\n WHERE stack_id = $(stack_id)`
+          params['stack_id'] = req.query.stack_id
       } else {
           where = 'WHERE true'
       }
-      where += `\nAND stack_type = $${params.length + 1}`
-      params.push(type)
+      where += `\nAND stack_type = $(stack_type)`
+      params['stack_type'] = type
 
       try {
           let row = await db.one(`SELECT
