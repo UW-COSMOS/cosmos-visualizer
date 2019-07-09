@@ -15,9 +15,9 @@ import {PermalinkProvider, PermalinkRoute} from './permalinks'
 # /annotation/{stack_id}/page/{image_id}
 
 MainRouter = ({appMode, basename, rest...})->
-  h Router, {basename}, (
-    h PermalinkProvider, {appMode}, (
-      h 'div.app-main', null, (
+  h PermalinkProvider, {appMode}, (
+    h 'div.app-main', null, (
+      h Router, {basename}, (
         h(Switch, rest)
       )
     )
@@ -64,7 +64,6 @@ class TaggingApplication extends Component
       id = person.person_id
     extraSaveData = null
     nextImageEndpoint = "/image/next"
-    permalinkRoute = "/training/page"
     allowSaveWithoutChanges = false
     editingEnabled = true
 
@@ -95,7 +94,6 @@ class TaggingApplication extends Component
     return h TaggingPage, {
       imageRoute
       extraSaveData
-      permalinkRoute
       navigationEnabled
       nextImageEndpoint
       initialImage: imageId
@@ -122,8 +120,7 @@ class TaggingApplication extends Component
         render: @renderLoginForm
       }
       # Legacy route for viewing training data
-      h Route, {
-        path: '/annotation/:stackID/page/:imageId',
+      h PermalinkRoute, {
         render: (props)=>
           role = UserRole.VIEW_TRAINING
           @renderUI({role, props...})
@@ -173,7 +170,6 @@ ViewResults = ({match, rest...})=>
 
   return h ResultsPage, {
     imageRoute: '/image'
-    permalinkRoute: '/view-results'
     subtitleText: "View results"
     nextImageEndpoint: '/image/next_eqn_prediction'
     match...
@@ -208,12 +204,10 @@ class App extends Component
           h ViewerPage, {
             nextImageEndpoint: "/image/next_prediction"
             subtitleText: "View extractions"
-            permalinkRoute: "/results/page"
             props...
           }
       }
-      h Route, {
-        path: '/prediction/:stackId/page/:imageId?',
+      h PermalinkRoute, {
         component: ViewResults
       }
       h Route, {

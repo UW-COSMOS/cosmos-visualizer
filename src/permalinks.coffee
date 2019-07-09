@@ -5,6 +5,7 @@ import {Navbar} from '@blueprintjs/core'
 import {LinkButton} from '@macrostrat/ui-components'
 import T from 'prop-types'
 import {AppMode} from './enum'
+import {ImageShape} from './types'
 
 PermalinkContext = createContext {}
 
@@ -39,6 +40,7 @@ PermalinkButton = withRouter (props)->
   text = "Permalink"
   disabled = false
 
+  console.log imageId, stackId, match
   if image_id == imageId and stack_id == stackId
     # We are at the permalink right now
     disabled = true
@@ -49,6 +51,10 @@ PermalinkButton = withRouter (props)->
     disabled
     text
   }
+
+PermalinkButton.propTypes = {
+  image: ImageShape
+}
 
 PermalinkRoute = (props)->
   ctx = useContext(PermalinkContext)

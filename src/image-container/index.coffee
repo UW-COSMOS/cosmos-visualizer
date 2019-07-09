@@ -1,10 +1,10 @@
 import {Component, createContext} from 'react'
 import h from 'react-hyperscript'
-import T from 'prop-types'
+import {join} from 'path'
 
 import {ImageOverlay} from '../image-overlay'
 import {APIContext} from '../api'
-import {join} from 'path'
+import {ImageShape} from '../types'
 
 ImageStoreContext = createContext({})
 
@@ -15,16 +15,6 @@ class ImageStoreProvider extends Component
       throw "baseURL for image store must be set in context"
     value = {baseURL, publicURL}
     h ImageStoreContext.Provider, {value}, children
-
-# Shape for image API response
-ImageShape = T.shape {
-  created: T.string
-  doc_id: T.string.isRequired
-  file_path: T.string
-  image_id: T.string
-  page_no: T.number
-  stack_id: T.string.isRequired
-}
 
 class ImageContainer extends Component
   @defaultProps: {
