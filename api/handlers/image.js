@@ -5,6 +5,16 @@ Takes
 */
 const {wrapHandler} = require('./util')
 
+const recordTaggingStarted = async (db, image_id)=> {
+  /* Record the start time for tagging (NOTE: this will overwrite earlier instances,
+     but these should not be returned in the first place. This behavior might
+     be undesired and could be changed) */
+  await db.none(`
+    UPDATE image
+    SET tag_start = now()
+    WHERE image_id = $1`, [image_id]);
+};
+
 module.exports = ()=> {
 
   const baseSelect = `
@@ -25,58 +35,41 @@ module.exports = ()=> {
 
     /* This gets us the next ALREADY TAGGED image */
     if (req.query.image_id === 'next') {
-      type='annotation';
+      params['stack_type'] = 'annotation';
+
+      let stackIDFilter = '';
       if (req.query.stack_id) {
-          withStatement = `
-            WITH annotation_stack AS (
-              SELECT *
-              FROM image_stack
-              JOIN stack USING (stack_id)
-              WHERE stack_type='annotation'
-                AND stack_id=$(stack_id)
-            ),
-            annotated AS (
-              SELECT image_id
-              FROM image_tag
-              JOIN annotation_stack
-              USING (image_stack_id)
-            )
-             `
-          stackIdFilter=`AND stack_id=$(stack_id)`
-          params['stack_id'] = req.query.stack_id
-      } else {
-          withStatement = `
-            WITH annotation_stack AS (
-              SELECT *
-              FROM image_stack
-              JOIN stack USING (stack_id)
-              WHERE stack_type='annotation'
-            ),
-            annotated AS (
-              SELECT image_id
-              FROM image_tag
-              JOIN annotation_stack USING (image_stack_id)
-            )`
-          stackIdFilter=''
+          stackIDFilter = 'AND stack_id=$(stack_id)';
+          params['stack_id'] = req.query.stack_id;
       }
-        whereStatement = `
+
+      const query = `
+        WITH annotation_stack AS (
+          SELECT *
+          FROM image_stack
+          JOIN stack USING (stack_id)
+          WHERE stack_type='annotation'
+          ${stackIDFilter}
+        ),
+        annotated AS (
+          SELECT image_id
+          FROM image_tag
+          JOIN annotation_stack USING (image_stack_id)
+        )
+        ${baseSelect}
         WHERE (
               tag_start IS NULL
            OR tag_start < now() - interval '5 minutes' )
           AND image_id NOT IN (SELECT image_id FROM annotated)
           AND stack_type = $(stack_type)
-          ${stackIdFilter}
+          ${stackIDFilter}
         ORDER BY random()
         LIMIT 1`
-         params['stack_type'] = type
-      let row = await db.one(`
-        ${withStatement}
-        ${baseSelect}
-        ${whereStatement}`, params);
-      await db.query(`
-        UPDATE image
-        SET tag_start = now()
-        WHERE image_id = $1`, [row.image_id]);
+
+      let row = await db.one(query, params);
+
+      await recordTaggingStarted(db, row.image_id);
+
       res.reply(req, res, next, row);
 
     } else if ( req.query.image_id === 'validate') {
@@ -110,11 +103,7 @@ module.exports = ()=> {
           return res.reply(req, res, next, row);
         }
 
-        // Update the tag start
-        await db.none(`
-          UPDATE image
-          SET tag_start = now()
-          WHERE image_id = $1`, [row.image_id]);
+        await recordTaggingStarted(db, row.image_id);
 
       } catch(error) {
         console.log(error)
@@ -147,12 +136,14 @@ module.exports = ()=> {
                ${where}
                ORDER BY random()
                LIMIT 1`, params);
+
         if (!row) {
           return res.reply(req, res, next, []);
         } else {
           return res.reply(req, res, next, row);
         }
 
+        return res.reply(req, res, next, row);
       } catch(error) {
         console.log(error)
         return res.error(req, res, next, 'An internal error occurred', 500)
