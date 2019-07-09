@@ -7,6 +7,12 @@ const wrapHandler = handler => {
   }
 };
 
+const buildWhereClause = filters => {
+  if (!filters || filters.length == 0) return '';
+  return "WHERE "+filters.join("\n  AND ");
+}
+
 module.exports = {
-  wrapHandler
+  wrapHandler,
+  buildWhereClause
 };
