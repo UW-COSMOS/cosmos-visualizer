@@ -74,19 +74,19 @@ module.exports = ()=> {
       return res.reply(req, res, next, row);
 
     } else if ( req.query.image_id === 'validate') {
-      type='annotation';
       let where = 'WHERE true'
-      let params = []
+      let params = {
+        'stack_type': 'annotation'
+      };
       if (req.query.validated == false) {
         where = 'WHERE validator IS NULL'
       } else if (req.query.validated == true) {
         where = 'WHERE validator IS NOT NULL'
       }
-      where += "\nAND stack_type = $1"
-      params.push(type)
+      where += "\nAND stack_type = $(stack_type)"
       if (req.query.stack_id) {
-          where += "\nAND stack_id = $2"
-          params.push(req.query.stack_id)
+          where += "\nAND stack_id = $(stack_id)"
+          params['stack_id'] = req.query.stack_id
       }
 
       try {
@@ -135,11 +135,7 @@ module.exports = ()=> {
                ORDER BY random()
                LIMIT 1`, params);
 
-        if (!row) {
-          /* NOTE: it seems odd to return an array when a single object is returned
-            by the normal route */
-          row = [];
-        }
+        if (!row) { row = [] }
         return res.reply(req, res, next, row);
 
       } catch(error) {
