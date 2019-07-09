@@ -38,18 +38,20 @@ module.exports = ()=> {
     let filters = [
       "stack_type = $(stack_type)"
     ];
+    let imageFilters = [];
 
     if (req.query.stack_id) {
         filters.push('stack_id = $(stack_id)');
         params['stack_id'] = req.query.stack_id;
+    }
 
     if (process.env.MAGIC_MODE === '1'){
         if (req.query.doc_id) {
-            filters.push('doc_id = ${doc_id}');
+            imageFilters.push('i.doc_id = $(doc_id)');
             params['doc_id'] = req.query.doc_id;
         }
         if (req.query.page_no) {
-            filters.push('page_no = ${page_no}');
+            imageFilters.push('i.page_no = $(page_no)');
             params['page_no'] = req.query.page_no;
         }
     }
@@ -77,7 +79,9 @@ module.exports = ()=> {
           JOIN annotation_stack USING (image_stack_id)
         )
         ${baseSelect}
-        ${buildWhereClause(mainFilters)}`
+        ${buildWhereClause([...mainFilters, ...imageFilters])}`
+        console.log([mainFilters, ...imageFilters])
+        console.log([...mainFilters, ...imageFilters])
 
     } else if ( req.query.image_id === 'validate') {
 
@@ -92,7 +96,7 @@ module.exports = ()=> {
         ${baseSelect}
         JOIN image_tag it
         USING (image_stack_id)
-        ${buildWhereClause(filters)}`;
+        ${buildWhereClause([...filters, ...imageFilters])}`;
 
     } else if ( req.query.image_id === 'next_prediction') {
 
@@ -100,7 +104,7 @@ module.exports = ()=> {
 
       query = `
        ${baseSelect}
-       ${buildWhereClause(filters)}`;
+       ${buildWhereClause([...filters, ...imageFilters])}`;
 
     } else if ( req.query.image_id === 'next_eqn_prediction') {
       //TODO : this type should key into the stack_type column in the stack table instead of the stack_id like it does now
@@ -111,19 +115,24 @@ module.exports = ()=> {
         ${baseSelect}
         JOIN equations.equation p
           ON p.image_id = i.image_id
-        ${buildWhereClause(filters)}`;
+        ${buildWhereClause([...filters, ...imageFilters])}`;
 
     } else {
       // Reset parameters entirely
-      params = {'image_id': req.query.image_id};
+      if ('image_id' in req.query) {
+          filters = [`image_id = $(image_id)`, ...imageFilters]
+      } else {
+          filters = [...imageFilters]
+      }
+
       // Ignore preset filters
       query = `
         ${baseSelect.replace("stack_id,", "array_agg(stack.stack_id) stack_ids,")}
-        WHERE image_id = $(image_id)
-        GROUP BY image_id, doc_id, page_no, file_path, created`;
+        ${buildWhereClause([...filters, ...imageFilters])}
+        GROUP BY image_id, doc_id, page_no, file_path, created `;
     }
 
-    query += `ORDER BY random() LIMIT 1`
+    query += ` ORDER BY random() LIMIT 1`
 
     let row = await db.one(query, params);
 
