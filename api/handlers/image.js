@@ -24,13 +24,13 @@ module.exports = ()=> {
     /* This gets us the next ALREADY TAGGED image */
     if (req.query.image_id === 'next') {
       type='annotation';
-      if (req.query.stack_name) {
+      if (req.query.stack_id) {
           withStatement = `
             WITH annotation_stack AS (SELECT * FROM image_stack JOIN stack USING (stack_id) WHERE stack_type='annotation' AND stack_id=$${params.length + 1}),
              annotated AS (SELECT image_id FROM image_tag JOIN annotation_stack USING (image_stack_id))
              `
           stackIdFilter=`AND stack_id=$${params.length + 1}`
-          params.push(req.query.stack_name)
+          params.push(req.query.stack_id)
       } else {
           withStatement = `
         WITH annotation_stack AS (SELECT * FROM image_stack JOIN stack USING (stack_id) WHERE stack_type='annotation'),
@@ -69,9 +69,9 @@ module.exports = ()=> {
       }
       where += "\nAND stack_type = $1"
       params.push(type)
-      if (req.query.stack_name) {
+      if (req.query.stack_id) {
           where += "\nAND stack_id = $2"
-          params.push(req.query.stack_name)
+          params.push(req.query.stack_id)
       }
 
       try {
@@ -103,9 +103,9 @@ module.exports = ()=> {
     } else if ( req.query.image_id === 'next_prediction') {
       type='prediction';
       let params = []
-      if (req.query.stack_name) {
+      if (req.query.stack_id) {
           where = `\n WHERE stack_id = $${params.length + 1}`
-          params.push(req.query.stack_name)
+          params.push(req.query.stack_id)
       } else {
           where = 'WHERE true'
       }
