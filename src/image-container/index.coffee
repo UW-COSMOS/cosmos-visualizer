@@ -1,6 +1,7 @@
 import {Component, createContext} from 'react'
 import h from 'react-hyperscript'
-import {select} from 'd3-selection'
+import T from 'prop-types'
+
 import {ImageOverlay} from '../image-overlay'
 import {APIContext} from '../api'
 import {join} from 'path'
@@ -15,6 +16,16 @@ class ImageStoreProvider extends Component
     value = {baseURL, publicURL}
     h ImageStoreContext.Provider, {value}, children
 
+# Shape for image API response
+ImageShape = T.shape {
+  created: T.string
+  doc_id: T.string.isRequired
+  file_path: T.string
+  image_id: T.string
+  page_no: T.number
+  stack_id: T.string.isRequired
+}
+
 class ImageContainer extends Component
   @defaultProps: {
     actions: {}
@@ -23,6 +34,9 @@ class ImageContainer extends Component
     editingEnabled: false
   }
   @contextType: ImageStoreContext
+  @propTypes: {
+    image: ImageShape
+  }
 
   constructor: (props)->
     super props
