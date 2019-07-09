@@ -8,6 +8,7 @@ done
 echo "Running database initialization SQL"
 cat /init-sql/*.sql | psql -U postgres -h ${DB_HOST} -p 5432 annotations
 
-echo "Importing images to $STACK_TYPE stack named $STACK_NAME"
-python import_data.py /output/ /images/ ${STACK_NAME} ${STACK_TYPE}
-
+echo "Importing predictions/results with stack name ${PREDICTION_STACK_NAME}"
+python import_data.py /output/ /images/ ${PREDICTION_STACK_NAME} prediction
+echo "Importing images for tagging with stack name ${ANNOTATION_STACK_NAME}"
+python import_data.py /output/ /images_to_tag/ ${ANNOTATION_STACK_NAME} annotation

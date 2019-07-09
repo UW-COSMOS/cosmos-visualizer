@@ -11,6 +11,7 @@ services:
       - ./_data/logs:/logs
       - ${PIPELINE_OUTPUT}/images:/images:ro
       - ${PIPELINE_OUTPUT}/html/img:/kb-images:ro
+      - ${IMAGES_TO_TAG}:/images_to_tag:ro
       - ./frontend/dist:/frontend:ro
       - ./nginx.conf:/etc/nginx/nginx.conf:ro
   image-tagger-api:
@@ -39,13 +40,15 @@ services:
     environment:
       - DB_HOST=db
       - PG_CONN_STR=postgresql://postgres:@db:5432/annotations
-      - STACK_NAME=default
-      # STACK_TYPE should be annotation or prediction
-      - STACK_TYPE=annotation
+      - ANNOTATION_STACK_NAME=default_to_tag
+      - PREDICTION_STACK_NAME=default
+#      # STACK_TYPE should be annotation or prediction
+#      - STACK_TYPE=annotation
     volumes:
       - ./init-sql:/init-sql
       - ${PIPELINE_OUTPUT}:/output
       - ${PIPELINE_OUTPUT}/images:/images
+      - ${IMAGES_TO_TAG}:/images_to_tag
   frontend:
     build: frontend
     ports:
@@ -59,6 +62,7 @@ services:
       - API_BASE_URL=${PUBLIC_URL}api
       - IMAGE_BASE_URL=${PUBLIC_URL}images/
       - DEBUG
+      - APPMODE=PREDICTION
     volumes:
       - ./frontend:/user
       - /user/node_modules
