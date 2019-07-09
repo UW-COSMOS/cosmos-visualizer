@@ -67,9 +67,7 @@ module.exports = ()=> {
           JOIN annotation_stack USING (image_stack_id)
         )
         ${baseSelect}
-        ${buildWhereClause(mainFilters)}
-        ORDER BY random()
-        LIMIT 1`
+        ${buildWhereClause(mainFilters)}`
 
     } else if ( req.query.image_id === 'validate') {
 
@@ -84,9 +82,7 @@ module.exports = ()=> {
         ${baseSelect}
         JOIN image_tag it
         USING (image_stack_id)
-        ${buildWhereClause(filters)}
-        ORDER BY random()
-        LIMIT 1`;
+        ${buildWhereClause(filters)}`;
 
     } else if ( req.query.image_id === 'next_prediction') {
 
@@ -94,9 +90,7 @@ module.exports = ()=> {
 
       query = `
        ${baseSelect}
-       ${buildWhereClause(filters)}
-       ORDER BY random()
-       LIMIT 1`;
+       ${buildWhereClause(filters)}`;
 
     } else if ( req.query.image_id === 'next_eqn_prediction') {
       //TODO : this type should key into the stack_type column in the stack table instead of the stack_id like it does now
@@ -107,9 +101,7 @@ module.exports = ()=> {
         ${baseSelect}
         JOIN equations.equation p
           ON p.image_id = i.image_id
-        ${buildWhereClause(filters)}
-        ORDER BY random()
-        LIMIT 1`;
+        ${buildWhereClause(filters)}`;
 
     } else {
       // Reset parameters entirely
@@ -118,9 +110,10 @@ module.exports = ()=> {
       query = `
         ${baseSelect.replace("stack_id,", "array_agg(stack.stack_id) stack_ids,")}
         WHERE image_id = $(image_id)
-        GROUP BY image_id, doc_id, page_no, file_path, created
-        LIMIT 1`;
+        GROUP BY image_id, doc_id, page_no, file_path, created`;
     }
+
+    query += `ORDER BY random() LIMIT 1`
 
     let row = await db.one(query, params);
 
