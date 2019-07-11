@@ -4,17 +4,28 @@ import './main.styl'
 
 import {render} from 'react-dom'
 import h from 'react-hyperscript'
-import {App} from './app'
+import {App, TaggingApplication} from './app'
 import {APIProvider} from './api'
 import {ImageStoreProvider} from './image-container'
 
-AppHolder = (props)=>
-  {baseURL, imageBaseURL, publicURL, rest...} = props
-  h APIProvider, {baseURL}, [
-    h ImageStoreProvider, {baseURL: imageBaseURL, publicURL}, [
-      h App, {imageBaseURL, publicURL, rest...}
+console.log("Application running in mode:")
+console.log(process.env.APPMODE)
+if process.env.APPMODE == 'ANNOTATION'
+  AppHolder = (props)=>
+    {baseURL, imageBaseURL, publicURL, rest...} = props
+    h APIProvider, {baseURL}, [
+      h ImageStoreProvider, {baseURL: imageBaseURL, publicURL}, [
+          h TaggingApplication, {imageBaseURL, publicURL, rest...}
+      ]
     ]
-  ]
+else if process.env.APPMODE == 'PREDICTION'
+  AppHolder = (props)=>
+    {baseURL, imageBaseURL, publicURL, rest...} = props
+    h APIProvider, {baseURL}, [
+      h ImageStoreProvider, {baseURL: imageBaseURL, publicURL}, [
+          h App, {imageBaseURL, publicURL, rest...}
+      ]
+    ]
 
 window.createUI = (opts={})->
   {baseURL, imageBaseURL, publicURL} = opts
@@ -44,6 +55,10 @@ window.createUI = (opts={})->
   console.log publicURL, baseURL, imageBaseURL
 
   # Image base url is properly set here
-  el = document.getElementById('app')
+  el = document.createElement('div')
+  document.body.appendChild(el)
   __ = h AppHolder, {baseURL, imageBaseURL, publicURL}
   render __, el
+
+# Actually run the UI (changed for webpack)
+window.createUI()

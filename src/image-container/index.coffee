@@ -1,9 +1,10 @@
 import {Component, createContext} from 'react'
 import h from 'react-hyperscript'
-import {select} from 'd3-selection'
+import {join} from 'path'
+
 import {ImageOverlay} from '../image-overlay'
 import {APIContext} from '../api'
-import {join} from 'path'
+import {ImageShape} from '../types'
 
 ImageStoreContext = createContext({})
 
@@ -20,8 +21,12 @@ class ImageContainer extends Component
     actions: {}
     tags: []
     image: null
+    editingEnabled: false
   }
   @contextType: ImageStoreContext
+  @propTypes: {
+    image: ImageShape
+  }
 
   constructor: (props)->
     super props
@@ -59,7 +64,8 @@ class ImageContainer extends Component
     return join(baseURL, image.file_path)
 
   render: =>
-    {actions, editingEnabled, tags, imageTags, rest...} = @props
+    {actions, editingEnabled, editingRect,
+     tags, currentTag, imageTags, rest...} = @props
     {scaleFactor, image} = @state
     return null unless image?
     style = @scaledSize()
@@ -70,8 +76,11 @@ class ImageContainer extends Component
         style...
         scaleFactor
         image_tags: imageTags
+        currentTag
         tags
         actions
+        editingEnabled
+        editingRect
       }
     ]
 

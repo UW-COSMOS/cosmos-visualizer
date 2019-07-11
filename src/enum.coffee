@@ -1,22 +1,22 @@
 UserRole = Object.freeze({
   TAG: 'tag'
   VALIDATE: 'validate'
+  # This should maybe be deprecated?
   VIEW_TRAINING: 'view-training'
-  VIEW_EXTRACTIONS: 'view-extractions'
-  VIEW_RESULTS: 'view-results'
-  VIEW_KNOWLEDGE_BASE: 'view-knowledge-base'
 })
 
 EditMode = Object.freeze({
-  NORMAL: 'normal'
-  LINK: 'link'
   ADD_PART: 'add-part'
+  NORMAL: 'normal'
   SHIFT: 'shift'
+  LINK: 'link'
 })
 
 AppMode = Object.freeze({
-  TAGGING: 'tagging'
-  RESULTS: 'results'
+  # Mode for training data
+  ANNOTATION: 'annotation'
+  # Mode for results
+  PREDICTION: 'prediction'
 })
 
 export {UserRole, EditMode, AppMode}

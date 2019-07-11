@@ -1,7 +1,7 @@
 import {Component} from 'react'
 import h from 'react-hyperscript'
 
-import {BrowserRouter as Router, Route, Redirect, Switch} from 'react-router-dom'
+import {BrowserRouter as Router, Route, Redirect, Switch, useContext} from 'react-router-dom'
 
 import {APIContext} from './api'
 import {AppMode, UserRole} from './enum'
@@ -10,6 +10,24 @@ import {ResultsLandingPage} from './landing-page'
 import {KnowledgeBaseFilterView} from './knowledge-base'
 import {ResultsPage} from './results-page'
 import {TaggingPage} from './tagging-page'
+import {
+  PermalinkProvider,
+  PermalinkSwitch,
+  PermalinkContext,
+  permalinkRouteTemplate
+} from './permalinks'
+
+# /annotation/{stack_id}/page/{image_id}
+
+
+MainRouter = ({appMode, basename, rest...})->
+  h PermalinkProvider, {appMode}, (
+    h 'div.app-main', null, (
+      h Router, {basename}, (
+        h(Switch, rest)
+      )
+    )
+  )
 
 class TaggingApplication extends Component
   @contextType: APIContext
@@ -18,44 +36,51 @@ class TaggingApplication extends Component
     @state = {
       people: null
       person: null
-      role: null
     }
 
-  allRequiredOptionsAreSet: =>
-    {role, person} = @state
+  allRequiredOptionsAreSet: (role)=>
+    {person} = @state
     return false unless role?
-    return false if not person? and (
-      role == UserRole.TAG or role == UserRole.VALIDATE)
-    return true
+    # Doesn't matter what privileges we have to view tags
+    return true if role == UserRole.VIEW_TRAINING
+    # We should have a person if another option is required
+    return false unless person?
+    if role == UserRole.TAG
+      return person.tagger
+    if role == UserRole.VALIDATE
+      return person.validator
+    return false
 
-  renderAction: ({match})=>
-    {params: {role}} = match
-    {person, role: stateRole} = @state
-    isValid = (stateRole == role)
-    if not isValid
-      # We need to allow the user to change roles
+  renderUI: ({match, role})=>
+
+    # Go to specific image by default, if set
+    {params: {role: newRole, imageId, stackId}} = match
+    {person} = @state
+    # Allow role to be overridden by programmatically
+    # set one (to support permalinks)
+    role ?= newRole
+
+    if not @allRequiredOptionsAreSet(role)
       return h Redirect, {to: '/'}
 
-    @renderUI(role, person)({match})
-
-  renderUI: (role, person)=> ({match})=>
-
     imageRoute = "/image"
+
     id = null
     if person?
       id = person.person_id
     extraSaveData = null
     nextImageEndpoint = "/image/next"
-    permalinkRoute = "/view-training"
     allowSaveWithoutChanges = false
     editingEnabled = true
-
-    # Go to specific image by default, if set
-    {params: {imageId}} = match
 
     if role == UserRole.TAG and id?
       extraSaveData = {tagger: id}
       subtitleText = "Tag"
+    if role == UserRole.VIEW_TRAINING
+      editingEnabled = false
+      nextImageEndpoint = "/image/validate"
+      allowSaveWithoutChanges = false
+      subtitleText = "View training data"
     else if role == UserRole.VALIDATE and id?
       extraSaveData = {validator: id}
       nextImageEndpoint = "/image/validate"
@@ -71,10 +96,12 @@ class TaggingApplication extends Component
 
     console.log "Setting up UI with role #{role}"
     console.log "Image id: #{imageId}"
+
     return h TaggingPage, {
       imageRoute
+      # This way of tracking stack ID is pretty dumb, potentia
+      stack_id: stackId
       extraSaveData
-      permalinkRoute
       navigationEnabled
       nextImageEndpoint
       initialImage: imageId
@@ -84,61 +111,42 @@ class TaggingApplication extends Component
       @props...
     }
 
-  renderHomepage: =>
-    if @props.appMode == AppMode.TAGGING
-      return @renderLoginForm()
-    {role} = @state
-    console.log role
-    if role? and role == UserRole.VIEW_RESULTS
-      return h Redirect, {to: "/action/#{role}"}
-    if role? and role == UserRole.VIEW_EXTRACTIONS
-      return h Redirect, {to: "/action/#{role}"}
-    if role? and role == UserRole.VIEW_KNOWLEDGE_BASE
-      return h Redirect, {to: "/knowledge-base"}
-    h ResultsLandingPage, {setRole: @setRole}
-
   renderLoginForm: =>
-    {person, people, role} = @state
+    {person, people} = @state
     return null unless people?
-    if @allRequiredOptionsAreSet()
-      return h Redirect, {to: "/action/#{role}"}
     h LoginForm, {
       person, people,
       setPerson: @setPerson
-      setRole: @setRole
     }
 
   render: ->
     {publicURL} = @props
-    h Router, {basename: publicURL}, [
-      h 'div.app-main', [
-        h Switch, [
-          h Route, {
-            path: '/',
-            exact: true,
-            render: @renderHomepage
-          }
-          # Legacy route for viewing training data
-          h Route, {path: '/action/:role', render: @renderAction}
-        ]
-      ]
+    h MainRouter, {
+      basename: publicURL,
+      appMode: AppMode.ANNOTATION
+    }, [
+      h Route, {
+        path: '/',
+        exact: true,
+        render: @renderLoginForm
+      }
+      h Route, {
+        # This should be included from the context, but
+        # this is complicated from the react-router side
+        path: permalinkRouteTemplate(AppMode.ANNOTATION)
+        render: (props)=>
+          role = UserRole.VIEW_TRAINING
+          @renderUI({role, props...})
+      }
+      h Route, {path: '/action/:role', render: @renderUI}
     ]
 
   setupPeople: (d)=>
     @setState {people: d}
 
-  setPerson: (item)=>
-    {tagger, validator} = item
-    tagger = tagger == 1
-    validator = validator == 1
-    role = null
-    if tagger == 1 and validator != 1
-      role = UserRole.TAG
-    @setState {person: item, role}
-    localStorage.setItem('person', JSON.stringify(item))
-
-  setRole: (role)=>
-    @setState {role}
+  setPerson: (person)=>
+    @setState {person}
+    localStorage.setItem('person', JSON.stringify(person))
 
   componentDidMount: =>
     @context.get("/people/all")
@@ -175,7 +183,6 @@ ViewResults = ({match, rest...})=>
 
   return h ResultsPage, {
     imageRoute: '/image'
-    permalinkRoute: '/view-results'
     subtitleText: "View results"
     nextImageEndpoint: '/image/next_eqn_prediction'
     match...
@@ -184,48 +191,43 @@ ViewResults = ({match, rest...})=>
 class App extends Component
   @contextType: APIContext
   @defaultProps: {
-    appMode: AppMode.RESULTS
+    appMode: AppMode.PREDICTION
   }
   render: ->
-    {publicURL} = @props
-    h Router, {basename: publicURL}, [
-      h 'div.app-main', [
-        h Switch, [
-          h Route, {
-            path: '/',
-            exact: true,
-            component: ResultsLandingPage
+    {publicURL, appMode} = @props
+    h MainRouter, {basename: publicURL, appMode}, [
+      h Route, {
+        path: '/',
+        exact: true,
+        component: ResultsLandingPage
+      }
+      h Route, {
+        path: permalinkRouteTemplate(appMode)
+        render: (props)=>
+          h ViewerPage, {
+            permalinkRoute: "/training/page"
+            nextImageEndpoint: "/image/validate"
+            subtitleText: "View training data"
+            props...
           }
-          h Route, {
-            path: '/view-training/:imageId?',
-            render: (props)=>
-              h ViewerPage, {
-                permalinkRoute: "/view-training"
-                nextImageEndpoint: "/image/validate"
-                subtitleText: "View training data"
-                props...
-              }
+      }
+      # This is probably deprecated
+      h Route, {
+        path: '/view-extractions/:imageId?',
+        render: (props)=>
+          h ViewerPage, {
+            nextImageEndpoint: "/image/next_prediction"
+            subtitleText: "View extractions"
+            props...
           }
-          h Route, {
-            path: '/view-extractions/:imageId?',
-            render: (props)=>
-              h ViewerPage, {
-                nextImageEndpoint: "/image/next_prediction"
-                subtitleText: "View extractions"
-                permalinkRoute: "/view-extractions"
-                props...
-              }
-          }
-          h Route, {
-            path: '/view-results/:imageId?',
-            component: ViewResults
-          }
-          h Route, {
-            path: '/knowledge-base'
-            component: KnowledgeBaseFilterView
-          }
-        ]
-      ]
+      }
+      # h PermalinkRoute, {
+      #   component: ViewResults
+      # }
+      h Route, {
+        path: '/knowledge-base'
+        component: KnowledgeBaseFilterView
+      }
     ]
 
-export {App}
+export {App, TaggingApplication}

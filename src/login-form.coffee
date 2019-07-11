@@ -1,23 +1,29 @@
 import {Component} from 'react'
 import h from 'react-hyperscript'
+import styled from '@emotion/styled'
 
 import {Select} from '@blueprintjs/select'
 import {MenuItem, Button, Card, ButtonGroup} from '@blueprintjs/core'
 import {BrowserRouter as Router, Route, Link} from 'react-router-dom'
+import {InfoButton} from './landing-page/components'
 
+import {InlineNavbar} from './util'
 import {UserRole} from './enum'
 
-class LoginForm extends Component
-  @defaultProps: {
-    setRole: ->
-    setPerson: ->
-  }
+ModeButton = ({mode, rest...})->
+  h InfoButton, {to: "/action/#{mode}", rest...}
 
-  renderRoleControl: ->
-    {person, people, setPerson} = @props
-    selectText = "Select a user"
-    if person?
-      {name: selectText} = person
+RoleContainer = styled.div"""
+display: flex;
+flex-direction: row;
+.user-select {
+  flex-grow: 1;
+  margin-right: 0.2em;
+}
+"""
+
+RoleControl = ({person, people, setPerson, props...})->
+  h RoleContainer, props, [
     h Select, {
       className: 'user-select'
       items: people
@@ -32,38 +38,59 @@ class LoginForm extends Component
       onItemSelect: setPerson
     }, [
       h Button, {
-        text: selectText
+        text: if person? then person.name else "Select a user"
         fill: true
+        large: true
         rightIcon: "double-caret-vertical"
       }
     ]
+    h Button, {
+      icon: 'cross'
+      large: true
+      disabled: not person?
+      onClick: =>
+        setPerson(null)
+    }
+  ]
+
+class LoginForm extends Component
+  @defaultProps: {
+    setRole: ->
+    setPerson: ->
+  }
 
   renderModeControl: ->
     {setRole, person} = @props
     return null unless person?
-    selectRole = (role)=> => setRole(role)
-
-    h 'div.mode-control', [
-      h 'h4', "Select a role"
-      h ButtonGroup, {fill:true}, [
-        h Button, {text: "Tag", onClick: selectRole(UserRole.TAG)}
-        h Button, {text: "Validate", onClick: selectRole(UserRole.VALIDATE)}
-      ]
-    ]
 
   render: ->
-    {setRole, people, person} = @props
-    selectRole = (role)=> => setRole(role)
+    {people, person, setPerson} = @props
 
-    h Card, {className: 'login-form'}, [
-      h 'h3.bp3-heading', 'Image tagger'
-      h ButtonGroup, {fill: true}, [
-        h Button, {text: "View training data", onClick: selectRole(UserRole.VIEW_TRAINING)}
-        h Button, {text: "View results", onClick: selectRole(UserRole.VIEW_RESULTS)}
+    h 'div.login-form', [
+      h InlineNavbar, {subtitle: "Image tagger"}
+      h "h3", "User"
+      h RoleControl, {people, person, setPerson}
+      h 'h3', "Action"
+      h 'div.actions', [
+        h ButtonGroup, {
+          vertical: true
+        }, [
+          h ModeButton, {
+            mode: UserRole.VIEW_TRAINING
+            title: "View training data"
+          }, "View previously tagged images"
+          h ModeButton, {
+            mode: UserRole.TAG
+            title: "Tag"
+            disabled: not person? or not person.tagger
+          }, "Create training data on untagged images"
+          h ModeButton, {
+            mode: UserRole.VALIDATE
+            title: "Validate"
+            disabled: not person? or not person.validator
+          }, "Validate already-existing tags"
+        ]
       ]
-      h "h4", "Select a user to edit"
-      @renderRoleControl()
-      @renderModeControl()
     ]
 
 export {LoginForm}
