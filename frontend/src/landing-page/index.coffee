@@ -106,7 +106,7 @@ class ResultsLandingPage extends Component
         ]
       ]
       h CreditsText, [
-        h Credits
+        h 'div', {dangerouslySetInnerHTML: {__html: Credits}}
       ]
     ]
 
