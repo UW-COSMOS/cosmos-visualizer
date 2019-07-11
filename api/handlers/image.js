@@ -102,8 +102,18 @@ module.exports = ()=> {
         JOIN equations.equation p
           ON p.image_id = i.image_id
         ${buildWhereClause(filters)}`;
-
+    } else if ( 'stack_id' in params ) {
+      params['image_id'] =  req.query.image_id;
+      query = `
+      ${baseSelect}
+      WHERE image_id = $(image_id)
+        AND stack_id = $(stack_id)`
     } else {
+      /*
+      No stack_id was defined, so we return a list of stacks which contain
+      this image
+      */
+
       // Reset parameters entirely
       params = {'image_id': req.query.image_id};
       // Ignore preset filters
@@ -113,7 +123,7 @@ module.exports = ()=> {
         GROUP BY image_id, doc_id, page_no, file_path, created`;
     }
 
-    query += `ORDER BY random() LIMIT 1`
+    query += ` ORDER BY random() LIMIT 1`
 
     let row = await db.one(query, params);
 
