@@ -1,9 +1,10 @@
 import {Component, createContext} from 'react'
 import h from 'react-hyperscript'
-import {select} from 'd3-selection'
+import {join} from 'path'
+
 import {ImageOverlay} from '../image-overlay'
 import {APIContext} from '../api'
-import {join} from 'path'
+import {ImageShape} from '../types'
 
 ImageStoreContext = createContext({})
 
@@ -23,6 +24,9 @@ class ImageContainer extends Component
     editingEnabled: false
   }
   @contextType: ImageStoreContext
+  @propTypes: {
+    image: ImageShape
+  }
 
   constructor: (props)->
     super props

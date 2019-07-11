@@ -1,6 +1,5 @@
 import {Component, createContext} from 'react'
 import h from 'react-hyperscript'
-import {select} from 'd3-selection'
 import uuidv4 from 'uuid/v4'
 import {findDOMNode} from 'react-dom'
 import 'd3-jetpack'
@@ -8,13 +7,16 @@ import chroma from 'chroma-js'
 import {Link} from 'react-router-dom'
 import {Navbar, Button, ButtonGroup
         Intent, Alignment, Text, Icon} from "@blueprintjs/core"
+import T from 'prop-types'
 
 import {StatefulComponent} from '@macrostrat/ui-components'
-import {PageHeader, PermalinkButton} from '../util'
+import {PermalinkButton} from '../permalinks'
+import {PageHeader} from '../util'
 import {AppToaster} from '../toaster'
 import {APIContext, ErrorMessage} from '../api'
 import {InfoDialog} from '../info-dialog'
 import {ImageContainer} from '../image-container'
+
 
 # Updates props for a rectangle
 # from API signature to our internal signature
@@ -25,6 +27,9 @@ class TaggingPage extends StatefulComponent
     editingEnabled: true
     navigationEnabled: true
     imageRoute: '/image'
+  }
+  @propTypes: {
+    stack_id: T.string
   }
   @contextType: APIContext
   constructor: (props)->
@@ -238,6 +243,10 @@ class TaggingPage extends StatefulComponent
       @renderInfoDialog()
     ]
 
+  currentStackID: =>
+    return @state.currentImage.stack_id or @props.stack_id
+
+
   saveData: =>
     {currentImage, rectStore} = @state
     {extraSaveData} = @props
@@ -247,7 +256,10 @@ class TaggingPage extends StatefulComponent
       tags: rectStore
       extraSaveData...
     }
-    endpoint = "/image/#{currentImage.image_id}/#{currentImage.stack}/tags"
+
+    stack_id = @currentStackID()
+
+    endpoint = "/image/#{currentImage.image_id}/#{stack_id}/tags"
 
     try
       newData = await @context.post(endpoint, saveItem, {
@@ -294,14 +306,15 @@ class TaggingPage extends StatefulComponent
     }
 
   getImageToDisplay: =>
-    {nextImageEndpoint: imageToDisplay, imageRoute, initialImage} = @props
+    {nextImageEndpoint: imageToDisplay,
+     imageRoute, initialImage, stack_id} = @props
     {currentImage} = @state
     if initialImage and not currentImage?
       imageToDisplay = "#{imageRoute}/#{initialImage}"
     # We are loading an image and
     return unless imageToDisplay?
     console.log "Getting image from endpoint #{imageToDisplay}"
-    d = await @context.get(imageToDisplay, {stack_name: 'default'})
+    d = await @context.get(imageToDisplay, {stack_id})
     @onImageLoaded(d)
 
   onImageLoaded: (d)=>
@@ -338,11 +351,12 @@ class TaggingPage extends StatefulComponent
     imageRoute ?= '/image'
     return if prevState.currentImage == currentImage
     return unless currentImage?
-    {image_id, stack} = @state.currentImage
+    {image_id} = @state.currentImage
+    stack_id = @currentStackID()
 
     image_tags = []
     route = "tags"
-    t = await @context.get "#{imageRoute}/#{image_id}/#{stack}/#{route}", {validated: false}
+    t = await @context.get "#{imageRoute}/#{image_id}/#{stack_id}/#{route}", {validated: false}
     image_tags = image_tags.concat(t)
 
     @setState {rectStore: image_tags, initialRectStore: image_tags}

@@ -20,19 +20,19 @@ PageHeader = (props)->
 
 PermalinkButton = withRouter (props)->
   {permalinkRoute, image, match} = props
-  {params: {imageId}} = match
+  {params: {imageId, stackId}} = match
   return null unless image?
-  {image_id} = image
+  {image_id, stack_id} = image
   text = "Permalink"
   disabled = false
 
-  if image_id == imageId
+  if image_id == imageId and stack_id == stackId
     # We are at the permalink right now
     disabled = true
     text = [h('span', [text, " to image "]), h('code', image_id)]
   h LinkButton, {
     icon: 'bookmark'
-    to: "#{permalinkRoute}/#{image_id}"
+    to: "#{permalinkRoute}/#{stack_id}/#{image_id}"
     disabled
     text
   }

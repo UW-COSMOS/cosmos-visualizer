@@ -1,7 +1,7 @@
 import {Component} from 'react'
 import h from 'react-hyperscript'
 
-import {BrowserRouter as Router, Route, Redirect, Switch} from 'react-router-dom'
+import {BrowserRouter as Router, Route, Redirect, Switch, useContext} from 'react-router-dom'
 
 import {APIContext} from './api'
 import {AppMode, UserRole} from './enum'
@@ -10,6 +10,24 @@ import {ResultsLandingPage} from './landing-page'
 import {KnowledgeBaseFilterView} from './knowledge-base'
 import {ResultsPage} from './results-page'
 import {TaggingPage} from './tagging-page'
+import {
+  PermalinkProvider,
+  PermalinkSwitch,
+  PermalinkContext,
+  permalinkRouteTemplate
+} from './permalinks'
+
+# /annotation/{stack_id}/page/{image_id}
+
+
+MainRouter = ({appMode, basename, rest...})->
+  h PermalinkProvider, {appMode}, (
+    h 'div.app-main', null, (
+      h Router, {basename}, (
+        h(Switch, rest)
+      )
+    )
+  )
 
 class TaggingApplication extends Component
   @contextType: APIContext
@@ -33,11 +51,14 @@ class TaggingApplication extends Component
       return person.validator
     return false
 
-  renderUI: ({match})=>
+  renderUI: ({match, role})=>
 
     # Go to specific image by default, if set
-    {params: {role, imageId}} = match
+    {params: {role: newRole, imageId, stackId}} = match
     {person} = @state
+    # Allow role to be overridden by programmatically
+    # set one (to support permalinks)
+    role ?= newRole
 
     if not @allRequiredOptionsAreSet(role)
       return h Redirect, {to: '/'}
@@ -49,7 +70,6 @@ class TaggingApplication extends Component
       id = person.person_id
     extraSaveData = null
     nextImageEndpoint = "/image/next"
-    permalinkRoute = "/view-training"
     allowSaveWithoutChanges = false
     editingEnabled = true
 
@@ -79,8 +99,9 @@ class TaggingApplication extends Component
 
     return h TaggingPage, {
       imageRoute
+      # This way of tracking stack ID is pretty dumb, potentia
+      stack_id: stackId
       extraSaveData
-      permalinkRoute
       navigationEnabled
       nextImageEndpoint
       initialImage: imageId
@@ -100,29 +121,24 @@ class TaggingApplication extends Component
 
   render: ->
     {publicURL} = @props
-    h Router, {basename: publicURL}, [
-      h 'div.app-main', [
-        h Switch, [
-          h Route, {
-            path: '/',
-            exact: true,
-            render: @renderLoginForm
-          }
-          # Legacy route for viewing training data
-          h Route, {
-            path: '/view-training/:imageId',
-            render: (props)=>
-              h TaggingPage, {
-                navigationEnabled: false
-                editingEnabled: false
-                nextImageEndpoint: "/image/validate"
-                subtitleText: "View training data"
-                props...
-              }
-          }
-          h Route, {path: '/action/:role', render: @renderUI}
-        ]
-      ]
+    h MainRouter, {
+      basename: publicURL,
+      appMode: AppMode.ANNOTATION
+    }, [
+      h Route, {
+        path: '/',
+        exact: true,
+        render: @renderLoginForm
+      }
+      h Route, {
+        # This should be included from the context, but
+        # this is complicated from the react-router side
+        path: permalinkRouteTemplate(AppMode.ANNOTATION)
+        render: (props)=>
+          role = UserRole.VIEW_TRAINING
+          @renderUI({role, props...})
+      }
+      h Route, {path: '/action/:role', render: @renderUI}
     ]
 
   setupPeople: (d)=>
@@ -167,7 +183,6 @@ ViewResults = ({match, rest...})=>
 
   return h ResultsPage, {
     imageRoute: '/image'
-    permalinkRoute: '/view-results'
     subtitleText: "View results"
     nextImageEndpoint: '/image/next_eqn_prediction'
     match...
@@ -176,48 +191,43 @@ ViewResults = ({match, rest...})=>
 class App extends Component
   @contextType: APIContext
   @defaultProps: {
-    appMode: AppMode.RESULTS
+    appMode: AppMode.PREDICTION
   }
   render: ->
-    {publicURL} = @props
-    h Router, {basename: publicURL}, [
-      h 'div.app-main', [
-        h Switch, [
-          h Route, {
-            path: '/',
-            exact: true,
-            component: ResultsLandingPage
+    {publicURL, appMode} = @props
+    h MainRouter, {basename: publicURL, appMode}, [
+      h Route, {
+        path: '/',
+        exact: true,
+        component: ResultsLandingPage
+      }
+      h Route, {
+        path: permalinkRouteTemplate(appMode)
+        render: (props)=>
+          h ViewerPage, {
+            permalinkRoute: "/training/page"
+            nextImageEndpoint: "/image/validate"
+            subtitleText: "View training data"
+            props...
           }
-          h Route, {
-            path: '/view-training/:imageId?',
-            render: (props)=>
-              h ViewerPage, {
-                permalinkRoute: "/view-training"
-                nextImageEndpoint: "/image/validate"
-                subtitleText: "View training data"
-                props...
-              }
+      }
+      # This is probably deprecated
+      h Route, {
+        path: '/view-extractions/:imageId?',
+        render: (props)=>
+          h ViewerPage, {
+            nextImageEndpoint: "/image/next_prediction"
+            subtitleText: "View extractions"
+            props...
           }
-          h Route, {
-            path: '/view-extractions/:imageId?',
-            render: (props)=>
-              h ViewerPage, {
-                nextImageEndpoint: "/image/next_prediction"
-                subtitleText: "View extractions"
-                permalinkRoute: "/view-extractions"
-                props...
-              }
-          }
-          h Route, {
-            path: '/view-results/:imageId?',
-            component: ViewResults
-          }
-          h Route, {
-            path: '/knowledge-base'
-            component: KnowledgeBaseFilterView
-          }
-        ]
-      ]
+      }
+      # h PermalinkRoute, {
+      #   component: ViewResults
+      # }
+      h Route, {
+        path: '/knowledge-base'
+        component: KnowledgeBaseFilterView
+      }
     ]
 
 export {App, TaggingApplication}
