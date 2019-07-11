@@ -80,8 +80,6 @@ module.exports = ()=> {
         )
         ${baseSelect}
         ${buildWhereClause([...mainFilters, ...imageFilters])}`
-        console.log([mainFilters, ...imageFilters])
-        console.log([...mainFilters, ...imageFilters])
 
     } else if ( req.query.image_id === 'validate') {
 
@@ -118,18 +116,30 @@ module.exports = ()=> {
         ${buildWhereClause([...filters, ...imageFilters])}`;
 
     } else {
-      // Reset parameters entirely
-      if ('image_id' in req.query) {
-          filters = [`image_id = $(image_id)`, ...imageFilters]
-      } else {
-          filters = [...imageFilters]
-      }
+      // Reset filters entirely, so we don't expect a specific stack type
+      filters = [];
 
+      if ('image_id' in req.query) {
+        filters.push("image_id = $(image_id)");
+        params['image_id'] = req.query.image_id;
+      }
       // Ignore preset filters
-      query = `
-        ${baseSelect.replace("stack_id,", "array_agg(stack.stack_id) stack_ids,")}
-        ${buildWhereClause([...filters, ...imageFilters])}
-        GROUP BY image_id, doc_id, page_no, file_path, created `;
+      if (  'stack_id' in params ) {
+        // Return that specific stack id
+        filters.push("stack_id = $(stack_id)");
+        query = `
+          ${baseSelect}
+          ${buildWhereClause([...filters, ...imageFilters])}`;
+      } else {
+        /*
+        No specific stack_id is expected, so we return a list of stacks which contain
+        this image
+        */
+        query = `
+          ${baseSelect.replace("stack_id,", "array_agg(stack.stack_id) stack_ids,")}
+          ${buildWhereClause([...filters, ...imageFilters])}
+          GROUP BY image_id, doc_id, page_no, file_path, created `;
+      }
     }
 
     query += ` ORDER BY random() LIMIT 1`
