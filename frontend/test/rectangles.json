@@ -1,0 +1,37 @@
+[
+  {
+    "x": 201,
+    "y": 106,
+    "width": 609,
+    "height": 157,
+    "tag": "figure"
+  },
+  {
+    "width": 265,
+    "height": 153,
+    "x": 838,
+    "y": 116,
+    "tag": "caption"
+  },
+  {
+    "width": 939,
+    "height": 654,
+    "x": 192,
+    "y": 324,
+    "tag": "table"
+  },
+  {
+    "width": 742,
+    "height": 20,
+    "x": 194,
+    "y": 295,
+    "tag": "caption"
+  },
+  {
+    "width": 940,
+    "height": 108,
+    "x": 194,
+    "y": 984,
+    "tag": "caption"
+  }
+]
