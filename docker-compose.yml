@@ -1,70 +1,23 @@
 version: '3'
 services:
-  gateway:
-    image: nginx:1.15
-    ports:
-      - "5002:80"
-    depends_on:
-      - image-tagger-api
-      - frontend
-    volumes:
-      - ./_data/logs:/logs
-      - ${PIPELINE_OUTPUT}/images:/images:ro
-      - ${PIPELINE_OUTPUT}/html/img:/kb-images:ro
-      - ${IMAGES_TO_TAG}:/images_to_tag:ro
-      - ./frontend/dist:/frontend:ro
-      - ./nginx.conf:/etc/nginx/nginx.conf:ro
-  image-tagger-api:
-    build: api
-    environment:
-      # This should be changeable obviously
-      - IMAGE_TAGGER_API_MODE=annotate
-      - MAGIC_MODE=${MAGIC_MODE}
-    depends_on:
-      - db
-    volumes:
-      - ./api:/debug-src
-      - ./init-sql:/init-sql
-  db:
-    image: mdillon/postgis:11
-    volumes:
-      - ./_data/pg-cluster_two:/var/lib/postgresql/data
-    environment:
-      - POSTGRES_DB=annotations
-    ports:
-      - "54321:5432"
-    expose:
-      - 5432
-  import_data:
-    build: import_data
-    environment:
-      - DB_HOST=db
-      - PG_CONN_STR=postgresql://postgres:@db:5432/annotations
-      - ANNOTATION_STACK_NAME=default_to_tag
-      - PREDICTION_STACK_NAME=default
-#      # STACK_TYPE should be annotation or prediction
-#      - STACK_TYPE=annotation
-    volumes:
-      - ./init-sql:/init-sql
-      - ${PIPELINE_OUTPUT}:/output
-      - ${PIPELINE_OUTPUT}/images:/images
-      - ${IMAGES_TO_TAG}:/images_to_tag
   frontend:
     build: frontend
     ports:
-      - '34365:34365'
-    expose:
-      - 34365
+      - "5080:80"
     environment:
       # Public URL is settable from the
       # local environment
-      - PUBLIC_URL
-      - API_BASE_URL=${PUBLIC_URL}api
-      - IMAGE_BASE_URL=${PUBLIC_URL}images/
-      - DEBUG
+      - DEBUG=1
       - APPMODE=PREDICTION
     volumes:
-      - ./frontend:/user
+      - ./:/user
       - /user/node_modules
       - /user/ui-components/node_modules
       - /user/.cache
+      - ./logs:/logs
+
+# can now do things like connections.create_connection(hosts=['es01'], timeout=20)
+networks:
+   default:
+      external:
+         name: elasticsearch_esnet

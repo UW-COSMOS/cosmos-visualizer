@@ -11,9 +11,13 @@ class KBImage extends Component
   @contextType: ImageStoreContext
   render: ->
     {publicURL} = @context
-    {path, rest...} = @props
-    fn = path.replace "img/", ""
-    src = join(publicURL,"kb-images", fn)
+    {path, bytes, rest...} = @props
+    if bytes?
+        src="data:image/png;base64," + bytes
+    else
+        fn = path.replace "img/", ""
+        src = join(publicURL,"kb-images", fn)
+    
     h 'img', {src, rest...}
 
 getEntityType = (path)->
@@ -22,10 +26,10 @@ getEntityType = (path)->
 
 class KBExtraction extends Component
   render: ->
-    {unicode, path, className, title} = @props
-    entityType = getEntityType(path)
-    if entityType == "Body Text"
-      return null
+    {unicode, path, className, title, entityType, rest...} = @props
+    #entityType = getEntityType(path)
+    #if entityType == "Body Text"
+      #return null
 
     className = classNames(className, "extracted-entity")
 
@@ -35,7 +39,7 @@ class KBExtraction extends Component
           h 'h2', [
             entityType
           ]
-          h KBImage, {path}
+          h KBImage, {path, rest...}
         ]
       ]
     ]
@@ -95,10 +99,11 @@ TextMatch = (props)->
 class ModelExtraction extends Component
   render: ->
     {query, target_img_path, target_unicode,
-     assoc_img_path, assoc_unicode} = @props
+     assoc_img_path, assoc_unicode, bytes, content, pdf_name, _id, page_num} = @props
 
     main_img_path = null
     main_unicode = null
+
 
     assoc = null
     if assoc_img_path?
@@ -122,12 +127,30 @@ class ModelExtraction extends Component
         unicode: target_unicode
       }
 
+    # TODO: handle the new format here.
+    if bytes?
+      main_img_path = 'page ' + page_num + ' of docid ' + _id.replace('.pdf', '')
+      main_unicode = content
+      assoc = h KBExtraction, {
+        title: "Extracted thing"
+        bytes: bytes
+        unicode: content
+        path: _id
+        entityType: @props['class']
+      }
+
     # We don't have a result unless either main or target are defined
     return null unless main_img_path?
 
     try
       # Stupid hack
       docid = main_img_path.match(/([a-f0-9]{24})/g)[0]
+      gddCard = h GDDReferenceCard, {docid}
+    catch
+      gddCard = null
+
+    try
+      docid = pdf_name.match(/([a-f0-9]{24})/g)[0]
       gddCard = h GDDReferenceCard, {docid}
     catch
       gddCard = null

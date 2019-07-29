@@ -19,6 +19,9 @@ class KnowledgeBaseFilterView extends StatefulComponent
     @state = {
       doc_ids: []
       types: []
+      opts: {
+        unwrapResponse: (res)->res.success.data[0]
+      }
       filterParams: {
         query: ""
       }
@@ -35,7 +38,10 @@ class KnowledgeBaseFilterView extends StatefulComponent
       h InlineNavbar, {subtitle: 'Knowledge base filter'}
       @renderSearchbar()
       h PagedAPIView, {
-        route: '/model/extraction'
+        route: ''
+        opts: {
+          unwrapResponse: (res)->res.results
+        }
         params: filterParams
         topPagination: true
         bottomPagination: false
@@ -83,8 +89,16 @@ class KnowledgeBaseFilterView extends StatefulComponent
   getTypes: ->
     types = [
       {id: 'Figure', name: 'Figure'},
+      {id: 'Figure Caption', name: 'Figure Caption'},
       {id: 'Table', name: 'Table'},
-      {id: 'Equation', name: 'Equation'}
+      {id: 'Table Caption', name: 'Table Caption'},
+      {id: 'Equation', name: 'Equation'},
+      {id: 'Body Text', name: 'Body Text **DANGER**'},
+      {id: 'Reference text', name: 'Reference text'},
+      {id: 'Other', name: 'Other'},
+      {id: 'Page Header', name: 'Page Header'},
+      {id: 'Page Footer', name: 'Page Footer'},
+      {id: 'Section Header', name: 'Section Header'}
     ]
     @setState {types}
 
