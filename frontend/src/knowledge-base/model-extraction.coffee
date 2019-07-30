@@ -20,6 +20,12 @@ class KBImage extends Component
     
     h 'img', {src, rest...}
 
+class KBCode extends Component
+  render: ->
+    {publicURL} = @context
+    {path, entityType, unicode, rest...} = @props
+    h('div', {style: {'font-family': 'monospace'}}, unicode)
+
 getEntityType = (path)->
   # Hack to get entity type from image path
   basename(path, '.png').replace(/\d+$/, "")
@@ -39,7 +45,10 @@ class KBExtraction extends Component
           h 'h2', [
             entityType
           ]
-          h KBImage, {path, rest...}
+          if entityType == "code"
+            h KBCode, {path, entityType, unicode, rest...}
+          else
+            h KBImage, {path, entityType, rest...}
         ]
       ]
     ]
@@ -99,7 +108,7 @@ TextMatch = (props)->
 class ModelExtraction extends Component
   render: ->
     {query, target_img_path, target_unicode,
-     assoc_img_path, assoc_unicode, bytes, content, pdf_name, _id, page_num} = @props
+     assoc_img_path, assoc_unicode, bytes, content, pdf_name, _id, page_num, filename, line_number, full_content} = @props
 
     main_img_path = null
     main_unicode = null
@@ -136,7 +145,18 @@ class ModelExtraction extends Component
         bytes: bytes
         unicode: content
         path: _id
-        entityType: @props['class']
+        entityType: entityType
+      }
+
+    if full_content?
+      main_img_path = 'line ' + line_number + ' of file ' + filename
+      main_unicode = full_content
+      entityType = this.props['class']
+      assoc = h KBExtraction, {
+        title: "Extracted thing"
+        unicode: content
+        path: _id
+        entityType: entityType
       }
 
     # We don't have a result unless either main or target are defined
