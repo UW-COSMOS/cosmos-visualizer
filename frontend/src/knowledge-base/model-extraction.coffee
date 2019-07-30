@@ -139,6 +139,7 @@ class ModelExtraction extends Component
     # TODO: handle the new format here.
     if bytes?
       main_img_path = 'page ' + page_num + ' of docid ' + _id.replace('.pdf', '')
+      entityType = this.props['class']
       main_unicode = content
       assoc = h KBExtraction, {
         title: "Extracted thing"
