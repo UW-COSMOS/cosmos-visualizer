@@ -94,7 +94,7 @@ class KnowledgeBaseFilterView extends StatefulComponent
       {id: 'Table Caption', name: 'Table Caption'},
       {id: 'Equation', name: 'Equation'},
       {id: 'Code', name: 'Code'},
-      {id: 'Body Text', name: 'Body Text **DANGER**'},
+      {id: 'Body Text', name: 'Body Text'},
       {id: 'Reference text', name: 'Reference text'},
       {id: 'Other', name: 'Other'},
       {id: 'Page Header', name: 'Page Header'},
