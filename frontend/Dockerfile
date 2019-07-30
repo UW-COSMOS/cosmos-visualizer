@@ -3,6 +3,9 @@ WORKDIR /user
 
 COPY ./package.json /user
 COPY ./ui-components/ /user/ui-components
+
+# hacky fix for ui-components compilation issues
+COPY ./ui-components_package.json /user/ui-components/package.json
 COPY ./webpack.config.js /user
 
 RUN npm config set unsafe-perm true \
