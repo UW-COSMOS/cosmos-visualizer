@@ -5,12 +5,12 @@ COPY ./package.json /user
 COPY ./ui-components/ /user/ui-components
 COPY ./webpack.config.js /user
 
-RUN npm install -g linklocal webpack webpack-cli  \
+RUN npm config set unsafe-perm true \
+    && npm install -g linklocal webpack webpack-cli  \
     && echo "Installing node modules" \
     && npm install \
-    && ls \
-    && pwd \
-    && cd ui-components && npm install && cd ..
+    && cd ui-components && npm install && cd .. \
+    && npm config set unsafe-perm false
 
 ENV PUBLIC_URL="/"
 ENV API_BASE_URL="${PUBLIC_URL}search"
