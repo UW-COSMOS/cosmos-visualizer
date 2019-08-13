@@ -24,8 +24,7 @@ RUN echo "PUBLIC_URL: ${PUBLIC_URL}" \
         && echo "API_BASE_URL: ${API_BASE_URL}" \
         && echo "IMAGE_BASE_URL: $IMAGE_BASE_URL"
 COPY ./src/ /user/src/
-RUN webpack
 
-FROM nginx:1.15
-COPY --from=0 /user/dist /frontend
-COPY ./nginx.conf /etc/nginx/nginx.conf
+# We could change this to bail with just "webpack" for non-development mode
+CMD webpack --watch --mode=development
+
