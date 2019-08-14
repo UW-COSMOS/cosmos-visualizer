@@ -80,9 +80,6 @@ class ResultsLandingPage extends Component
 
     h 'div', {className: 'results-landing-page'}, [
       h InlineNavbar, {subtitle: "Model results"}
-      h LargeInsetText, [
-        h ModelInfoBox
-      ]
       h 'div.actions', [
         h ButtonGroup, {vertical: true}, [
           h InfoButton, {
@@ -111,4 +108,3 @@ class ResultsLandingPage extends Component
     ]
 
 export {ResultsLandingPage}
-

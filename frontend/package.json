@@ -9,7 +9,7 @@
     "@blueprintjs/select": "^3.8.0",
     "@emotion/core": "^10.0.7",
     "@emotion/styled": "^10.0.7",
-    "@macrostrat/ui-components": "file:./ui-components",
+    "@macrostrat/ui-components": "0.0.8",
     "@turf/bbox-polygon": "^6.0.1",
     "@turf/centroid": "^6.0.2",
     "@turf/combine": "^6.0.1",
@@ -58,7 +58,6 @@
     "webpack-cli": "^3.3.5"
   },
   "scripts": {
-    "preinstall": "linklocal",
     "watch": "mkdir -p dist && cp -r test dist && parcel index.html",
     "build": "rm -rf dist && mkdir -p dist && cp -r test dist && parcel build index.html --public-url './'",
     "test": "echo \"Error: no test specified\" && exit 1"

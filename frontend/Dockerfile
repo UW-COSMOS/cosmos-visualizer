@@ -2,17 +2,12 @@ FROM node:11-alpine
 WORKDIR /user
 
 COPY ./package.json /user
-COPY ./ui-components/ /user/ui-components
-
-# hacky fix for ui-components compilation issues
-COPY ./ui-components_package.json /user/ui-components/package.json
 COPY ./webpack.config.js /user
 
 RUN npm config set unsafe-perm true \
-    && npm install -g linklocal webpack webpack-cli  \
+    && npm install -g webpack webpack-cli  \
     && echo "Installing node modules" \
     && npm install \
-    && cd ui-components && npm install && cd .. \
     && npm config set unsafe-perm false
 
 ENV PUBLIC_URL="/"
@@ -27,4 +22,3 @@ COPY ./src/ /user/src/
 
 # We could change this to bail with just "webpack" for non-development mode
 CMD webpack --watch --mode=development
-
