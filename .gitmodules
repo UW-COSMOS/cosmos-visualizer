@@ -1,3 +1,0 @@
-[submodule "ui-components"]
-	path = frontend/ui-components
-	url = git://github.com/UW-Macrostrat/ui-components.git
