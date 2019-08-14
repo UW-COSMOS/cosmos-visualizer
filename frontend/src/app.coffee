@@ -1,7 +1,7 @@
 import {Component} from 'react'
 import h from 'react-hyperscript'
 
-import {BrowserRouter as Router, Route, Redirect, Switch, useContext} from 'react-router-dom'
+import {BrowserRouter as Router, Route, Redirect, Switch} from 'react-router-dom'
 
 import {APIContext} from './api'
 import {AppMode, UserRole} from './enum'
@@ -18,16 +18,6 @@ import {
 } from './permalinks'
 
 # /annotation/{stack_id}/page/{image_id}
-
-
-MainRouter = ({appMode, basename, rest...})->
-  h PermalinkProvider, {appMode}, (
-    h 'div.app-main', null, (
-      h Router, {basename}, (
-        h(Switch, rest)
-      )
-    )
-  )
 
 class TaggingApplication extends Component
   @contextType: APIContext
@@ -121,25 +111,30 @@ class TaggingApplication extends Component
 
   render: ->
     {publicURL} = @props
-    h MainRouter, {
-      basename: publicURL,
-      appMode: AppMode.ANNOTATION
-    }, [
-      h Route, {
-        path: '/',
-        exact: true,
-        render: @renderLoginForm
-      }
-      h Route, {
-        # This should be included from the context, but
-        # this is complicated from the react-router side
-        path: permalinkRouteTemplate(AppMode.ANNOTATION)
-        render: (props)=>
-          role = UserRole.VIEW_TRAINING
-          @renderUI({role, props...})
-      }
-      h Route, {path: '/action/:role', render: @renderUI}
-    ]
+    # Because of react-router v4's ridiculous structure, we can't treat
+    # MainRouter as a true functional component.
+    h PermalinkProvider, {appMode: AppMode.ANNOTATION}, (
+      h 'div.app-main', null, (
+        h Router, {basename: publicURL}, (
+          h 'div', [
+            h Route, {
+              path: '/',
+              exact: true,
+              render: @renderLoginForm
+            }
+            h Route, {
+              # This should be included from the context, but
+              # this is complicated from the react-router side
+              path: permalinkRouteTemplate(AppMode.ANNOTATION)
+              render: (props)=>
+                role = UserRole.VIEW_TRAINING
+                @renderUI({role, props...})
+            }
+            h Route, {path: '/action/:role', render: @renderUI}
+          ]
+        )
+      )
+    )
 
   setupPeople: (d)=>
     @setState {people: d}
@@ -195,39 +190,45 @@ class App extends Component
   }
   render: ->
     {publicURL, appMode} = @props
-    h MainRouter, {basename: publicURL, appMode}, [
-      h Route, {
-        path: '/',
-        exact: true,
-        component: ResultsLandingPage
-      }
-      h Route, {
-        path: permalinkRouteTemplate(appMode)
-        render: (props)=>
-          h ViewerPage, {
-            permalinkRoute: "/training/page"
-            nextImageEndpoint: "/image/validate"
-            subtitleText: "View training data"
-            props...
-          }
-      }
-      # This is probably deprecated
-      h Route, {
-        path: '/view-extractions/:imageId?',
-        render: (props)=>
-          h ViewerPage, {
-            nextImageEndpoint: "/image/next_prediction"
-            subtitleText: "View extractions"
-            props...
-          }
-      }
-      # h PermalinkRoute, {
-      #   component: ViewResults
-      # }
-      h Route, {
-        path: '/knowledge-base'
-        component: KnowledgeBaseFilterView
-      }
-    ]
+    h PermalinkProvider, {appMode: AppMode.PREDICTION}, (
+      h 'div.app-main', null, (
+        h Router, {basename: publicURL}, (
+          h 'div', [
+            h Route, {
+              path: '/',
+              exact: true,
+              component: ResultsLandingPage
+            }
+            h Route, {
+              path: permalinkRouteTemplate(appMode)
+              render: (props)=>
+                h ViewerPage, {
+                  permalinkRoute: "/training/page"
+                  nextImageEndpoint: "/image/validate"
+                  subtitleText: "View training data"
+                  props...
+                }
+            }
+            # This is probably deprecated
+            h Route, {
+              path: '/view-extractions/:imageId?',
+              render: (props)=>
+                h ViewerPage, {
+                  nextImageEndpoint: "/image/next_prediction"
+                  subtitleText: "View extractions"
+                  props...
+                }
+            }
+            # h PermalinkRoute, {
+            #   component: ViewResults
+            # }
+            h Route, {
+              path: '/knowledge-base'
+              component: KnowledgeBaseFilterView
+            }
+          ]
+        )
+      )
+    )
 
 export {App, TaggingApplication}
