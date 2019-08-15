@@ -65,23 +65,23 @@ class ImageContainer extends Component
 
   render: =>
     {actions, editingEnabled, editingRect,
-     tags, currentTag, imageTags, rest...} = @props
+     tags, currentTag, currentImage, imageTags, rest...} = @props
     {scaleFactor, image} = @state
     return null unless image?
     style = @scaledSize()
 
     h 'div.image-container', {style}, [
       h 'img', {src: @imageURL(image), style...}
-      #h ImageOverlay, {
-        #style...
-        #scaleFactor
-        #image_tags: imageTags
-        #currentTag
-        #tags
-        #actions
-        #editingEnabled
-        #editingRect
-      #}
+      h ImageOverlay, {
+        style...
+        scaleFactor
+        image_tags: image.pp_detected_objs
+        currentTag
+        tags
+        actions
+        editingEnabled
+        editingRect
+      }
     ]
 
   ensureImageDimensions: ({width, height, rest...})=>

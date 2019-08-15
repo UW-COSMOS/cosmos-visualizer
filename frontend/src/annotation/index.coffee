@@ -7,6 +7,8 @@ import {Navbar, MenuItem, Button, Intent} from '@blueprintjs/core'
 import classNames from 'classnames'
 import {EditMode} from '../enum'
 import {EditorContext} from '../image-overlay/context'
+import T from 'prop-types'
+
 
 ToolButton = (props)->
   h Button, {small: true, minimal: true, props...}
@@ -58,11 +60,12 @@ class Tag extends Component
 
   render: =>
     {tags} = @context
+
     {boxes, update, name, tag_id, rest...} = @props
 
     overallBounds = tagBounds(boxes)
 
-    c = @context.helpers.tagColor(tag_id)
+    c = @context.helpers.tagColorForName(name)
     alpha = 0.3
     if @isSelected()
       alpha = 0.6

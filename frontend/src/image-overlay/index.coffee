@@ -22,6 +22,13 @@ import './main.styl'
 {ADD_PART, LINK} = EditMode
 SHIFT_MODES = new Set([LINK, ADD_PART])
 
+transformTag = (d)->
+  console.log d
+  boxes = [d[0]]
+  name = d[1]
+  score = d[2]
+  return {boxes, name, score, tag_id: name}
+
 class ModalNotifications extends Component
   @contextType: EditorContext
   Messages: {
@@ -100,7 +107,9 @@ class ImageOverlay extends StatefulComponent
       image_tags = [image_tags..., inProgressAnnotation]
 
     console.log image_tags
-    image_tags.map (d, ix)=>
+    image_tags.map (v, ix)=>
+      d = transformTag v
+
       locked = lockedTags.has(d.tag_id)
       if locked
         return h LockedTag, {tags, d...}
@@ -167,12 +176,18 @@ class ImageOverlay extends StatefulComponent
     tagData ?= {color: 'black'}
     chroma(tagData.color)
 
+  tagColorForName: (name)=>
+    {tags} = @props
+    tagData = tags.find (d)->d.name == name
+    tagData ?= {color: 'black'}
+    chroma(tagData.color)
+
   contextValue: =>
     {actions, tags, currentTag, scaleFactor, width, height} = @props
     {editModes, shiftKey} = @state
     if shiftKey then editModes = SHIFT_MODES
     actions.setMode = @setMode
-    helpers = {tagColor: @tagColor}
+    helpers = {tagColor: @tagColor, tagColorForName: @tagColorForName}
 
     return {
       tags
