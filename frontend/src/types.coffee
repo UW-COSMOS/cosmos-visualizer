@@ -10,4 +10,16 @@ ImageShape = T.shape {
   stack_id: T.string.isRequired
 }
 
-export {ImageShape}
+PageExtractionShape = T.shape {
+  _id: T.string.isRequired # how we identify the page object in the COSMOS system
+  page_num: T.number.isRequired # page number within the pdf
+  pdf_id: T.string.isRequired # ID of the pdf in COSMOS
+  pdf_name: T.string
+  pp_detected_objs: T.arrayOf(T.array)
+  resize_bytes: T.string.isRequired
+  page_height: T.number.isRequired
+  page_width: T.number.isRequired
+}
+
+
+export {ImageShape, PageExtractionShape}

@@ -4,7 +4,7 @@ import {join} from 'path'
 
 import {ImageOverlay} from '../image-overlay'
 import {APIContext} from '../api'
-import {ImageShape} from '../types'
+import {PageExtractionShape} from '../types'
 
 ImageStoreContext = createContext({})
 
@@ -25,7 +25,7 @@ class ImageContainer extends Component
   }
   @contextType: ImageStoreContext
   @propTypes: {
-    image: ImageShape
+    image: PageExtractionShape
   }
 
   constructor: (props)->
@@ -46,7 +46,7 @@ class ImageContainer extends Component
       oldId = null
 
     return unless image?
-    return if nextProps.image.image_id == oldId
+    return if nextProps.image._id == oldId
     im =  await @ensureImageDimensions(image)
     @setState {image: im}
 
@@ -60,8 +60,8 @@ class ImageContainer extends Component
     return {width,height}
 
   imageURL: (image)=>
-    {baseURL} = @context
-    return join(baseURL, image.file_path)
+    {resize_bytes} = image
+    return "data:image/png;base64," + resize_bytes
 
   render: =>
     {actions, editingEnabled, editingRect,
@@ -72,16 +72,16 @@ class ImageContainer extends Component
 
     h 'div.image-container', {style}, [
       h 'img', {src: @imageURL(image), style...}
-      h ImageOverlay, {
-        style...
-        scaleFactor
-        image_tags: imageTags
-        currentTag
-        tags
-        actions
-        editingEnabled
-        editingRect
-      }
+      #h ImageOverlay, {
+        #style...
+        #scaleFactor
+        #image_tags: imageTags
+        #currentTag
+        #tags
+        #actions
+        #editingEnabled
+        #editingRect
+      #}
     ]
 
   ensureImageDimensions: ({width, height, rest...})=>

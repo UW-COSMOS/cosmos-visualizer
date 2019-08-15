@@ -314,14 +314,14 @@ class TaggingPage extends StatefulComponent
     # We are loading an image and
     return unless imageToDisplay?
     console.log "Getting image from endpoint #{imageToDisplay}"
-    d = await @context.get(imageToDisplay, {stack_id})
+    d = await @context.get(imageToDisplay, {stack_id}, {unwrapResponse: (res)->res.results})
     @onImageLoaded(d)
 
   onImageLoaded: (d)=>
-    console.log d
     if Array.isArray(d) and d.length == 1
       # API returns a single-item array
       d = d[0]
+    console.log d
 
     rectStore = []
     @setState {
