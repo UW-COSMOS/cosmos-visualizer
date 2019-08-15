@@ -11,8 +11,6 @@ services:
       - APPMODE=PREDICTION
     volumes:
       - ./frontend:/user
-      - /user/node_modules
-      - /user/ui-components/node_modules
       - /user/.cache
       - ./logs:/logs
 

@@ -1,4 +1,4 @@
-import '@macrostrat/ui-components/ui-init'
+import '@macrostrat/ui-components/init'
 import "@blueprintjs/select/lib/css/blueprint-select.css"
 import './main.styl'
 
