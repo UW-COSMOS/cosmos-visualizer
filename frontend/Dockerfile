@@ -5,7 +5,7 @@ COPY . /user
 
 RUN npm install
 
-ENV PUBLIC_URL="/"
+ENV PUBLIC_URL="/cosmos_enriched_tables/"
 ENV API_BASE_URL="${PUBLIC_URL}search"
 ENV IMAGE_BASE_URL="${PUBLIC_URL}images/"
 ENV APPMODE="PREDICTION"
