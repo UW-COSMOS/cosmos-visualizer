@@ -5,6 +5,7 @@ import {GDDReferenceCard} from '@macrostrat/ui-components'
 import {join, basename} from 'path'
 import {memoize} from 'underscore'
 import styled from '@emotion/styled'
+import {AnchorButton} from '@blueprintjs/core'
 import {ImageStoreContext} from '../image-container'
 
 class KBImage extends Component
@@ -108,7 +109,7 @@ TextMatch = (props)->
 class ModelExtraction extends Component
   render: ->
     {query, target_img_path, target_unicode,
-     assoc_img_path, assoc_unicode, bytes, content, pdf_name, _id, page_num, filename, line_number, full_content} = @props
+     assoc_img_path, assoc_unicode, bytes, content, pdf_name, _id, page_num, filename, line_number, full_content, table_df_tabulate} = @props
 
     main_img_path = null
     main_unicode = null
@@ -185,6 +186,19 @@ class ModelExtraction extends Component
         query
       }
       gddCard
+      h "pre", {style: {'display': 'inline-block', 'max-width' : '100%', 'overflow' : 'scroll'}}, table_df_tabulate
+      h AnchorButton, {text:"See More", href: "./search?id=#{_id}", target: "_blank"}
     ]
+
+#import {APIContext} from '@macrostrat/ui-components'
+#
+#DownloadButton = (props)->
+#    {buildURL} = useContext(APIContext)
+#    url = "/cosmos_enriched_tables/search"
+#    params = {id: _id}
+#    href = buildURL(url, params)
+#    console.log("In Downloadbutton")
+#    console.log(href)
+#    h AnchorButton, {text:"See More", href: "./search?id=#{_id}", target: "_blank"}
 
 export {ModelExtraction}
