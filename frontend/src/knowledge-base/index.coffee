@@ -34,6 +34,7 @@ class KnowledgeBaseFilterView extends StatefulComponent
 
   render: =>
     {filterParams} = @state
+    filterParams["biomass_filter"] = true
     h 'div#knowledge-base-filter.main', [
       h InlineNavbar, {subtitle: 'Knowledge base filter'}
       @renderSearchbar()
