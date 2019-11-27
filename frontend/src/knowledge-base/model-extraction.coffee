@@ -187,8 +187,9 @@ class ModelExtraction extends Component
         query
       }
       gddCard
-      h "pre", {style: {'display': 'inline-block', 'max-width' : '100%', 'overflow' : 'scroll'}}, table_df_tabulate
+#      h "pre", {style: {'display': 'inline-block', 'max-width' : '100%', 'overflow' : 'scroll'}}, table_df_tabulate
       h 'div.downloads', {"style" : {"text-align": "center"}}, [
+        h AnchorButton, {text:"Preview table", href: "./search/preview?id=#{_id}", target: "_blank"}
         h AnchorButton, {text:"Download pickled pandas dataframe", href: "./search/get_dataframe?id=#{_id}"}
         h AnchorButton, {text:"Download OCRed text", download: "#{_id}.txt", href: "data:application/octet-stream," + encodeURIComponent(content)}
         h AnchorButton, {text:"See full stored object", href: "./search?id=#{_id}", target: "_blank"}
