@@ -109,7 +109,8 @@ TextMatch = (props)->
 class ModelExtraction extends Component
   render: ->
     {query, target_img_path, target_unicode,
-     assoc_img_path, assoc_unicode, bytes, content, pdf_name, _id, page_num, filename, line_number, full_content, table_df_tabulate} = @props
+     assoc_img_path, assoc_unicode, bytes, content, pdf_name, _id, page_num, 
+     filename, line_number, full_content, table_df, table_df_tabulate} = @props
 
     main_img_path = null
     main_unicode = null
@@ -187,8 +188,13 @@ class ModelExtraction extends Component
       }
       gddCard
       h "pre", {style: {'display': 'inline-block', 'max-width' : '100%', 'overflow' : 'scroll'}}, table_df_tabulate
-      h AnchorButton, {text:"See More", href: "./search?id=#{_id}", target: "_blank"}
+      h 'div.downloads', {"style" : {"text-align": "center"}}, [
+        h AnchorButton, {text:"Download pickled pandas dataframe", href: "./search/get_dataframe?id=#{_id}"}
+        h AnchorButton, {text:"Download OCRed text", download: "#{_id}.txt", href: "data:application/octet-stream," + encodeURIComponent(content)}
+        h AnchorButton, {text:"See full stored object", href: "./search?id=#{_id}", target: "_blank"}
+      ]
     ]
+#    pickle.loads(base64.decodebytes(open("5dd31ab19878524fb7afab9d.pickle").read().encode("ascii")))
 
 #import {APIContext} from '@macrostrat/ui-components'
 #
