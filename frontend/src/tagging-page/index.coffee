@@ -329,10 +329,11 @@ class TaggingPage extends StatefulComponent
       rectStore
       initialRectStore: rectStore
     }
+
     AppToaster.show {
       message: h 'div', [
         "Loaded image "
-        h "code", d.image_id
+        h "code", d._id
         "."
       ]
       intent: Intent.PRIMARY
