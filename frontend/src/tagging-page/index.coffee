@@ -1,5 +1,5 @@
 import {Component, createContext} from 'react'
-import h from 'react-hyperscript'
+import h from '@macrostrat/hyper'
 import uuidv4 from 'uuid/v4'
 import {findDOMNode} from 'react-dom'
 import 'd3-jetpack'

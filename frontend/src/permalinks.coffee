@@ -1,6 +1,6 @@
 import {Component, createContext, useContext} from 'react'
 import h from 'react-hyperscript'
-import {Link, Route, withRouter} from 'react-router-dom'
+import {Link, Route, useRouteMatch} from 'react-router-dom'
 import {Navbar} from '@blueprintjs/core'
 import {LinkButton} from '@macrostrat/ui-components'
 import T from 'prop-types'
@@ -37,10 +37,9 @@ class PermalinkProvider extends Component
     value = @getValue()
     h PermalinkContext.Provider, {value, rest...}
 
-PermalinkButton = withRouter (props)->
+PermalinkButton = ({image})->
   ctx = useContext(PermalinkContext)
-  {image, match} = props
-  {params: {imageId, stackId}} = match
+  {params: {imageId, stackId}} = useRouteMatch()
   return null unless image?
   {image_id, stack_id} = image
   text = "Permalink"
@@ -57,9 +56,9 @@ PermalinkButton = withRouter (props)->
     text
   }
 
-# PermalinkButton.propTypes = {
-#   image: ImageShape
-# }
+PermalinkButton.propTypes = {
+  image: ImageShape
+}
 
 export {
   PermalinkButton,
