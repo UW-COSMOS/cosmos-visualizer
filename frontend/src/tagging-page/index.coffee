@@ -329,10 +329,11 @@ class TaggingPage extends StatefulComponent
       rectStore
       initialRectStore: rectStore
     }
+
     AppToaster.show {
       message: h 'div', [
         "Loaded image "
-        h "code", d.image_id
+        h "code", d._id
         "."
       ]
       intent: Intent.PRIMARY
@@ -356,9 +357,8 @@ class TaggingPage extends StatefulComponent
 
     image_tags = []
     route = "tags"
-    t = await @context.get "#{imageRoute}/#{image_id}/#{stack_id}/#{route}", {validated: false}
-    image_tags = image_tags.concat(t)
-
+    #t = await @context.get "#{imageRoute}/#{image_id}/#{stack_id}/#{route}", {validated: false}
+    #image_tags = image_tags.concat(t)
     @setState {rectStore: image_tags, initialRectStore: image_tags}
 
   componentDidUpdate: ->
