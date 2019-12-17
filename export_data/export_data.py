@@ -1,5 +1,5 @@
 """
-File: dump_to_xml.py
+File: export_data.py
 Author: Ian Ross
 Email: iross@cs.wisc.edu
 Description: Quick way to dump the annotations into VOC-formatted XML. As a
@@ -13,7 +13,10 @@ import psycopg2, psycopg2.extras
 import os, sys
 from PIL import Image
 from shutil import copyfile
-conn = psycopg2.connect("host=localhost port=54321 dbname=annotations user=postgres")
+PG_CONN_STR = os.getenv("PG_CONN_STR")
+if PG_CONN_STR is None:
+    PG_CONN_STR="postgresql://postgres:@db:5432/annotations"
+conn = psycopg2.connect(PG_CONN_STR)
 cur_images = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
 cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
 
@@ -27,7 +30,7 @@ def get_bbox_from_geom(geom):
 
 if __name__ == '__main__':
     if len(sys.argv) <= 2:
-        print("Please specify and input and output directory! python dump_to_xml.py [location_of_images] [output]")
+        print("Please specify and input and output directory! python export_data.py [location_of_images] [output]")
         sys.exit(1)
     input_dir = sys.argv[1]
     output_dir = sys.argv[2]

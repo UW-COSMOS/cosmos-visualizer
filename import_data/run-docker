@@ -1,0 +1,14 @@
+#!/bin/sh
+
+while ! $(psql -h ${DB_HOST} -p 5432 -U postgres annotations > /dev/null 2>&1) ; do
+  echo "Waiting for database..."
+  sleep 1
+done
+
+echo "Running database initialization SQL"
+cat /init-sql/*.sql | psql -U postgres -h ${DB_HOST} -p 5432 annotations
+
+echo "Importing predictions/results with stack name ${PREDICTION_STACK_NAME}"
+python import_data.py /output/ /images/ ${PREDICTION_STACK_NAME} prediction
+echo "Importing images for tagging with stack name ${ANNOTATION_STACK_NAME}"
+python import_data.py /output/ /images_to_tag/ ${ANNOTATION_STACK_NAME} annotation

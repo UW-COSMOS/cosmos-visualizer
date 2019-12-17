@@ -1,12 +1,16 @@
 module.exports = {
-  path: '/image/:image_id/tags',
-  displayPath: '/image/:image_id/tags',
+  path: '/image/:image_id/:stack_id/tags',
+  displayPath: '/image/:image_id/:stack_id/tags',
   methods: ['GET', 'POST'],
   description: 'Retrieve or add tags for a given image',
   parameters: {
     'image_id': {
       'positional': true,
       'description': `A valid image identifier`
+    },
+    'stack_id': {
+      'positional': true,
+      'description': `A valid stack identifier`
     },
     'tags': {
       'description': 'An array of tag objects. Each object must have a tag_id, min_x, min_y, max_x, max_y'

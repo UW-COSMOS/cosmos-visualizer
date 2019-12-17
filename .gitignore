@@ -3,3 +3,4 @@ package-lock.json
 annotations.sqlite
 api_key.js
 _data
+frontend/logs

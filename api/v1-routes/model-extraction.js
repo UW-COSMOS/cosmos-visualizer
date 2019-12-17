@@ -2,6 +2,7 @@ async function handler(req, res, next, plugins) {
   const {db} = plugins;
   let params = {};
   params['doc_id'] = req.query.doc_id || '\\w+'; // Get all documents by default
+  params['page_no'] = req.query.page_no || '\\w+'; 
   params['stack_id'] = req.query.stack_id || 'default'; // not needed yet, but will be
   params['btype'] = req.query.type || '\\w+';
   params['query'] = req.query.query || '\\w+';
@@ -16,24 +17,20 @@ async function handler(req, res, next, plugins) {
   params['limit'] = req.query.limit || 10;
 
   let base = `
-    WITH a AS (
-    SELECT
-      trim(regexp_replace(target_unicode, '\\s+', ' ', 'g')) target_unicode,
-      target_img_path,
-      target_tesseract,
-      assoc_img_path,
-      assoc_unicode,
-      assoc_tesseract,
-      html_file
-    FROM equations.figures_and_tables
-    )
-    SELECT * FROM a
-    WHERE concat(target_img_path, assoc_img_path) ~ '$<btype:raw>\\d'`;
+    SELECT * FROM model_results.entity
+    WHERE path_data ~ '$<btype:raw>\\d'`;
 
   const q_ = req.query.query || "";
   if (q_ != '') {
     base += "AND target_unicode ilike '%%$<query:raw>%%'"
   }
+  if (req.query.doc_id) {
+      base += " AND substring(path_data from '\\/([0-9a-fA-F]+?)\\.')=$<doc_id>"
+  }
+  if (req.query.page_no) {
+      base += " AND substring(path_data from 'pdf_(\\d+)\\/')=$<page_no>::text"
+  }
+
 
   const countQ = base.replace("*", "count(*)")
   // For pagination
@@ -72,7 +69,11 @@ const params = {
   'limit': {
     'type': 'integer',
     'description': 'Query result limit'
-  }
+  },
+  'page_no': {
+    'type': 'integer',
+    'description': 'page number'
+  },
 };
 
 module.exports = {

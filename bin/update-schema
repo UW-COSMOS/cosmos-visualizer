@@ -1,0 +1,5 @@
+#!/usr/bin/env zsh
+
+cat ./init-sql/*.sql \
+| docker-compose exec -T db \
+  psql -U postgres annotations

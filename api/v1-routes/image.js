@@ -11,10 +11,14 @@ module.exports = {
     'validated': {
       'type': 'boolean',
       'description': `When specifying 'next' or 'validate', will limit possible results to either images that have been validated at least once or images that have not been validated.`
+    },
+    'stack_id':{
+      'type': 'text',
+      'description': `Will filter the result to the requested 'stack_id'. This allows distinction between different sets of annotations (or results). If not specified, the full collection is considered.`
     }
   },
   requiredParameters: [ ],
-  requiresOneOf: [ 'image_id' ],
+  requiresOneOf: [ 'image_id', 'doc_id' ],
   fields: {
     'url': {
       'type': 'text',
@@ -34,4 +38,18 @@ module.exports = {
     '/api/v1/image/next',
   ],
   handler: require("../handlers/image")()
+}
+
+if (process.env.MAGIC_MODE === '1'){
+    module.exports.parameters['doc_id'] = 
+    {
+      'type': 'text',
+      'description': `GDD docid`
+    }
+    module.exports.parameters['page_no'] = 
+    {
+      'type': 'integer',
+      'description': `Page number`
+    }
+
 }

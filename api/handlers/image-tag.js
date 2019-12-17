@@ -7,7 +7,7 @@ async function handleGet(req, res, next, plugins) {
   let where = []
   let params = {};
   params['image_id'] = req.query.image_id;
-  params['stack_id'] = req.query.stack_id || 'default'
+  params['stack_id'] = req.query.stack_id
 
   if ('validated' in req.query && req.query.validated === true) {
     where.push(`it.validator IS NOT NULL`)
@@ -40,7 +40,9 @@ async function handleGet(req, res, next, plugins) {
       JOIN image_tag it
         ON it.tag_id = tag.tag_id
       JOIN image_stack USING (image_stack_id)
+      JOIN stack USING (stack_id)
       WHERE image_stack.image_id = $(image_id)
+      AND stack.stack_id = $(stack_id)
       ${where.length ? ' AND ' + where.join(' AND ') : ''}
     `, params);
 
