@@ -1,3 +1,6 @@
+# January 16, 2020: brought this back from earlier version to
+# handle tagging application (building initial training data).
+# This currently builds but does not run a working application.
 version: '3'
 services:
   gateway:
@@ -23,8 +26,8 @@ services:
     depends_on:
       - db
     volumes:
-      - ./api:/debug-src
-      - ./init-sql:/init-sql
+      - ./tagging-application/api:/debug-src
+      - ./tagging-application/init-sql:/init-sql
   db:
     image: mdillon/postgis:11
     volumes:
