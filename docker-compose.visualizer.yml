@@ -2,7 +2,7 @@
 version: '3'
 services:
   frontend:
-    build: frontend
+    build: frontend-shared
     environment:
       # Public URL is settable from the
       # local environment
@@ -15,15 +15,13 @@ services:
     volumes:
       - ./frontend-shared/src:/user/src
       - visualizer_dist:/user/dist
-      - ./logs:/logs
   gateway:
     image: nginx
     ports:
       - "5080:80"
     volumes:
-      - ./frontend-shared/logs:/logs
       - visualizer_dist:/frontend:ro
-      - ./frontend/nginx.frontend-only.conf:/etc/nginx/nginx.conf:ro
+      - ./frontend-shared/nginx.frontend-only.conf:/etc/nginx/nginx.conf:ro
 volumes:
   visualizer_dist:
 #

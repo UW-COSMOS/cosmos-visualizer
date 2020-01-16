@@ -53,7 +53,7 @@ services:
       - ${PIPELINE_OUTPUT}/images:/images
       - ${IMAGES_TO_TAG}:/images_to_tag
   frontend:
-    build: frontend
+    build: frontend-shared
     ports:
       - '34365:34365'
     expose:
