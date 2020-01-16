@@ -7,6 +7,7 @@ services:
       # Public URL is settable from the
       # local environment
       - DEBUG=1
+      # The two possible app modes are ANNOTATION and PREDICTION
       - APPMODE=PREDICTION
       - PUBLIC_URL=/
       - API_BASE_URL=http://cosmos1.chtc.wisc.edu:5080/search
