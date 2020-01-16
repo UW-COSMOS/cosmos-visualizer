@@ -13,7 +13,7 @@ services:
       - API_BASE_URL=http://cosmos1.chtc.wisc.edu:5080/search
       - IMAGE_BASE_URL=http://cosmos1.chtc.wisc.edu:5080/images/
     volumes:
-      - ./frontend/src:/user/src
+      - ./frontend-shared/src:/user/src
       - visualizer_dist:/user/dist
       - ./logs:/logs
   gateway:
@@ -21,7 +21,7 @@ services:
     ports:
       - "5080:80"
     volumes:
-      - ./frontend/logs:/logs
+      - ./frontend-shared/logs:/logs
       - visualizer_dist:/frontend:ro
       - ./frontend/nginx.frontend-only.conf:/etc/nginx/nginx.conf:ro
 volumes:
