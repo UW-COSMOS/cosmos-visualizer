@@ -83,15 +83,13 @@ class ModalNotifications extends Component {
 ModalNotifications.initClass();
 
 class ImageOverlay extends StatefulComponent {
-  static initClass() {
-    this.defaultProps = {
-      // Distance we take as a click before switching to drag
-      clickDistance: 10,
-      editingEnabled: true,
-      selectIsOpen: false,
-      lockedTags: new Set([])
-    };
-  }
+  static defaultProps = {
+    // Distance we take as a click before switching to drag
+    clickDistance: 10,
+    editingEnabled: true,
+    selectIsOpen: false,
+    lockedTags: new Set([])
+  };
   constructor(props){
     {
       // Hack: trick Babel/TypeScript into allowing this before super.
@@ -100,7 +98,6 @@ class ImageOverlay extends StatefulComponent {
       let thisName = thisFn.match(/return (?:_assertThisInitialized\()*(\w+)\)*;/)[1];
       eval(`${thisName} = this;`);
     }
-    this.componentWillReceiveProps = this.componentWillReceiveProps.bind(this);
     this.selectAnnotation = this.selectAnnotation.bind(this);
     this.tagColor = this.tagColor.bind(this);
     this.tagColorForName = this.tagColorForName.bind(this);
@@ -149,7 +146,6 @@ class ImageOverlay extends StatefulComponent {
       image_tags = [...image_tags, inProgressAnnotation];
     }
 
-    console.log(image_tags);
     return image_tags.map((v, ix)=> {
       const d = transformTag(v);
 
@@ -181,6 +177,7 @@ class ImageOverlay extends StatefulComponent {
         };
       }
       const onMouseDown = () => {
+        console.log(ix);
         //return if editingRect == ix
         (this.selectAnnotation(ix))();
         this.setState({clickingInRect: ix});
@@ -279,10 +276,15 @@ class ImageOverlay extends StatefulComponent {
   handleDrag() {
     const {subject} = event;
     let {x,y} = subject;
-    let {clickDistance, editingRect, currentTag,
-     scaleFactor, editingEnabled,
-     lockedTags, image_tags} = this.props;
-    const {clickingInRect} = this.state;
+    let {
+      clickDistance,
+      editingRect,
+      currentTag,
+      scaleFactor,
+      editingEnabled,
+      lockedTags,
+      image_tags
+    } = this.props;
     if (!editingEnabled) { return; }
     if (lockedTags.has(currentTag)) {
       throw "Attempting to create a locked tag";
@@ -402,7 +404,6 @@ class ImageOverlay extends StatefulComponent {
     });
   }
 }
-ImageOverlay.initClass();
 
 ImageOverlay = HotkeysTarget(ImageOverlay);
 

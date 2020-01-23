@@ -9,13 +9,11 @@
 import {Component} from 'react';
 import h from 'react-hyperscript';
 import {min, max} from 'd3-array';
-import {DragRectangle, Rectangle} from './drag-rect';
-import {Select} from '@blueprintjs/select';
-import {Navbar, MenuItem, Button, Intent} from '@blueprintjs/core';
+import {Rectangle} from './drag-rect';
+import {Button, Intent} from '@blueprintjs/core';
 import classNames from 'classnames';
 import {EditMode} from '../enum';
 import {EditorContext} from '../image-overlay/context';
-import T from 'prop-types';
 
 
 const ToolButton = props => h(Button, {small: true, minimal: true, ...props});

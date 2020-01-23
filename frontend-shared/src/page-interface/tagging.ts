@@ -6,15 +6,12 @@
  * DS207: Consider shorter variations of null checks
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
  */
-import {Component, createContext} from 'react';
 import h from '@macrostrat/hyper';
 import uuidv4 from 'uuid/v4';
-import {findDOMNode} from 'react-dom';
 import 'd3-jetpack';
 import chroma from 'chroma-js';
-import {Link} from 'react-router-dom';
 import {Navbar, Button, ButtonGroup,
-        Intent, Alignment, Text, Icon} from "@blueprintjs/core";
+        Intent, Alignment} from "@blueprintjs/core";
 import T from 'prop-types';
 
 import {StatefulComponent} from '@macrostrat/ui-components';
@@ -52,7 +49,6 @@ class TaggingPage extends StatefulComponent {
     }
     this.updateAnnotation = this.updateAnnotation.bind(this);
     this.addLink = this.addLink.bind(this);
-    this.deleteAnnotation = this.deleteAnnotation.bind(this);
     this.updateCurrentTag = this.updateCurrentTag.bind(this);
     this.selectAnnotation = this.selectAnnotation.bind(this);
     this.appendAnnotation = this.appendAnnotation.bind(this);
@@ -106,7 +102,7 @@ class TaggingPage extends StatefulComponent {
     return this.updateState(spec);
   }; }
 
-  deleteAnnotation(i){ return () => {
+  deleteAnnotation = (i: number) => {
     const {rectStore, editingRect} = this.state;
     const spec = {
       rectStore: {$splice: [[i,1]]}
@@ -122,7 +118,7 @@ class TaggingPage extends StatefulComponent {
       spec.rectStore[i] = {linked_to: {$set: null}};
     }
     return this.updateState(spec);
-  }; }
+  };
 
   updateCurrentTag(tag_id){ return () => {
     console.log(`Current tag: ${tag_id}`);
