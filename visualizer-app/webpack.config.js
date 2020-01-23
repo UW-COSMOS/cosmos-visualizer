@@ -8,8 +8,13 @@ let assetsRoute = path.join(process.env.PUBLIC_URL);
 let jsLoader = {
   loader: 'babel-loader',
   options: {
-    presets: ['@babel/preset-env', '@babel/preset-react'],
-    plugins: ["emotion"]
+    presets: ['@babel/preset-env', '@babel/preset-react', "@babel/preset-typescript"],
+    plugins: [
+      "emotion",
+      "@babel/plugin-proposal-nullish-coalescing-operator",
+      "@babel/plugin-proposal-optional-chaining",
+      "@babel/plugin-proposal-class-properties"
+    ]
   }
 };
 
@@ -26,7 +31,7 @@ module.exports = {
   module: {
     rules: [
       {test: /\.coffee$/, use: [ jsLoader, "coffee-loader" ]},
-      {test: /\.(js|jsx)$/, use: [ jsLoader ], exclude: /node_modules/ },
+      {test: /\.(js|jsx|ts|tsx)$/, use: [ jsLoader ], exclude: /node_modules/ },
       {test: /\.styl$/, use: ["style-loader", "css-loader", stylusLoader]},
       {test: /\.css$/, use: ["style-loader", 'css-loader' ]},
       {test: /\.(eot|svg|ttf|woff|woff2)$/, use: [fontLoader]},
@@ -35,12 +40,16 @@ module.exports = {
   },
   devtool: 'source-map',
   resolve: {
-    extensions: [".coffee", ".js", ".styl",".css",".html",".md"],
+    extensions: [".coffee", ".js", ".ts", ".jsx", ".tsx", ".styl",".css",".html",".md"],
     alias: {
       "app": path.resolve(__dirname, "src/"),
     }
   },
+<<<<<<< HEAD:visualizer-app/webpack.config.js
   entry: './src/index.js',
+=======
+  entry: './src/index.ts',
+>>>>>>> 96329ba:frontend-shared/webpack.config.js
   output: {
     path: assetsDir,
     publicPath: assetsRoute,
