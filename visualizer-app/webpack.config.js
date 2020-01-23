@@ -40,7 +40,7 @@ module.exports = {
       "app": path.resolve(__dirname, "src/"),
     }
   },
-  entry: './src/index.coffee',
+  entry: './src/index.js',
   output: {
     path: assetsDir,
     publicPath: assetsRoute,

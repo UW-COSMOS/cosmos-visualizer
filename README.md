@@ -28,6 +28,10 @@ by setting the `PIPELINE_OUTPUT` environment variable to the path to the output 
 
 ### Running for development
 
+
+- To run the "tagging" application, use the command `bin/run-tagging`.
+- To run the "visualizer" application, use `bin/run-visualizer`.
+
 Debug mode enables hot-reloading of the API and compilation of frontend javascript code.
 
 To start, make sure you have the latest version of all submodules with `git submodule update --init`.
