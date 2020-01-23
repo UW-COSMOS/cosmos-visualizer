@@ -9,7 +9,7 @@
 import {Component} from 'react';
 import h from 'react-hyperscript';
 
-import {BrowserRouter as Router, Route, Redirect, Switch, useContext} from 'react-router-dom';
+import {BrowserRouter as Router, Route, Redirect, Switch} from 'react-router-dom';
 
 import {APIContext} from './api';
 import {AppMode, UserRole} from './enum';
@@ -20,8 +20,6 @@ import {ResultsPage} from './results-page';
 import {TaggingPage} from './tagging-page';
 import {
   PermalinkProvider,
-  PermalinkSwitch,
-  PermalinkContext,
   permalinkRouteTemplate
 } from './permalinks';
 
@@ -38,20 +36,8 @@ const MainRouter = ({appMode, basename, ...rest}) => h(PermalinkProvider, {appMo
 );
 
 class TaggingApplication extends Component {
-  static initClass() {
-    this.contextType = APIContext;
-  }
+  static contextType = APIContext;
   constructor(props){
-    {
-      // Hack: trick Babel/TypeScript into allowing this before super.
-      if (false) { super(); }
-      let thisFn = (() => { return this; }).toString();
-      let thisName = thisFn.match(/return (?:_assertThisInitialized\()*(\w+)\)*;/)[1];
-      eval(`${thisName} = this;`);
-    }
-    this.allRequiredOptionsAreSet = this.allRequiredOptionsAreSet.bind(this);
-    this.renderUI = this.renderUI.bind(this);
-    this.renderLoginForm = this.renderLoginForm.bind(this);
     this.setupPeople = this.setupPeople.bind(this);
     this.setPerson = this.setPerson.bind(this);
     this.componentDidMount = this.componentDidMount.bind(this);
@@ -62,7 +48,7 @@ class TaggingApplication extends Component {
     };
   }
 
-  allRequiredOptionsAreSet(role){
+  allRequiredOptionsAreSet = (role)=>{
     const {person} = this.state;
     if (role == null) { return false; }
     // Doesn't matter what privileges we have to view tags
@@ -78,7 +64,7 @@ class TaggingApplication extends Component {
     return false;
   }
 
-  renderUI({match, role}){
+  renderUI = ({match, role}) => {
 
     // Go to specific image by default, if set
     let navigationEnabled, subtitleText;
@@ -145,7 +131,7 @@ class TaggingApplication extends Component {
     });
   }
 
-  renderLoginForm() {
+  renderLoginForm = ()=> {
     const {person, people} = this.state;
     if (people == null) { return null; }
     return h(LoginForm, {
@@ -154,7 +140,7 @@ class TaggingApplication extends Component {
     });
   }
 
-  render() {
+  render = () => {
     const {publicURL} = this.props;
     return h(MainRouter, {
       basename: publicURL,
@@ -178,16 +164,16 @@ class TaggingApplication extends Component {
     ]);
   }
 
-  setupPeople(d){
+  setupPeople = (d)=>{
     return this.setState({people: d});
   }
 
-  setPerson(person){
+  setPerson = (person)=>{
     this.setState({person});
     return localStorage.setItem('person', JSON.stringify(person));
   }
 
-  componentDidMount() {
+  componentDidMount = ()=> {
     this.context.get("/people/all")
     .then(this.setupPeople);
 
@@ -196,7 +182,6 @@ class TaggingApplication extends Component {
     return this.setState({person: JSON.parse(p)});
   }
 }
-TaggingApplication.initClass();
 
 const ViewerPage = ({match, ...rest})=> {
   // Go to specific image by default, if set

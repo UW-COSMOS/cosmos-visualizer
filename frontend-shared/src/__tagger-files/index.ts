@@ -4,26 +4,40 @@
  * DS207: Consider shorter variations of null checks
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
  */
+let AppHolder;
 import '@macrostrat/ui-components/init';
 import "@blueprintjs/select/lib/css/blueprint-select.css";
 import './main.styl';
 
 import {render} from 'react-dom';
 import h from 'react-hyperscript';
-import {App} from './app';
+import {App, TaggingApplication} from './app';
 import {APIProvider} from './api';
 import {ImageStoreProvider} from './image-container';
 
-const AppHolder = props => {
-  const {baseURL, imageBaseURL, publicURL, ...rest} = props;
-  return h(APIProvider, {baseURL}, [
-    h(ImageStoreProvider, {baseURL: imageBaseURL, publicURL}, [
-        h(App, {imageBaseURL, publicURL, ...rest})
-    ])
-  ]);
+console.log("Application running in mode:");
+console.log(process.env.APPMODE);
+if (process.env.APPMODE === 'ANNOTATION') {
+  AppHolder = props=> {
+    const {baseURL, imageBaseURL, publicURL, ...rest} = props;
+    return h(APIProvider, {baseURL}, [
+      h(ImageStoreProvider, {baseURL: imageBaseURL, publicURL}, [
+          h(TaggingApplication, {imageBaseURL, publicURL, ...rest})
+      ])
+    ]);
+  };
+} else if (process.env.APPMODE === 'PREDICTION') {
+  AppHolder = props=> {
+    const {baseURL, imageBaseURL, publicURL, ...rest} = props;
+    return h(APIProvider, {baseURL}, [
+      h(ImageStoreProvider, {baseURL: imageBaseURL, publicURL}, [
+          h(App, {imageBaseURL, publicURL, ...rest})
+      ])
+    ]);
+  };
 }
 
-const createUI = function(opts){
+window.createUI = function(opts){
   if (opts == null) { opts = {}; }
   let {baseURL, imageBaseURL, publicURL} = opts;
 
@@ -61,4 +75,4 @@ IMAGE_BASE_URL: ${process.env.IMAGE_BASE_URL}\
 };
 
 // Actually run the UI (changed for webpack)
-createUI();
+window.createUI();

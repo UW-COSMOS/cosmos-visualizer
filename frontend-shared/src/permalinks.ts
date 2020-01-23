@@ -1,15 +1,6 @@
-/*
- * decaffeinate suggestions:
- * DS001: Remove Babel/TypeScript constructor workaround
- * DS102: Remove unnecessary code created because of implicit returns
- * DS206: Consider reworking classes to avoid initClass
- * DS207: Consider shorter variations of null checks
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
 import {Component, createContext, useContext} from 'react';
 import h from 'react-hyperscript';
-import {Link, Route, useRouteMatch} from 'react-router-dom';
-import {Navbar} from '@blueprintjs/core';
+import {useRouteMatch} from 'react-router-dom';
 import {LinkButton} from '@macrostrat/ui-components';
 import T from 'prop-types';
 import {AppMode} from './enum';
@@ -20,35 +11,22 @@ const PermalinkContext = createContext({});
 const permalinkRouteTemplate = appMode => `/${appMode}/:stackId/page/:imageId`;
 
 class PermalinkProvider extends Component {
-  constructor(...args) {
-    {
-      // Hack: trick Babel/TypeScript into allowing this before super.
-      if (false) { super(); }
-      let thisFn = (() => { return this; }).toString();
-      let thisName = thisFn.match(/return (?:_assertThisInitialized\()*(\w+)\)*;/)[1];
-      eval(`${thisName} = this;`);
-    }
-    this.permalinkTo = this.permalinkTo.bind(this);
-    super(...args);
-  }
 
-  static initClass() {
-    this.propTypes = {
-      appMode: T.oneOf([
-        AppMode.ANNOTATION,
-        AppMode.PREDICTION
-      ])
-    };
-  }
+  static propTypes = {
+    appMode: T.oneOf([
+      AppMode.ANNOTATION,
+      AppMode.PREDICTION
+    ])
+  };
 
-  permalinkTo({stack_id, image_id}){
+  permalinkTo = ({stack_id, image_id}) => {
     const {pageTemplate} = this.getValue();
     return pageTemplate
       .replace(":stackId",stack_id)
       .replace(":imageId",image_id);
   }
 
-  getValue() {
+  getValue = () => {
     const {appMode} = this.props;
     const {permalinkTo} = this;
     const pageTemplate = permalinkRouteTemplate(appMode);
@@ -61,7 +39,6 @@ class PermalinkProvider extends Component {
     return h(PermalinkContext.Provider, {value, ...rest});
   }
 }
-PermalinkProvider.initClass();
 
 const PermalinkButton = function({image}){
   const ctx = useContext(PermalinkContext);
