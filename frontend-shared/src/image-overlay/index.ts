@@ -6,7 +6,7 @@
  * DS207: Consider shorter variations of null checks
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
  */
-import {Component, createContext} from 'react';
+import {Component, createContext, useContext} from 'react';
 import h from 'react-hyperscript';
 import {select, event} from 'd3-selection';
 import {drag} from 'd3-drag';
@@ -22,8 +22,7 @@ import {EditorContext} from './context';
 
 import chroma from 'chroma-js';
 import {EditMode} from '../enum';
-import {Card, Button} from '@blueprintjs/core';
-import classNames from 'classnames';
+import {ModalNotifications} from './notifications';
 
 import './main.styl';
 
@@ -32,8 +31,13 @@ const SHIFT_MODES = new Set([LINK, ADD_PART]);
 
 type UpdateSpec = object
 type TagRect = [number, number, number, number]
-
 type AnnotationArr = [TagRect, string, number]
+
+interface ITag {
+  color: string,
+  name: string,
+  tag_id: number
+}
 
 interface Annotation {
   boxes: TagRect[],
@@ -50,50 +54,6 @@ const transformTag = function(d: AnnotationArr): Annotation {
   return {boxes, name, score, tag_id: name};
 };
 
-class ModalNotifications extends Component {
-  static initClass() {
-    this.contextType = EditorContext;
-    this.prototype.Messages = {
-      [ADD_PART]: "Add part",
-      [LINK]: "Add link"
-    };
-  }
-  renderToast(mode){
-    const {actions, editModes, shiftKey} = this.context;
-    if (!editModes.has(mode)) { return null; }
-    const message = this.Messages[mode];
-    const onClick = event=> {
-      event.stopPropagation();
-      return actions.setMode(mode, false);
-    };
-
-    let deleteButton = null;
-    if (!shiftKey) {
-      deleteButton = h(Button, {
-        minimal: true,
-        icon: 'cross',
-        intent: Intent.DANGER,
-        onClick
-      });
-    }
-
-    const className = classNames("edit-mode", mode);
-    return h(Card, {className, icon: null}, [
-      h('span.mode', "Mode"),
-      h('span.message', message),
-      deleteButton
-    ]);
-  }
-
-  render() {
-    return h('div.notifications', [
-      this.renderToast(ADD_PART),
-      this.renderToast(LINK)
-    ]);
-  }
-}
-ModalNotifications.initClass();
-
 interface AnnotationActions {
   deleteAnnotation: (ix: number)=> () => void,
   updateAnnotation: (ix: number)=> (spec: UpdateSpec) => void
@@ -103,13 +63,15 @@ interface AnnotationsOverlayProps {
   image_tags: AnnotationArr[],
   width: number,
   height: number,
-  inProgressAnnotation?: AnnotationArr,
+  inProgressAnnotation: AnnotationArr|null,
   scaleFactor: number,
   actions: AnnotationActions,
   lockedTags: Set<string>,
   toggleSelect: ()=>void,
   onSelectAnnotation: (ix: number)=> ()=>void
   onClick: ()=>void
+  tags: ITag[],
+  editingRect: number|null
 }
 
 const AnnotationsOverlay = (props: AnnotationsOverlayProps)=>{
@@ -143,26 +105,8 @@ const AnnotationsOverlay = (props: AnnotationsOverlayProps)=>{
       return h(LockedTag, {tags, ...d});
     }
 
-    const _editing = (ix === editingRect) && !locked;
+    const isEditing = (ix === editingRect) && !locked;
 
-    let opts = {
-      key: ix,
-      ...d,
-      tags,
-      scaleFactor,
-      maxPosition: {width, height},
-      locked
-    };
-
-    if (_editing) {
-      opts = {
-        delete: actions.deleteAnnotation(ix),
-        update: actions.updateAnnotation(ix),
-        onSelect: toggleSelect,
-        enterLinkMode() {},
-        ...opts
-      };
-    }
     const onMouseDown = () => {
       console.log(ix);
       onSelectAnnotation(ix)();
@@ -170,10 +114,28 @@ const AnnotationsOverlay = (props: AnnotationsOverlayProps)=>{
       return event.stopPropagation();
     };
 
-    return h(Tag, {
-      onMouseDown, ...opts
-    });
-  }));
+    let opts = {
+      key: ix,
+      ...d,
+      tags,
+      scaleFactor,
+      maxPosition: {width, height},
+      locked,
+      onMouseDown
+    };
+
+    if (isEditing) {
+      return h(Tag, {
+        delete: actions.deleteAnnotation(ix),
+        update: actions.updateAnnotation(ix),
+        onSelect: toggleSelect,
+        enterLinkMode() {},
+        ...opts
+      });
+    } else {
+      return h(Tag, opts);
+    }
+  }))
 }
 
 class ImageOverlay extends StatefulComponent {
