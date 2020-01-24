@@ -11,14 +11,14 @@ services:
       - image-tagger-api
       - frontend
     volumes:
-      - ./tagging-application/_data/logs:/logs
+      - ./tagging-app/_data/logs:/logs
       - ${PIPELINE_OUTPUT}/images:/images:ro
       - ${PIPELINE_OUTPUT}/html/img:/kb-images:ro
       - ${IMAGES_TO_TAG}:/images_to_tag:ro
       - ./frontend-shared/dist:/frontend:ro
-      - ./tagging-application/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./tagging-app/nginx.conf:/etc/nginx/nginx.conf:ro
   image-tagger-api:
-    build: tagging-application/api
+    build: tagging-app/api
     environment:
       # This should be changeable obviously
       - IMAGE_TAGGER_API_MODE=annotate
@@ -26,12 +26,12 @@ services:
     depends_on:
       - db
     volumes:
-      - ./tagging-application/api:/debug-src
-      - ./tagging-application/init-sql:/init-sql
+      - ./tagging-app/api:/debug-src
+      - ./tagging-app/init-sql:/init-sql
   db:
     image: mdillon/postgis:11
     volumes:
-      - ./tagging-application/_data/pg-cluster_two:/var/lib/postgresql/data
+      - ./tagging-app/_data/pg-cluster_two:/var/lib/postgresql/data
     environment:
       - POSTGRES_DB=annotations
     ports:
@@ -39,7 +39,7 @@ services:
     expose:
       - 5432
   import_data:
-    build: tagging-application/import_data
+    build: tagging-app/import_data
     environment:
       - DB_HOST=db
       - PG_CONN_STR=postgresql://postgres:@db:5432/annotations
@@ -48,12 +48,14 @@ services:
 #      # STACK_TYPE should be annotation or prediction
 #      - STACK_TYPE=annotation
     volumes:
-      - ./tagging-application/init-sql:/init-sql
+      - ./tagging-app/init-sql:/init-sql
       - ${PIPELINE_OUTPUT}:/output
       - ${PIPELINE_OUTPUT}/images:/images
       - ${IMAGES_TO_TAG}:/images_to_tag
   frontend:
-    build: frontend-shared
+    build:
+      context: frontend-shared
+      dockerfile: Dockerfile.tagging
     ports:
       - '34365:34365'
     expose:
@@ -67,6 +69,7 @@ services:
       - DEBUG
       - APPMODE=ANNOTATION
     volumes:
+      - /user/dist
       - ./frontend-shared:/user
       - /user/node_modules
       - /user/ui-components/node_modules

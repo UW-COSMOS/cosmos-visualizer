@@ -45,6 +45,7 @@ module.exports = {
       "app": path.resolve(__dirname, "src/"),
     }
   },
+  // This will need to be replaced depending on the endpoint
   entry: './src/index.ts',
   output: {
     path: assetsDir,

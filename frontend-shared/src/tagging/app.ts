@@ -1,27 +1,19 @@
-/*
- * decaffeinate suggestions:
- * DS001: Remove Babel/TypeScript constructor workaround
- * DS102: Remove unnecessary code created because of implicit returns
- * DS206: Consider reworking classes to avoid initClass
- * DS207: Consider shorter variations of null checks
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
 import {Component} from 'react';
 import h from 'react-hyperscript';
 
 import {BrowserRouter as Router, Route, Redirect, Switch} from 'react-router-dom';
 
-import {APIContext} from './api';
-import {AppMode, UserRole} from './enum';
-import {LoginForm} from './login-form';
-import {ResultsLandingPage} from './landing-page';
-import {KnowledgeBaseFilterView} from './knowledge-base';
-import {ResultsPage} from './results-page';
-import {TaggingPage} from './tagging-page';
+import {APIContext} from '../api';
+import {AppMode, UserRole} from '../enum';
+import {LoginForm} from '../login-form';
+import {ResultsLandingPage} from '../landing-page';
+import {KnowledgeBaseFilterView} from '../knowledge-base';
+import {ResultsPage} from '../results-page';
+import {TaggingPage} from '../page-interface/tagging';
 import {
   PermalinkProvider,
   permalinkRouteTemplate
-} from './permalinks';
+} from '../permalinks';
 
 // /annotation/{stack_id}/page/{image_id}
 

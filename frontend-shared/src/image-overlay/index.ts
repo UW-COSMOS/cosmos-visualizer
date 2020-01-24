@@ -27,7 +27,7 @@ import './main.styl';
 const {ADD_PART, LINK} = EditMode;
 const SHIFT_MODES = new Set([LINK, ADD_PART]);
 
-class EditorProvider extends StatefulComponent {
+class ImageOverlay extends StatefulComponent {
   static defaultProps = {
     // Distance we take as a click before switching to drag
     clickDistance: 10,

@@ -67,8 +67,10 @@
     "webpack-cli": "^3.3.5"
   },
   "scripts": {
-    "watch": "webpack --watch --mode=development",
-    "build": "webpack",
+    "build:tagging": "webpack --config webpack.tagging.js ",
+    "build:visualizer": "webpack --config webpack.visualizer.js",
+    "watch:tagging": "webpack --config webpack.tagging.js --watch --mode=development",
+    "watch:visualizer": "webpack --config webpack.visualizer.js --watch --mode=development",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {

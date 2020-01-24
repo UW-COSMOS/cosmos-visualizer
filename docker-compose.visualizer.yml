@@ -2,7 +2,9 @@
 version: '3'
 services:
   frontend:
-    build: frontend-shared
+    build:
+      context: frontend-shared
+      dockerfile: Dockerfile.tagging
     environment:
       # Public URL is settable from the
       # local environment
