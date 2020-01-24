@@ -30,7 +30,19 @@ import './main.styl';
 const {ADD_PART, LINK} = EditMode;
 const SHIFT_MODES = new Set([LINK, ADD_PART]);
 
-const transformTag = function(d){
+type UpdateSpec = object
+type TagRect = [number, number, number, number]
+
+type AnnotationArr = [TagRect, string, number]
+
+interface Annotation {
+  boxes: TagRect[],
+  tag_id: string,
+  name: string,
+  score?: number,
+}
+
+const transformTag = function(d: AnnotationArr): Annotation {
   console.log(d);
   const boxes = [d[0]];
   const name = d[1];
@@ -82,6 +94,88 @@ class ModalNotifications extends Component {
 }
 ModalNotifications.initClass();
 
+interface AnnotationActions {
+  deleteAnnotation: (ix: number)=> () => void,
+  updateAnnotation: (ix: number)=> (spec: UpdateSpec) => void
+}
+
+interface AnnotationsOverlayProps {
+  image_tags: AnnotationArr[],
+  width: number,
+  height: number,
+  inProgressAnnotation?: AnnotationArr,
+  scaleFactor: number,
+  actions: AnnotationActions,
+  lockedTags: Set<string>,
+  toggleSelect: ()=>void,
+  onSelectAnnotation: (ix: number)=> ()=>void
+  onClick: ()=>void
+}
+
+const AnnotationsOverlay = (props: AnnotationsOverlayProps)=>{
+  let {
+    inProgressAnnotation,
+    image_tags,
+    tags,
+    width,
+    height,
+    lockedTags,
+    editingRect,
+    actions,
+    scaleFactor,
+    onClick,
+    toggleSelect,
+    onSelectAnnotation
+  } = props;
+
+  if (inProgressAnnotation != null) {
+    editingRect = null;
+    image_tags = [...image_tags, inProgressAnnotation];
+  }
+
+  const size = {width, height};
+
+  return h('div.overlay', {style: size, onClick}, image_tags.map((v, ix)=> {
+    const d = transformTag(v);
+
+    const locked = lockedTags.has(d.tag_id);
+    if (locked) {
+      return h(LockedTag, {tags, ...d});
+    }
+
+    const _editing = (ix === editingRect) && !locked;
+
+    let opts = {
+      key: ix,
+      ...d,
+      tags,
+      scaleFactor,
+      maxPosition: {width, height},
+      locked
+    };
+
+    if (_editing) {
+      opts = {
+        delete: actions.deleteAnnotation(ix),
+        update: actions.updateAnnotation(ix),
+        onSelect: toggleSelect,
+        enterLinkMode() {},
+        ...opts
+      };
+    }
+    const onMouseDown = () => {
+      console.log(ix);
+      onSelectAnnotation(ix)();
+      // Don't allow dragging
+      return event.stopPropagation();
+    };
+
+    return h(Tag, {
+      onMouseDown, ...opts
+    });
+  }));
+}
+
 class ImageOverlay extends StatefulComponent {
   static defaultProps = {
     // Distance we take as a click before switching to drag
@@ -91,13 +185,8 @@ class ImageOverlay extends StatefulComponent {
     lockedTags: new Set([])
   };
   constructor(props){
-    {
-      // Hack: trick Babel/TypeScript into allowing this before super.
-      if (false) { super(); }
-      let thisFn = (() => { return this; }).toString();
-      let thisName = thisFn.match(/return (?:_assertThisInitialized\()*(\w+)\)*;/)[1];
-      eval(`${thisName} = this;`);
-    }
+    super(props);
+
     this.selectAnnotation = this.selectAnnotation.bind(this);
     this.tagColor = this.tagColor.bind(this);
     this.tagColorForName = this.tagColorForName.bind(this);
@@ -109,7 +198,6 @@ class ImageOverlay extends StatefulComponent {
     this.disableEditing = this.disableEditing.bind(this);
     this.toggleSelect = this.toggleSelect.bind(this);
     this.handleShift = this.handleShift.bind(this);
-    super(props);
     this.state = {
       inProgressAnnotation: null,
       editModes: new Set(),
@@ -124,7 +212,7 @@ class ImageOverlay extends StatefulComponent {
     return this.updateState({editModes: {$set: new Set()}});
   }
 
-  selectAnnotation(ix){ return event=> {
+  selectAnnotation = (ix) =>{ return event => {
     const {actions, editModes} = this.contextValue();
     // Make sure we don't activate the
     // general click or drag handlers
@@ -136,67 +224,12 @@ class ImageOverlay extends StatefulComponent {
     }
   }; }
 
-  renderAnnotations() {
-    const {inProgressAnnotation} = this.state;
-    let {image_tags, tags, width, height, lockedTags,
-      editingRect, actions, scaleFactor} = this.props;
-
-    if (inProgressAnnotation != null) {
-      editingRect = null;
-      image_tags = [...image_tags, inProgressAnnotation];
-    }
-
-    return image_tags.map((v, ix)=> {
-      const d = transformTag(v);
-
-      const locked = lockedTags.has(d.tag_id);
-      if (locked) {
-        return h(LockedTag, {tags, ...d});
-      }
-
-      const _editing = (ix === editingRect) && !locked;
-
-      const opacity = _editing ? 0.5 : 0.3;
-
-      let opts = {
-        key: ix,
-        ...d,
-        tags,
-        scaleFactor,
-        maxPosition: {width, height},
-        locked
-      };
-
-      if (_editing) {
-        opts = {
-          delete: actions.deleteAnnotation(ix),
-          update: actions.updateAnnotation(ix),
-          onSelect: this.toggleSelect,
-          enterLinkMode() {},
-          ...opts
-        };
-      }
-      const onMouseDown = () => {
-        console.log(ix);
-        //return if editingRect == ix
-        (this.selectAnnotation(ix))();
-        this.setState({clickingInRect: ix});
-        // Don't allow dragging
-        return event.stopPropagation();
-      };
-
-      return h(Tag, {
-        onMouseDown, ...opts
-      });
-  });
-  }
-
   renderInterior() {
     const {editingRect, width, height, image_tags,
      scaleFactor, tags, currentTag, lockedTags, actions,
      ...rest} = this.props;
     const size = {width, height};
-    const {selectIsOpen} = this.state;
+    const {selectIsOpen, inProgressAnnotation} = this.state;
 
     const onClick = this.disableEditing;
 
@@ -210,7 +243,20 @@ class ImageOverlay extends StatefulComponent {
         onClose: () => this.setState({selectIsOpen: false}),
         onItemSelect: this.selectTag
       }),
-      h('div.overlay', {style: size, onClick}, this.renderAnnotations()),
+      h(AnnotationsOverlay, {
+        lockedTags,
+        inProgressAnnotation,
+        image_tags,
+        tags,
+        width,
+        height,
+        editingRect,
+        actions,
+        scaleFactor,
+        onClick,
+        toggleSelect: this.toggleSelect,
+        onSelectAnnotation: this.selectAnnotation
+      }),
       h(AnnotationLinks, {image_tags, scaleFactor, tags, ...size}),
       h(ModalNotifications)
     ]);
@@ -260,7 +306,7 @@ class ImageOverlay extends StatefulComponent {
     return h(EditorContext.Provider, {value: this.contextValue()}, this.renderInterior());
   }
 
-  selectTag(tag){
+  selectTag = (tag)=>{
     // Selects the Tag ID for active annotation
     const {actions, editingRect} = this.props;
     if (editingRect != null) {
@@ -347,7 +393,7 @@ class ImageOverlay extends StatefulComponent {
     return actions.updateState(__);
   }
 
-  toggleSelect() {
+  toggleSelect = ()=> {
     console.log("Opening select box");
     return this.setState({selectIsOpen: true});
   }
