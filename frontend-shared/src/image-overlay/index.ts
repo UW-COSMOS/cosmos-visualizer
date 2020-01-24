@@ -6,16 +6,13 @@
  * DS207: Consider shorter variations of null checks
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
  */
-import {Component, createContext, useContext} from 'react';
 import h from 'react-hyperscript';
 import {select, event} from 'd3-selection';
 import {drag} from 'd3-drag';
 import {findDOMNode} from 'react-dom';
-import {Hotkey, Hotkeys,
-        HotkeysTarget, Intent} from "@blueprintjs/core";
+import {Hotkey, Hotkeys, HotkeysTarget} from "@blueprintjs/core";
 import {StatefulComponent} from '@macrostrat/ui-components';
 
-import {Tag, LockedTag} from '../annotation';
 import {AnnotationLinks} from './annotation-links';
 import {TypeSelector} from './type-selector';
 import {EditorContext} from './context';
@@ -30,7 +27,7 @@ import './main.styl';
 const {ADD_PART, LINK} = EditMode;
 const SHIFT_MODES = new Set([LINK, ADD_PART]);
 
-class ImageOverlay extends StatefulComponent {
+class EditorProvider extends StatefulComponent {
   static defaultProps = {
     // Distance we take as a click before switching to drag
     clickDistance: 10,
@@ -41,7 +38,6 @@ class ImageOverlay extends StatefulComponent {
   constructor(props){
     super(props);
 
-    this.selectAnnotation = this.selectAnnotation.bind(this);
     this.tagColor = this.tagColor.bind(this);
     this.tagColorForName = this.tagColorForName.bind(this);
     this.contextValue = this.contextValue.bind(this);
@@ -79,9 +75,13 @@ class ImageOverlay extends StatefulComponent {
   }; }
 
   renderInterior() {
-    const {editingRect, width, height, image_tags,
-     scaleFactor, tags, currentTag, lockedTags, actions,
-     ...rest} = this.props;
+    const {
+      editingRect, width,
+      height, image_tags,
+      scaleFactor, tags,
+      currentTag, lockedTags,
+      actions, ...rest
+    } = this.props;
     const size = {width, height};
     const {selectIsOpen, inProgressAnnotation} = this.state;
 
