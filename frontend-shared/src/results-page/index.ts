@@ -7,16 +7,10 @@
  * DS207: Consider shorter variations of null checks
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
  */
-import {Component, createContext} from 'react';
 import h from 'react-hyperscript';
-import {select} from 'd3-selection';
-import uuidv4 from 'uuid/v4';
-import {findDOMNode} from 'react-dom';
 import 'd3-jetpack';
-import chroma from 'chroma-js';
-import {Link, withRouter} from 'react-router-dom';
-import {Navbar, Button, ButtonGroup,
-        Intent, Alignment, Text, Icon} from "@blueprintjs/core";
+import {Navbar, Button,
+        Intent, Alignment} from "@blueprintjs/core";
 
 import {StatefulComponent, LinkButton} from '@macrostrat/ui-components';
 import {PageHeader} from '../util';
@@ -50,13 +44,7 @@ class ResultsPage extends StatefulComponent {
     this.contextType = APIContext;
   }
   constructor(props){
-    {
-      // Hack: trick Babel/TypeScript into allowing this before super.
-      if (false) { super(); }
-      let thisFn = (() => { return this; }).toString();
-      let thisName = thisFn.match(/return (?:_assertThisInitialized\()*(\w+)\)*;/)[1];
-      eval(`${thisName} = this;`);
-    }
+    super(props);
     this.selectAnnotation = this.selectAnnotation.bind(this);
     this.renderImageContainer = this.renderImageContainer.bind(this);
     this.renderNextImageButton = this.renderNextImageButton.bind(this);
@@ -66,7 +54,6 @@ class ResultsPage extends StatefulComponent {
     this.setupTags = this.setupTags.bind(this);
     this.getImageToDisplay = this.getImageToDisplay.bind(this);
     this.onImageLoaded = this.onImageLoaded.bind(this);
-    super(props);
     this.state = {
       infoDialogIsOpen: false,
       currentImage: null,
