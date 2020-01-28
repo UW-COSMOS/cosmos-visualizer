@@ -12,4 +12,4 @@ ENV IMAGE_BASE_URL="${PUBLIC_URL}images/"
 ENV APPMODE="PREDICTION"
 
 # We could change this to bail with just "webpack" for non-development mode
-CMD npm run-script watch
+CMD npm run-script watch:visualizer
