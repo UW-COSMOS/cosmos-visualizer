@@ -10,8 +10,7 @@ import h from 'react-hyperscript';
 import styled from '@emotion/styled';
 
 import {Select} from '@blueprintjs/select';
-import {MenuItem, Button, Card, ButtonGroup} from '@blueprintjs/core';
-import {BrowserRouter as Router, Route, Link} from 'react-router-dom';
+import {MenuItem, Button, ButtonGroup} from '@blueprintjs/core';
 import {InfoButton} from './landing-page/components';
 
 import {InlineNavbar} from './util';
