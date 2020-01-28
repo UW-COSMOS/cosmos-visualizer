@@ -89,8 +89,8 @@ class ImageContainer extends Component {
   }
 
   imageURL(image){
-    const {resize_bytes} = image;
-    return "data:image/png;base64," + resize_bytes;
+      console.log(`image: ${image}`)
+    return join("/images_to_tag/", image.file_path)
   }
 
   render() {
@@ -105,7 +105,7 @@ class ImageContainer extends Component {
       h(ImageOverlay, {
         ...style,
         scaleFactor,
-        image_tags: image.pp_detected_objs,
+        image_tags: [], //HACK HACK HACK this will break other things IAR - 28.Jan.2020 TODO: fix
         currentTag,
         tags,
         actions,

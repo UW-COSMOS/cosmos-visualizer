@@ -307,7 +307,7 @@ class TaggingPage extends StatefulComponent {
   }
 
   currentStackID() {
-    return this.state.currentImage.stack_id || this.props.stack_id;
+    return (this.state.currentImage.stack_id || this.props.stack_id) || "default_to_tag";
   }
 
 
@@ -380,10 +380,12 @@ class TaggingPage extends StatefulComponent {
     if (initialImage && (currentImage == null)) {
       imageToDisplay = `${imageRoute}/${initialImage}`;
     }
-    // We are loading an image and
+
+    var hacky_stack_id = this.props.stack_id || "default_to_tag";
+
     if (imageToDisplay == null) { return; }
     console.log(`Getting image from endpoint ${imageToDisplay}`);
-    const d = await this.context.get(imageToDisplay, {stack_id}, {unwrapResponse(res){ return res.results; }});
+    const d = await this.context.get(imageToDisplay, {stack_id: hacky_stack_id}, {unwrapResponse(res){ console.log(`res: ${res}`); console.log(`res.results: ${res.results}`); return res.data; }});
     return this.onImageLoaded(d);
   };
 
