@@ -42,18 +42,11 @@ class ImageContainer extends Component {
   }
 
   constructor(props){
-    {
-      // Hack: trick Babel/TypeScript into allowing this before super.
-      if (false) { super(); }
-      let thisFn = (() => { return this; }).toString();
-      let thisName = thisFn.match(/return (?:_assertThisInitialized\()*(\w+)\)*;/)[1];
-      eval(`${thisName} = this;`);
-    }
+    super(props);
     this.scaledSize = this.scaledSize.bind(this);
     this.imageURL = this.imageURL.bind(this);
     this.render = this.render.bind(this);
     this.ensureImageDimensions = this.ensureImageDimensions.bind(this);
-    super(props);
     this.state = {
       scaleFactor: null,
       image: null,

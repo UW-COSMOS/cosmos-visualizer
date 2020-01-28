@@ -21,7 +21,7 @@ import {AppToaster} from '../toaster';
 import {APIContext, ErrorMessage} from '../api';
 import {InfoDialog} from '../info-dialog';
 import {ImageContainer} from '../image-container';
-
+import {AnnotationActions} from '../editor/types';
 
 // Updates props for a rectangle
 // from API signature to our internal signature
@@ -40,13 +40,7 @@ class TaggingPage extends StatefulComponent {
     this.contextType = APIContext;
   }
   constructor(props){
-    {
-      // Hack: trick Babel/TypeScript into allowing this before super.
-      if (false) { super(); }
-      let thisFn = (() => { return this; }).toString();
-      let thisName = thisFn.match(/return (?:_assertThisInitialized\()*(\w+)\)*;/)[1];
-      eval(`${thisName} = this;`);
-    }
+    super(props);
     this.updateAnnotation = this.updateAnnotation.bind(this);
     this.addLink = this.addLink.bind(this);
     this.updateCurrentTag = this.updateCurrentTag.bind(this);
@@ -64,7 +58,7 @@ class TaggingPage extends StatefulComponent {
     this.currentStackID = this.currentStackID.bind(this);
     this.setupTags = this.setupTags.bind(this);
     this.onImageLoaded = this.onImageLoaded.bind(this);
-    super(props);
+
     this.state = {
       infoDialogIsOpen: false,
       currentImage: null,
@@ -149,7 +143,7 @@ class TaggingPage extends StatefulComponent {
       rectStore, tagStore, currentTag, lockedTags} = this.state;
     if (currentImage == null) { return null; }
 
-    const actions = (() => {
+    const actions: AnnotationActions = (() => {
       let addLink, appendAnnotation, deleteAnnotation, selectAnnotation, toggleTagLock, updateAnnotation, updateCurrentTag, updateState;
       return ({deleteAnnotation,
        updateAnnotation,
@@ -425,13 +419,8 @@ class TaggingPage extends StatefulComponent {
     if (imageRoute == null) { imageRoute = '/image'; }
     if (prevState.currentImage === currentImage) { return; }
     if (currentImage == null) { return; }
-    const {image_id} = this.state.currentImage;
-    const stack_id = this.currentStackID();
 
     const image_tags = [];
-    const route = "tags";
-    //t = await @context.get "#{imageRoute}/#{image_id}/#{stack_id}/#{route}", {validated: false}
-    //image_tags = image_tags.concat(t)
     return this.setState({rectStore: image_tags, initialRectStore: image_tags});
   }
 

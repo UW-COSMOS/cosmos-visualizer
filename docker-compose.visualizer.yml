@@ -4,7 +4,7 @@ services:
   frontend:
     build:
       context: frontend-shared
-      dockerfile: Dockerfile.tagging
+      dockerfile: Dockerfile.visualizer
     environment:
       # Public URL is settable from the
       # local environment
@@ -17,6 +17,7 @@ services:
     volumes:
       - ./frontend-shared/src:/user/src
       - visualizer_dist:/user/dist
+      - webpack_cache:/user/.cache
   gateway:
     image: nginx
     ports:
@@ -26,6 +27,7 @@ services:
       - ./frontend-shared/nginx.frontend-only.conf:/etc/nginx/nginx.conf:ro
 volumes:
   visualizer_dist:
+  webpack_cache:
 #
 # # can now do things like connections.create_connection(hosts=['es01'], timeout=20)
 # networks:

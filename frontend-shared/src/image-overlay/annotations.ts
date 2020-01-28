@@ -11,27 +11,13 @@ import {event} from 'd3-selection';
 import {Tag, LockedTag} from '../annotation';
 
 import {EditMode} from '../enum';
+import {AnnotationArr, Annotation, ITag, TagRect} from './types'
 
 import './main.styl';
 
 const {ADD_PART, LINK} = EditMode;
 
 type UpdateSpec = object
-type TagRect = [number, number, number, number]
-type AnnotationArr = [TagRect, string, number]
-
-interface ITag {
-  color: string,
-  name: string,
-  tag_id: number
-}
-
-interface Annotation {
-  boxes: TagRect[],
-  tag_id: string,
-  name: string,
-  score?: number,
-}
 
 const transformTag = function(d: AnnotationArr): Annotation {
   console.log(d);
