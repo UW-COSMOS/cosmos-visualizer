@@ -10,5 +10,5 @@ export PUBLIC_URL="/"
 export IMAGES_TO_TAG="./tagging-application/_data/images_to_tag"
 export PIPELINE_OUTPUT="./tagging-application/_data/pipeline_output"
 
-docker-compose -f docker-compose.tagging.yml up --detach --build $@
+docker-compose -f docker-compose.tagging.yml up --force-recreate --detach --build $@
 docker-compose -f docker-compose.tagging.yml logs -f

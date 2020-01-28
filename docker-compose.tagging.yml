@@ -15,7 +15,7 @@ services:
       - ${PIPELINE_OUTPUT}/images:/images:ro
       - ${PIPELINE_OUTPUT}/html/img:/kb-images:ro
       - ${IMAGES_TO_TAG}:/images_to_tag:ro
-      - ./frontend-shared/dist:/frontend:ro
+      - frontend_dist:/frontend:ro
       - ./tagging-app/nginx.conf:/etc/nginx/nginx.conf:ro
   image-tagger-api:
     build: tagging-app/api
@@ -69,8 +69,10 @@ services:
       - DEBUG
       - APPMODE=ANNOTATION
     volumes:
-      - /user/dist
+      - frontend_dist:/user/dist
       - ./frontend-shared:/user
       - /user/node_modules
       - /user/ui-components/node_modules
       - /user/.cache
+volumes:
+  frontend_dist:
