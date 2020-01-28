@@ -30,10 +30,11 @@ const MainRouter = ({appMode, basename, ...rest}) => h(PermalinkProvider, {appMo
 class TaggingApplication extends Component {
   static contextType = APIContext;
   constructor(props){
+    super(props);
     this.setupPeople = this.setupPeople.bind(this);
     this.setPerson = this.setPerson.bind(this);
     this.componentDidMount = this.componentDidMount.bind(this);
-    super(props);
+
     this.state = {
       people: null,
       person: null
