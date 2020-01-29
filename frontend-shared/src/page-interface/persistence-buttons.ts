@@ -1,15 +1,13 @@
 import h from 'react-hyperscript';
 import {Button, Intent} from '@blueprintjs/core'
 
-const defaultProps = {
-  allowSaveWithoutChanges: true,
-  hasInitialContent: false
-}
 type PersistenceButtonProps = {
   hasChanges: boolean,
+  allowSaveWithoutChanges?: boolean,
+  hasInitialContent?: boolean,
   onSave(): void,
   onClearChanges(): void
-} & typeof defaultProps
+}
 
 const PersistenceButtons = (props: PersistenceButtonProps)=>{
   // Persist data to backend if editing is enabled
@@ -39,6 +37,9 @@ const PersistenceButtons = (props: PersistenceButtonProps)=>{
   ]);
 }
 
-PersistenceButtons.defaultProps = defaultProps
+PersistenceButtons.defaultProps = {
+  allowSaveWithoutChanges: true,
+  hasInitialContent: false
+}
 
 export {PersistenceButtons, PersistenceButtonProps}

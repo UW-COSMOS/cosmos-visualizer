@@ -1,18 +1,18 @@
-import h from '@macrostrat/hyper';
-import 'd3-jetpack';
+import h from 'react-hyperscript';
 import chroma from 'chroma-js';
-import {Navbar, Button, ButtonGroup,
-        Intent, Alignment} from "@blueprintjs/core";
-import T from 'prop-types';
-
+import {Intent} from "@blueprintjs/core";
 import {StatefulComponent} from '@macrostrat/ui-components';
-import {PermalinkButton} from '../permalinks';
-import {PageHeader} from '../util';
 import {AppToaster} from '../toaster';
 import {APIContext, ErrorMessage} from '../api';
-import {InfoDialog} from '../info-dialog';
 import {ImageContainer} from '../image-container';
-import {PersistenceButtons} from './persistence-buttons'
+import {PageFrame} from './frame'
+
+const isDifferent = (a1: any[], a2: any[]): boolean =>{
+  if (a1.length == 0 && a2.length == 0) {
+    return false;
+  }
+  return a1 != a2;
+}
 
 // Updates props for a rectangle
 // from API signature to our internal signature
@@ -25,18 +25,12 @@ class ViewerPageBase extends StatefulComponent {
     navigationEnabled: true,
     imageRoute: '/image'
   };
-  static propTypes = {
-    stack_id: T.string
-  };
   static contextType = APIContext;
   constructor(props){
     super(props);
     this.updateAnnotation = this.updateAnnotation.bind(this);
     this.selectAnnotation = this.selectAnnotation.bind(this);
     this.clearChanges = this.clearChanges.bind(this);
-    this.uiHasChanges = this.uiHasChanges.bind(this);
-    this.displayKeyboardShortcuts = this.displayKeyboardShortcuts.bind(this);
-    this.displayInfoBox = this.displayInfoBox.bind(this);
     this.currentStackID = this.currentStackID.bind(this);
     this.setupTags = this.setupTags.bind(this);
     this.onImageLoaded = this.onImageLoaded.bind(this);
@@ -75,72 +69,37 @@ class ViewerPageBase extends StatefulComponent {
     });
   }
 
-  uiHasChanges() {
-    const {rectStore, initialRectStore} = this.state;
-    if (initialRectStore.length === rectStore.length && rectStore.length === 0) {
-      return false;
-    }
-    return rectStore !== initialRectStore;
-  }
-
-  displayKeyboardShortcuts() {
-    // Blueprint doesn't allow us to show keyboard shortcuts programmatically
-    // without simulating the keycode. Wait for resolution of
-    // https://github.com/palantir/blueprint/issues/1590
-    this.setState({infoDialogIsOpen: false});
-    return document.dispatchEvent(new KeyboardEvent('keydown', {
-      which: 47, keyCode: 47, shiftKey: true, bubbles: true }));
-  }
-
-  displayInfoBox(isOpen){ return () => {
-    if (isOpen == null) { isOpen = true; }
-    return this.setState({infoDialogIsOpen: isOpen});
-  }; }
-
   render() {
-    const {subtitleText, permalinkRoute} = this.props;
+    const {subtitleText} = this.props;
     const {currentImage: image} = this.state;
-    const {allowSaveWithoutChanges} = this.props;
-    const {initialRectStore} = this.state;
-    const hasChanges = this.uiHasChanges();
-    const {infoDialogIsOpen: isOpen} = this.state;
+    const {
+      initialRectStore,
+      rectStore,
+      editingRect,
+      tagStore,
+      currentTag,
+      lockedTags
+    } = this.state;
+    const hasChanges = isDifferent(initialRectStore, rectStore);
     const {editingEnabled} = this.props;
-
-    const {editingRect, rectStore, tagStore, currentTag, lockedTags} = this.state;
 
     const actions = {
       updateAnnotation: this.updateAnnotation,
       selectAnnotation: this.selectAnnotation
     }
 
-    return h('div.main', [
-      h(Navbar, {fixedToTop: true}, [
-        h(PageHeader, {subtitle: subtitleText}, [
-          h(Button, {
-            icon: 'info-sign',
-            onClick: this.displayInfoBox()
-          }, "Usage")
-        ]),
-        h(Navbar.Group, {align: Alignment.RIGHT}, [
-          h(PermalinkButton, {permalinkRoute, image}),
-          h(ButtonGroup, [
-            h.if(this.props.editingEnabled)(PersistenceButtons, {
-              hasChanges,
-              allowSaveWithoutChanges,
-              hasInitialContent: initialRectStore.length != 0,
-              onClearChanges: this.clearChanges,
-              onSave: this.saveData
-            }),
-            h.if(this.props.navigationEnabled)(Button, {
-              intent: Intent.PRIMARY, text: "Next image",
-              rightIcon: 'chevron-right',
-              disabled: hasChanges,
-              onClick: this.getImageToDisplay
-            })
-          ])
-        ])
-      ]),
-      h.if(image != null)(ImageContainer, {
+    return h(PageFrame, {
+      hasChanges,
+      subtitleText,
+      editingEnabled,
+      hasInitialContent: initialRectStore.length != 0,
+      onSave: this.saveData.bind(this),
+      onClearChanges: this.clearChanges.bind(this),
+      currentImage: image,
+      getNextImage: this.getImageToDisplay.bind(this)
+
+    }, [
+      image == null ? null : h(ImageContainer, {
         editingRect,
         editingEnabled,
         image,
@@ -149,12 +108,6 @@ class ViewerPageBase extends StatefulComponent {
         lockedTags,
         currentTag,
         actions
-      }),
-      h(InfoDialog, {
-        isOpen,
-        onClose: this.displayInfoBox(false),
-        editingEnabled,
-        displayKeyboardShortcuts: this.displayKeyboardShortcuts.bind(this)
       })
     ]);
   }
@@ -164,7 +117,7 @@ class ViewerPageBase extends StatefulComponent {
   }
 
 
-  saveData = async () => {
+  async saveData(){
     const {currentImage, rectStore} = this.state;
     let {extraSaveData} = this.props;
     if (extraSaveData == null) { extraSaveData = {}; }
@@ -226,7 +179,7 @@ class ViewerPageBase extends StatefulComponent {
     });
   }
 
-  getImageToDisplay = async () => {
+  async getImageToDisplay() {
     let {nextImageEndpoint: imageToDisplay,
      imageRoute, initialImage, stack_id} = this.props;
     const {currentImage} = this.state;
