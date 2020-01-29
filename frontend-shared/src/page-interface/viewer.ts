@@ -8,6 +8,8 @@ import {Image} from '~/types'
 import {ImageContainer} from '../image-container';
 import {PageFrame} from './frame'
 import {ITag, TagRect} from '../image-overlay/types'
+import {AnnotationsProvider} from '../providers'
+import {ReactNode} from 'react'
 
 const isDifferent = (a1: any[], a2: any[]): boolean =>{
   if (a1.length == 0 && a2.length == 0) {
@@ -22,11 +24,25 @@ interface IViewerProps {
 }
 
 interface ViewerState {
-  currentImage: Image,
+  currentImage: Image,ˇ
   editingRect: number|null,
   currentTag: number|null,
   tagStore: ITag[],
-  rectStore: TagRect[]
+  rectStore: TagRect[],
+  initialRectStore: TagRect[]
+}
+
+interface ViewerProviderProps {
+  children: ReactNode,
+  annotations: TagRect[]
+}
+
+const PageDataProvider = (props: ViewerProviderProps)=>{
+  const {children, annotations} = props
+  return h(AnnotationsProvider, {
+    annotations,
+    allowSelection: true
+  }, children)
 }
 
 // Updates props for a rectangle
@@ -102,27 +118,31 @@ class ViewerPageBase extends StatefulComponent<IViewerProps, ViewerState> {
       selectAnnotation: this.selectAnnotation
     }
 
-    return h(PageFrame, {
-      hasChanges,
-      subtitleText,
-      editingEnabled,
-      hasInitialContent: initialRectStore.length != 0,
-      onSave: this.saveData.bind(this),
-      onClearChanges: this.clearChanges.bind(this),
-      currentImage: image,
-      getNextImage: this.getImageToDisplay.bind(this)
+    return h(PageDataProvider, {
+      annotations: rectStore
     }, [
-      image == null ? null : h(ImageContainer, {
-        editingRect,
+      h(PageFrame, {
+        hasChanges,
+        subtitleText,
         editingEnabled,
-        image,
-        imageTags: rectStore,
-        tags: tagStore,
-        lockedTags,
-        currentTag,
-        actions
-      })
-    ]);
+        hasInitialContent: initialRectStore.length != 0,
+        onSave: this.saveData.bind(this),
+        onClearChanges: this.clearChanges.bind(this),
+        currentImage: image,
+        getNextImage: this.getImageToDisplay.bind(this)
+      }, [
+        image == null ? null : h(ImageContainer, {
+          editingRect,
+          editingEnabled,
+          image,
+          imageTags: rectStore,
+          tags: tagStore,
+          lockedTags,
+          currentTag,
+          actions
+        })
+      ])
+    ])
   }
 
   currentStackID() {

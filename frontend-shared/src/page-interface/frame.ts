@@ -9,8 +9,6 @@ import {InfoDialog} from '../info-dialog';
 import {PersistenceButtons} from './persistence-buttons'
 import {Image} from '~/types'
 
-
-
 interface FrameProps extends
   ComponentProps<typeof PersistenceButtons> {
   getNextImage(): void,
