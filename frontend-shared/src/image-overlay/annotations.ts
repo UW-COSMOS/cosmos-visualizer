@@ -11,8 +11,13 @@ import {event} from 'd3-selection';
 import {Tag, LockedTag} from '../annotation';
 
 import {EditMode} from '../enum';
-import {AnnotationArr, Annotation, ITag, TagRect} from './types'
+import {AnnotationRect, Annotation, ITag, TagRect} from './types'
 import {AnnotationActions} from '../editor/types'
+import {
+  useAnnotations,
+  useSelectionUpdater,
+  useSelectedAnnotation
+} from '~/providers/annotations'
 
 import './main.styl';
 
@@ -20,19 +25,11 @@ const {ADD_PART, LINK} = EditMode;
 
 type UpdateSpec = object
 
-const transformTag = function(d: AnnotationArr): Annotation {
-  console.log(d);
-  const boxes = [d[0]];
-  const name = d[1];
-  const score = d[2];
-  return {boxes, name, score, tag_id: name};
-};
-
 interface AnnotationsOverlayProps {
-  image_tags: AnnotationArr[],
+  image_tags: Annotation[],
   width: number,
   height: number,
-  inProgressAnnotation: AnnotationArr|null,
+  inProgressAnnotation: Annotation|null,
   scaleFactor: number,
   actions: AnnotationActions,
   lockedTags: Set<string>,
@@ -46,12 +43,10 @@ interface AnnotationsOverlayProps {
 const AnnotationsOverlay = (props: AnnotationsOverlayProps)=>{
   let {
     inProgressAnnotation,
-    image_tags,
     tags,
     width,
     height,
     lockedTags,
-    editingRect,
     actions,
     scaleFactor,
     onClick,
@@ -59,22 +54,24 @@ const AnnotationsOverlay = (props: AnnotationsOverlayProps)=>{
     onSelectAnnotation
   } = props;
 
+  let annotations = useAnnotations()
+  let selected = useSelectedAnnotation()
+
   if (inProgressAnnotation != null) {
-    editingRect = null;
-    image_tags = [...image_tags, inProgressAnnotation];
+    selected = null;
+    annotations.push(inProgressAnnotation);
   }
 
   const size = {width, height};
 
-  return h('div.overlay', {style: size, onClick}, image_tags.map((v, ix)=> {
-    const d = transformTag(v);
+  return h('div.overlay', {style: size, onClick}, annotations.map((d, ix)=> {
 
-    const locked = lockedTags.has(d.tag_id);
-    if (locked) {
+    const isLocked = lockedTags.has(d.tag_id);
+    if (isLocked) {
       return h(LockedTag, {tags, ...d});
     }
 
-    const isEditing = (ix === editingRect) && !locked;
+    const isSelected = (d == selected) && !isLocked;
 
     const onMouseDown = () => {
       console.log(ix);
@@ -89,11 +86,11 @@ const AnnotationsOverlay = (props: AnnotationsOverlayProps)=>{
       tags,
       scaleFactor,
       maxPosition: {width, height},
-      locked,
+      locked: isLocked,
       onMouseDown
     };
 
-    if (isEditing) {
+    if (isSelected) {
       return h(Tag, {
         delete: actions.deleteAnnotation(ix),
         update: actions.updateAnnotation(ix),

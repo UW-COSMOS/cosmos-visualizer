@@ -42,6 +42,7 @@ module.exports = {
   resolve: {
     extensions: [".coffee", ".js", ".ts", ".jsx", ".tsx", ".styl",".css",".html",".md"],
     alias: {
+      "~": path.resolve(__dirname, "src/"),
       "app": path.resolve(__dirname, "src/"),
     }
   },

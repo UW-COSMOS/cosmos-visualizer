@@ -8,11 +8,38 @@
  */
 import {Component, createContext} from 'react';
 import h from 'react-hyperscript';
-import {join} from 'path';
 
+import {ReactNode} from 'react'
 import {ImageOverlay} from '../image-overlay';
-import {APIContext} from '../api';
 import {PageExtractionShape} from '../types';
+import {AnnotationsProvider} from '~/providers'
+import {AnnotationArr, Annotation} from '~/image-overlay/types'
+
+const normalizeAnnotation = function(d: AnnotationArr): Annotation {
+  /*
+  Temporary (?) function to normalize an annotation rectangle
+  to the expected internal representation.
+  */
+  console.log(d);
+  const boxes = [d[0]];
+  const name = d[1];
+  const score = d[2];
+  return {boxes, name, score, tag_id: name};
+};
+
+interface ViewerProviderProps {
+  children: ReactNode,
+  annotations: AnnotationArr[]
+}
+
+const PageDataProvider = (props: ViewerProviderProps)=>{
+  const {children, annotations} = props
+  return h(AnnotationsProvider, {
+    annotations: annotations.map(normalizeAnnotation),
+    allowSelection: true
+  }, children)
+}
+
 
 const ImageStoreContext = createContext({});
 
@@ -87,7 +114,7 @@ class ImageContainer extends Component {
   }
 
   render() {
-    const {actions, editingEnabled, editingRect,
+    const {actions, editingEnabled,
      tags, currentTag, currentImage, imageTags, ...rest} = this.props;
     const {scaleFactor, image} = this.state;
     if (image == null) { return null; }
@@ -95,16 +122,16 @@ class ImageContainer extends Component {
 
     return h('div.image-container', {style}, [
       h('img', {src: this.imageURL(image), ...style}),
-      h(ImageOverlay, {
-        ...style,
-        scaleFactor,
-        image_tags: image.pp_detected_objs,
-        currentTag,
-        tags,
-        actions,
-        editingEnabled,
-        editingRect
-      })
+      h(PageDataProvider, {annotations: image.pp_detected_objs}, [
+        h(ImageOverlay, {
+          ...style,
+          scaleFactor,
+          currentTag,
+          tags,
+          actions,
+          editingEnabled
+        })
+      ])
     ]);
   }
 

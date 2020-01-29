@@ -7,7 +7,7 @@ import {APIContext, ErrorMessage} from '../api';
 import {Image} from '~/types'
 import {ImageContainer} from '../image-container';
 import {PageFrame} from './frame'
-import {ITag, TagRect} from '../image-overlay/types'
+import {ITag, AnnotationArr, Annotation} from '../image-overlay/types'
 import {AnnotationsProvider} from '../providers'
 import {ReactNode} from 'react'
 
@@ -28,21 +28,8 @@ interface ViewerState {
   editingRect: number|null,
   currentTag: number|null,
   tagStore: ITag[],
-  rectStore: TagRect[],
-  initialRectStore: TagRect[]
-}
-
-interface ViewerProviderProps {
-  children: ReactNode,
-  annotations: TagRect[]
-}
-
-const PageDataProvider = (props: ViewerProviderProps)=>{
-  const {children, annotations} = props
-  return h(AnnotationsProvider, {
-    annotations,
-    allowSelection: true
-  }, children)
+  rectStore: AnnotationArr[],
+  initialRectStore: AnnotationArr[]
 }
 
 // Updates props for a rectangle
@@ -118,30 +105,26 @@ class ViewerPageBase extends StatefulComponent<IViewerProps, ViewerState> {
       selectAnnotation: this.selectAnnotation
     }
 
-    return h(PageDataProvider, {
-      annotations: rectStore
+    return h(PageFrame, {
+      hasChanges,
+      subtitleText,
+      editingEnabled,
+      hasInitialContent: initialRectStore.length != 0,
+      onSave: this.saveData.bind(this),
+      onClearChanges: this.clearChanges.bind(this),
+      currentImage: image,
+      getNextImage: this.getImageToDisplay.bind(this)
     }, [
-      h(PageFrame, {
-        hasChanges,
-        subtitleText,
+      image == null ? null : h(ImageContainer, {
+        editingRect,
         editingEnabled,
-        hasInitialContent: initialRectStore.length != 0,
-        onSave: this.saveData.bind(this),
-        onClearChanges: this.clearChanges.bind(this),
-        currentImage: image,
-        getNextImage: this.getImageToDisplay.bind(this)
-      }, [
-        image == null ? null : h(ImageContainer, {
-          editingRect,
-          editingEnabled,
-          image,
-          imageTags: rectStore,
-          tags: tagStore,
-          lockedTags,
-          currentTag,
-          actions
-        })
-      ])
+        image,
+        imageTags: rectStore,
+        tags: tagStore,
+        lockedTags,
+        currentTag,
+        actions
+      })
     ])
   }
 

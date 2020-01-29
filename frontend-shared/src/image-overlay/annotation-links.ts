@@ -10,6 +10,7 @@
 import {Component} from 'react';
 import h from 'react-hyperscript';
 import {EditorContext} from './context';
+import {useAnnotations} from '~/providers'
 import {bboxPolygon, featureCollection,
         polygonToLine,
         nearestPointOnLine,
@@ -55,7 +56,7 @@ class MarkerArrow extends Component {
   }
 }
 
-class AnnotationLinks extends Component {
+class AnnotationLinks__ extends Component {
   constructor(...args) {
     {
       // Hack: trick Babel/TypeScript into allowing this before super.
@@ -98,20 +99,27 @@ class AnnotationLinks extends Component {
   }
 
   computeLinks() {
-    const {image_tags, scaleFactor, tags} = this.props;
+    const {scaleFactor, tags, annotations} = this.props;
     const {tagColor} = this.context.helpers;
 
+    /* We are abusing geographic functions
+       (which error for positions > 180º etc.)
+       for cartesian data, so we just divide by 1000 to
+       make sure we don't create errors. */
+    const shrinkFactor = 1000
+
     const boxPolygon = function(boxes){
+
       const polys = boxes
-        .map(box => box.map(d => d/1000)).map(bboxPolygon);
+        .map(box => box.map(d => d/shrinkFactor)).map(bboxPolygon);
       return combine(featureCollection(polys)).features[0];
     };
 
     const links = [];
-    for (let fromTag of Array.from(image_tags)) {
+    for (let fromTag of annotations) {
       var {linked_to} = fromTag;
       if (linked_to == null) { continue; }
-      const toTag = image_tags.find(d => d.image_tag_id === linked_to);
+      const toTag = annotations.find(d => d.image_tag_id === linked_to);
       if (toTag == null) { continue; }
 
       const p1 = boxPolygon(fromTag.boxes);
@@ -127,7 +135,7 @@ class AnnotationLinks extends Component {
       c1 = e1.geometry.coordinates;
       c2 = e2.geometry.coordinates;
 
-      const coords = [...c1,...c2].map(d => (d/scaleFactor)*1000);
+      const coords = [...c1,...c2].map(d => (d/scaleFactor)*shrinkFactor);
 
       const color = tagColor(fromTag.tag_id);
       links.push({coords, color});
@@ -136,6 +144,11 @@ class AnnotationLinks extends Component {
     return links;
   }
 }
-AnnotationLinks.initClass();
+AnnotationLinks__.initClass();
+
+const AnnotationLinks = (props)=>{
+  const annotations = useAnnotations()
+  return h(AnnotationLinks__, {...props, annotations})
+}
 
 export {AnnotationLinks};
