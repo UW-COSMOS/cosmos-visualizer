@@ -4,8 +4,10 @@ import {Intent} from "@blueprintjs/core";
 import {StatefulComponent} from '@macrostrat/ui-components';
 import {AppToaster} from '../toaster';
 import {APIContext, ErrorMessage} from '../api';
+import {Image} from '~/types'
 import {ImageContainer} from '../image-container';
 import {PageFrame} from './frame'
+import {ITag, TagRect} from '../image-overlay/types'
 
 const isDifferent = (a1: any[], a2: any[]): boolean =>{
   if (a1.length == 0 && a2.length == 0) {
@@ -14,11 +16,24 @@ const isDifferent = (a1: any[], a2: any[]): boolean =>{
   return a1 != a2;
 }
 
+interface IViewerProps {
+  allowSaveWithoutChanges?: boolean,
+  imageRoute: string
+}
+
+interface ViewerState {
+  currentImage: Image,
+  editingRect: number|null,
+  currentTag: number|null,
+  tagStore: ITag[],
+  rectStore: TagRect[]
+}
+
 // Updates props for a rectangle
 // from API signature to our internal signature
 // TODO: make handle multiple boxes
 // TODO: reintegrate with Tagging page
-class ViewerPageBase extends StatefulComponent {
+class ViewerPageBase extends StatefulComponent<IViewerProps, ViewerState> {
   static defaultProps = {
     allowSaveWithoutChanges: false,
     editingEnabled: true,
@@ -26,7 +41,7 @@ class ViewerPageBase extends StatefulComponent {
     imageRoute: '/image'
   };
   static contextType = APIContext;
-  constructor(props){
+  constructor(props: IViewerProps){
     super(props);
     this.updateAnnotation = this.updateAnnotation.bind(this);
     this.selectAnnotation = this.selectAnnotation.bind(this);
@@ -36,7 +51,6 @@ class ViewerPageBase extends StatefulComponent {
     this.onImageLoaded = this.onImageLoaded.bind(this);
 
     this.state = {
-      infoDialogIsOpen: false,
       currentImage: null,
       editingRect: null,
       currentTag: null,
@@ -97,7 +111,6 @@ class ViewerPageBase extends StatefulComponent {
       onClearChanges: this.clearChanges.bind(this),
       currentImage: image,
       getNextImage: this.getImageToDisplay.bind(this)
-
     }, [
       image == null ? null : h(ImageContainer, {
         editingRect,
