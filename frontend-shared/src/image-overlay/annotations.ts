@@ -12,6 +12,7 @@ import {Tag, LockedTag} from '../annotation';
 
 import {EditMode} from '../enum';
 import {AnnotationArr, Annotation, ITag, TagRect} from './types'
+import {AnnotationActions} from '../editor/types'
 
 import './main.styl';
 
@@ -26,11 +27,6 @@ const transformTag = function(d: AnnotationArr): Annotation {
   const score = d[2];
   return {boxes, name, score, tag_id: name};
 };
-
-interface AnnotationActions {
-  deleteAnnotation: (ix: number)=> () => void,
-  updateAnnotation: (ix: number)=> (spec: UpdateSpec) => void
-}
 
 interface AnnotationsOverlayProps {
   image_tags: AnnotationArr[],
