@@ -59,24 +59,21 @@ interface ContainerProps {}
 interface ContainerState {}
 
 class ImageContainer extends Component<ContainerProps, ContainerState> {
-  static initClass() {
-    this.defaultProps = {
-      actions: {},
-      tags: [],
-      image: null,
-      editingEnabled: false
-    };
-    this.contextType = ImageStoreContext;
-    this.propTypes = {
-      image: PageExtractionShape
-    };
-  }
+  static defaultProps = {
+    actions: {},
+    tags: [],
+    image: null,
+    editingEnabled: false
+  };
+  static contextType = ImageStoreContext;
+  static propTypes = {
+    image: PageExtractionShape
+  };
 
   constructor(props: ContainerProps){
     super(props);
     this.scaledSize = this.scaledSize.bind(this);
     this.imageURL = this.imageURL.bind(this);
-    this.render = this.render.bind(this);
     this.ensureImageDimensions = this.ensureImageDimensions.bind(this);
     this.state = {
       scaleFactor: null,
@@ -189,6 +186,5 @@ class ImageContainer extends Component<ContainerProps, ContainerState> {
     return this.didUpdateWindowSize.apply(this,arguments);
   }
 }
-ImageContainer.initClass();
 
 export {ImageContainer, ImageStoreContext, ImageStoreProvider};

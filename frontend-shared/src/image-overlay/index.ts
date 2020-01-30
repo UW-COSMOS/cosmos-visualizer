@@ -213,9 +213,9 @@ class ImageOverlay extends StatefulComponent<Props,State> {
     const {actions, editingRect} = this.props;
     const {inProgressAnnotation: r} = this.state;
     this.setState({inProgressAnnotation: null});
-
     if (r == null) { return; }
     const {editModes} = this.contextValue();
+
     if (editModes.has(ADD_PART) && (editingRect != null)) {
       // We are adding a box to the currently
       // selected annotation
@@ -293,6 +293,6 @@ class ImageOverlay extends StatefulComponent<Props,State> {
   }
 }
 
-ImageOverlay = HotkeysTarget(ImageOverlay);
+HotkeysTarget(ImageOverlay);
 
 export {ImageOverlay};

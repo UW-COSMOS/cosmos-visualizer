@@ -24,7 +24,7 @@ interface AnnotationsCtx {
 const AnnotationsContext = createContext<AnnotationsCtx>({
   annotations: [],
   allowSelection: false,
-  selectedAnnotation: null
+  selected: null
 })
 
 type Updater = (v0: AnnotationRect)=>void
