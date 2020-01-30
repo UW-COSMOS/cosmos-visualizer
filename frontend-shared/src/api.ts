@@ -6,9 +6,7 @@
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
  */
 import {Component, createContext} from 'react';
-import {render} from 'react-dom';
 import h from 'react-hyperscript';
-import {json} from 'd3-fetch';
 import {AppToaster} from './toaster';
 import {Intent} from '@blueprintjs/core';
 import {

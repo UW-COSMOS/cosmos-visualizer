@@ -6,19 +6,21 @@ import {TagID} from './tags'
 type AnnotationRect = [number, number, number, number]
 type AnnotationArr = [AnnotationRect, TagID, number]
 
+// Really, this is an index
+type AnnotationID = number
 interface Annotation {
   boxes: AnnotationRect[],
   tag_id: TagID,
+  // Potentially, the uuid of another tag on the page
+  image_tag_id?: string,
   name: string,
   score?: number,
 }
 
-type SelectedAnnotation = Annotation|null
-
 interface AnnotationsCtx {
   annotations: Annotation[],
   allowSelection: boolean,
-  selected: SelectedAnnotation
+  selected: AnnotationID
 }
 
 const AnnotationsContext = createContext<AnnotationsCtx>({
@@ -27,7 +29,7 @@ const AnnotationsContext = createContext<AnnotationsCtx>({
   selected: null
 })
 
-type Updater = (v0: AnnotationRect)=>void
+type Updater = (v0: AnnotationID)=>void
 const SelectionUpdateContext = createContext<Updater|null>(null)
 
 
@@ -55,7 +57,7 @@ const AnnotationsProvider = (props: ProviderProps)=>{
   */
   const {children, annotations, allowSelection} = props
 
-  const [selected, setSelected] = useState<SelectedAnnotation>(null)
+  const [selected, setSelected] = useState<AnnotationID>(null)
 
   const value = {
     annotations,
@@ -77,6 +79,7 @@ const useSelectionUpdater = ()=>useContext(SelectionUpdateContext)
 export {
   AnnotationsProvider,
   AnnotationsContext,
+  SelectionUpdateContext,
   useAnnotations,
   useSelectedAnnotation,
   useSelectionUpdater,
