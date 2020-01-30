@@ -36,7 +36,7 @@ interface ViewerProviderProps {
 const PageDataProvider = (props: ViewerProviderProps)=>{
   const {children, annotations} = props
   return h(AnnotationsProvider, {
-    annotations: annotations.map(normalizeAnnotation),
+    annotations: (annotations ?? []).map(normalizeAnnotation),
     allowSelection: true
   }, children)
 }
@@ -59,24 +59,21 @@ interface ContainerProps {}
 interface ContainerState {}
 
 class ImageContainer extends Component<ContainerProps, ContainerState> {
-  static initClass() {
-    this.defaultProps = {
-      actions: {},
-      tags: [],
-      image: null,
-      editingEnabled: false
-    };
-    this.contextType = ImageStoreContext;
-    this.propTypes = {
-      image: PageExtractionShape
-    };
-  }
+  static defaultProps = {
+    actions: {},
+    tags: [],
+    image: null,
+    editingEnabled: false
+  };
+  static contextType = ImageStoreContext;
+  static propTypes = {
+    image: PageExtractionShape
+  };
 
   constructor(props: ContainerProps){
     super(props);
     this.scaledSize = this.scaledSize.bind(this);
     this.imageURL = this.imageURL.bind(this);
-    this.render = this.render.bind(this);
     this.ensureImageDimensions = this.ensureImageDimensions.bind(this);
     this.state = {
       scaleFactor: null,
@@ -114,7 +111,8 @@ class ImageContainer extends Component<ContainerProps, ContainerState> {
 
   imageURL(image){
     console.log(`image: ${image}`)
-    debugger
+    //const {resize_bytes} = image;
+    //return "data:image/png;base64," + resize_bytes;
     return join("/images_to_tag/", image.file_path)
   }
 
@@ -188,6 +186,5 @@ class ImageContainer extends Component<ContainerProps, ContainerState> {
     return this.didUpdateWindowSize.apply(this,arguments);
   }
 }
-ImageContainer.initClass();
 
 export {ImageContainer, ImageStoreContext, ImageStoreProvider};
