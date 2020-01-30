@@ -12,5 +12,5 @@ export DEBUG=1
 # to be set to _actual_ public base URL if reloaded.
 export PUBLIC_URL="/"
 
-compose up --detach --build $@
+compose up --detach --force-recreate --build $@
 compose logs -f

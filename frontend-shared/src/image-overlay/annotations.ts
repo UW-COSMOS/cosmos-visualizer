@@ -8,91 +8,63 @@
  */
 import h from 'react-hyperscript';
 import {event} from 'd3-selection';
-import {Tag, LockedTag} from '../annotation';
+import {Annotation , LockedAnnotation} from '../annotation';
 
 import {EditMode} from '../enum';
+import {AnnotationActions} from '../editor/types'
+import {
+  useCanvasSize,
+  useAnnotations,
+  useSelectedAnnotation,
+  Annotation as IAnnotation,
+  Tag as ITag
+} from '~/providers'
 
 import './main.styl';
 
 const {ADD_PART, LINK} = EditMode;
 
-type UpdateSpec = object
-type TagRect = [number, number, number, number]
-type AnnotationArr = [TagRect, string, number]
-
-interface ITag {
-  color: string,
-  name: string,
-  tag_id: number
-}
-
-interface Annotation {
-  boxes: TagRect[],
-  tag_id: string,
-  name: string,
-  score?: number,
-}
-
-const transformTag = function(d: AnnotationArr): Annotation {
-  console.log(d);
-  const boxes = [d[0]];
-  const name = d[1];
-  const score = d[2];
-  return {boxes, name, score, tag_id: name};
-};
-
-interface AnnotationActions {
-  deleteAnnotation: (ix: number)=> () => void,
-  updateAnnotation: (ix: number)=> (spec: UpdateSpec) => void
-}
 
 interface AnnotationsOverlayProps {
-  image_tags: AnnotationArr[],
-  width: number,
-  height: number,
-  inProgressAnnotation: AnnotationArr|null,
-  scaleFactor: number,
+  inProgressAnnotation: IAnnotation|null,
   actions: AnnotationActions,
   lockedTags: Set<string>,
   toggleSelect: ()=>void,
   onSelectAnnotation: (ix: number)=> ()=>void
   onClick: ()=>void
   tags: ITag[],
-  editingRect: number|null
 }
 
 const AnnotationsOverlay = (props: AnnotationsOverlayProps)=>{
   let {
     inProgressAnnotation,
-    image_tags,
     tags,
-    width,
-    height,
     lockedTags,
-    editingRect,
     actions,
-    scaleFactor,
     onClick,
     toggleSelect,
     onSelectAnnotation
   } = props;
 
+  let annotations = useAnnotations()
+  let selected = useSelectedAnnotation()
+  const {width, height, scaleFactor} = useCanvasSize()
+
   if (inProgressAnnotation != null) {
-    editingRect = null;
-    image_tags = [...image_tags, inProgressAnnotation];
+    selected = null;
+    annotations.push(inProgressAnnotation);
   }
 
   const size = {width, height};
 
-  return h('div.overlay', {style: size, onClick}, image_tags.map((v, ix)=> {
-    const d = transformTag(v);
+  return h('div.overlay', {style: size, onClick}, annotations.map((d, ix)=> {
 
-    const locked = lockedTags.has(d.tag_id);
-    if (locked) {
-      return h(LockedTag, {tags, ...d});
+    const isLocked = lockedTags.has(d.tag_id);
+    if (isLocked) {
+      return h(LockedAnnotation, {tags, ...d});
     }
 
-    const isEditing = (ix === editingRect) && !locked;
+    const isSelected = (d == selected) && !isLocked;
 
     const onMouseDown = () => {
       console.log(ix);
@@ -107,12 +79,12 @@ const AnnotationsOverlay = (props: AnnotationsOverlayProps)=>{
       tags,
       scaleFactor,
       maxPosition: {width, height},
-      locked,
+      locked: isLocked,
       onMouseDown
     };
 
-    if (isEditing) {
-      return h(Tag, {
+    if (isSelected) {
+      return h(Annotation, {
         delete: actions.deleteAnnotation(ix),
         update: actions.updateAnnotation(ix),
         onSelect: toggleSelect,
@@ -120,7 +92,7 @@ const AnnotationsOverlay = (props: AnnotationsOverlayProps)=>{
         ...opts
       });
     } else {
-      return h(Tag, opts);
+      return h(Annotation, opts);
     }
   }))
 }

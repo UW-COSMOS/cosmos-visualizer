@@ -21,5 +21,13 @@ const PageExtractionShape = T.shape({
   page_width: T.number.isRequired
 });
 
+interface Image {
+  created: string,
+  doc_id: string,
+  file_path: string,
+  image_id: string,
+  page_no: number,
+  stack_id?: string
+}
 
-export {ImageShape, PageExtractionShape};
+export {ImageShape, PageExtractionShape, Image};

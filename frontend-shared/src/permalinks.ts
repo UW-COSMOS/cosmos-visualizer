@@ -4,7 +4,7 @@ import {useRouteMatch} from 'react-router-dom';
 import {LinkButton} from '@macrostrat/ui-components';
 import T from 'prop-types';
 import {AppMode} from './enum';
-import {ImageShape} from './types';
+import {Image, ImageShape} from './types';
 
 const PermalinkContext = createContext({});
 
@@ -40,7 +40,12 @@ class PermalinkProvider extends Component {
   }
 }
 
-const PermalinkButton = function({image}){
+interface PermalinkButtonProps {
+  image: Image
+}
+
+const PermalinkButton = function(props: PermalinkButtonProps){
+  const {image} = props;
   const ctx = useContext(PermalinkContext);
   const {params: {imageId, stackId}} = useRouteMatch();
   if (image == null) { return null; }

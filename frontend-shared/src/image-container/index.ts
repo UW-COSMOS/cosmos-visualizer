@@ -8,11 +8,39 @@
  */
 import {Component, createContext} from 'react';
 import h from 'react-hyperscript';
-import {join} from 'path';
+import {join} from 'path'
 
+import {ReactNode} from 'react'
 import {ImageOverlay} from '../image-overlay';
-import {APIContext} from '../api';
 import {PageExtractionShape} from '../types';
+import {AnnotationsProvider, CanvasSizeProvider} from '~/providers'
+import {AnnotationArr, Annotation} from '~/image-overlay/types'
+
+const normalizeAnnotation = function(d: AnnotationArr): Annotation {
+  /*
+  Temporary (?) function to normalize an annotation rectangle
+  to the expected internal representation.
+  */
+  console.log(d);
+  const boxes = [d[0]];
+  const name = d[1];
+  const score = d[2];
+  return {boxes, name, score, tag_id: name};
+};
+
+interface ViewerProviderProps {
+  children: ReactNode,
+  annotations: AnnotationArr[]
+}
+
+const PageDataProvider = (props: ViewerProviderProps)=>{
+  const {children, annotations} = props
+  return h(AnnotationsProvider, {
+    annotations: annotations.map(normalizeAnnotation),
+    allowSelection: true
+  }, children)
+}
+
 
 const ImageStoreContext = createContext({});
 
@@ -27,7 +55,10 @@ class ImageStoreProvider extends Component {
   }
 }
 
-class ImageContainer extends Component {
+interface ContainerProps {}
+interface ContainerState {}
+
+class ImageContainer extends Component<ContainerProps, ContainerState> {
   static initClass() {
     this.defaultProps = {
       actions: {},
@@ -41,19 +72,12 @@ class ImageContainer extends Component {
     };
   }
 
-  constructor(props){
-    {
-      // Hack: trick Babel/TypeScript into allowing this before super.
-      if (false) { super(); }
-      let thisFn = (() => { return this; }).toString();
-      let thisName = thisFn.match(/return (?:_assertThisInitialized\()*(\w+)\)*;/)[1];
-      eval(`${thisName} = this;`);
-    }
+  constructor(props: ContainerProps){
+    super(props);
     this.scaledSize = this.scaledSize.bind(this);
     this.imageURL = this.imageURL.bind(this);
     this.render = this.render.bind(this);
     this.ensureImageDimensions = this.ensureImageDimensions.bind(this);
-    super(props);
     this.state = {
       scaleFactor: null,
       image: null,
@@ -89,29 +113,35 @@ class ImageContainer extends Component {
   }
 
   imageURL(image){
-      console.log(`image: ${image}`)
+    console.log(`image: ${image}`)
+    debugger
     return join("/images_to_tag/", image.file_path)
   }
 
   render() {
-    const {actions, editingEnabled, editingRect,
-     tags, currentTag, currentImage, imageTags, ...rest} = this.props;
+    const {actions, editingEnabled,
+     tags, currentTag, currentImage, imageTags} = this.props;
     const {scaleFactor, image} = this.state;
     if (image == null) { return null; }
     const style = this.scaledSize();
 
-    return h('div.image-container', {style}, [
-      h('img', {src: this.imageURL(image), ...style}),
-      h(ImageOverlay, {
-        ...style,
+    return h(PageDataProvider, {annotations: image.pp_detected_objs}, [
+      h(CanvasSizeProvider, {
         scaleFactor,
-        image_tags: [], //HACK HACK HACK this will break other things IAR - 28.Jan.2020 TODO: fix
-        currentTag,
-        tags,
-        actions,
-        editingEnabled,
-        editingRect
-      })
+        ...style
+      }, [
+        h('div.image-container', {style}, [
+          h('img', {src: this.imageURL(image), ...style}),
+          h(ImageOverlay, {
+            ...style,
+            scaleFactor,
+            currentTag,
+            tags,
+            actions,
+            editingEnabled
+          })
+        ])
+      ])
     ]);
   }
 
