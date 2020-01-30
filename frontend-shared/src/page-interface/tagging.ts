@@ -48,10 +48,8 @@ class TaggingPage extends StatefulComponent {
     this.updateCurrentTag = this.updateCurrentTag.bind(this);
     this.selectAnnotation = this.selectAnnotation.bind(this);
     this.appendAnnotation = this.appendAnnotation.bind(this);
-    this.renderImageContainer = this.renderImageContainer.bind(this);
     this.toggleTagLock = this.toggleTagLock.bind(this);
     this.clearChanges = this.clearChanges.bind(this);
-    this.uiHasChanges = this.uiHasChanges.bind(this);
     this.currentStackID = this.currentStackID.bind(this);
     this.setupTags = this.setupTags.bind(this);
     this.onImageLoaded = this.onImageLoaded.bind(this);
@@ -134,36 +132,6 @@ class TaggingPage extends StatefulComponent {
     });
   }
 
-  renderImageContainer() {
-    const {editingEnabled} = this.props;
-    const {currentImage, editingRect,
-      rectStore, tagStore, currentTag, lockedTags} = this.state;
-    if (currentImage == null) { return null; }
-
-    const actions: AnnotationActions = (() => {
-      let addLink, appendAnnotation, deleteAnnotation, selectAnnotation, toggleTagLock, updateAnnotation, updateCurrentTag, updateState;
-      return ({deleteAnnotation,
-       updateAnnotation,
-       selectAnnotation,
-       appendAnnotation,
-       updateCurrentTag,
-       toggleTagLock,
-       updateState,
-       addLink} = this);
-    })();
-
-    return h(ImageContainer, {
-      editingRect,
-      editingEnabled,
-      image: currentImage,
-      imageTags: rectStore,
-      tags: tagStore,
-      lockedTags,
-      currentTag,
-      actions
-    });
-  }
-
   toggleTagLock(tagId){ return () => {
     const {tagStore, currentTag, lockedTags} = this.state;
 
@@ -203,14 +171,6 @@ class TaggingPage extends StatefulComponent {
     });
   }
 
-  uiHasChanges() {
-    const {rectStore, initialRectStore} = this.state;
-    if (initialRectStore.length === rectStore.length && rectStore.length === 0) {
-      return false;
-    }
-    return rectStore !== initialRectStore;
-  }
-
   render() {
     const {subtitleText} = this.props;
     const {currentImage: image} = this.state;
@@ -225,10 +185,17 @@ class TaggingPage extends StatefulComponent {
     const hasChanges = isDifferent(initialRectStore, rectStore);
     const {editingEnabled} = this.props;
 
-    const actions = {
-      updateAnnotation: this.updateAnnotation,
-      selectAnnotation: this.selectAnnotation
-    }
+    const actions: AnnotationActions = (() => {
+      let addLink, appendAnnotation, deleteAnnotation, selectAnnotation, toggleTagLock, updateAnnotation, updateCurrentTag, updateState;
+      return ({deleteAnnotation,
+       updateAnnotation,
+       selectAnnotation,
+       appendAnnotation,
+       updateCurrentTag,
+       toggleTagLock,
+       updateState,
+       addLink} = this);
+    })();
 
     return h(TagsProvider, {tags: tagStore}, [
       h(PageFrame, {

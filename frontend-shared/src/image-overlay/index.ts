@@ -19,14 +19,29 @@ import {EditorContext} from './context';
 
 import {EditMode} from '../enum';
 import {ModalNotifications} from './notifications';
-import {AnnotationsOverlay} from './annotations'
+import {AnnotationsOverlay} from './annotations';
+import {
+  AnnotationsContext,
+  Tag,
+  AnnotationArr
+} from '~/providers'
 
 import './main.styl';
 
 const {ADD_PART, LINK} = EditMode;
 const SHIFT_MODES = new Set([LINK, ADD_PART]);
 
-class ImageOverlay extends StatefulComponent {
+interface Props {
+  clickDistance: number,
+  editingEnabled: boolean,
+  selectIsOpen: boolean,
+  lockedTags: Set<Tag>
+}
+interface State {
+  inProgressAnnotation: AnnotationArr|null
+}
+
+class ImageOverlay extends StatefulComponent<Props,State> {
   static defaultProps = {
     // Distance we take as a click before switching to drag
     clickDistance: 10,
@@ -34,6 +49,7 @@ class ImageOverlay extends StatefulComponent {
     selectIsOpen: false,
     lockedTags: new Set([])
   };
+  static contextType = AnnotationsContext;
   constructor(props){
     super(props);
 
@@ -146,6 +162,7 @@ class ImageOverlay extends StatefulComponent {
   handleDrag() {
     const {subject} = event;
     let {x,y} = subject;
+    const annotations: Annotation[] = this.context;
     let {
       clickDistance,
       editingRect,
@@ -163,7 +180,7 @@ class ImageOverlay extends StatefulComponent {
     // Make sure we color with the tag this will be
     const {editModes} = this.contextValue();
     if (editModes.has(ADD_PART) && (editingRect != null)) {
-      currentTag = image_tags[editingRect].tag_id;
+      currentTag = annotations[editingRect].tag_id;
     }
 
     if (scaleFactor == null) { scaleFactor = 1; }
@@ -188,7 +205,8 @@ class ImageOverlay extends StatefulComponent {
     // We are adding a new annotation
     const boxes = [[x,y,x+width,y+height]];
     const rect = {boxes, tag_id: currentTag};
-    return this.setState({inProgressAnnotation: rect, clickingInRect: null});
+
+    this.setState({inProgressAnnotation: rect, clickingInRect: null});
   }
 
   handleAddAnnotation() {
