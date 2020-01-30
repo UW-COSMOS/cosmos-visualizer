@@ -14,7 +14,7 @@ import {Button, Intent} from '@blueprintjs/core';
 import classNames from 'classnames';
 import {EditMode} from '../enum';
 import {EditorContext} from '../image-overlay/context';
-
+import {useCanvasSize, useTags} from '~/providers'
 
 const ToolButton = props => h(Button, {small: true, minimal: true, ...props});
 
@@ -30,33 +30,23 @@ const tagCenter = function(boxes){
   return [(d[0]+d[2])/2, (d[1]+d[3])/2];
 };
 
-class Tag extends Component {
+class Annotation extends Component {
   constructor(...args) {
-    {
-      // Hack: trick Babel/TypeScript into allowing this before super.
-      if (false) { super(); }
-      let thisFn = (() => { return this; }).toString();
-      let thisName = thisFn.match(/return (?:_assertThisInitialized\()*(\w+)\)*;/)[1];
-      eval(`${thisName} = this;`);
-    }
+    super(...args);
     this.tagUpdater = this.tagUpdater.bind(this);
     this.isSelected = this.isSelected.bind(this);
     this.renderTags = this.renderTags.bind(this);
-    this.render = this.render.bind(this);
     this.setTag = this.setTag.bind(this);
     this.renderLinkButton = this.renderLinkButton.bind(this);
     this.boxContent = this.boxContent.bind(this);
     this.renderControls = this.renderControls.bind(this);
     this.editingMenuPosition = this.editingMenuPosition.bind(this);
-    super(...args);
   }
 
-  static initClass() {
-    this.contextType = EditorContext;
-    this.defaultProps = {
-      enterLinkMode() {}
-    };
-  }
+  static contextType = EditorContext;
+  static defaultProps = {
+    enterLinkMode() {}
+  };
   tagUpdater(ix){
     const {update} = this.props;
     if (update == null) { return null; }
@@ -212,44 +202,26 @@ class Tag extends Component {
     return 'bottom';
   }
 }
-Tag.initClass();
 
-class LockedTag extends Component {
-  constructor(...args) {
-    {
-      // Hack: trick Babel/TypeScript into allowing this before super.
-      if (false) { super(); }
-      let thisFn = (() => { return this; }).toString();
-      let thisName = thisFn.match(/return (?:_assertThisInitialized\()*(\w+)\)*;/)[1];
-      eval(`${thisName} = this;`);
-    }
-    this.render = this.render.bind(this);
-    super(...args);
-  }
+const LockedAnnotation = (props)=>{
+  const {boxes, tag_id, ...rest} = this.props;
+  const {scaleFactor, width, height} = useCanvasSize()
+  const maxPosition = {width, height}
 
-  static initClass() {
-    this.contextType = EditorContext;
-  }
+  const {helpers} = useContext(EditorContect)
+  const c = helpers.tagColor(tag_id);
+  const alpha = 0.2;
+  const color = c.alpha(alpha).css();
 
-  render() {
-    const {boxes, tag_id, ...rest} = this.props;
-    const {scaleFactor, imageSize: maxPosition} = this.context;
-
-    const c = this.context.helpers.tagColor(tag_id);
-    const alpha = 0.2;
-    const color = c.alpha(alpha).css();
-
-    return h('div.annotation.locked', boxes.map((d, i)=> {
-      return h(Rectangle, {
-        bounds: d,
-        color,
-        scaleFactor,
-        maxPosition,
-        ...rest
-      });
+  return h('div.annotation.locked', boxes.map((d, i)=> {
+    return h(Rectangle, {
+      bounds: d,
+      color,
+      scaleFactor,
+      maxPosition,
+      ...rest
+    });
   }));
-  }
 }
-LockedTag.initClass();
 
-export {Tag, LockedTag, tagCenter, tagBounds};
+export {Annotation, LockedAnnotation, tagCenter, tagBounds};

@@ -1,6 +1,17 @@
-import {useState, createContext, useContext, FC} from 'react'
+import {useState, createContext, useContext} from 'react'
 import h from 'react-hyperscript'
 import {AnnotationArr, Annotation} from '../image-overlay/types'
+import {TagID} from './tags'
+
+type AnnotationRect = [number, number, number, number]
+type AnnotationArr = [AnnotationRect, TagID, number]
+
+interface Annotation {
+  boxes: AnnotationRect[],
+  tag_id: TagID,
+  name: string,
+  score?: number,
+}
 
 type SelectedAnnotation = Annotation|null
 
@@ -16,7 +27,7 @@ const AnnotationsContext = createContext<AnnotationsCtx>({
   selectedAnnotation: null
 })
 
-type Updater = (v0: TagRect)=>void
+type Updater = (v0: AnnotationRect)=>void
 const SelectionUpdateContext = createContext<Updater|null>(null)
 
 
@@ -39,7 +50,8 @@ interface ProviderProps {
 
 const AnnotationsProvider = (props: ProviderProps)=>{
   /**
-  Provides the ability to select an annotation
+  Provides annotations to the page,
+  Also allows selecting an annotation
   */
   const {children, annotations, allowSelection} = props
 
@@ -67,5 +79,8 @@ export {
   AnnotationsContext,
   useAnnotations,
   useSelectedAnnotation,
-  useSelectionUpdater
+  useSelectionUpdater,
+  Annotation,
+  AnnotationRect,
+  AnnotationArr
 }

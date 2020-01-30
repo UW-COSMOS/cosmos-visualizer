@@ -121,17 +121,10 @@ class DragHandles extends Component {
 
 class DragRectangle extends Component {
   constructor(...args) {
-    {
-      // Hack: trick Babel/TypeScript into allowing this before super.
-      if (false) { super(); }
-      let thisFn = (() => { return this; }).toString();
-      let thisName = thisFn.match(/return (?:_assertThisInitialized\()*(\w+)\)*;/)[1];
-      eval(`${thisName} = this;`);
-    }
+    super(...args);
     this.dragSubject = this.dragSubject.bind(this);
     this.handleDrag = this.handleDrag.bind(this);
     this.dragInteraction = this.dragInteraction.bind(this);
-    super(...args);
   }
 
   static initClass() {

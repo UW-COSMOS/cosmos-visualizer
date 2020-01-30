@@ -8,36 +8,31 @@
  */
 import h from 'react-hyperscript';
 import {event} from 'd3-selection';
-import {Tag, LockedTag} from '../annotation';
+import {Annotation , LockedAnnotation} from '../annotation';
 
 import {EditMode} from '../enum';
-import {AnnotationRect, Annotation, ITag, TagRect} from './types'
 import {AnnotationActions} from '../editor/types'
 import {
   useCanvasSize,
   useAnnotations,
-  useSelectedAnnotation
+  useSelectedAnnotation,
+  Annotation as IAnnotation,
+  Tag as ITag
 } from '~/providers'
 
 import './main.styl';
 
 const {ADD_PART, LINK} = EditMode;
 
-type UpdateSpec = object
 
 interface AnnotationsOverlayProps {
-  image_tags: Annotation[],
-  width: number,
-  height: number,
-  inProgressAnnotation: Annotation|null,
-  scaleFactor: number,
+  inProgressAnnotation: IAnnotation|null,
   actions: AnnotationActions,
   lockedTags: Set<string>,
   toggleSelect: ()=>void,
   onSelectAnnotation: (ix: number)=> ()=>void
   onClick: ()=>void
   tags: ITag[],
-  editingRect: number|null
 }
 
 const AnnotationsOverlay = (props: AnnotationsOverlayProps)=>{
@@ -66,7 +61,7 @@ const AnnotationsOverlay = (props: AnnotationsOverlayProps)=>{
 
     const isLocked = lockedTags.has(d.tag_id);
     if (isLocked) {
-      return h(LockedTag, {tags, ...d});
+      return h(LockedAnnotation, {tags, ...d});
     }
 
     const isSelected = (d == selected) && !isLocked;
@@ -89,7 +84,7 @@ const AnnotationsOverlay = (props: AnnotationsOverlayProps)=>{
     };
 
     if (isSelected) {
-      return h(Tag, {
+      return h(Annotation, {
         delete: actions.deleteAnnotation(ix),
         update: actions.updateAnnotation(ix),
         onSelect: toggleSelect,
@@ -97,7 +92,7 @@ const AnnotationsOverlay = (props: AnnotationsOverlayProps)=>{
         ...opts
       });
     } else {
-      return h(Tag, opts);
+      return h(Annotation, opts);
     }
   }))
 }
