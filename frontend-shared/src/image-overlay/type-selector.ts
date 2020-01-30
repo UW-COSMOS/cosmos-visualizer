@@ -11,20 +11,14 @@ import classNames from 'classnames';
 import styled from '@emotion/styled';
 import {Button} from '@blueprintjs/core';
 import {Omnibar} from '@blueprintjs/select';
+import {useTags} from '~/providers'
 import Fuse from 'fuse.js';
 import chroma from 'chroma-js';
 
 class ListItem extends Component {
   constructor(...args) {
-    {
-      // Hack: trick Babel/TypeScript into allowing this before super.
-      if (false) { super(); }
-      let thisFn = (() => { return this; }).toString();
-      let thisName = thisFn.match(/return (?:_assertThisInitialized\()*(\w+)\)*;/)[1];
-      eval(`${thisName} = this;`);
-    }
-    this.toggleLock = this.toggleLock.bind(this);
     super(...args);
+    this.toggleLock = this.toggleLock.bind(this);
   }
 
   toggleLock(event){
@@ -54,47 +48,44 @@ class ListItem extends Component {
   }
 }
 
-class TypeSelector extends Component {
-  render() {
-    const options = {
-      shouldSort: true,
-      minMatchCharLength: 0,
-      keys: ["name", "description"]
-    };
-    let fuse = null;
-    const {tags, lockedTags, toggleLock, onItemSelect, currentTag, ...rest} = this.props;
+const TypeSelector = (props)=>{
+  const options = {
+    shouldSort: true,
+    minMatchCharLength: 0,
+    keys: ["name", "description"]
+  };
+  let fuse = null;
+  const tags = useTags()
+  const {lockedTags, toggleLock, onItemSelect, currentTag, ...rest} = props;
 
-    return h(Omnibar, {
-      ...rest,
-      onItemSelect,
-      items: tags,
-      resetOnSelect: true,
-      itemListRenderer: obj=> {
-        console.log(currentTag);
-        const {filteredItems, activeItem} = obj;
-        return h('div.item-list', null, filteredItems.map(d=> {
-          const active = d.tag_id === currentTag;
-          const locked = lockedTags.has(d.tag_id);
-          const onClick = () => {
-            return onItemSelect(d);
-          };
-          return h(ListItem, {
-            active,
-            onClick,
-            toggleLock: toggleLock(d.tag_id),
-            locked, ...d});
-      }));
-      },
-
-      itemListPredicate(query, items){
-        if (query === "") { return items; }
-        if ((fuse == null)) {
-          fuse = new Fuse(items, options);
-        }
-        return fuse.search(query);
+  return h(Omnibar, {
+    ...rest,
+    onItemSelect,
+    items: tags,
+    resetOnSelect: true,
+    itemListRenderer: obj=> {
+      const {filteredItems, activeItem} = obj;
+      return h('div.item-list', null, filteredItems.map(d=> {
+        const active = d.tag_id === currentTag;
+        const locked = lockedTags.has(d.tag_id);
+        const onClick = () => {
+          return onItemSelect(d);
+        };
+        return h(ListItem, {
+          active,
+          onClick,
+          toggleLock: toggleLock(d.tag_id),
+          locked, ...d});
+    }));
+    },
+    itemListPredicate(query, items){
+      if (query === "") { return items; }
+      if ((fuse == null)) {
+        fuse = new Fuse(items, options);
       }
-    });
-  }
+      return fuse.search(query);
+    }
+  });
 }
 
 export {TypeSelector};

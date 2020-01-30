@@ -84,7 +84,6 @@ class ImageOverlay extends StatefulComponent {
 
     return h('div', [
       h(TypeSelector, {
-        tags,
         lockedTags,
         currentTag,
         toggleLock: actions.toggleTagLock || function() {},
@@ -95,7 +94,6 @@ class ImageOverlay extends StatefulComponent {
       h(AnnotationsOverlay, {
         lockedTags,
         inProgressAnnotation,
-        tags,
         actions,
         onClick,
         toggleSelect: this.toggleSelect,
