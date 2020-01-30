@@ -375,7 +375,7 @@ class TaggingPage extends StatefulComponent {
       imageToDisplay = `${imageRoute}/${initialImage}`;
     }
 
-    var hacky_stack_id = this.props.stack_id || "default_to_tag";
+    var hacky_stack_id = "tag_more";
 
     if (imageToDisplay == null) { return; }
     console.log(`Getting image from endpoint ${imageToDisplay}`);
