@@ -12,7 +12,7 @@ import h from 'react-hyperscript';
 import {ReactNode} from 'react'
 import {ImageOverlay} from '../image-overlay';
 import {PageExtractionShape} from '../types';
-import {AnnotationsProvider} from '~/providers'
+import {AnnotationsProvider, CanvasSizeProvider} from '~/providers'
 import {AnnotationArr, Annotation} from '~/image-overlay/types'
 
 const normalizeAnnotation = function(d: AnnotationArr): Annotation {
@@ -54,7 +54,10 @@ class ImageStoreProvider extends Component {
   }
 }
 
-class ImageContainer extends Component {
+interface ContainerProps {}
+interface ContainerState {}
+
+class ImageContainer extends Component<ContainerProps, ContainerState> {
   static initClass() {
     this.defaultProps = {
       actions: {},
@@ -68,7 +71,7 @@ class ImageContainer extends Component {
     };
   }
 
-  constructor(props){
+  constructor(props: ContainerProps){
     super(props);
     this.scaledSize = this.scaledSize.bind(this);
     this.imageURL = this.imageURL.bind(this);
@@ -115,22 +118,27 @@ class ImageContainer extends Component {
 
   render() {
     const {actions, editingEnabled,
-     tags, currentTag, currentImage, imageTags, ...rest} = this.props;
+     tags, currentTag, currentImage, imageTags} = this.props;
     const {scaleFactor, image} = this.state;
     if (image == null) { return null; }
     const style = this.scaledSize();
 
-    return h('div.image-container', {style}, [
-      h('img', {src: this.imageURL(image), ...style}),
-      h(PageDataProvider, {annotations: image.pp_detected_objs}, [
-        h(ImageOverlay, {
-          ...style,
-          scaleFactor,
-          currentTag,
-          tags,
-          actions,
-          editingEnabled
-        })
+    return h(PageDataProvider, {annotations: image.pp_detected_objs}, [
+      h(CanvasSizeProvider, {
+        scaleFactor,
+        ...style
+      }, [
+        h('div.image-container', {style}, [
+          h('img', {src: this.imageURL(image), ...style}),
+          h(ImageOverlay, {
+            ...style,
+            scaleFactor,
+            currentTag,
+            tags,
+            actions,
+            editingEnabled
+          })
+        ])
       ])
     ]);
   }

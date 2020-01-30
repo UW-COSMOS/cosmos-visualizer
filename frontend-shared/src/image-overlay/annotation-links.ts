@@ -10,7 +10,7 @@
 import {Component, useContext} from 'react';
 import h from 'react-hyperscript';
 import {EditorContext} from './context';
-import {useAnnotations} from '~/providers'
+import {useAnnotations, useCanvasSize} from '~/providers'
 import {bboxPolygon, featureCollection,
         polygonToLine,
         nearestPointOnLine,
@@ -118,8 +118,8 @@ const useAnnotationLinks = (scaleFactor: number): Link[] =>{
   return links;
 }
 
-const AnnotationLinks = (props)=>{
-  const {width, height, scaleFactor} = props;
+const AnnotationLinks = ()=>{
+  const {width, height, scaleFactor} = useCanvasSize()
   const links: Link[] = useAnnotationLinks(scaleFactor);
   return h('svg.annotation-links', {width, height}, [
     h(LinkDefs, {links}),

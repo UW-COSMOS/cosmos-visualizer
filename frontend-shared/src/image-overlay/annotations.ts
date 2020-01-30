@@ -14,10 +14,10 @@ import {EditMode} from '../enum';
 import {AnnotationRect, Annotation, ITag, TagRect} from './types'
 import {AnnotationActions} from '../editor/types'
 import {
+  useCanvasSize,
   useAnnotations,
-  useSelectionUpdater,
   useSelectedAnnotation
-} from '~/providers/annotations'
+} from '~/providers'
 
 import './main.styl';
 
@@ -44,11 +44,8 @@ const AnnotationsOverlay = (props: AnnotationsOverlayProps)=>{
   let {
     inProgressAnnotation,
     tags,
-    width,
-    height,
     lockedTags,
     actions,
-    scaleFactor,
     onClick,
     toggleSelect,
     onSelectAnnotation
@@ -56,6 +53,7 @@ const AnnotationsOverlay = (props: AnnotationsOverlayProps)=>{
 
   let annotations = useAnnotations()
   let selected = useSelectedAnnotation()
+  const {width, height, scaleFactor} = useCanvasSize()
 
   if (inProgressAnnotation != null) {
     selected = null;

@@ -76,13 +76,11 @@ class ImageOverlay extends StatefulComponent {
 
   renderInterior() {
     const {
-      editingRect, width,
-      height, image_tags,
-      scaleFactor, tags,
-      currentTag, lockedTags,
-      actions, ...rest
+      tags,
+      currentTag,
+      lockedTags,
+      actions
     } = this.props;
-    const size = {width, height};
     const {selectIsOpen, inProgressAnnotation} = this.state;
 
     const onClick = this.disableEditing;
@@ -100,18 +98,13 @@ class ImageOverlay extends StatefulComponent {
       h(AnnotationsOverlay, {
         lockedTags,
         inProgressAnnotation,
-        image_tags,
         tags,
-        width,
-        height,
-        editingRect,
         actions,
-        scaleFactor,
         onClick,
         toggleSelect: this.toggleSelect,
         onSelectAnnotation: this.selectAnnotation
       }),
-      h(AnnotationLinks, {image_tags, scaleFactor, tags, ...size}),
+      h(AnnotationLinks),
       h(ModalNotifications)
     ]);
   }
@@ -131,7 +124,7 @@ class ImageOverlay extends StatefulComponent {
   }
 
   contextValue() {
-    const {actions, tags, currentTag, scaleFactor, width, height} = this.props;
+    const {actions, tags, currentTag} = this.props;
     let {editModes, shiftKey} = this.state;
     if (shiftKey) { editModes = SHIFT_MODES; }
     actions.setMode = this.setMode;
@@ -140,8 +133,6 @@ class ImageOverlay extends StatefulComponent {
     return {
       tags,
       currentTag,
-      scaleFactor,
-      imageSize: {width, height},
       editModes,
       shiftKey,
       actions,
@@ -183,7 +174,7 @@ class ImageOverlay extends StatefulComponent {
       scaleFactor,
       editingEnabled,
       lockedTags,
-      image_tags
+      image_tags // TODO: replace this with AnnotationsContext.annotation
     } = this.props;
     if (!editingEnabled) { return; }
     if (lockedTags.has(currentTag)) {
