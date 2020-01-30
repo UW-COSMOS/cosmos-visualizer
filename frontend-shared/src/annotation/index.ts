@@ -6,8 +6,8 @@
  * DS207: Consider shorter variations of null checks
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
  */
-import {Component} from 'react';
-import h from 'react-hyperscript';
+import {Component, useContext} from 'react';
+import h from '@macrostrat/hyper';
 import {min, max} from 'd3-array';
 import {Rectangle} from './drag-rect';
 import {Button, Intent} from '@blueprintjs/core';
@@ -30,17 +30,87 @@ const tagCenter = function(boxes){
   return [(d[0]+d[2])/2, (d[1]+d[3])/2];
 };
 
+const LinkButton = (props)=>{
+  const {update} = props;
+  const {actions: {setMode}, editModes} = useContext(EditorContext);
+  const removeLink = () => update({linked_to: {$set: null}});
+
+  if (this.props.linked_to != null) {
+    return h(ToolButton, {
+      icon: 'ungroup-objects',
+      onClick: removeLink
+    });
+  }
+  return h(ToolButton, {
+    icon: 'new-link',
+    intent: editModes.has(EditMode.LINK) ? Intent.SUCCESS : undefined,
+    onClick() { return setMode(EditMode.LINK); }
+  });
+}
+
+const AnnotationControls = (props)=>{
+  const {
+    delete: deleteRectangle,
+    onSelect,
+    update,
+    boxes,
+    linked_to
+  } = props;
+
+  if (update == null) { return null; }
+
+  // Calculate editing menu position
+  const {height, scaleFactor} = useCanvasSize()
+  const maxY = boxes[0][3]/scaleFactor
+  const className = maxY > height-50 ? 'top' : 'bottom'
+
+  const {actions: {setMode}, editModes} = useContext(EditorContext);
+
+  // Make sure clicks on the control panel don't dismiss it
+  // due to the competing overlay click handler
+  const onClick = event => event.stopPropagation();
+
+  const style = {pointerEvents: 'visible'}
+
+  return h('div.rect-controls', {className, onClick, style}, [
+    h(ToolButton, {
+      icon: 'tag',
+      onClick: onSelect
+    }),
+    h(LinkButton, {update, linked_to}),
+    h(ToolButton, {
+      icon: 'insert',
+      intent: editModes.has(EditMode.ADD_PART) ? Intent.SUCCESS : undefined,
+      onClick() { return setMode(EditMode.ADD_PART); }
+    }),
+    h(ToolButton, {
+      icon: 'cross',
+      intent: Intent.DANGER,
+      onClick: deleteRectangle
+    })
+  ]);
+}
+
+const AnnotationPart = (props)=>{
+  const {update, onDelete, bounds, color, ...rest} = props
+
+  return h(Rectangle, {bounds, update, color, ...rest}, [
+    h.if(onDelete != null)(ToolButton, {
+      icon: 'cross',
+      className: 'delete-rect',
+      intent: Intent.DANGER,
+      onClick: onDelete
+    })
+  ])
+}
+
 class Annotation extends Component {
   constructor(...args) {
     super(...args);
     this.tagUpdater = this.tagUpdater.bind(this);
     this.isSelected = this.isSelected.bind(this);
-    this.renderTags = this.renderTags.bind(this);
     this.setTag = this.setTag.bind(this);
-    this.renderLinkButton = this.renderLinkButton.bind(this);
     this.boxContent = this.boxContent.bind(this);
-    this.renderControls = this.renderControls.bind(this);
-    this.editingMenuPosition = this.editingMenuPosition.bind(this);
   }
 
   static contextType = EditorContext;
@@ -61,25 +131,6 @@ class Annotation extends Component {
   isSelected() {
     const {update} = this.props;
     return (update != null);
-  }
-
-  renderTags(color){
-    let {boxes, update, ...rest} = this.props;
-
-    let className = null;
-    if (update != null) {
-      className = 'active';
-    }
-
-    return h('div.tag', {className}, boxes.map((d, i)=> {
-      update = this.tagUpdater(i);
-      return h(Rectangle, {
-        bounds: d,
-        update,
-        color,
-      ...rest}, this.boxContent(i));
-    })
-    );
   }
 
   render() {
@@ -103,7 +154,7 @@ class Annotation extends Component {
     if (tagData == null) { tagData = {}; }
     name = h('div.tag-name', {style: {color: textColor}}, tagData.name || name);
 
-    const active = this.isSelected();
+    const active = update != null;
     const className = classNames({active});
     return h('div.annotation', {className}, [
       h(Rectangle, {
@@ -111,11 +162,28 @@ class Annotation extends Component {
         color, backgroundColor: 'none',
         style: {pointerEvents: 'none'},
         ...rest
-        }, [
+      }, [
         name,
-        this.renderControls()
+        h(AnnotationControls, {update})
       ]),
-      this.renderTags(color)
+      h('div.tag', {
+        className: update == null ? null : 'active'
+      }, boxes.map((bounds, i)=> {
+        // Need actual logic here to allow display if editing is enabled
+        let onDelete = null
+        let editingEnabled = false
+        if (boxes.length <= 1) editingEnabled = false
+        if (editingEnabled) {
+          onDelete = () => update({boxes: {$splice: [[i,1]]}})
+        }
+
+        return h(AnnotationPart, {
+          bounds,
+          update: this.tagUpdater(i),
+          onDelete,
+          color,
+        ...rest})
+      }))
     ]);
   }
 
@@ -123,24 +191,6 @@ class Annotation extends Component {
     const {update} = this.props;
     console.log(tag);
     return update({tag_id: {$set: tag.tag_id}});
-  }
-
-  renderLinkButton() {
-    const {update, enterLinkMode} = this.props;
-    const {actions: {setMode}, editModes} = this.context;
-    const removeLink = () => update({linked_to: {$set: null}});
-
-    if (this.props.linked_to != null) {
-      return h(ToolButton, {
-        icon: 'ungroup-objects',
-        onClick: removeLink
-      });
-    }
-    return h(ToolButton, {
-      icon: 'new-link',
-      intent: editModes.has(EditMode.LINK) ? Intent.SUCCESS : undefined,
-      onClick() { return setMode(EditMode.LINK); }
-    });
   }
 
   boxContent(i){
@@ -156,50 +206,6 @@ class Annotation extends Component {
       intent: Intent.DANGER,
       onClick: () => update({boxes: {$splice: [[i,1]]}})
     });
-  }
-
-  renderControls() {
-    const {tags} = this.context;
-    const {tag_id, linked_to, update, delete: deleteRectangle, onSelect, enterLinkMode} = this.props;
-    if (!this.isSelected()) { return null; }
-    const currentTag = tags.find(d => d.tag_id === tag_id);
-    const className = this.editingMenuPosition();
-    const {actions: {setMode}, editModes} = this.context;
-
-    // Make sure clicks on the control panel don't dismiss it
-    // due to the competing overlay click handler
-    const onClick = event => event.stopPropagation();
-
-    return h('div.rect-controls', {className, onClick, style: {pointerEvents: 'visible'}}, [
-      h(ToolButton, {
-        icon: 'tag',
-        onClick: onSelect
-      }),
-      this.renderLinkButton(),
-      h(ToolButton, {
-        icon: 'insert',
-        intent: editModes.has(EditMode.ADD_PART) ? Intent.SUCCESS : undefined,
-        onClick() { return setMode(EditMode.ADD_PART); }
-      }),
-      h(ToolButton, {
-        icon: 'cross',
-        intent: Intent.DANGER,
-        onClick: deleteRectangle
-      })
-    ]);
-  }
-
-  editingMenuPosition() {
-    const {imageSize: maxPosition, scaleFactor} = this.context;
-    const {boxes} = this.props;
-    let [x,y,maxX,maxY] = boxes[0];
-    maxY /= scaleFactor;
-    if (maxPosition != null) {
-     if (maxY > (maxPosition.height-50)) {
-        return 'top';
-      }
-   }
-    return 'bottom';
   }
 }
 
