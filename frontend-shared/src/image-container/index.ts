@@ -36,7 +36,7 @@ interface ViewerProviderProps {
 const PageDataProvider = (props: ViewerProviderProps)=>{
   const {children, annotations} = props
   return h(AnnotationsProvider, {
-    annotations: annotations.map(normalizeAnnotation),
+    annotations: (annotations ?? []).map(normalizeAnnotation),
     allowSelection: true
   }, children)
 }
