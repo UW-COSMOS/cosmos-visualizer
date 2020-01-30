@@ -104,110 +104,73 @@ const AnnotationPart = (props)=>{
   ])
 }
 
-class Annotation extends Component {
-  constructor(...args) {
-    super(...args);
-    this.tagUpdater = this.tagUpdater.bind(this);
-    this.isSelected = this.isSelected.bind(this);
-    this.setTag = this.setTag.bind(this);
-    this.boxContent = this.boxContent.bind(this);
-  }
-
-  static contextType = EditorContext;
-  static defaultProps = {
-    enterLinkMode() {}
+function annotationPartUpdater(update, ix){
+  /* Returns an updater function for a particular
+     annotation subpart
+  */
+  if (update == null) { return null; }
+  // Return an updater function
+  return spec=> {
+    const {bounds: subSpec} = spec;
+    if (subSpec == null) { return; }
+    return update({boxes: {[ix]: subSpec}});
   };
-  tagUpdater(ix){
-    const {update} = this.props;
-    if (update == null) { return null; }
-    // Return an updater function
-    return spec=> {
-      const {bounds: subSpec} = spec;
-      if (subSpec == null) { return; }
-      return update({boxes: {[ix]: subSpec}});
-    };
-  }
-
-  isSelected() {
-    const {update} = this.props;
-    return (update != null);
-  }
-
-  render() {
-    const {tags} = this.context;
-
-    let {boxes, update, name, tag_id, ...rest} = this.props;
-
-    const overallBounds = tagBounds(boxes);
-
-    const c = this.context.helpers.tagColorForName(name);
-    let alpha = 0.3;
-    if (this.isSelected()) {
-      alpha = 0.6;
-    }
-
-    const color = c.alpha(alpha).css();
-    const textColor = c.darken(2);
-
-    let tagData = tags.find(d => d.tag_id === tag_id);
-    // Sometimes we don't return tags
-    if (tagData == null) { tagData = {}; }
-    name = h('div.tag-name', {style: {color: textColor}}, tagData.name || name);
-
-    const active = update != null;
-    const className = classNames({active});
-    return h('div.annotation', {className}, [
-      h(Rectangle, {
-        bounds: overallBounds,
-        color, backgroundColor: 'none',
-        style: {pointerEvents: 'none'},
-        ...rest
-      }, [
-        name,
-        h(AnnotationControls, {update})
-      ]),
-      h('div.tag', {
-        className: update == null ? null : 'active'
-      }, boxes.map((bounds, i)=> {
-        // Need actual logic here to allow display if editing is enabled
-        let onDelete = null
-        let editingEnabled = false
-        if (boxes.length <= 1) editingEnabled = false
-        if (editingEnabled) {
-          onDelete = () => update({boxes: {$splice: [[i,1]]}})
-        }
-
-        return h(AnnotationPart, {
-          bounds,
-          update: this.tagUpdater(i),
-          onDelete,
-          color,
-        ...rest})
-      }))
-    ]);
-  }
-
-  setTag(tag){
-    const {update} = this.props;
-    console.log(tag);
-    return update({tag_id: {$set: tag.tag_id}});
-  }
-
-  boxContent(i){
-    const {update, boxes} = this.props;
-    if (boxes.length <= 1) { return null; }
-
-    // Need actual logic here
-    const editingDisabled = true;
-    if (editingDisabled) { return null; }
-    return h(ToolButton, {
-      icon: 'cross',
-      className: 'delete-rect',
-      intent: Intent.DANGER,
-      onClick: () => update({boxes: {$splice: [[i,1]]}})
-    });
-  }
 }
+
+const Annotation = (props)=>{
+  const {tags} = useContext(EditorContext);
+  const {boxes, update, name: tag_name, tag_id, ...rest} = props;
+  const isSelected = update != null
+  const overallBounds = tagBounds(boxes);
+
+  const ctx = useContext(EditorContext)
+  const c = ctx.helpers.tagColorForName(tag_name);
+  let alpha = isSelected ? 0.6 : 0.3;
+
+  const color = c.alpha(alpha).css();
+  const textColor = c.darken(2);
+
+  let tagData = tags.find(d => d.tag_id === tag_id);
+  // Sometimes we don't return tags
+  if (tagData == null) { tagData = {}; }
+  const name = h('div.tag-name', {style: {color: textColor}}, tagData.name || tag_name);
+
+  const className = classNames({active: isSelected});
+  return h('div.annotation', {className}, [
+    h(Rectangle, {
+      bounds: overallBounds,
+      color, backgroundColor: 'none',
+      style: {pointerEvents: 'none'},
+      ...rest
+    }, [
+      name,
+      h(AnnotationControls, {update})
+    ]),
+    h('div.tag', {className}, boxes.map((bounds, i)=> {
+      // Need actual logic here to allow display if editing is enabled
+      let onDelete = null
+      let editingEnabled = false
+      if (boxes.length <= 1) editingEnabled = false
+      if (editingEnabled) {
+        onDelete = () => update({boxes: {$splice: [[i,1]]}})
+      }
+
+      return h(AnnotationPart, {
+        bounds,
+        update: annotationPartUpdater(update, i),
+        onDelete,
+        color,
+      ...rest})
+    }))
+  ]);
+}
+
+// TODO: Not sure where this belongs
+// setTag(tag){
+//   const {update} = this.props;
+//   console.log(tag);
+//   return update({tag_id: {$set: tag.tag_id}});
+// }
 
 const LockedAnnotation = (props)=>{
   const {boxes, tag_id, ...rest} = this.props;
@@ -219,9 +182,9 @@ const LockedAnnotation = (props)=>{
   const alpha = 0.2;
   const color = c.alpha(alpha).css();
 
-  return h('div.annotation.locked', boxes.map((d, i)=> {
+  return h('div.annotation.locked', boxes.map((bounds, i)=> {
     return h(Rectangle, {
-      bounds: d,
+      bounds,
       color,
       scaleFactor,
       maxPosition,
