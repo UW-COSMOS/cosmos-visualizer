@@ -16,6 +16,7 @@ import {
   useCanvasSize,
   useAnnotations,
   useSelectedAnnotation,
+  useSelectionUpdater,
   Annotation as IAnnotation,
   Tag as ITag
 } from '~/providers'
@@ -48,6 +49,7 @@ const AnnotationsOverlay = (props: AnnotationsOverlayProps)=>{
 
   const annotations = useAnnotations()
   let selected = useSelectedAnnotation()
+  const selectAnnotation = useSelectionUpdater()
   const {width, height, scaleFactor} = useCanvasSize()
 
   let allAnnotations = [...annotations]
@@ -69,9 +71,9 @@ const AnnotationsOverlay = (props: AnnotationsOverlayProps)=>{
 
     const onMouseDown = () => {
       console.log(ix);
-      onSelectAnnotation(ix)();
+      selectAnnotation(ix);
       // Don't allow dragging
-      return event.stopPropagation();
+      //event.stopPropagation();
     };
 
     let opts = {
@@ -81,7 +83,7 @@ const AnnotationsOverlay = (props: AnnotationsOverlayProps)=>{
       scaleFactor,
       maxPosition: {width, height},
       locked: isLocked,
-      onMouseDown
+      onClick: onMouseDown
     };
 
     if (isSelected) {

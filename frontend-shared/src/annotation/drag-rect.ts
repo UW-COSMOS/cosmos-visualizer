@@ -137,15 +137,18 @@ class DragRectangle extends Component {
     };
   }
   render() {
-    const {children, update, ...rest} = this.props;
+    const {children, update, bounds, color} = this.props;
     const margin = 4;
     const className = (update != null) ? 'draggable' : null;
+    let {onClick} = this.props
 
     const isSelected = true;
-    const onClick = e => e.stopPropagation();
+    // TODO: not sure why we were overriding here, but it's weird...
+    // maybe something to do with needing to capture mousdowns instead?
+    if (update != null) onClick = e => e.stopPropagation();
 
     const {dragInteraction} = this;
-    return h(StaticRectangle, {...rest, className, isSelected, onClick}, [
+    return h(StaticRectangle, {bounds, color, className, isSelected, onClick}, [
       (update != null) ? h(DragHandles, {dragInteraction}) : null,
       children
     ]);

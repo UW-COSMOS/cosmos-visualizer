@@ -118,7 +118,7 @@ function annotationPartUpdater(update, ix){
 }
 
 const Annotation = (props)=>{
-  const {boxes, update, name: tag_name, tag_id, ...rest} = props;
+  const {boxes, update, name: tag_name, tag_id, onClick, ...rest} = props;
   const isSelected = update != null
   const overallBounds = tagBounds(boxes);
 
@@ -131,10 +131,13 @@ const Annotation = (props)=>{
   let tagName = tags.find(d => d.tag_id === tag_id)?.name ?? tag_name;
   // Sometimes we don't return tags
 
+  //const onClick = (e)=>console.log(e)
+
   const className = classNames({active: isSelected});
   return h('div.annotation', {className}, [
     h(Rectangle, {
       bounds: overallBounds,
+      scaleFactor:
       color, backgroundColor: 'none',
       style: {pointerEvents: 'none'},
     }, [
@@ -155,7 +158,8 @@ const Annotation = (props)=>{
         update: annotationPartUpdater(update, i),
         onDelete,
         color,
-      ...rest})
+        onClick
+      })
     }))
   ]);
 }
