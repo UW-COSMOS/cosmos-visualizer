@@ -8,6 +8,7 @@
  */
 import {Component, createContext} from 'react';
 import h from 'react-hyperscript';
+import {join} from 'path'
 
 import {ReactNode} from 'react'
 import {ImageOverlay} from '../image-overlay';
@@ -112,8 +113,9 @@ class ImageContainer extends Component<ContainerProps, ContainerState> {
   }
 
   imageURL(image){
-    const {resize_bytes} = image;
-    return "data:image/png;base64," + resize_bytes;
+    console.log(`image: ${image}`)
+    debugger
+    return join("/images_to_tag/", image.file_path)
   }
 
   render() {
