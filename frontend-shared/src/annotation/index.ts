@@ -137,7 +137,6 @@ const Annotation = (props)=>{
       bounds: overallBounds,
       color, backgroundColor: 'none',
       style: {pointerEvents: 'none'},
-      ...rest
     }, [
       h('div.tag-name', {style: {color: c.darken(2).css()}}, tagName),
       h(AnnotationControls, {update})

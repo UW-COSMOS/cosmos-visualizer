@@ -15,6 +15,7 @@ import {Component} from 'react';
 import {findDOMNode} from 'react-dom';
 import {select, event, mouse} from 'd3-selection';
 import {drag} from 'd3-drag';
+import {CanvasSizeContext} from '~/providers'
 import h from 'react-hyperscript';
 
 const getSize = function(bounds){
@@ -57,6 +58,7 @@ const Handle = function({side, margin}){
 };
 
 class StaticRectangle extends Component {
+  static contextType = CanvasSizeContext;
   static initClass() {
     this.defaultProps = {
       isSelected: false,
@@ -64,11 +66,12 @@ class StaticRectangle extends Component {
     };
   }
   render() {
-    let {bounds, scaleFactor, children,
-     onClick, className, tag_id,
+    let {bounds, children,
+     className, onClick, tag_id,
      tags, color,
      backgroundColor, style, ...rest} = this.props;
     let {x,y,width, height} = getSize(bounds);
+    const {scaleFactor} = this.context;
 
     // Don't render tags until we have all the data
     if (scaleFactor == null) { return null; }
@@ -126,6 +129,7 @@ class DragRectangle extends Component {
     this.handleDrag = this.handleDrag.bind(this);
     this.dragInteraction = this.dragInteraction.bind(this);
   }
+  static contextType = CanvasSizeContext;
 
   static initClass() {
     this.defaultProps = {
@@ -153,7 +157,8 @@ class DragRectangle extends Component {
   }
 
   dragSubject() {
-    let {bounds, scaleFactor} = this.props;
+    let {bounds} = this.props;
+    const {scaleFactor} = this.context;
     let {x,y,width,height} = getSize(bounds);
 
     const source = this.mouseCoords();
@@ -166,14 +171,15 @@ class DragRectangle extends Component {
   }
 
   handleDrag(side){
-    let minSize, scaleFactor, update;
+    let minSize, update;
+    const {scaleFactor} = this.context;
     if (side == null) { side = ""; }
     const {subject: s} = event;
     let {width, height, x,y, source, maxPosition} = s;
     const client = this.mouseCoords();
     const dx = client.x-source.x;
     let dy = client.y-source.y;
-    ({update, minSize, maxPosition, scaleFactor} = this.props);
+    ({update, minSize, maxPosition} = this.props);
     if (update == null) { return; }
     if (scaleFactor == null) { scaleFactor = 1; }
 

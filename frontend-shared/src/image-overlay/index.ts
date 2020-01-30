@@ -299,8 +299,8 @@ HotkeysTarget(ImageOverlay);
 
 const WrappedImageOverlay = (props)=>{
   // Get editing actions into the props
-  const {actions} = useContext(AnnotationEditorContext)
-  return h(ImageOverlay, {...props, actions})
+  //const {actions} = useContext(AnnotationEditorContext)
+  return h(ImageOverlay, {...props})//, actions})
 }
 
 export {WrappedImageOverlay as ImageOverlay};
