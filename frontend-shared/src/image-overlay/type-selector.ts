@@ -5,7 +5,6 @@
  * DS207: Consider shorter variations of null checks
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
  */
-import {Component} from 'react';
 import h from 'react-hyperscript';
 import classNames from 'classnames';
 import {Button} from '@blueprintjs/core';
@@ -16,7 +15,6 @@ import chroma from 'chroma-js';
 
 const ListItem = (props)=>{
   let {toggleLock, active, className, onClick, locked, ...d} = props;
-  if (locked == null) { locked = false; }
   className = classNames({active}, className);
   const color = chroma(d.color);
   const light = color.set('hsl.l', active ? 0.5 : 0.95);
@@ -36,6 +34,8 @@ const ListItem = (props)=>{
   ]);
 }
 
+ListItem.defaultProps = {locked: false}
+
 const TypeSelector = (props)=>{
   const options = {
     shouldSort: true,
@@ -52,7 +52,7 @@ const TypeSelector = (props)=>{
     items: tags,
     resetOnSelect: true,
     itemListRenderer: obj=> {
-      const {filteredItems, activeItem} = obj;
+      const {filteredItems} = obj;
       return h('div.item-list', null, filteredItems.map(d=> {
         const active = d.tag_id === currentTag;
         const locked = lockedTags.has(d.tag_id);
@@ -63,8 +63,10 @@ const TypeSelector = (props)=>{
           active,
           onClick,
           toggleLock: toggleLock(d.tag_id),
-          locked, ...d});
-    }));
+          locked,
+          ...d
+        });
+      }));
     },
     itemListPredicate(query, items){
       if (query === "") { return items; }

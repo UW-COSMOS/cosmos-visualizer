@@ -1,13 +1,34 @@
 import h from 'react-hyperscript';
 import chroma from 'chroma-js';
 import {Intent} from "@blueprintjs/core";
-import {StatefulComponent} from '@macrostrat/ui-components';
+import {StatefulComponent, useAPIResult} from '@macrostrat/ui-components';
 import {AppToaster} from '../toaster';
 import {APIContext, ErrorMessage} from '../api';
 import {Image} from '~/types'
 import {ImageContainer} from '../image-container';
 import {PageFrame} from './frame'
 import {TagsProvider, Tag, AnnotationArr} from '~/providers'
+
+const parseResponse = (cscale)=>(d, ix)=>{
+  let {tag_id, color, name} = d;
+
+  if (name == null) {
+    name = tag_id.replace("-", " ");
+    name = name.charAt(0).toUpperCase()+name.slice(1);
+  }
+  if (color == null) { color = cscale[ix]; }
+  return {tag_id, color, name}
+}
+
+const APITagProvider = (props)=>{
+  const {children} = props
+  const data = useAPIResult("/tags/all")
+  const cscale = chroma.scale('viridis').colors(data.length);
+
+  return h(TagsProvider, {
+    tags: data.map(parseResponse(cscale))
+  }, children)
+}
 
 const isDifferent = (a1: any[], a2: any[]): boolean =>{
   if (a1.length == 0 && a2.length == 0) {
