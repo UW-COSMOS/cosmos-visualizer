@@ -8,44 +8,32 @@
 import {Component} from 'react';
 import h from 'react-hyperscript';
 import classNames from 'classnames';
-import styled from '@emotion/styled';
 import {Button} from '@blueprintjs/core';
 import {Omnibar} from '@blueprintjs/select';
 import {useTags} from '~/providers'
 import Fuse from 'fuse.js';
 import chroma from 'chroma-js';
 
-class ListItem extends Component {
-  constructor(...args) {
-    super(...args);
-    this.toggleLock = this.toggleLock.bind(this);
-  }
+const ListItem = (props)=>{
+  let {toggleLock, active, className, onClick, locked, ...d} = props;
+  if (locked == null) { locked = false; }
+  className = classNames({active}, className);
+  const color = chroma(d.color);
+  const light = color.set('hsl.l', active ? 0.5 : 0.95);
+  const dark = color.set('hsl.l', active ? 0.95 : 0.5);
+  const icon = locked ? 'lock' : 'unlock';
 
-  toggleLock(event){
-    const {toggleLock} = this.props;
-    toggleLock();
-    return event.stopPropagation();
-  }
-  render() {
-    let {active, className, onClick, locked, ...d} = this.props;
-    if (locked == null) { locked = false; }
-    className = classNames({active}, className);
-    const color = chroma(d.color);
-    const l = active ? 0.5 : 0.95;
-    const light = color.set('hsl.l', l);
-    const _ = active ? 0.95 : 0.5;
-    const dark = color.set('hsl.l', _);
-    const icon = locked ? 'lock' : 'unlock';
-
-    return h('div.tag-item-container', {
-      key: d.id,
-      className, onClick,
-      style: {backgroundColor: light.css(), color: dark.css()}
-    }, [
-      h('div.tag-item', {}, d.name),
-      h(Button, {minimal: true, icon, small: true, onClick: this.toggleLock})
-    ]);
-  }
+  return h('div.tag-item-container', {
+    key: d.id,
+    className, onClick,
+    style: {backgroundColor: light.css(), color: dark.css()}
+  }, [
+    h('div.tag-item', {}, d.name),
+    h(Button, {minimal: true, icon, small: true, onClick(event){
+      toggleLock()
+      event.stopPropagation()
+    }})
+  ]);
 }
 
 const TypeSelector = (props)=>{
