@@ -10,7 +10,7 @@
 import {Component, useContext} from 'react';
 import h from 'react-hyperscript';
 import {EditorContext} from './context';
-import {useAnnotations, useCanvasSize} from '~/providers'
+import {useAnnotations, useTagColor, useCanvasSize} from '~/providers'
 import {bboxPolygon, featureCollection,
         polygonToLine,
         nearestPointOnLine,
@@ -74,7 +74,6 @@ interface Link {
 }
 
 const useAnnotationLinks = (scaleFactor: number): Link[] =>{
-  const {tagColor} = useContext(EditorContext).helpers;
   const annotations = useAnnotations()
 
   /* We are abusing geographic functions
@@ -111,7 +110,7 @@ const useAnnotationLinks = (scaleFactor: number): Link[] =>{
 
     const coords = [...c1,...c2].map(d => (d/scaleFactor)*shrinkFactor);
 
-    const color = tagColor(fromTag.tag_id);
+    const color = useTagColor(fromTag.tag_id);
     links.push({coords, color});
   }
 

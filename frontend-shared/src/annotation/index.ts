@@ -14,7 +14,7 @@ import {Button, Intent} from '@blueprintjs/core';
 import classNames from 'classnames';
 import {EditMode} from '../enum';
 import {EditorContext} from '../image-overlay/context';
-import {useCanvasSize, useTags} from '~/providers'
+import {useCanvasSize, useTags, useTagColor} from '~/providers'
 
 const ToolButton = props => h(Button, {small: true, minimal: true, ...props});
 
@@ -123,8 +123,7 @@ const Annotation = (props)=>{
   const isSelected = update != null
   const overallBounds = tagBounds(boxes);
 
-  const ctx = useContext(EditorContext)
-  const c = ctx.helpers.tagColorForName(tag_name);
+  const c = useTagColor(tag_id)
   let alpha = isSelected ? 0.6 : 0.3;
 
   const color = c.alpha(alpha).css();

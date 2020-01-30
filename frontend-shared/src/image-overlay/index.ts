@@ -38,8 +38,6 @@ class ImageOverlay extends StatefulComponent {
   constructor(props){
     super(props);
 
-    this.tagColor = this.tagColor.bind(this);
-    this.tagColorForName = this.tagColorForName.bind(this);
     this.contextValue = this.contextValue.bind(this);
     this.setMode = this.setMode.bind(this);
     this.selectTag = this.selectTag.bind(this);
@@ -109,26 +107,11 @@ class ImageOverlay extends StatefulComponent {
     ]);
   }
 
-  tagColor(tag_id){
-    const {tags} = this.props;
-    let tagData = tags.find(d => d.tag_id === tag_id);
-    if (tagData == null) { tagData = {color: 'black'}; }
-    return chroma(tagData.color);
-  }
-
-  tagColorForName(name){
-    const {tags} = this.props;
-    let tagData = tags.find(d => d.name === name);
-    if (tagData == null) { tagData = {color: 'black'}; }
-    return chroma(tagData.color);
-  }
-
   contextValue() {
     const {actions, tags, currentTag} = this.props;
     let {editModes, shiftKey} = this.state;
     if (shiftKey) { editModes = SHIFT_MODES; }
     actions.setMode = this.setMode;
-    const helpers = {tagColor: this.tagColor, tagColorForName: this.tagColorForName};
 
     return {
       tags,
@@ -136,7 +119,6 @@ class ImageOverlay extends StatefulComponent {
       editModes,
       shiftKey,
       actions,
-      helpers,
       update: this.updateState
     };
   }

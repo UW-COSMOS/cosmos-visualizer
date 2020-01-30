@@ -16,6 +16,7 @@
     "@turf/combine": "^6.0.1",
     "@turf/point-on-feature": "^5.1.5",
     "@turf/turf": "^5.1.6",
+    "@types/chroma-js": "^1.4.3",
     "async": "^2.6.2",
     "babel-plugin-emotion": "^10.0.7",
     "chroma-js": "^1.4.1",
