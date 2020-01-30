@@ -12,6 +12,7 @@ import {drag} from 'd3-drag';
 import {findDOMNode} from 'react-dom';
 import {Hotkey, Hotkeys, HotkeysTarget} from "@blueprintjs/core";
 import {StatefulComponent} from '@macrostrat/ui-components';
+import {useContext} from 'react';
 
 import {AnnotationLinks} from './annotation-links';
 import {TypeSelector} from './type-selector';
@@ -22,6 +23,7 @@ import {ModalNotifications} from './notifications';
 import {AnnotationsOverlay} from './annotations';
 import {
   AnnotationsContext,
+  AnnotationEditorContext,
   Tag,
   AnnotationArr
 } from '~/providers'
@@ -295,4 +297,10 @@ class ImageOverlay extends StatefulComponent<Props,State> {
 
 HotkeysTarget(ImageOverlay);
 
-export {ImageOverlay};
+const WrappedImageOverlay = (props)=>{
+  // Get editing actions into the props
+  const {actions} = useContext(AnnotationEditorContext)
+  return h(ImageOverlay, {...props, actions})
+}
+
+export {WrappedImageOverlay as ImageOverlay};

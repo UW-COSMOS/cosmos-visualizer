@@ -18,7 +18,12 @@ import {APIContext, ErrorMessage} from '../api';
 import {ImageContainer} from '../image-container';
 import {AnnotationActions} from '../editor/types';
 import {PageFrame} from './frame'
-import {TagsProvider, Tag, AnnotationArr} from '~/providers'
+import {
+  TagsProvider,
+  AnnotationEditorProvider,
+  Tag,
+  AnnotationArr
+} from '~/providers'
 
 const isDifferent = (a1: any[], a2: any[]): boolean =>{
   if (a1.length == 0 && a2.length == 0) {
@@ -198,25 +203,29 @@ class TaggingPage extends StatefulComponent {
     })();
 
     return h(TagsProvider, {tags: tagStore}, [
-      h(PageFrame, {
-        hasChanges,
-        subtitleText,
-        editingEnabled,
-        hasInitialContent: initialRectStore.length != 0,
-        onSave: this.saveData.bind(this),
-        onClearChanges: this.clearChanges.bind(this),
-        currentImage: image,
-        getNextImage: this.getImageToDisplay.bind(this)
+      h(AnnotationEditorProvider, {
+        initialAnnotations: initialRectStore
       }, [
-        image == null ? null : h(ImageContainer, {
-          editingRect,
+        h(PageFrame, {
+          hasChanges,
+          subtitleText,
           editingEnabled,
-          image,
-          imageTags: rectStore,
-          lockedTags,
-          currentTag,
-          actions
-        })
+          hasInitialContent: initialRectStore.length != 0,
+          onSave: this.saveData.bind(this),
+          onClearChanges: this.clearChanges.bind(this),
+          currentImage: image,
+          getNextImage: this.getImageToDisplay.bind(this)
+        }, [
+          image == null ? null : h(ImageContainer, {
+            editingRect,
+            editingEnabled,
+            image,
+            imageTags: rectStore,
+            lockedTags,
+            currentTag,
+            actions
+          })
+        ])
       ])
     ])
   }

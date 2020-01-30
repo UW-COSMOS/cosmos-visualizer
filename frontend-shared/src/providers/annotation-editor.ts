@@ -60,9 +60,7 @@ class AnnotationEditorProvider extends StatefulComponent<AnnotationEditorProps, 
   adding, removing, and editing the positions of annotations.
   */
   static defaultProps = {
-    initialAnnotations: [],
-    editingEnabled: true,
-    navigationEnabled: true
+    initialAnnotations: []
   };
   static contextType = TagsContext;
   constructor(props: AnnotationEditorProps){
@@ -201,8 +199,6 @@ class AnnotationEditorProvider extends StatefulComponent<AnnotationEditorProps, 
       toggleTagLock: this.toggleTagLock.bind(this),
       deleteAnnotation: this.deleteAnnotation.bind(this)
     }
-
-    // Update function for immutability
 
     const value = {
       annotations,
