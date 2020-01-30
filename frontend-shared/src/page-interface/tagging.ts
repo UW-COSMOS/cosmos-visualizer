@@ -8,37 +8,39 @@
  */
 import h from '@macrostrat/hyper';
 import uuidv4 from 'uuid/v4';
-import 'd3-jetpack';
 import chroma from 'chroma-js';
-import {Navbar, Button, ButtonGroup,
-        Intent, Alignment} from "@blueprintjs/core";
+import {Intent} from "@blueprintjs/core";
 import T from 'prop-types';
 
 import {StatefulComponent} from '@macrostrat/ui-components';
-import {PermalinkButton} from '../permalinks';
-import {PageHeader} from '../util';
 import {AppToaster} from '../toaster';
 import {APIContext, ErrorMessage} from '../api';
-import {InfoDialog} from '../info-dialog';
 import {ImageContainer} from '../image-container';
 import {AnnotationActions} from '../editor/types';
+import {PageFrame} from './frame'
+import {TagsProvider, Tag, AnnotationArr} from '~/providers'
+
+const isDifferent = (a1: any[], a2: any[]): boolean =>{
+  if (a1.length == 0 && a2.length == 0) {
+    return false;
+  }
+  return a1 != a2;
+}
 
 // Updates props for a rectangle
 // from API signature to our internal signature
 // TODO: make handle multiple boxes
 class TaggingPage extends StatefulComponent {
-  static initClass() {
-    this.defaultProps = {
-      allowSaveWithoutChanges: false,
-      editingEnabled: true,
-      navigationEnabled: true,
-      imageRoute: '/image'
-    };
-    this.propTypes = {
-      stack_id: T.string
-    };
-    this.contextType = APIContext;
-  }
+  static defaultProps = {
+    allowSaveWithoutChanges: false,
+    editingEnabled: true,
+    navigationEnabled: true,
+    imageRoute: '/image'
+  };
+  static propTypes = {
+    stack_id: T.string
+  };
+  static contextType = APIContext;
   constructor(props){
     super(props);
     this.updateAnnotation = this.updateAnnotation.bind(this);
@@ -50,11 +52,6 @@ class TaggingPage extends StatefulComponent {
     this.toggleTagLock = this.toggleTagLock.bind(this);
     this.clearChanges = this.clearChanges.bind(this);
     this.uiHasChanges = this.uiHasChanges.bind(this);
-    this.renderPersistenceButtonArray = this.renderPersistenceButtonArray.bind(this);
-    this.renderNextImageButton = this.renderNextImageButton.bind(this);
-    this.displayKeyboardShortcuts = this.displayKeyboardShortcuts.bind(this);
-    this.displayInfoBox = this.displayInfoBox.bind(this);
-    this.renderInfoDialog = this.renderInfoDialog.bind(this);
     this.currentStackID = this.currentStackID.bind(this);
     this.setupTags = this.setupTags.bind(this);
     this.onImageLoaded = this.onImageLoaded.bind(this);
@@ -214,90 +211,47 @@ class TaggingPage extends StatefulComponent {
     return rectStore !== initialRectStore;
   }
 
-  renderPersistenceButtonArray() {
-    // Persist data to backend if editing is enabled
-    if (!this.props.editingEnabled) { return []; }
-    const {allowSaveWithoutChanges} = this.props;
-    const {rectStore, initialRectStore} = this.state;
-    let clearRectText = "Clear changes";
-    if (initialRectStore.length !== 0) {
-      clearRectText = "Reset changes";
-    }
-    const hasChanges = this.uiHasChanges();
-    return [
-      h(Button, {
-        intent: Intent.SUCCESS, text: "Save",
-        icon: 'floppy-disk',
-        onClick: this.saveData,
-        disabled: !hasChanges && !allowSaveWithoutChanges
-      }),
-      h(Button, {
-        intent: Intent.DANGER, text: clearRectText,
-        icon: 'trash', disabled: !hasChanges,
-        onClick: this.clearChanges
-      })];
-  }
-
-  renderNextImageButton() {
-    const {navigationEnabled} = this.props;
-    if (!navigationEnabled) { return null; }
-    const hasChanges = this.uiHasChanges();
-    return h(Button, {
-      intent: Intent.PRIMARY, text: "Next image",
-      rightIcon: 'chevron-right',
-      disabled: hasChanges,
-      onClick: this.getImageToDisplay
-    });
-  }
-
-  displayKeyboardShortcuts() {
-    // Blueprint doesn't allow us to show keyboard shortcuts programmatically
-    // without simulating the keycode. Wait for resolution of
-    // https://github.com/palantir/blueprint/issues/1590
-    this.setState({infoDialogIsOpen: false});
-    return document.dispatchEvent(new KeyboardEvent('keydown', {
-      which: 47, keyCode: 47, shiftKey: true, bubbles: true }));
-  }
-
-  displayInfoBox(isOpen){ return () => {
-    if (isOpen == null) { isOpen = true; }
-    return this.setState({infoDialogIsOpen: isOpen});
-  }; }
-
-  renderInfoDialog() {
-    const {infoDialogIsOpen: isOpen} = this.state;
-    const {editingEnabled} = this.props;
-    const {displayKeyboardShortcuts} = this;
-    return h(InfoDialog, {
-      isOpen,
-      onClose: this.displayInfoBox(false),
-      editingEnabled,
-      displayKeyboardShortcuts
-    });
-  }
-
   render() {
-    const {subtitleText, permalinkRoute} = this.props;
+    const {subtitleText} = this.props;
     const {currentImage: image} = this.state;
-    return h('div.main', [
-      h(Navbar, {fixedToTop: true}, [
-        h(PageHeader, {subtitle: subtitleText}, [
-          h(Button, {
-            icon: 'info-sign',
-            onClick: this.displayInfoBox()
-          }, "Usage")
-        ]),
-        h(Navbar.Group, {align: Alignment.RIGHT}, [
-          h(PermalinkButton, {permalinkRoute, image}),
-          h(ButtonGroup, [
-            ...this.renderPersistenceButtonArray(),
-            this.renderNextImageButton()
-          ])
-        ])
-      ]),
-      this.renderImageContainer(),
-      this.renderInfoDialog()
-    ]);
+    const {
+      initialRectStore,
+      rectStore,
+      editingRect,
+      tagStore,
+      currentTag,
+      lockedTags
+    } = this.state;
+    const hasChanges = isDifferent(initialRectStore, rectStore);
+    const {editingEnabled} = this.props;
+
+    const actions = {
+      updateAnnotation: this.updateAnnotation,
+      selectAnnotation: this.selectAnnotation
+    }
+
+    return h(TagsProvider, {tags: tagStore}, [
+      h(PageFrame, {
+        hasChanges,
+        subtitleText,
+        editingEnabled,
+        hasInitialContent: initialRectStore.length != 0,
+        onSave: this.saveData.bind(this),
+        onClearChanges: this.clearChanges.bind(this),
+        currentImage: image,
+        getNextImage: this.getImageToDisplay.bind(this)
+      }, [
+        image == null ? null : h(ImageContainer, {
+          editingRect,
+          editingEnabled,
+          image,
+          imageTags: rectStore,
+          lockedTags,
+          currentTag,
+          actions
+        })
+      ])
+    ])
   }
 
   currentStackID() {
@@ -430,6 +384,5 @@ class TaggingPage extends StatefulComponent {
     return this.didUpdateImage.apply(this,arguments);
   }
 }
-TaggingPage.initClass();
 
 export {TaggingPage};
