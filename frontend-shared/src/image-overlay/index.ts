@@ -17,7 +17,6 @@ import {AnnotationLinks} from './annotation-links';
 import {TypeSelector} from './type-selector';
 import {EditorContext} from './context';
 
-import chroma from 'chroma-js';
 import {EditMode} from '../enum';
 import {ModalNotifications} from './notifications';
 import {AnnotationsOverlay} from './annotations'

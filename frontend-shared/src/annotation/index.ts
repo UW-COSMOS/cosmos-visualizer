@@ -6,7 +6,7 @@
  * DS207: Consider shorter variations of null checks
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
  */
-import {Component, useContext} from 'react';
+import {useContext} from 'react';
 import h from '@macrostrat/hyper';
 import {min, max} from 'd3-array';
 import {Rectangle} from './drag-rect';
@@ -35,7 +35,7 @@ const LinkButton = (props)=>{
   const {actions: {setMode}, editModes} = useContext(EditorContext);
   const removeLink = () => update({linked_to: {$set: null}});
 
-  if (this.props.linked_to != null) {
+  if (props.linked_to != null) {
     return h(ToolButton, {
       icon: 'ungroup-objects',
       onClick: removeLink
@@ -118,7 +118,6 @@ function annotationPartUpdater(update, ix){
 }
 
 const Annotation = (props)=>{
-  const {tags} = useContext(EditorContext);
   const {boxes, update, name: tag_name, tag_id, ...rest} = props;
   const isSelected = update != null
   const overallBounds = tagBounds(boxes);
@@ -127,12 +126,10 @@ const Annotation = (props)=>{
   let alpha = isSelected ? 0.6 : 0.3;
 
   const color = c.alpha(alpha).css();
-  const textColor = c.darken(2);
 
-  let tagData = tags.find(d => d.tag_id === tag_id);
+  const tags = useTags()
+  let tagName = tags.find(d => d.tag_id === tag_id)?.name ?? tag_name;
   // Sometimes we don't return tags
-  if (tagData == null) { tagData = {}; }
-  const name = h('div.tag-name', {style: {color: textColor}}, tagData.name || tag_name);
 
   const className = classNames({active: isSelected});
   return h('div.annotation', {className}, [
@@ -142,7 +139,7 @@ const Annotation = (props)=>{
       style: {pointerEvents: 'none'},
       ...rest
     }, [
-      name,
+      h('div.tag-name', {style: {color: c.darken(2).css()}}, tagName),
       h(AnnotationControls, {update})
     ]),
     h('div.tag', {className}, boxes.map((bounds, i)=> {
@@ -172,12 +169,11 @@ const Annotation = (props)=>{
 // }
 
 const LockedAnnotation = (props)=>{
-  const {boxes, tag_id, ...rest} = this.props;
+  const {boxes, tag_id, ...rest} = props;
   const {scaleFactor, width, height} = useCanvasSize()
   const maxPosition = {width, height}
 
-  const {helpers} = useContext(EditorContect)
-  const c = helpers.tagColor(tag_id);
+  const c = useTagColor(tag_id)
   const alpha = 0.2;
   const color = c.alpha(alpha).css();
 

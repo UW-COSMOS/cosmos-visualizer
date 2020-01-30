@@ -2,7 +2,7 @@ import {createContext, useContext} from 'react'
 import h from 'react-hyperscript'
 import chroma, {Color} from 'chroma-js'
 
-type TagID = string
+type TagID = number
 interface Tag {
   color: string,
   name: string,
@@ -22,9 +22,9 @@ const TagsProvider = (props: TagsCtx)=>{
 
 const useTags = (): Tag[] => useContext(TagsContext)
 
-function useTagColor(tag_id: string): Color {
+function useTagColor(tag_name: string): Color {
   const tags = useTags()
-  let color = tags.find(d => d.tag_id === tag_id)?.color ?? 'black'
+  let color = tags.find(d => d.name === tag_name)?.color ?? 'black'
   return chroma(color)
 }
 
