@@ -133,7 +133,6 @@ const Annotation = (props: AnnotationProps)=>{
   const {boxes, name: tag_name, tag_id} = obj
 
   const update = useAnnotationUpdater(obj)
-
   const isSelected = update != null
   const overallBounds = tagBounds(boxes);
 
@@ -187,7 +186,6 @@ const LockedAnnotation = (props: AnnotationProps)=>{
   const {tag_id, boxes} = obj
 
   const {scaleFactor, width, height} = useCanvasSize()
-  const maxPosition = {width, height}
 
   const c = useTagColor(tag_id)
   const alpha = 0.2;
@@ -196,9 +194,7 @@ const LockedAnnotation = (props: AnnotationProps)=>{
   return h('div.annotation.locked', boxes.map((bounds, i)=> {
     return h(Rectangle, {
       bounds,
-      color,
-      scaleFactor,
-      maxPosition
+      color
     });
   }));
 }

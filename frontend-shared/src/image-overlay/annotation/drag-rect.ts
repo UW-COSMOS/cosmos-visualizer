@@ -203,15 +203,15 @@ class DragRectangle extends Component {
 
   handleDrag(side){
     const {scaleFactor} = this.context;
-    if (side == null) { side = ""; }
     const {subject: s} = event;
     let {width, height, x,y, source} = s;
     const client = mouseCoords();
     const dx = client.x-source.x;
     let dy = client.y-source.y;
     const {update, minSize} = this.props;
-
     if (update == null) return
+
+    side = side ?? ""
 
     if (side.includes('top')) {
       if (dy > height) {
@@ -235,11 +235,10 @@ class DragRectangle extends Component {
       ({x,y} = event);
     }
 
+    x = Math.max(0,x)
+    y = Math.max(0,y)
     width = Math.max(width, minSize.width)
     height = Math.max(height, minSize.height)
-
-    if (x < 0) { x = 0; }
-    if (y < 0) { y = 0; }
 
     const maxPos = this.maxPosition()
     if (maxPos != null) {
