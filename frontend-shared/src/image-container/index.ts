@@ -35,6 +35,9 @@ interface ViewerProviderProps {
 
 const PageDataProvider = (props: ViewerProviderProps)=>{
   const {children, annotations} = props
+  // For tagger
+  return children
+  // For viewer
   return h(AnnotationsProvider, {
     annotations: (annotations ?? []).map(normalizeAnnotation),
     allowSelection: true

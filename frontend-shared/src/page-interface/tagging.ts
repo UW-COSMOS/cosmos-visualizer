@@ -17,7 +17,7 @@ import {APIContext, ErrorMessage} from '../api';
 import {ImageContainer} from '../image-container';
 import {PageFrame} from './frame'
 import {
-  TagsProvider,
+  APITagsProvider,
   AnnotationEditorProvider,
   Tag,
   AnnotationArr
@@ -56,7 +56,7 @@ class TaggingPage extends StatefulComponent {
     const {initialRectStore} = this.state;
     const {editingEnabled} = this.props;
 
-    return h(TagsProvider, {tags: tagStore}, [
+    return h(APITagsProvider, [
       h(AnnotationEditorProvider, {
         initialAnnotations: initialRectStore,
         editingEnabled: true

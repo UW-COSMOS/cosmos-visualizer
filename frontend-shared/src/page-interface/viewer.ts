@@ -7,28 +7,7 @@ import {APIContext, ErrorMessage} from '../api';
 import {Image} from '~/types'
 import {ImageContainer} from '../image-container';
 import {PageFrame} from './frame'
-import {TagsProvider, Tag, AnnotationArr} from '~/providers'
-
-const parseResponse = (cscale)=>(d, ix)=>{
-  let {tag_id, color, name} = d;
-
-  if (name == null) {
-    name = tag_id.replace("-", " ");
-    name = name.charAt(0).toUpperCase()+name.slice(1);
-  }
-  if (color == null) { color = cscale[ix]; }
-  return {tag_id, color, name}
-}
-
-const APITagProvider = (props)=>{
-  const {children} = props
-  const data = useAPIResult("/tags/all")
-  const cscale = chroma.scale('viridis').colors(data.length);
-
-  return h(TagsProvider, {
-    tags: data.map(parseResponse(cscale))
-  }, children)
-}
+import {APITagsProvider, Tag, AnnotationArr} from '~/providers'
 
 const isDifferent = (a1: any[], a2: any[]): boolean =>{
   if (a1.length == 0 && a2.length == 0) {
@@ -124,7 +103,7 @@ class ViewerPageBase extends StatefulComponent<IViewerProps, ViewerState> {
       selectAnnotation: this.selectAnnotation
     }
 
-    return h(TagsProvider, {tags: tagStore}, [
+    return h(APITagsProvider, [
       h(PageFrame, {
         hasChanges,
         subtitleText,

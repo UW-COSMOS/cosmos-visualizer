@@ -38,6 +38,8 @@ interface AnnotationEditorCtx {
   editorActions: EditorActions,
   initialAnnotations: Annotation[],
   hasChanges: boolean,
+  currentTag: TagID,
+  lockedTags: Set<TagID>
 }
 const AnnotationEditorContext = createContext<AnnotationEditorCtx|null>(null)
 interface AnnotationProviderProps extends AnnotationEditorCtx {
@@ -74,8 +76,8 @@ class AnnotationEditorProvider extends StatefulComponent<AnnotationEditorProps, 
     super(props);
     this.state = {
       annotations: props.initialAnnotations ?? [],
-      selectedAnnotation: 0,
-      currentTag: 0,
+      selectedAnnotation: -1,
+      currentTag: null,
       lockedTags: new Set(),
     };
   }
@@ -141,7 +143,7 @@ class AnnotationEditorProvider extends StatefulComponent<AnnotationEditorProps, 
     const {currentTag, annotations} = this.state;
     rect.tag_id = currentTag;
     // Create UUID on client side to allow
-    // linking
+    // creation of tag links
     rect.image_tag_id = uuidv4();
     return this.updateState({
       annotations: {$push: [rect]},
@@ -199,6 +201,8 @@ class AnnotationEditorProvider extends StatefulComponent<AnnotationEditorProps, 
     const {
       annotations,
       selectedAnnotation,
+      lockedTags,
+      currentTag
     } = this.state;
     const hasChanges = isDifferent(initialAnnotations, annotations);
 
@@ -222,7 +226,9 @@ class AnnotationEditorProvider extends StatefulComponent<AnnotationEditorProps, 
       actions,
       editorActions,
       hasChanges,
-      initialAnnotations
+      initialAnnotations,
+      lockedTags,
+      currentTag
     }
     if (!editingEnabled) editorContext = null
 
@@ -242,6 +248,13 @@ class AnnotationEditorProvider extends StatefulComponent<AnnotationEditorProps, 
         h(SelectionUpdateContext.Provider, {value: selectAnnotation}, children)
       ])
     ])
+  }
+
+  componentDidUpdate() {
+    const firstTag = this.context[0]?.tag_id
+    if (this.state.currentTag == null && firstTag != null) {
+      this.setState({currentTag: firstTag})
+    }
   }
 }
 
