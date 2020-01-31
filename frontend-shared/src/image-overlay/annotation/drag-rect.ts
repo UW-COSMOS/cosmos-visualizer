@@ -147,11 +147,9 @@ class DragRectangle extends Component {
     this.dragInteraction = this.dragInteraction.bind(this);
   }
 
-  static initClass() {
-    this.defaultProps = {
-      minSize: {width: 10, height: 10}
-    };
-  }
+  static defaultProps = {
+    minSize: {width: 10, height: 10}
+  };
   render() {
     const {children, update, ...rest} = this.props;
     const margin = 4;
@@ -265,7 +263,6 @@ class DragRectangle extends Component {
     return el.call(this.dragInteraction());
   }
 }
-DragRectangle.initClass();
 
 const Rectangle = props => h(DragRectangle, props);
 

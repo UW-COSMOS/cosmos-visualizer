@@ -8,7 +8,7 @@
  */
 import h from 'react-hyperscript';
 import {event} from 'd3-selection';
-import {Annotation , LockedAnnotation} from '../annotation';
+import {Annotation , LockedAnnotation} from './annotation';
 
 import {EditMode} from '../enum';
 import {AnnotationActions} from '../editor/types'
@@ -50,7 +50,7 @@ const AnnotationsOverlay = (props: AnnotationsOverlayProps)=>{
   let selected = useSelectedAnnotation()
   const {width, height, scaleFactor} = useCanvasSize()
 
-  let allAnnotations = [...annotations]
+  let allAnnotations: IAnnotation[] = [...annotations]
   if (inProgressAnnotation != null) {
     selected = null;
     allAnnotations.push(inProgressAnnotation);
@@ -77,8 +77,6 @@ const AnnotationsOverlay = (props: AnnotationsOverlayProps)=>{
     let opts = {
       key: ix,
       ...d,
-      tags,
-      scaleFactor,
       maxPosition: {width, height},
       locked: isLocked,
       onMouseDown

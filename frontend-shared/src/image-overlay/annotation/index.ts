@@ -9,11 +9,12 @@
 import {useContext} from 'react';
 import h from '@macrostrat/hyper';
 import {min, max} from 'd3-array';
-import {Rectangle} from './drag-rect';
 import {Button, Intent} from '@blueprintjs/core';
 import classNames from 'classnames';
-import {EditMode} from '../enum';
-import {EditorContext} from '../image-overlay/context';
+
+import {Rectangle} from './drag-rect';
+import {EditMode} from '~/enum';
+import {EditorContext} from '~/image-overlay/context';
 import {useCanvasSize, useTags, useTagColor} from '~/providers'
 
 const ToolButton = props => h(Button, {small: true, minimal: true, ...props});
