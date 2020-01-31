@@ -22,6 +22,6 @@ CanvasSizeProvider.defaultProps = {
   scaleFactor: 1
 }
 
-const useCanvasSize = ()=>useContext(CanvasSizeContext)
+const useCanvasSize = ()=>useContext(CanvasSizeContext)!
 
 export {CanvasSizeProvider, CanvasSizeContext, useCanvasSize}

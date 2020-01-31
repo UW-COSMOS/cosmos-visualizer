@@ -258,14 +258,23 @@ class AnnotationEditorProvider extends StatefulComponent<AnnotationEditorProps, 
   }
 }
 
-const useAnnotationEditor = ():AnnotationEditorCtx =>useContext(AnnotationEditorContext)
-const useAnnotationActions = ():AnnotationActions =>useAnnotationEditor()?.actions
+const useAnnotationEditor = ()=>useContext(AnnotationEditorContext)
+const useAnnotationActions = ()=>useAnnotationEditor()?.actions
 const useEditorActions = ()=>useAnnotationEditor()?.editorActions
+
+const useAnnotationUpdater = (ann: Annotation)=>{
+  const {annotations, selected} = useContext(AnnotationsContext)
+  const isSelected = ann == annotations[selected]
+  if (!isSelected) return null
+  const {updateAnnotation} = useAnnotationActions()
+  return updateAnnotation(selected)
+}
 
 export {
   AnnotationEditorProvider,
   AnnotationEditorContext,
   useAnnotationEditor,
   useAnnotationActions,
+  useAnnotationUpdater,
   useEditorActions
 };

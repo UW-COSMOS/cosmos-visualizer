@@ -16,7 +16,8 @@ import {findDOMNode} from 'react-dom';
 import {select, event, mouse} from 'd3-selection';
 import {drag} from 'd3-drag';
 import h from 'react-hyperscript';
-import {AnnotationRect, useCanvasSize} from '~/providers'
+import {Spec} from 'immutability-helper'
+import {AnnotationRect, useCanvasSize, CanvasSizeContext} from '~/providers'
 
 interface BoxPosition {
   x: number,
@@ -86,7 +87,6 @@ const StaticRectangle = (props: RectProps)=>{
 
 
   const {scaleFactor} = useCanvasSize()
-  if (scaleFactor == null) { return null; }
 
   let {x,y,width, height} = getSize(bounds);
   const backgroundColor = props.backgroundColor ?? color
@@ -139,12 +139,29 @@ class DragHandles extends Component {
   }
 }
 
+interface Size {
+  width: number,
+  height: number
+}
+
+interface DragRectProps extends RectProps {
+  minSize?: Size,
+  update(spec: Spec): void
+}
+
+function mouseCoords() {
+  const {screenX: x, screenY: y} = event.sourceEvent
+  return {x,y}
+}
+
 class DragRectangle extends Component {
-  constructor(...args) {
-    super(...args);
+  static contextType = CanvasSizeContext;
+  constructor(props) {
+    super(props);
     this.dragSubject = this.dragSubject.bind(this);
     this.handleDrag = this.handleDrag.bind(this);
     this.dragInteraction = this.dragInteraction.bind(this);
+    this.maxPosition = this.maxPosition.bind(this);
   }
 
   static defaultProps = {
@@ -165,17 +182,12 @@ class DragRectangle extends Component {
     ]);
   }
 
-  mouseCoords() {
-    let x, y;
-    return ({screenX: x, screenY: y} = event.sourceEvent);
-  }
-
   dragSubject() {
-    let {bounds, scaleFactor} = this.props;
+    const {scaleFactor} = this.context
+    let {bounds} = this.props;
     let {x,y,width,height} = getSize(bounds);
 
-    const source = this.mouseCoords();
-    if (scaleFactor == null) { scaleFactor = 1; }
+    const source = mouseCoords();
     x /= scaleFactor;
     y /= scaleFactor;
     width /= scaleFactor;
@@ -183,17 +195,23 @@ class DragRectangle extends Component {
     return {x,y, width, height, bounds, source};
   }
 
+  maxPosition() {
+    if (this.props.maxPosition != null) return this.props.maxPosition;
+    let {width, height} = this.context;
+    return {width, height}
+  }
+
   handleDrag(side){
-    let minSize, scaleFactor, update;
+    const {scaleFactor} = this.context;
     if (side == null) { side = ""; }
     const {subject: s} = event;
-    let {width, height, x,y, source, maxPosition} = s;
-    const client = this.mouseCoords();
+    let {width, height, x,y, source} = s;
+    const client = mouseCoords();
     const dx = client.x-source.x;
     let dy = client.y-source.y;
-    ({update, minSize, maxPosition, scaleFactor} = this.props);
-    if (update == null) { return; }
-    if (scaleFactor == null) { scaleFactor = 1; }
+    const {update, minSize} = this.props;
+
+    if (update == null) return
 
     if (side.includes('top')) {
       if (dy > height) {
@@ -217,23 +235,16 @@ class DragRectangle extends Component {
       ({x,y} = event);
     }
 
-    if (width < minSize.width) {
-      ({
-        width
-      } = minSize);
-    }
-    if (height < minSize.height) {
-      ({
-        height
-      } = minSize);
-    }
+    width = Math.max(width, minSize.width)
+    height = Math.max(height, minSize.height)
 
     if (x < 0) { x = 0; }
     if (y < 0) { y = 0; }
 
-    if (maxPosition != null) {
-      const maxX = maxPosition.width-width;
-      const maxY = maxPosition.height-height;
+    const maxPos = this.maxPosition()
+    if (maxPos != null) {
+      const maxX = maxPos.width-width;
+      const maxY = maxPos.height-height;
       if (x > maxX) { x = maxX; }
       if (y > maxY) { y = maxY; }
     }

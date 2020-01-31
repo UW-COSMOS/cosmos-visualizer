@@ -15,7 +15,13 @@ import classNames from 'classnames';
 import {Rectangle} from './drag-rect';
 import {EditMode} from '~/enum';
 import {EditorContext} from '~/image-overlay/context';
-import {useCanvasSize, useTags, useTagColor} from '~/providers'
+import {
+  useCanvasSize,
+  useTags,
+  useTagColor,
+  useAnnotationUpdater,
+  Annotation as IAnnotation
+} from '~/providers'
 
 const ToolButton = props => h(Button, {small: true, minimal: true, ...props});
 
@@ -118,8 +124,16 @@ function annotationPartUpdater(update, ix){
   };
 }
 
-const Annotation = (props)=>{
-  const {boxes, update, name: tag_name, tag_id, ...rest} = props;
+interface AnnotationProps {
+  obj: IAnnotation
+}
+
+const Annotation = (props: AnnotationProps)=>{
+  const {obj} = props;
+  const {boxes, name: tag_name, tag_id} = obj
+
+  const update = useAnnotationUpdater(obj)
+
   const isSelected = update != null
   const overallBounds = tagBounds(boxes);
 
@@ -137,11 +151,10 @@ const Annotation = (props)=>{
     h(Rectangle, {
       bounds: overallBounds,
       color, backgroundColor: 'none',
-      style: {pointerEvents: 'none'},
-      ...rest
+      style: {pointerEvents: 'none'}
     }, [
       h('div.tag-name', {style: {color: c.darken(2).css()}}, tagName),
-      h(AnnotationControls, {update})
+      h(AnnotationControls, {update, boxes})
     ]),
     h('div.tag', {className}, boxes.map((bounds, i)=> {
       // Need actual logic here to allow display if editing is enabled
@@ -156,8 +169,8 @@ const Annotation = (props)=>{
         bounds,
         update: annotationPartUpdater(update, i),
         onDelete,
-        color,
-        ...rest})
+        color
+      })
     }))
   ]);
 }
@@ -169,8 +182,10 @@ const Annotation = (props)=>{
 //   return update({tag_id: {$set: tag.tag_id}});
 // }
 
-const LockedAnnotation = (props)=>{
-  const {boxes, tag_id, ...rest} = props;
+const LockedAnnotation = (props: AnnotationProps)=>{
+  const {obj} = props;
+  const {tag_id, boxes} = obj
+
   const {scaleFactor, width, height} = useCanvasSize()
   const maxPosition = {width, height}
 
@@ -183,8 +198,7 @@ const LockedAnnotation = (props)=>{
       bounds,
       color,
       scaleFactor,
-      maxPosition,
-      ...rest
+      maxPosition
     });
   }));
 }

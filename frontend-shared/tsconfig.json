@@ -12,10 +12,14 @@
     "emitDecoratorMetadata": true,
     "declarationDir": "dist/types",
     "outDir": "dist/lib",
+    "baseUrl": "./",
     "typeRoots": [
       "node_modules/@types",
       "@types"
-    ]
+    ],
+    "paths": {
+        "~/*": ["src/*"]
+    }
   },
   "include": [
     "src"

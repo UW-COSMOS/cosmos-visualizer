@@ -62,7 +62,7 @@ const AnnotationsOverlay = (props: AnnotationsOverlayProps)=>{
 
     const isLocked = lockedTags.has(d.tag_id);
     if (isLocked) {
-      return h(LockedAnnotation, {tags, ...d});
+      return h(LockedAnnotation, {tags, obj: d});
     }
 
     const isSelected = (d == selected) && !isLocked;
@@ -76,7 +76,7 @@ const AnnotationsOverlay = (props: AnnotationsOverlayProps)=>{
 
     let opts = {
       key: ix,
-      ...d,
+      obj: d,
       maxPosition: {width, height},
       locked: isLocked,
       onMouseDown
