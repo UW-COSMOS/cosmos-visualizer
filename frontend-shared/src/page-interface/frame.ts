@@ -8,6 +8,7 @@ import {PageHeader} from '../util';
 import {InfoDialog} from '../info-dialog';
 import {PersistenceButtons} from './persistence-buttons'
 import {Image} from '~/types'
+import {useAnnotationEditor} from '~/providers'
 
 interface FrameProps extends
   ComponentProps<typeof PersistenceButtons> {
@@ -25,17 +26,16 @@ const PageFrame = (props: FrameProps)=>{
   const {
     subtitleText,
     currentImage: image,
-    children,
-    hasChanges,
-    editingEnabled,
     navigationEnabled,
-    hasInitialContent,
-    onSave,
-    onClearChanges,
-    getNextImage
+    getNextImage,
+    children
   } = props;
 
   const [dialogIsOpen, setDialogOpen] = useState(false)
+
+  const ctx = useAnnotationEditor()
+  const editingEnabled = (ctx != null)
+  const hasChanges = ctx?.hasChanges ?? false
 
   return h('div.main', [
     h(Navbar, {fixedToTop: true}, [
@@ -48,12 +48,7 @@ const PageFrame = (props: FrameProps)=>{
       h(Navbar.Group, {align: Alignment.RIGHT}, [
         h(PermalinkButton, {image}),
         h(ButtonGroup, [
-          h.if(editingEnabled)(PersistenceButtons, {
-            hasChanges,
-            hasInitialContent,
-            onClearChanges,
-            onSave
-          }),
+          h(PersistenceButtons),
           h.if(navigationEnabled)(Button, {
             intent: Intent.PRIMARY,
             text: "Next image",

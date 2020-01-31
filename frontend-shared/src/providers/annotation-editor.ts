@@ -1,5 +1,5 @@
 import h from 'react-hyperscript'
-import {createContext} from 'react'
+import {createContext, useContext} from 'react'
 import {
   AnnotationsContext,
   Annotation,
@@ -16,6 +16,11 @@ type AnnotationID = number;
 type UpdateSpec = object;
 type TagUpdater = (s: UpdateSpec)=>void
 
+export interface EditorActions {
+  saveChanges(): void,
+  clearChanges(): void
+}
+
 export interface AnnotationActions {
   appendAnnotation(r: Annotation): void,
   deleteAnnotation(i: AnnotationID): void,
@@ -23,25 +28,26 @@ export interface AnnotationActions {
   updateAnnotation(i: AnnotationID): TagUpdater,
   addLink(i: AnnotationID): ()=>void,
   toggleTagLock(i: TagID): ()=>void,
-  updateCurrentTag(i: TagID): ()=>void,
+  updateCurrentTag(i: TagID): ()=>void
   // This should not be passed through...
   //updateState(spec: UpdateSpec): void
 }
 
 interface AnnotationEditorCtx {
-  actions: AnnotationActions|null,
+  actions: AnnotationActions,
+  editorActions: EditorActions,
   initialAnnotations: Annotation[],
-  hasChanges: boolean
+  hasChanges: boolean,
 }
-const AnnotationEditorContext = createContext<AnnotationEditorCtx>(null)
+const AnnotationEditorContext = createContext<AnnotationEditorCtx|null>(null)
 interface AnnotationProviderProps extends AnnotationEditorCtx {
   children?: React.ReactNode
 }
 
 interface AnnotationEditorProps {
   initialAnnotations: Annotation[],
-  onSaveTags: (arr: Annotation[])=> void,
-  onClearChanges: ()=>void
+  onSave: (arr: Annotation[])=> void,
+  editingEnabled: boolean
 }
 
 interface AnnotationEditorState {
@@ -60,7 +66,8 @@ class AnnotationEditorProvider extends StatefulComponent<AnnotationEditorProps, 
   adding, removing, and editing the positions of annotations.
   */
   static defaultProps = {
-    initialAnnotations: []
+    initialAnnotations: [],
+    editingEnabled: true
   };
   static contextType = TagsContext;
   constructor(props: AnnotationEditorProps){
@@ -101,7 +108,7 @@ class AnnotationEditorProvider extends StatefulComponent<AnnotationEditorProps, 
     return this.updateState(spec);
   }; }
 
-  deleteAnnotation = (i: number) => {
+  deleteAnnotation(i: number) {
     const {annotations, selectedAnnotation} = this.state;
     const spec: Spec = {
       annotations: {$splice: [[i,1]]}
@@ -182,25 +189,44 @@ class AnnotationEditorProvider extends StatefulComponent<AnnotationEditorProps, 
     });
   }
 
+  saveAnnotations() {
+    const {annotations} = this.state;
+    self.props.onSave?.(annotations);
+  }
+
   render() {
-    const {children, initialAnnotations} = this.props;
+    const {children, initialAnnotations, editingEnabled} = this.props;
     const {
       annotations,
       selectedAnnotation,
     } = this.state;
     const hasChanges = isDifferent(initialAnnotations, annotations);
 
+    const editorActions: EditorActions = {
+      clearChanges: this.clearChanges.bind(this),
+      saveChanges: this.saveAnnotations.bind(this)
+    }
+
     const actions: AnnotationActions = {
+      // It sucks we have to bind all of these separately...
       updateAnnotation: this.updateAnnotation.bind(this),
       addLink: this.addLink.bind(this),
       updateCurrentTag: this.updateCurrentTag.bind(this),
       selectAnnotation: this.selectAnnotation.bind(this),
       appendAnnotation: this.appendAnnotation.bind(this),
       toggleTagLock: this.toggleTagLock.bind(this),
-      deleteAnnotation: this.deleteAnnotation.bind(this)
+      deleteAnnotation: this.deleteAnnotation.bind(this),
     }
 
-    const value = {
+    let editorContext = {
+      actions,
+      editorActions,
+      hasChanges,
+      initialAnnotations
+    }
+    if (!editingEnabled) editorContext = null
+
+    const annotationsContext = {
       annotations,
       allowSelection: true,
       selected: selectedAnnotation,
@@ -209,13 +235,24 @@ class AnnotationEditorProvider extends StatefulComponent<AnnotationEditorProps, 
     const {selectAnnotation} = actions;
 
 
-    return h(AnnotationsContext.Provider, {value}, [
-      h(AnnotationEditorContext.Provider, {value: {actions, hasChanges, initialAnnotations}}, [
+    return h(AnnotationsContext.Provider, {value: annotationsContext}, [
+      h(AnnotationEditorContext.Provider, {
+        value: editingEnabled? editorContext:null
+      }, [
         h(SelectionUpdateContext.Provider, {value: selectAnnotation}, children)
       ])
     ])
   }
 }
 
+const useAnnotationEditor = ()=>useContext(AnnotationEditorContext)
+const useAnnotationActions = ()=>useAnnotationEditor()?.actions
+const useEditorActions = ()=>useAnnotationEditor()?.editorActions
 
-export {AnnotationEditorProvider, AnnotationEditorContext};
+export {
+  AnnotationEditorProvider,
+  AnnotationEditorContext,
+  useAnnotationEditor,
+  useAnnotationActions,
+  useEditorActions
+};

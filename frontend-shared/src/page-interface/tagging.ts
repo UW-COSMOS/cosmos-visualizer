@@ -7,7 +7,6 @@
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
  */
 import h from '@macrostrat/hyper';
-import uuidv4 from 'uuid/v4';
 import chroma from 'chroma-js';
 import {Intent} from "@blueprintjs/core";
 import T from 'prop-types';
@@ -16,7 +15,6 @@ import {StatefulComponent} from '@macrostrat/ui-components';
 import {AppToaster} from '../toaster';
 import {APIContext, ErrorMessage} from '../api';
 import {ImageContainer} from '../image-container';
-import {AnnotationActions} from '../editor/types';
 import {PageFrame} from './frame'
 import {
   TagsProvider,
@@ -24,13 +22,6 @@ import {
   Tag,
   AnnotationArr
 } from '~/providers'
-
-const isDifferent = (a1: any[], a2: any[]): boolean =>{
-  if (a1.length == 0 && a2.length == 0) {
-    return false;
-  }
-  return a1 != a2;
-}
 
 // Updates props for a rectangle
 // from API signature to our internal signature
@@ -52,50 +43,27 @@ class TaggingPage extends StatefulComponent {
     this.onImageLoaded = this.onImageLoaded.bind(this);
 
     this.state = {
-      infoDialogIsOpen: false,
       currentImage: null,
-      editingRect: null,
-      currentTag: null,
-      tagStore: [],
-      rectStore: [],
       initialRectStore: [],
       imageBaseURL: null,
-      lockedTags: new Set()
+      tagStore: []
     };
-  }
-
-  clearChanges() {
-    const {initialRectStore} = this.state;
-    return this.updateState({
-      rectStore: {$set: initialRectStore},
-      editingRect: {$set: null}
-    });
   }
 
   render() {
     const {subtitleText} = this.props;
-    const {currentImage: image} = this.state;
-    const {
-      initialRectStore,
-      rectStore,
-      editingRect,
-      tagStore,
-      currentTag,
-      lockedTags
-    } = this.state;
+    const {currentImage: image, tagStore} = this.state;
+    const {initialRectStore} = this.state;
     const {editingEnabled} = this.props;
 
     return h(TagsProvider, {tags: tagStore}, [
       h(AnnotationEditorProvider, {
-        initialAnnotations: initialRectStore
+        initialAnnotations: initialRectStore,
+        editingEnabled: true
       }, [
         h(PageFrame, {
-          hasChanges: false,
           subtitleText,
           editingEnabled,
-          hasInitialContent: initialRectStore.length != 0,
-          onSave: this.saveData.bind(this),
-          onClearChanges: this.clearChanges.bind(this),
           currentImage: image,
           getNextImage: this.getImageToDisplay.bind(this)
         }, [
@@ -153,27 +121,6 @@ class TaggingPage extends StatefulComponent {
       return false;
     }
   };
-
-  setupTags(data){
-
-    const cscale = chroma.scale('viridis')
-      .colors(data.length);
-
-    const tags = data.map(function(d, ix){
-      let {tag_id, color, name} = d;
-
-      if ((name == null)) {
-        name = tag_id.replace("-", " ");
-        name = name.charAt(0).toUpperCase()+name.slice(1);
-      }
-      if (color == null) { color = cscale[ix]; }
-      return {tag_id, color, name};});
-
-    return this.setState({
-      tagStore: tags,
-      currentTag: tags[0].tag_id
-    });
-  }
 
   getImageToDisplay = async () => {
     let {nextImageEndpoint: imageToDisplay,

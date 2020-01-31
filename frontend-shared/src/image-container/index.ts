@@ -111,7 +111,7 @@ class ImageContainer extends Component<ContainerProps, ContainerState> {
 
   imageURL(image){
     console.log(`image: ${image}`)
-    //const {resize_bytes} = image;
+    const {resize_bytes} = image;
     //return "data:image/png;base64," + resize_bytes;
     return join("/images_to_tag/", image.file_path)
   }

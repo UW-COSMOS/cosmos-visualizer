@@ -23,7 +23,7 @@ import {ModalNotifications} from './notifications';
 import {AnnotationsOverlay} from './annotations';
 import {
   AnnotationsContext,
-  AnnotationEditorContext,
+  useAnnotationActions,
   Tag,
   AnnotationArr
 } from '~/providers'
@@ -299,7 +299,7 @@ HotkeysTarget(ImageOverlay);
 
 const WrappedImageOverlay = (props)=>{
   // Get editing actions into the props
-  const {actions} = useContext(AnnotationEditorContext)
+  const actions = useAnnotationActions()
   return h(ImageOverlay, {...props, actions})
 }
 

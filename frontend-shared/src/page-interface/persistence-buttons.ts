@@ -1,45 +1,42 @@
 import h from 'react-hyperscript';
 import {Button, Intent} from '@blueprintjs/core'
+import {useAnnotationEditor} from '~/providers'
 
 type PersistenceButtonProps = {
-  hasChanges: boolean,
   allowSaveWithoutChanges?: boolean,
-  hasInitialContent?: boolean,
-  onSave(): void,
-  onClearChanges(): void
 }
 
 const PersistenceButtons = (props: PersistenceButtonProps)=>{
   // Persist data to backend if editing is enabled
-  const {
-    allowSaveWithoutChanges,
-    hasChanges,
-    onClearChanges,
-    onSave,
-    hasInitialContent
-  } = props;
+  const ctx = useAnnotationEditor()
+  if (ctx == null) return null
+
+  const {hasChanges, initialAnnotations} = ctx
+  const {allowSaveWithoutChanges} = props;
   let clearRectText = "Clear changes";
-  if (hasInitialContent) {
+  if (initialAnnotations.length > 0) {
     clearRectText = "Reset changes";
   }
+
+  const {saveChanges, clearChanges} = ctx.editorActions;
+
   return h([
     h(Button, {
       intent: Intent.SUCCESS, text: "Save",
       icon: 'floppy-disk',
-      onClick: onSave,
+      onClick: saveChanges,
       disabled: !hasChanges && !allowSaveWithoutChanges
     }),
     h(Button, {
       intent: Intent.DANGER, text: clearRectText,
       icon: 'trash', disabled: !hasChanges,
-      onClick: onClearChanges
+      onClick: clearChanges
     })
   ]);
 }
 
 PersistenceButtons.defaultProps = {
-  allowSaveWithoutChanges: true,
-  hasInitialContent: false
+  allowSaveWithoutChanges: false
 }
 
 export {PersistenceButtons, PersistenceButtonProps}
