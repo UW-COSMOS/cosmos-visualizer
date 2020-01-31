@@ -39,15 +39,13 @@ const AnnotationsOverlay = (props: AnnotationsOverlayProps)=>{
     inProgressAnnotation,
     tags,
     lockedTags,
-    actions,
     onClick,
     toggleSelect,
-    onSelectAnnotation
   } = props;
 
   const annotations = useAnnotations()
   let selected = useSelectedAnnotation()
-  const {width, height, scaleFactor} = useCanvasSize()
+  const {width, height} = useCanvasSize()
 
   let allAnnotations: IAnnotation[] = [...annotations]
   if (inProgressAnnotation != null) {
@@ -55,9 +53,7 @@ const AnnotationsOverlay = (props: AnnotationsOverlayProps)=>{
     allAnnotations.push(inProgressAnnotation);
   }
 
-  const size = {width, height};
-
-  return h('div.overlay', {style: size, onClick}, allAnnotations.map((d, ix)=> {
+  return h('div.overlay', {style: {width, height}, onClick}, allAnnotations.map((d, ix)=> {
 
     const isLocked = lockedTags.has(d.tag_id);
     if (isLocked) {
@@ -67,18 +63,14 @@ const AnnotationsOverlay = (props: AnnotationsOverlayProps)=>{
     const isSelected = (d == selected) && !isLocked;
 
 
-
     let opts = {
       key: ix,
       obj: d,
-      maxPosition: {width, height},
       locked: isLocked,
     };
 
     if (isSelected) {
       return h(Annotation, {
-        delete: actions.deleteAnnotation(ix),
-        update: actions.updateAnnotation(ix),
         onSelect: toggleSelect,
         enterLinkMode() {},
         ...opts

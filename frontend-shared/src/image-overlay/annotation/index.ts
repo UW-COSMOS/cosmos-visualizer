@@ -57,16 +57,22 @@ const LinkButton = (props)=>{
   });
 }
 
-const AnnotationControls = (props)=>{
+interface AnnotationControlProps {
+  annotation: IAnnotation
+}
+
+const AnnotationControls = (props: AnnotationControlsProps)=>{
   const {
-    delete: deleteRectangle,
     onSelect,
-    update,
-    boxes,
-    linked_to
+    annotation
   } = props;
 
-  if (update == null) { return null; }
+  const update = useAnnotationUpdater(annotation)!
+  if (update == null) return null
+
+  const {deleteAnnotation} = useAnnotationActions()!
+  const ix = useAnnotationIndex(annotation)
+  const {linked_to, boxes} = annotation;
 
   // Calculate editing menu position
   const {height, scaleFactor} = useCanvasSize()
@@ -95,7 +101,7 @@ const AnnotationControls = (props)=>{
     h(ToolButton, {
       icon: 'cross',
       intent: Intent.DANGER,
-      onClick: deleteRectangle
+      onClick: ()=>deleteAnnotation(ix)
     })
   ]);
 }
@@ -135,8 +141,10 @@ const Annotation = (props: AnnotationProps)=>{
   const {boxes, name: tag_name, tag_id} = obj;
 
   const {selectAnnotation} = useAnnotationActions()!
+  /* This could be simplified significantly;
+     we rely on indexing to tell if we have the same annotations
+  */
   const ix = useAnnotationIndex(obj)
-
   const update = useAnnotationUpdater(obj)
   const isSelected = update != null
   const overallBounds = tagBounds(boxes);
@@ -155,14 +163,12 @@ const Annotation = (props: AnnotationProps)=>{
   const onMouseDown = () => {
     if (editModes.has(EditMode.LINK)) {
       (actions.addLink(ix))();
-      return actions.setMode(EditMode.LINK, false);
+      actions.setMode(EditMode.LINK, false);
     } else {
-      return (selectAnnotation(ix))();
+      selectAnnotation(ix)();
     }
-
-    onSelectAnnotation(ix)();
     // Don't allow dragging
-    return event.stopPropagation();
+    event.stopPropagation();
   };
 
 
@@ -170,11 +176,14 @@ const Annotation = (props: AnnotationProps)=>{
   return h('div.annotation', {className}, [
     h(Rectangle, {
       bounds: overallBounds,
-      color, backgroundColor: 'none',
+      color,
+      backgroundColor: 'none',
       style: {pointerEvents: 'none'}
     }, [
       h('div.tag-name', {style: {color: c.darken(2).css()}}, tagName),
-      h(AnnotationControls, {update, boxes})
+      h(AnnotationControls, {
+        annotation: obj
+      })
     ]),
     h('div.tag', {className}, boxes.map((bounds, i)=> {
       // Need actual logic here to allow display if editing is enabled
@@ -206,8 +215,6 @@ const Annotation = (props: AnnotationProps)=>{
 const LockedAnnotation = (props: AnnotationProps)=>{
   const {obj} = props;
   const {tag_id, boxes} = obj
-
-  const {scaleFactor, width, height} = useCanvasSize()
 
   const c = useTagColor(tag_id)
   const alpha = 0.2;
