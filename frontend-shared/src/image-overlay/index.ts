@@ -57,7 +57,6 @@ class ImageOverlay extends StatefulComponent<Props,State> {
 
     this.contextValue = this.contextValue.bind(this);
     this.setMode = this.setMode.bind(this);
-    this.selectTag = this.selectTag.bind(this);
     this.handleDrag = this.handleDrag.bind(this);
     this.handleAddAnnotation = this.handleAddAnnotation.bind(this);
     this.disableEditing = this.disableEditing.bind(this);
@@ -102,12 +101,8 @@ class ImageOverlay extends StatefulComponent<Props,State> {
 
     return h('div', [
       h(TypeSelector, {
-        lockedTags,
-        currentTag,
-        toggleLock: actions.toggleTagLock || function() {},
         isOpen: selectIsOpen,
         onClose: () => this.setState({selectIsOpen: false}),
-        onItemSelect: this.selectTag
       }),
       h(AnnotationsOverlay, {
         lockedTags,
@@ -148,18 +143,6 @@ class ImageOverlay extends StatefulComponent<Props,State> {
     return h(EditorContext.Provider, {value: this.contextValue()}, this.renderInterior());
   }
 
-  selectTag = (tag)=>{
-    // Selects the Tag ID for active annotation
-    const {actions, editingRect} = this.props;
-    if (editingRect != null) {
-      // Set tag for the active rectangle
-      const fn = actions.updateAnnotation(editingRect);
-      fn({tag_id: {$set: tag.tag_id}});
-    } else {
-      (actions.updateCurrentTag(tag.tag_id))();
-    }
-    return this.setState({selectIsOpen: false});
-  }
 
   handleDrag() {
     const {subject} = event;

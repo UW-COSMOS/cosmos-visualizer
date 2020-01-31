@@ -9,7 +9,7 @@ import h from 'react-hyperscript';
 import classNames from 'classnames';
 import {Button} from '@blueprintjs/core';
 import {Omnibar} from '@blueprintjs/select';
-import {useTags} from '~/providers'
+import {useTags, useAnnotationEditor} from '~/providers'
 import Fuse from 'fuse.js';
 import chroma from 'chroma-js';
 
@@ -44,7 +44,11 @@ const TypeSelector = (props)=>{
   };
   let fuse = null;
   const tags = useTags()
-  const {lockedTags, toggleLock, onItemSelect, currentTag, ...rest} = props;
+  const ctx = useAnnotationEditor()!
+  const {currentTag, lockedTags} = ctx
+  const {toggleTagLock} = ctx.actions!
+
+  const {onItemSelect, ...rest} = props;
 
   return h(Omnibar, {
     ...rest,
@@ -62,7 +66,7 @@ const TypeSelector = (props)=>{
         return h(ListItem, {
           active,
           onClick,
-          toggleLock: toggleLock(d.tag_id),
+          toggleLock: toggleTagLock(d.tag_id),
           locked,
           ...d
         });

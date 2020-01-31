@@ -156,7 +156,7 @@ const Annotation = (props)=>{
         update: annotationPartUpdater(update, i),
         onDelete,
         color,
-      ...rest})
+        ...rest})
     }))
   ]);
 }

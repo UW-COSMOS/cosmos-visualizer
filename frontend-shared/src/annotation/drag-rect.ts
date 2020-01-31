@@ -11,13 +11,21 @@
 // Prior art:
 // - http://bl.ocks.org/mccannf/1629464
 // - https://bl.ocks.org/d3noob/204d08d309d2b2903e12554b0aef6a4d
-import {Component} from 'react';
+import {Component, useLayoutEffect, useRef} from 'react';
 import {findDOMNode} from 'react-dom';
 import {select, event, mouse} from 'd3-selection';
 import {drag} from 'd3-drag';
 import h from 'react-hyperscript';
+import {AnnotationRect, useCanvasSize} from '~/providers'
 
-const getSize = function(bounds){
+interface BoxPosition {
+  x: number,
+  y: number,
+  width: number,
+  height: number
+}
+
+const getSize = function(bounds: AnnotationRect): BoxPosition {
   const [x,y, xMax, yMax] = bounds;
   const width = xMax-x;
   const height = yMax-y;
@@ -56,47 +64,59 @@ const Handle = function({side, margin}){
   return h('div.drag-handle', {style, className, __data__: side});
 };
 
-class StaticRectangle extends Component {
-  static initClass() {
-    this.defaultProps = {
-      isSelected: false,
-      scaleFactor: 1 // Maps pixel scale to external scale
-    };
-  }
-  render() {
-    let {bounds, scaleFactor, children,
-     onClick, className, tag_id,
-     tags, color,
-     backgroundColor, style, ...rest} = this.props;
-    let {x,y,width, height} = getSize(bounds);
-
-    // Don't render tags until we have all the data
-    if (scaleFactor == null) { return null; }
-
-    if (backgroundColor == null) { backgroundColor = color; }
-
-    width /= scaleFactor;
-    height /= scaleFactor;
-
-    style = {
-      top: y/scaleFactor, left: x/scaleFactor,
-      width, height,
-      backgroundColor,
-      borderColor: color,
-      ...style
-    };
-
-    return h('div.rect', {style, onClick, className}, children);
-  }
-
-  componentDidMount() {
-    const {onMouseDown, onClick} = this.props;
-    if (onMouseDown == null) { return; }
-    const el = select(findDOMNode(this));
-    return el.on('mousedown', onMouseDown);
-  }
+interface RectProps {
+  bounds: AnnotationRect,
+  children?: React.ReactNode,
+  className?: string,
+  color: string,
+  backgroundColor?: string,
+  onMouseDown?: React.MouseEventHandler,
+  onClick?: React.MouseEventHandler,
+  style?: React.CSSProperties
 }
-StaticRectangle.initClass();
+
+const StaticRectangle = (props: RectProps)=>{
+  let {
+    bounds,
+    children,
+    className,
+    color,
+    style
+  } = props;
+
+
+  const {scaleFactor} = useCanvasSize()
+  if (scaleFactor == null) { return null; }
+
+  let {x,y,width, height} = getSize(bounds);
+  const backgroundColor = props.backgroundColor ?? color
+
+  const clickHandler = props.onMouseDown ?? props.onClick
+  // Replace componentDidMount/findDOMNode with useRef and and useEffect
+  const ref = useRef(null)
+  useLayoutEffect(function(){
+    select(ref.current).on('mousedown', clickHandler);
+  },[])
+
+
+  width /= scaleFactor;
+  height /= scaleFactor;
+
+  style = {
+    ...style,
+    top: y/scaleFactor,
+    left: x/scaleFactor,
+    width, height,
+    backgroundColor,
+    borderColor: color,
+  };
+
+  return h('div.rect', {ref, style, className}, children);
+}
+
+StaticRectangle.defaultProps = {
+  isSelected: false
+};
 
 class DragHandles extends Component {
   render() {

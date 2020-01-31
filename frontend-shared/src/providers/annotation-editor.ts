@@ -258,8 +258,8 @@ class AnnotationEditorProvider extends StatefulComponent<AnnotationEditorProps, 
   }
 }
 
-const useAnnotationEditor = ()=>useContext(AnnotationEditorContext)
-const useAnnotationActions = ()=>useAnnotationEditor()?.actions
+const useAnnotationEditor = ():AnnotationEditorCtx =>useContext(AnnotationEditorContext)
+const useAnnotationActions = ():AnnotationActions =>useAnnotationEditor()?.actions
 const useEditorActions = ()=>useAnnotationEditor()?.editorActions
 
 export {
