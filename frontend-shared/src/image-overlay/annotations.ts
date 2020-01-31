@@ -22,7 +22,6 @@ import {
 
 import './main.styl';
 
-const {ADD_PART, LINK} = EditMode;
 
 
 interface AnnotationsOverlayProps {
@@ -67,19 +66,13 @@ const AnnotationsOverlay = (props: AnnotationsOverlayProps)=>{
 
     const isSelected = (d == selected) && !isLocked;
 
-    const onMouseDown = () => {
-      console.log(ix);
-      onSelectAnnotation(ix)();
-      // Don't allow dragging
-      return event.stopPropagation();
-    };
+
 
     let opts = {
       key: ix,
       obj: d,
       maxPosition: {width, height},
       locked: isLocked,
-      onMouseDown
     };
 
     if (isSelected) {

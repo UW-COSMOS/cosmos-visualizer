@@ -20,6 +20,8 @@ import {
   useTags,
   useTagColor,
   useAnnotationUpdater,
+  useAnnotationActions,
+  useAnnotationIndex,
   Annotation as IAnnotation
 } from '~/providers'
 
@@ -130,7 +132,10 @@ interface AnnotationProps {
 
 const Annotation = (props: AnnotationProps)=>{
   const {obj} = props;
-  const {boxes, name: tag_name, tag_id} = obj
+  const {boxes, name: tag_name, tag_id} = obj;
+
+  const {selectAnnotation} = useAnnotationActions()!
+  const ix = useAnnotationIndex(obj)
 
   const update = useAnnotationUpdater(obj)
   const isSelected = update != null
@@ -144,6 +149,22 @@ const Annotation = (props: AnnotationProps)=>{
   const tags = useTags()
   let tagName = tags.find(d => d.tag_id === tag_id)?.name ?? tag_name;
   // Sometimes we don't return tags
+
+  const {actions, editModes} = useContext(EditorContext);
+
+  const onMouseDown = () => {
+    if (editModes.has(EditMode.LINK)) {
+      (actions.addLink(ix))();
+      return actions.setMode(EditMode.LINK, false);
+    } else {
+      return (selectAnnotation(ix))();
+    }
+
+    onSelectAnnotation(ix)();
+    // Don't allow dragging
+    return event.stopPropagation();
+  };
+
 
   const className = classNames({active: isSelected});
   return h('div.annotation', {className}, [
@@ -168,6 +189,7 @@ const Annotation = (props: AnnotationProps)=>{
         bounds,
         update: annotationPartUpdater(update, i),
         onDelete,
+        onMouseDown,
         color
       })
     }))

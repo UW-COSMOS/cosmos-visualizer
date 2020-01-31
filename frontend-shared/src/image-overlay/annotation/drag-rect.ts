@@ -17,7 +17,11 @@ import {select, event, mouse} from 'd3-selection';
 import {drag} from 'd3-drag';
 import h from 'react-hyperscript';
 import {Spec} from 'immutability-helper'
-import {AnnotationRect, useCanvasSize, CanvasSizeContext} from '~/providers'
+import {
+  AnnotationRect,
+  CanvasSizeContext,
+  useCanvasSize
+} from '~/providers'
 
 interface BoxPosition {
   x: number,
@@ -43,9 +47,12 @@ const oppositeSide = function(s){
 const Handle = function({side, margin}){
   if (margin == null) { margin = 4; }
   const style = {
-    left: margin, right: margin,
-    top: margin, bottom: margin,
-    width: 2*margin, height: 2*margin
+    left: margin,
+    right: margin,
+    top: margin,
+    bottom: margin,
+    width: 2*margin,
+    height: 2*margin
   };
 
   if (['top','bottom'].includes(side)) {
@@ -196,7 +203,8 @@ class DragRectangle extends Component {
   }
 
   maxPosition() {
-    if (this.props.maxPosition != null) return this.props.maxPosition;
+    const {maxPosition} = this.props
+    if (maxPosition != null) return maxPosition;
     let {width, height} = this.context;
     return {width, height}
   }
@@ -244,8 +252,8 @@ class DragRectangle extends Component {
     if (maxPos != null) {
       const maxX = maxPos.width-width;
       const maxY = maxPos.height-height;
-      if (x > maxX) { x = maxX; }
-      if (y > maxY) { y = maxY; }
+      x = Math.min(x, maxX)
+      y = Math.min(y, maxY)
     }
 
     x *= scaleFactor;

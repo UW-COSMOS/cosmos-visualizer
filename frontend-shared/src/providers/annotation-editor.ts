@@ -91,7 +91,7 @@ class AnnotationEditorProvider extends StatefulComponent<AnnotationEditorProps, 
     if (updateSpec.tag_id != null) {
       spec.currentTag = updateSpec.tag_id;
     }
-    return this.updateState(spec);
+    this.updateState(spec);
   }; }
 
   addLink(i: AnnotationID){ return () => {
@@ -107,7 +107,7 @@ class AnnotationEditorProvider extends StatefulComponent<AnnotationEditorProps, 
     const spec = {
       annotations: {[selectedAnnotation]: {linked_to: {$set: image_tag_id}}}
     };
-    return this.updateState(spec);
+    this.updateState(spec);
   }; }
 
   deleteAnnotation(i: number) {
@@ -125,7 +125,7 @@ class AnnotationEditorProvider extends StatefulComponent<AnnotationEditorProps, 
       if (rect.linked_to !== image_tag_id) { continue; }
       spec.annotations[i] = {linked_to: {$set: null}};
     }
-    return this.updateState(spec);
+    this.updateState(spec);
   };
 
   updateCurrentTag(tag_id: TagID){ return () => {
@@ -145,7 +145,7 @@ class AnnotationEditorProvider extends StatefulComponent<AnnotationEditorProps, 
     // Create UUID on client side to allow
     // creation of tag links
     rect.image_tag_id = uuidv4();
-    return this.updateState({
+    this.updateState({
       annotations: {$push: [rect]},
       selectedAnnotation: {$set: annotations.length}
     });
@@ -180,12 +180,12 @@ class AnnotationEditorProvider extends StatefulComponent<AnnotationEditorProps, 
     if (nextTag !== currentTag) {
       spec.currentTag = {$set: nextTag};
     }
-    return this.updateState(spec);
+    this.updateState(spec);
   }; }
 
   clearChanges() {
     const {initialAnnotations} = this.props;
-    return this.updateState({
+    this.updateState({
       annotations: {$set: initialAnnotations},
       selectedAnnotation: {$set: null}
     });
@@ -266,8 +266,16 @@ const useAnnotationUpdater = (ann: Annotation)=>{
   const {annotations, selected} = useContext(AnnotationsContext)
   const isSelected = ann == annotations[selected]
   if (!isSelected) return null
-  const {updateAnnotation} = useAnnotationActions()
+  const {updateAnnotation} = useAnnotationActions()!
   return updateAnnotation(selected)
+}
+
+const useAnnotationIndex = (ann: Annotation):number =>{
+  const {annotations, selected} = useContext(AnnotationsContext)
+  /* It's most common to be testing for the selected annotation,
+     so we check this first */
+  if (ann == annotations[selected]) return selected
+  return annotations.findIndex(d => ann == d)
 }
 
 export {
@@ -276,5 +284,6 @@ export {
   useAnnotationEditor,
   useAnnotationActions,
   useAnnotationUpdater,
+  useAnnotationIndex,
   useEditorActions
 };

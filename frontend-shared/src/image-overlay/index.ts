@@ -179,8 +179,7 @@ class ImageOverlay extends StatefulComponent<Props,State> {
       height *= -1;
       y -= height;
     }
-    if (width < clickDistance) { return; }
-    if (height < clickDistance) { return; }
+    if (width < clickDistance || height < clickDistance) return
     // Shift to image coordinates from pixel coordinates
     x *= scaleFactor;
     y *= scaleFactor;
