@@ -12,9 +12,9 @@ import {join} from 'path'
 
 import {ReactNode} from 'react'
 import {ImageOverlay} from '../image-overlay';
-import {PageExtractionShape} from '../types';
-import {AnnotationsProvider, CanvasSizeProvider} from '~/providers'
+import {AnnotationsProvider} from '~/providers'
 import {AnnotationArr, Annotation} from '~/image-overlay/types'
+import {ScaledImagePanel} from '~/page-interface/scaled-image'
 
 const normalizeAnnotation = function(d: AnnotationArr): Annotation {
   /*
@@ -69,20 +69,9 @@ class ImageContainer extends Component<ContainerProps, ContainerState> {
     editingEnabled: false
   };
   static contextType = ImageStoreContext;
-  static propTypes = {
-    image: PageExtractionShape
-  };
-
   constructor(props: ContainerProps){
     super(props);
-    this.scaledSize = this.scaledSize.bind(this);
-    this.imageURL = this.imageURL.bind(this);
-    this.ensureImageDimensions = this.ensureImageDimensions.bind(this);
-    this.state = {
-      scaleFactor: null,
-      image: null,
-      windowWidth: window.innerWidth
-    };
+    this.state = {image: null};
   }
 
   async componentWillReceiveProps(nextProps){
@@ -98,18 +87,7 @@ class ImageContainer extends Component<ContainerProps, ContainerState> {
 
     if (image == null) { return; }
     if (nextProps.image._id === oldId) { return; }
-    const im =  await this.ensureImageDimensions(image);
-    return this.setState({image: im});
-  }
-
-  scaledSize() {
-    let {image, scaleFactor} = this.state;
-    if (image == null) { return null; }
-    if (scaleFactor == null) { scaleFactor = 1; }
-    let {height, width} = image;
-    height /= scaleFactor;
-    width /= scaleFactor;
-    return {width,height};
+    return this.setState({image});
   }
 
   imageURL(image){
@@ -122,71 +100,22 @@ class ImageContainer extends Component<ContainerProps, ContainerState> {
   render() {
     const {actions, editingEnabled,
      tags, currentTag, currentImage, imageTags} = this.props;
-    const {scaleFactor, image} = this.state;
+    const {image} = this.state;
     if (image == null) { return null; }
-    const style = this.scaledSize();
 
     return h(PageDataProvider, {annotations: image.pp_detected_objs}, [
-      h(CanvasSizeProvider, {
-        scaleFactor,
-        ...style
-      }, [
-        h('div.image-container', {style}, [
-          h('img', {src: this.imageURL(image), ...style}),
-          h(ImageOverlay, {
-            ...style,
-            scaleFactor,
-            currentTag,
-            tags,
-            actions,
-            editingEnabled
-          })
-        ])
-      ])
+      h(ScaledImagePanel, {
+        image,
+        urlForImage: this.imageURL.bind(this)
+      },
+        h(ImageOverlay, {
+          currentTag,
+          tags,
+          actions,
+          editingEnabled
+        })
+      )
     ]);
-  }
-
-  ensureImageDimensions({width, height, ...rest}){
-    // Make sure we have image dimensions set before loading an image
-    // into the UI
-    const imageURL = this.imageURL(rest);
-    return new Promise(function(resolve, reject){
-      if ((width != null) && (height != null)) {
-        resolve({width, height, ...rest});
-        return;
-      }
-      const img = new Image();
-      img.onload = function() {
-        ({width, height} = this);
-        return resolve({width,height, ...rest});
-      };
-      return img.src = imageURL;
-    });
-  }
-
-  didUpdateWindowSize(prevProps, prevState){
-    let {windowWidth, scaleFactor, image} = this.state;
-    if ((scaleFactor != null) && (prevState.windowWidth === windowWidth)) { return; }
-    if (image == null) { return; }
-    const {width} = image;
-    const targetSize = Math.min(2000, windowWidth-24);
-    // Clamp to integer scalings for simplicity
-    scaleFactor = width/targetSize;
-    if (scaleFactor < 1) {
-      scaleFactor = 1;
-    }
-
-    return this.setState({scaleFactor});
-  }
-
-  componentDidMount() {
-    return window.addEventListener('resize', () => {
-      return this.setState({windowWidth: window.innerWidth});
-  });
-  }
-
-  componentDidUpdate() {
-    return this.didUpdateWindowSize.apply(this,arguments);
   }
 }
 

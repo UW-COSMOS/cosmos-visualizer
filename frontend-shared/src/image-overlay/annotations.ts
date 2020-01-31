@@ -22,8 +22,6 @@ import {
 
 import './main.styl';
 
-
-
 interface AnnotationsOverlayProps {
   inProgressAnnotation: IAnnotation|null,
   actions: AnnotationActions,
