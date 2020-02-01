@@ -10,14 +10,14 @@ import h from 'react-hyperscript';
 
 import {BrowserRouter as Router, Route, Switch} from 'react-router-dom';
 
-import {AppMode} from './enum';
-import {ResultsLandingPage} from './landing-page';
-import {KnowledgeBaseFilterView} from './knowledge-base';
-import {ViewerPage} from './page-interface'
+import {AppMode} from '../enum';
+import {ResultsLandingPage} from '../landing-page';
+import {KnowledgeBaseFilterView} from '../knowledge-base';
+import {ViewerPage} from '../page-interface'
 import {
   PermalinkProvider,
   permalinkRouteTemplate
-} from './permalinks';
+} from '../permalinks';
 
 // /annotation/{stack_id}/page/{image_id}
 

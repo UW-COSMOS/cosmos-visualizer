@@ -1,28 +1,12 @@
-/*
- * decaffeinate suggestions:
- * DS102: Remove unnecessary code created because of implicit returns
- * DS207: Consider shorter variations of null checks
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
-import "core-js/stable"
-import "regenerator-runtime/runtime"
-import "./@types"
 
-import {FocusStyleManager} from '@blueprintjs/core'
-import '@blueprintjs/core/lib/css/blueprint.css'
-import '@blueprintjs/icons/lib/css/blueprint-icons.css'
-import "@blueprintjs/select/lib/css/blueprint-select.css";
-import '@macrostrat/ui-components/lib/index.css'
 
-FocusStyleManager.onlyShowFocusOnTabs();
-
-import './main.styl';
+import "~/shared/_init"
 
 import {render} from 'react-dom';
 import h from 'react-hyperscript';
 import {App} from './app';
-import {APIProvider} from './api';
-import {ImageStoreProvider} from './image-container';
+import {APIProvider} from '../api';
+import {ImageStoreProvider} from '../image-container';
 
 const AppHolder = props => {
   const {baseURL, imageBaseURL, publicURL, ...rest} = props;

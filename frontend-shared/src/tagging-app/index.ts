@@ -4,9 +4,7 @@
  * DS207: Consider shorter variations of null checks
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
  */
-import '@macrostrat/ui-components/init';
-import "@blueprintjs/select/lib/css/blueprint-select.css";
-import '../main.styl';
+import "~/shared/_init"
 
 import {render} from 'react-dom';
 import h from 'react-hyperscript';

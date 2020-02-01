@@ -2,6 +2,7 @@
 
 cd "${0:h:h}"
 
+export COMPOSE_PROJECT_NAME='cosmos-tagger'
 export MAGIC_MODE=0
 export DEBUG=1
 # Public URL can be set to root for debug but needs

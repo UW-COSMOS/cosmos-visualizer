@@ -1,3 +1,3 @@
 let cfg = require("./webpack.shared.js");
-cfg.entry = './src/index.ts';
+cfg.entry = './src/visualizer-app/index.ts';
 module.exports = cfg;

@@ -2,6 +2,9 @@
 
 cd "${0:h:h}"
 
+# Searate this from the visualizer
+export COMPOSE_PROJECT_NAME="cosmos-viewer"
+
 function compose {
   docker-compose -f docker-compose.visualizer.yml $@
 }
