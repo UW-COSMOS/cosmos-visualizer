@@ -11,20 +11,20 @@ import styled from '@emotion/styled';
 
 import {Select} from '@blueprintjs/select';
 import {MenuItem, Button, ButtonGroup} from '@blueprintjs/core';
-import {InfoButton} from './landing-page/components';
+import {InfoButton} from '../landing-page/components';
 
-import {InlineNavbar} from './util';
-import {UserRole} from './enum';
+import {InlineNavbar} from '../util';
+import {UserRole} from '../enum';
 
 const ModeButton = ({mode, ...rest}) => h(InfoButton, {to: `/action/${mode}`, ...rest});
 
-const RoleContainer = styled.div`\
+const RoleContainer = styled.div`
 display: flex;
 flex-direction: row;
 .user-select {
   flex-grow: 1;
   margin-right: 0.2em;
-}\
+}
 `;
 
 const RoleControl = ({person, people, setPerson, ...props}) => h(RoleContainer, props, [

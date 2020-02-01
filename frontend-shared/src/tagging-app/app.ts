@@ -5,7 +5,7 @@ import {BrowserRouter as Router, Route, Redirect, Switch} from 'react-router-dom
 
 import {APIContext} from '../api';
 import {AppMode, UserRole} from '../enum';
-import {LoginForm} from '../login-form';
+import {LoginForm} from './login-form';
 import {ResultsLandingPage} from '../landing-page';
 import {KnowledgeBaseFilterView} from '../knowledge-base';
 import {ResultsPage} from '../results-page';
@@ -176,89 +176,4 @@ class TaggingApplication extends Component {
   }
 }
 
-const ViewerPage = ({match, ...rest})=> {
-  // Go to specific image by default, if set
-  const {params: {imageId}} = match;
-
-  // This is a hack to disable "NEXT" for now
-  // on permalinked images
-  if ((imageId != null) && (rest.navigationEnabled == null)) {
-    rest.navigationEnabled = false;
-  }
-
-  return h(TaggingPage, {
-    initialImage: imageId,
-    allowSaveWithoutChanges: false,
-    editingEnabled: false,
-    ...rest
-  });
-};
-
-const ViewResults = ({match, ...rest})=> {
-  // Go to specific image by default, if set
-  const {params: {imageId}} = match;
-
-  // This is a hack to disable "NEXT" for now
-  // on permalinked images
-  if ((imageId != null) && (rest.navigationEnabled == null)) {
-    rest.navigationEnabled = false;
-  }
-
-  return h(ResultsPage, {
-    imageRoute: '/image',
-    subtitleText: "View results",
-    nextImageEndpoint: '/image/next_eqn_prediction',
-    ...match
-  });
-};
-
-class App extends Component {
-  static initClass() {
-    this.contextType = APIContext;
-    this.defaultProps = {
-      appMode: AppMode.PREDICTION
-    };
-  }
-  render() {
-    const {publicURL, appMode} = this.props;
-    return h(MainRouter, {basename: publicURL, appMode}, [
-      h(Route, {
-        path: '/',
-        exact: true,
-        component: ResultsLandingPage
-      }),
-      h(Route, {
-        path: permalinkRouteTemplate(appMode),
-        render: props=> {
-          return h(ViewerPage, {
-            permalinkRoute: "/training/page",
-            nextImageEndpoint: "/image/validate",
-            subtitleText: "View training data",
-            ...props
-          });
-        }
-      }),
-      // This is probably deprecated
-      h(Route, {
-        path: '/view-extractions/:imageId?',
-        render: props=> {
-          return h(ViewerPage, {
-            nextImageEndpoint: "/image/next_prediction",
-            subtitleText: "View extractions",
-            ...props
-          });
-        }
-      }),
-      // h PermalinkRoute, {
-      //   component: ViewResults
-      // }
-      h(Route, {
-        path: '/knowledge-base',
-        component: KnowledgeBaseFilterView
-      })
-    ]);
-  }
-}
-App.initClass();
-
-export {App, TaggingApplication};
+export {TaggingApplication};
