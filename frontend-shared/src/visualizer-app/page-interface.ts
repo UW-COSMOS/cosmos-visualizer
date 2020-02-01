@@ -5,8 +5,8 @@ import {StatefulComponent, useAPIResult} from '@macrostrat/ui-components';
 import {AppToaster} from '../toaster';
 import {APIContext, ErrorMessage} from '../api';
 import {Image} from '~/types'
-import {ImageContainer} from '../image-container';
-import {PageFrame} from './frame'
+import {ImageContainer} from './image-container';
+import {PageFrame} from '../page-interface'
 import {APITagsProvider, Tag, AnnotationArr} from '~/providers'
 
 const isDifferent = (a1: any[], a2: any[]): boolean =>{

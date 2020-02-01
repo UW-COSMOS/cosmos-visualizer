@@ -1,10 +1,3 @@
-/*
- * decaffeinate suggestions:
- * DS102: Remove unnecessary code created because of implicit returns
- * DS206: Consider reworking classes to avoid initClass
- * DS207: Consider shorter variations of null checks
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
 import {Component, memo} from 'react';
 import h from 'react-hyperscript';
 import classNames from 'classnames';
@@ -28,7 +21,7 @@ class KBImage extends Component {
         const fn = path.replace("img/", "");
         src = join(publicURL,"kb-images", fn);
       }
-    
+
     return h('img', {src, ...rest});
   }
 }

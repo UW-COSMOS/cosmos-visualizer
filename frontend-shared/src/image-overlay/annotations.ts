@@ -11,7 +11,7 @@ import {event} from 'd3-selection';
 import {Annotation , LockedAnnotation} from './annotation';
 
 import {EditMode} from '../enum';
-import {AnnotationActions} from '../editor/types'
+import {AnnotationActions} from '~/providers/annotation-editor'
 import {
   useCanvasSize,
   useAnnotations,

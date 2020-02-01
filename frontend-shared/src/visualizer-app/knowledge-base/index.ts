@@ -6,17 +6,13 @@
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
  */
 import h from 'react-hyperscript';
-import {Component} from 'react';
-import update from 'immutability-helper';
 import {StatefulComponent, APIContext,
         PagedAPIView, APIResultView} from '@macrostrat/ui-components';
-import {Link} from 'react-router-dom';
-import {InputGroup, Popover, Button, Menu,
-        Position, Navbar} from '@blueprintjs/core';
+import {InputGroup, Popover, Button, Menu, Position} from '@blueprintjs/core';
 import {ModelExtraction} from './model-extraction';
 import {debounce} from 'underscore';
 
-import {InlineNavbar} from '../util';
+import {InlineNavbar} from '~/util';
 import './main.styl';
 
 class KnowledgeBaseFilterView extends StatefulComponent {

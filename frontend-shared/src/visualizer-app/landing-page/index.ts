@@ -8,14 +8,11 @@
 import {Component} from 'react';
 import h from 'react-hyperscript';
 import styled from '@emotion/styled';
-import {LinkButton, LinkCard, APIResultView} from '@macrostrat/ui-components';
-import {Redirect} from 'react-router-dom';
-import {MenuItem, Button, Card, ButtonGroup} from '@blueprintjs/core';
-import {BrowserRouter as Router, Route, Link} from 'react-router-dom';
+import {APIResultView} from '@macrostrat/ui-components';
+import {ButtonGroup} from '@blueprintjs/core';
 
 import {InfoButton} from './components';
-import {InlineNavbar} from '../util';
-import {UserRole} from '../enum';
+import {InlineNavbar} from '~/util';
 import Credits from './credits.md';
 
 const InsetText = styled.div`\

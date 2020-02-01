@@ -13,7 +13,7 @@ import {BrowserRouter as Router, Route, Switch} from 'react-router-dom';
 import {AppMode} from '../enum';
 import {ResultsLandingPage} from '../landing-page';
 import {KnowledgeBaseFilterView} from '../knowledge-base';
-import {ViewerPage} from '../page-interface'
+import {ViewerPage} from './page-interface'
 import {
   PermalinkProvider,
   permalinkRouteTemplate

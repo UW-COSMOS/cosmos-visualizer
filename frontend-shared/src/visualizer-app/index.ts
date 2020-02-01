@@ -6,7 +6,7 @@ import {render} from 'react-dom';
 import h from 'react-hyperscript';
 import {App} from './app';
 import {APIProvider} from '../api';
-import {ImageStoreProvider} from '../image-container';
+import {ImageStoreProvider} from './image-container';
 
 const AppHolder = props => {
   const {baseURL, imageBaseURL, publicURL, ...rest} = props;
