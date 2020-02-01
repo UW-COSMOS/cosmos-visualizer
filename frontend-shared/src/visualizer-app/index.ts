@@ -12,9 +12,7 @@ import {getEnvironmentConfig} from '~/shared/_env'
 const AppHolder = props => {
   const {baseURL, imageBaseURL, publicURL, ...rest} = props;
   return h(APIProvider, {baseURL}, [
-    h(ImageStoreProvider, {baseURL: imageBaseURL, publicURL}, [
-        h(App, {imageBaseURL, publicURL, ...rest})
-    ])
+    h(App, {imageBaseURL, publicURL, ...rest})
   ]);
 }
 

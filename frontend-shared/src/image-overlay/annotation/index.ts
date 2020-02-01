@@ -228,4 +228,22 @@ const LockedAnnotation = (props: AnnotationProps)=>{
   }));
 }
 
-export {Annotation, LockedAnnotation, tagCenter, tagBounds};
+const SimpleAnnotation = (props: AnnotationProps)=>{
+  const {obj} = props;
+  const {tag_id, boxes} = obj
+
+  const c = useTagColor(tag_id)
+  const alpha = 0.2;
+  const color = c.alpha(alpha).css();
+
+  return h('div.annotation.locked', boxes.map((bounds, i)=> {
+    return h(Rectangle, {
+      bounds,
+      color
+    });
+  }));
+}
+
+
+
+export {SimpleAnnotation, Annotation, LockedAnnotation, tagCenter, tagBounds};

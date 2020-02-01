@@ -7,8 +7,7 @@
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
  */
 import h from 'react-hyperscript';
-import {event} from 'd3-selection';
-import {Annotation , LockedAnnotation} from './annotation';
+import {SimpleAnnotation, Annotation , LockedAnnotation} from './annotation';
 
 import {EditMode} from '../enum';
 import {AnnotationActions} from '~/providers/annotation-editor'
@@ -25,59 +24,61 @@ interface AnnotationsOverlayProps {
   actions: AnnotationActions,
   lockedTags: Set<string>,
   toggleSelect: ()=>void,
-  onSelectAnnotation: (ix: number)=> ()=>void
+  onSelectAnnotation: (ix: number)=> ()=>void,
+  // Function to render a single annotation
+  renderAnnotation(d: IAnnotation, ix: number): React.ReactNode
   onClick: ()=>void
   tags: ITag[],
+  children: React.ReactNode
 }
 
 const AnnotationsOverlay = (props: AnnotationsOverlayProps)=>{
-  let {
-    inProgressAnnotation,
-    tags,
-    lockedTags,
-    onClick,
-    toggleSelect,
-  } = props;
-
+  let {onClick, children} = props;
   const annotations = useAnnotations()
-  let selected = useSelectedAnnotation()
   const {width, height} = useCanvasSize()
-
-  let allAnnotations: IAnnotation[] = [...annotations]
-  if (inProgressAnnotation != null) {
-    selected = null;
-    allAnnotations.push(inProgressAnnotation);
-  }
-
-  return h('div.overlay', {style: {width, height}, onClick}, allAnnotations.map((d, ix)=> {
-
-    const isLocked = lockedTags.has(d.tag_id);
-    if (isLocked) {
-      return h(LockedAnnotation, {tags, obj: d});
-    }
-
-    const isSelected = (d == selected) && !isLocked;
-
-
-    let opts = {
-      key: ix,
-      obj: d,
-      locked: isLocked,
-    };
-
-    if (isSelected) {
-      return h(Annotation, {
-        onSelect: toggleSelect,
-        enterLinkMode() {},
-        ...opts
-      });
-    } else {
-      return h(Annotation, opts);
-    }
-  }))
+  return h('div.overlay',
+    {style: {width, height}, onClick},
+    annotations.map(props.renderAnnotation)
+  )
 }
 
 AnnotationsOverlay.defaultProps = {
+  renderAnnotation: (obj, ix)=>h(SimpleAnnotation, {obj, ix})
+}
+
+
+const AddAnnotationsOverlay = (props)=>{
+  return h(AnnotationsOverlay, props)
+}
+
+const oldRenderer = (d, ix)=> {
+
+  const isLocked = lockedTags.has(d.tag_id);
+  if (isLocked) {
+    return h(LockedAnnotation, {tags, obj: d});
+  }
+
+  const isSelected = (d == selected) && !isLocked;
+
+
+  let opts = {
+    key: ix,
+    obj: d,
+    locked: isLocked,
+  };
+
+  if (isSelected) {
+    return h(Annotation, {
+      onSelect: toggleSelect,
+      enterLinkMode() {},
+      ...opts
+    });
+  } else {
+    return h(Annotation, opts);
+  }
+}
+
+AddAnnotationsOverlay.defaultProps = {
   lockedTags: new Set()
 }
 

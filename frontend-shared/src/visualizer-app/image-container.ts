@@ -17,7 +17,6 @@ import {ScaledImagePanel} from '~/page-interface/scaled-image'
 import {StatefulComponent} from '@macrostrat/ui-components';
 
 import {AnnotationLinks} from '../image-overlay/annotation-links';
-import {EditorContext} from '../image-overlay/context';
 import {EditMode} from '../enum';
 import {AnnotationsOverlay} from '../image-overlay/annotations';
 import {
@@ -90,20 +89,6 @@ const PageDataProvider = (props: ViewerProviderProps)=>{
   }, children)
 }
 
-
-const ImageStoreContext = createContext({});
-
-class ImageStoreProvider extends Component {
-  render() {
-    const {baseURL, publicURL, children} = this.props;
-    if ((baseURL == null)) {
-      throw "baseURL for image store must be set in context";
-    }
-    const value = {baseURL, publicURL};
-    return h(ImageStoreContext.Provider, {value}, children);
-  }
-}
-
 interface ContainerProps {}
 interface ContainerState {}
 
@@ -112,27 +97,26 @@ class ImageContainer extends Component<ContainerProps, ContainerState> {
     image: null,
     editingEnabled: false
   };
-  static contextType = ImageStoreContext;
   constructor(props: ContainerProps){
     super(props);
     this.state = {image: null};
   }
 
-  async componentDidUpdate(nextProps){
-    // Store prevUserId in state so we can compare when props change.
-    // Clear out any previously-loaded user data (so we don't render stale stuff).
-    let oldId;
-    const {image} = nextProps;
-    try {
-      oldId = this.state.image.image_id;
-    } catch (error) {
-      oldId = null;
-    }
-
-    if (image == null) { return; }
-    if (nextProps.image._id === oldId) { return; }
-    return this.setState({image});
-  }
+  // async componentDidUpdate(nextProps){
+  //   // Store prevUserId in state so we can compare when props change.
+  //   // Clear out any previously-loaded user data (so we don't render stale stuff).
+  //   let oldId;
+  //   const {image} = nextProps;
+  //   try {
+  //     oldId = this.state.image.image_id;
+  //   } catch (error) {
+  //     oldId = null;
+  //   }
+  //
+  //   if (image == null) { return; }
+  //   if (nextProps.image._id === oldId) { return; }
+  //   return this.setState({image});
+  // }
 
   imageURL(image){
     console.log(`image: ${image}`)
@@ -141,7 +125,7 @@ class ImageContainer extends Component<ContainerProps, ContainerState> {
   }
 
   render() {
-    const {image} = this.state;
+    const {image} = this.props;
     if (image == null) return null
 
     return h(PageDataProvider, {annotations: image.pp_detected_objs}, [
@@ -155,4 +139,4 @@ class ImageContainer extends Component<ContainerProps, ContainerState> {
   }
 }
 
-export {ImageContainer, ImageStoreContext, ImageStoreProvider};
+export {ImageContainer};

@@ -5,56 +5,35 @@
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
  */
 import "~/shared/_init"
+import {getEnvironmentConfig} from '~/shared/_env'
 
 import {render} from 'react-dom';
-import h from 'react-hyperscript';
+import h, {compose} from '@macrostrat/hyper'
 import {APIProvider} from '../api';
 import {ImageStoreProvider} from './page-interface';
+import {PublicURLProvider} from '~/providers'
 import {TaggingApplication} from './app'
 
-const AppHolder = props=> {
-  const {baseURL, imageBaseURL, publicURL, ...rest} = props;
-  return h(APIProvider, {baseURL}, [
-    h(ImageStoreProvider, {baseURL: imageBaseURL, publicURL}, [
-        h(TaggingApplication, {imageBaseURL, publicURL, ...rest})
-    ])
-  ]);
-};
+// An aggressive shorthand to create a react component
+const C = (c, props={})=>({children})=>h(c, {...props, children})
+
+const AppHolder = (props)=>{
+  const {baseURL, imageBaseURL, publicURL, children} = props
+  // Nest a bunch of providers
+  return h(compose(
+    C(PublicURLProvider,{publicURL}),
+    C(APIProvider, {baseURL}),
+    C(ImageStoreProvider, {baseURL: imageBaseURL}),
+    C(TaggingApplication, props)
+  ), children)
+}
 
 const createUI = function(opts){
-  if (opts == null) { opts = {}; }
-  let {baseURL, imageBaseURL, publicURL} = opts;
-
-  try {
-    // Attempt to set parameters from environment variables
-    // This will fail if bundled on a different system, presumably,
-    // so we wrap in try/catch.
-    publicURL = process.env.PUBLIC_URL;
-    baseURL = process.env.API_BASE_URL;
-    imageBaseURL = process.env.IMAGE_BASE_URL;
-  } catch (error) {
-    console.log(error);
-  }
-
-  console.log(`\
-Environment variables:
-PUBLIC_URL: ${process.env.PUBLIC_URL}
-API_BASE_URL: ${process.env.API_BASE_URL}
-IMAGE_BASE_URL: ${process.env.IMAGE_BASE_URL}\
-`
-  );
-
-  // Set reasonable defaults
-  if (publicURL == null) { publicURL = "/"; }
-  if (baseURL == null) { baseURL = "https://dev.macrostrat.org/image-tagger-api"; }
-  if (imageBaseURL == null) { imageBaseURL = "https://dev.macrostrat.org/image-tagger/img/"; }
-
-  console.log(publicURL, baseURL, imageBaseURL);
-
   // Image base url is properly set here
   const el = document.createElement('div');
   document.body.appendChild(el);
-  const __ = h(AppHolder, {baseURL, imageBaseURL, publicURL});
+  const env = getEnvironmentConfig(opts)
+  const __ = h(AppHolder, {...env});
   return render(__, el);
 };
 
