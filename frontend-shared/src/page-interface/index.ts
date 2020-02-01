@@ -1,2 +1,2 @@
-export * from './tagging'
+export * from './frame'
 export * from './viewer'

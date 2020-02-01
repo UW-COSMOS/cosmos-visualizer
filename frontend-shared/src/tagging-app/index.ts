@@ -11,7 +11,7 @@ import '../main.styl';
 import {render} from 'react-dom';
 import h from 'react-hyperscript';
 import {APIProvider} from '../api';
-import {ImageStoreProvider} from '../image-container';
+import {ImageStoreProvider} from './page-interface';
 import {TaggingApplication} from './app'
 
 const AppHolder = props=> {

@@ -20,17 +20,18 @@ interface ImagePanelProps {
 }
 
 interface ImagePanelState {
-  windowWidth: number
+  windowWidth: number,
+  imageSize: Size|null
 }
 
 async function imageSize(url: string): Size {
-  return await new Promise((resolve, reject)=>{
+  return new Promise(resolve=>{
     const img = new Image();
     img.onload = function() {
       let {width, height} = this
       return resolve({width,height});
     };
-    return img.src = imageURL;
+    return img.src = url;
   });
 }
 
@@ -46,15 +47,16 @@ class ScaledImagePanel extends Component<ImagePanelProps,ImagePanelState> {
   render() {
     const {windowWidth, imageSize} = this.state;
     if (imageSize == null) return null
+    let {width, height} = imageSize
 
     const targetSize = Math.min(2000, windowWidth-24);
     // Clamp to integer scalings for simplicity
-    const scaleFactor = Math.min(width/targetSize,1);
-    let width = imageSize?.width
-    let height = imageSize?.height
+    const scaleFactor = Math.max(width/targetSize,1);
 
     height /= scaleFactor;
     width /= scaleFactor;
+
+    console.log(width,height,imageSize,scaleFactor)
 
     const src = this.props.urlForImage(this.props.image)
 
@@ -70,7 +72,7 @@ class ScaledImagePanel extends Component<ImagePanelProps,ImagePanelState> {
     const {image} = this.props
     if (!image) return null
     let sz = this.props.dimensionsForImage?.(image)
-    if (sz?.width != null && sz?.height != null) return sz
+    if (sz?.width != null && sz?.height != null) return Promise.resolve(sz)
 
     // Make sure we have image dimensions set before loading an image
     // into the UI
@@ -80,6 +82,7 @@ class ScaledImagePanel extends Component<ImagePanelProps,ImagePanelState> {
 
   async didUpdateImage(prevProps) {
     if (prevProps?.image == this.props.image) return
+    console.log("Calling didUpdateImage")
     const sz = await this.getImageDimensions()
     this.setState({imageSize: sz})
   }
@@ -89,7 +92,7 @@ class ScaledImagePanel extends Component<ImagePanelProps,ImagePanelState> {
     window.addEventListener('resize', () => this.setState({windowWidth: window.innerWidth}));
   }
 
-  componentDidUpdate(prevProps) {
+  componentDidUpdate() {
     this.didUpdateImage.apply(this, arguments)
   }
 }

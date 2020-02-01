@@ -98,22 +98,15 @@ class ImageContainer extends Component<ContainerProps, ContainerState> {
   }
 
   render() {
-    const {actions, editingEnabled,
-     tags, currentTag, currentImage, imageTags} = this.props;
     const {image} = this.state;
-    if (image == null) { return null; }
+    if (image == null) return null
 
     return h(PageDataProvider, {annotations: image.pp_detected_objs}, [
       h(ScaledImagePanel, {
         image,
         urlForImage: this.imageURL.bind(this)
       },
-        h(ImageOverlay, {
-          currentTag,
-          tags,
-          actions,
-          editingEnabled
-        })
+        h(ImageOverlay)
       )
     ]);
   }

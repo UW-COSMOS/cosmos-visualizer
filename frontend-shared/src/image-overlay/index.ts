@@ -24,6 +24,7 @@ import {AnnotationsOverlay} from './annotations';
 import {
   AnnotationsContext,
   useAnnotationActions,
+  useCanvasSize,
   Tag,
   AnnotationArr
 } from '~/providers'
@@ -282,7 +283,8 @@ HotkeysTarget(ImageOverlay);
 const WrappedImageOverlay = (props)=>{
   // Get editing actions into the props
   const actions = useAnnotationActions()
-  return h(ImageOverlay, {...props, actions})
+  const {scaleFactor} = useCanvasSize()
+  return h(ImageOverlay, {...props, scaleFactor, actions})
 }
 
 export {WrappedImageOverlay as ImageOverlay};

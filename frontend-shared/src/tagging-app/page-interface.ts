@@ -1,27 +1,120 @@
-/*
- * decaffeinate suggestions:
- * DS001: Remove Babel/TypeScript constructor workaround
- * DS102: Remove unnecessary code created because of implicit returns
- * DS206: Consider reworking classes to avoid initClass
- * DS207: Consider shorter variations of null checks
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
 import h from '@macrostrat/hyper';
-import chroma from 'chroma-js';
 import {Intent} from "@blueprintjs/core";
 import T from 'prop-types';
 
+import {join} from 'path'
+import {ReactNode} from 'react'
+import {ImageOverlay} from '~/image-overlay';
+import {AnnotationsProvider} from '~/providers'
+import {AnnotationArr, Annotation} from '~/image-overlay/types'
+import {ScaledImagePanel} from '~/page-interface/scaled-image'
+
 import {StatefulComponent} from '@macrostrat/ui-components';
+import {Component, createContext} from 'react';
 import {AppToaster} from '../toaster';
 import {APIContext, ErrorMessage} from '../api';
-import {ImageContainer} from '../image-container';
-import {PageFrame} from './frame'
+import {PageFrame} from '~/page-interface'
 import {
   APITagsProvider,
-  AnnotationEditorProvider,
-  Tag,
-  AnnotationArr
+  AnnotationEditorProvider
 } from '~/providers'
+
+interface PageProvider {
+  getRandomPage(),
+  getPermalink(),
+  getNextPageInDocument()
+}
+
+const normalizeAnnotation = function(d: AnnotationArr): Annotation {
+  /*
+  Temporary (?) function to normalize an annotation rectangle
+  to the expected internal representation.
+  */
+  console.log(d);
+  const boxes = [d[0]];
+  const name = d[1];
+  const score = d[2];
+  return {boxes, name, score, tag_id: name};
+};
+
+interface ViewerProviderProps {
+  children: ReactNode,
+  annotations: AnnotationArr[]
+}
+
+const PageDataProvider = (props: ViewerProviderProps)=>{
+  const {children, annotations} = props
+  // For tagger
+  return children
+  // For viewer
+  return h(AnnotationsProvider, {
+    annotations: (annotations ?? []).map(normalizeAnnotation),
+    allowSelection: true
+  }, children)
+}
+
+
+const ImageStoreContext = createContext({});
+
+class ImageStoreProvider extends Component {
+  render() {
+    const {baseURL, publicURL, children} = this.props;
+    if ((baseURL == null)) {
+      throw "baseURL for image store must be set in context";
+    }
+    const value = {baseURL, publicURL};
+    return h(ImageStoreContext.Provider, {value}, children);
+  }
+}
+
+interface ContainerProps {}
+interface ContainerState {}
+
+class ImageContainer extends Component<ContainerProps, ContainerState> {
+  static defaultProps = {
+    image: null,
+    stackName: 'images_to_tag'
+  };
+  static contextType = ImageStoreContext;
+  constructor(props: ContainerProps){
+    super(props)
+    this.state = {image: null}
+  }
+  async componentDidUpdate(nextProps){
+    // Store prevUserId in state so we can compare when props change.
+    // Clear out any previously-loaded user data (so we don't render stale stuff).
+    let oldId;
+    const {image} = nextProps;
+    try {
+      oldId = this.state.image.image_id;
+    } catch (error) {
+      oldId = null;
+    }
+
+    if (image == null) return
+    if (nextProps.image._id === oldId) return
+    this.setState({image});
+  }
+
+  imageURL(image){
+    const {stackName} = this.props
+    //console.log(`image: ${image}`)
+    //const {resize_bytes} = image;
+    //return "data:image/png;base64," + resize_bytes;
+    return join("/", stackName,  image.file_path)
+  }
+
+  render() {
+    const {image} = this.state;
+    if (image == null) return null
+    return h(ScaledImagePanel, {
+      image,
+      urlForImage: this.imageURL.bind(this)
+    },
+      h(ImageOverlay)
+    );
+  }
+}
 
 // Updates props for a rectangle
 // from API signature to our internal signature
@@ -67,7 +160,7 @@ class TaggingPage extends StatefulComponent {
           currentImage: image,
           getNextImage: this.getImageToDisplay.bind(this)
         }, [
-          image == null ? null : h(ImageContainer, {
+          h(ImageContainer, {
             editingEnabled,
             image
           })
@@ -134,7 +227,13 @@ class TaggingPage extends StatefulComponent {
 
     if (imageToDisplay == null) { return; }
     console.log(`Getting image from endpoint ${imageToDisplay}`);
-    const d = await this.context.get(imageToDisplay, {stack_id: hacky_stack_id}, {unwrapResponse(res){ console.log(`res: ${res}`); console.log(`res.results: ${res.results}`); return res.data; }});
+    const d = await this.context.get(imageToDisplay, {stack_id: hacky_stack_id}, {
+      unwrapResponse(res){
+        console.log(`res: ${res}`)
+        console.log(`res.results: ${res.results}`)
+        return res.data
+      }
+    });
     return this.onImageLoaded(d);
   };
 
@@ -184,4 +283,4 @@ class TaggingPage extends StatefulComponent {
   }
 }
 
-export {TaggingPage};
+export {ImageStoreProvider, TaggingPage};

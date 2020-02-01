@@ -9,7 +9,7 @@ import {LoginForm} from '../login-form';
 import {ResultsLandingPage} from '../landing-page';
 import {KnowledgeBaseFilterView} from '../knowledge-base';
 import {ResultsPage} from '../results-page';
-import {TaggingPage} from '../page-interface/tagging';
+import {TaggingPage} from './page-interface';
 import {
   PermalinkProvider,
   permalinkRouteTemplate
