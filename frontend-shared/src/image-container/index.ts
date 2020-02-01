@@ -8,13 +8,61 @@
  */
 import {Component, createContext} from 'react';
 import h from 'react-hyperscript';
-import {join} from 'path'
 
 import {ReactNode} from 'react'
-import {ImageOverlay} from '../image-overlay';
 import {AnnotationsProvider} from '~/providers'
 import {AnnotationArr, Annotation} from '~/image-overlay/types'
 import {ScaledImagePanel} from '~/page-interface/scaled-image'
+
+import {StatefulComponent} from '@macrostrat/ui-components';
+
+import {AnnotationLinks} from '../image-overlay/annotation-links';
+import {EditorContext} from '../image-overlay/context';
+import {EditMode} from '../enum';
+import {AnnotationsOverlay} from '../image-overlay/annotations';
+import {
+  AnnotationsContext,
+  Tag,
+} from '~/providers'
+
+const {ADD_PART, LINK} = EditMode;
+const SHIFT_MODES = new Set([LINK, ADD_PART]);
+
+interface Props {
+  clickDistance: number,
+  editingEnabled: boolean,
+  selectIsOpen: boolean,
+  lockedTags: Set<Tag>
+}
+interface State {
+  inProgressAnnotation: AnnotationArr|null
+}
+
+class ImageOverlay extends StatefulComponent<Props,State> {
+  static defaultProps = {
+    // Distance we take as a click before switching to drag
+    clickDistance: 10,
+    editingEnabled: true,
+    selectIsOpen: false,
+    lockedTags: new Set([])
+  };
+  static contextType = AnnotationsContext;
+  constructor(props){
+    super(props);
+    this.state = {
+      inProgressAnnotation: null,
+      shiftKey: false,
+      clickingInRect: null
+    };
+  }
+
+  render() {
+    return h('div', [
+      //h(AnnotationsOverlay),
+      //h(AnnotationLinks)
+    ]);
+  }
+}
 
 const normalizeAnnotation = function(d: AnnotationArr): Annotation {
   /*
@@ -35,8 +83,6 @@ interface ViewerProviderProps {
 
 const PageDataProvider = (props: ViewerProviderProps)=>{
   const {children, annotations} = props
-  // For tagger
-  return children
   // For viewer
   return h(AnnotationsProvider, {
     annotations: (annotations ?? []).map(normalizeAnnotation),
@@ -63,8 +109,6 @@ interface ContainerState {}
 
 class ImageContainer extends Component<ContainerProps, ContainerState> {
   static defaultProps = {
-    actions: {},
-    tags: [],
     image: null,
     editingEnabled: false
   };
@@ -74,7 +118,7 @@ class ImageContainer extends Component<ContainerProps, ContainerState> {
     this.state = {image: null};
   }
 
-  async componentWillReceiveProps(nextProps){
+  async componentDidUpdate(nextProps){
     // Store prevUserId in state so we can compare when props change.
     // Clear out any previously-loaded user data (so we don't render stale stuff).
     let oldId;
@@ -93,8 +137,7 @@ class ImageContainer extends Component<ContainerProps, ContainerState> {
   imageURL(image){
     console.log(`image: ${image}`)
     const {resize_bytes} = image;
-    //return "data:image/png;base64," + resize_bytes;
-    return join("/images_to_tag/", image.file_path)
+    return "data:image/png;base64," + resize_bytes;
   }
 
   render() {

@@ -79,4 +79,8 @@ const AnnotationsOverlay = (props: AnnotationsOverlayProps)=>{
   }))
 }
 
+AnnotationsOverlay.defaultProps = {
+  lockedTags: new Set()
+}
+
 export {AnnotationsOverlay};
