@@ -20,8 +20,6 @@ import {
   Tag as ITag
 } from '~/providers'
 
-import './main.styl';
-
 interface AnnotationsOverlayProps {
   inProgressAnnotation: IAnnotation|null,
   actions: AnnotationActions,

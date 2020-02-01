@@ -1,7 +1,7 @@
 import {useContext} from 'react';
 import h from 'react-hyperscript';
-import {EditorContext} from './context';
-import {EditMode} from '../enum';
+import {EditorContext} from '../context';
+import {EditMode} from '~/enum';
 import {Card, Button, Intent} from '@blueprintjs/core';
 import classNames from 'classnames';
 

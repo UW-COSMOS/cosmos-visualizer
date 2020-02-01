@@ -11,7 +11,7 @@ import styled from '@emotion/styled';
 
 import {Select} from '@blueprintjs/select';
 import {MenuItem, Button, ButtonGroup} from '@blueprintjs/core';
-import {InfoButton} from '../landing-page/components';
+import {InfoButton} from '~/shared/ui';
 
 import {InlineNavbar} from '../util';
 import {UserRole} from '../enum';

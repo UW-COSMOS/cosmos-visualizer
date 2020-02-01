@@ -91,9 +91,7 @@ class ViewerPageBase extends StatefulComponent<IViewerProps, ViewerState> {
       initialRectStore,
       rectStore,
       editingRect,
-      tagStore,
       currentTag,
-      lockedTags
     } = this.state;
     const hasChanges = isDifferent(initialRectStore, rectStore);
     const {editingEnabled} = this.props;

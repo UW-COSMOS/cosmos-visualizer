@@ -35,12 +35,6 @@ function useTagColorForName(tag_name: string): Color {
   return chroma(color)
 }
 
-// useTagColorForName(name){
-//   const tags = useTags();
-//   let color = tags.find(d => d.name === name)?.color ?? 'black'
-//   return chroma(tagData.color)
-// }
-
 const parseResponse = (cscale)=>(d, ix)=>{
   let {tag_id, color, name} = d;
 

@@ -16,7 +16,7 @@ import {
   AnnotationEditorProvider
 } from '~/providers'
 
-interface PageProvider {
+interface DocumentPageProvider {
   getRandomPage(),
   getPermalink(),
   getNextPageInDocument()

@@ -11,7 +11,7 @@ import styled from '@emotion/styled';
 import {APIResultView} from '@macrostrat/ui-components';
 import {ButtonGroup} from '@blueprintjs/core';
 
-import {InfoButton} from './components';
+import {InfoButton} from '~/shared/ui';
 import {InlineNavbar} from '~/util';
 import Credits from './credits.md';
 
