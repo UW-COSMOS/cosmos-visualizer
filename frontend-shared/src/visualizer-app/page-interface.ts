@@ -44,11 +44,6 @@ class ViewerPageBase extends StatefulComponent<IViewerProps, ViewerState> {
   static contextType = APIContext;
   constructor(props: IViewerProps){
     super(props);
-    this.updateAnnotation = this.updateAnnotation.bind(this);
-    this.selectAnnotation = this.selectAnnotation.bind(this);
-    this.clearChanges = this.clearChanges.bind(this);
-    this.currentStackID = this.currentStackID.bind(this);
-    this.setupTags = this.setupTags.bind(this);
     this.onImageLoaded = this.onImageLoaded.bind(this);
 
     this.state = {
@@ -63,65 +58,16 @@ class ViewerPageBase extends StatefulComponent<IViewerProps, ViewerState> {
     };
   }
 
-  updateAnnotation(i){ return updateSpec=> {
-    const spec = {rectStore: {[i]: updateSpec}};
-    if (updateSpec.tag_id != null) {
-      spec.currentTag = updateSpec.tag_id;
-    }
-    return this.updateState(spec);
-  }; }
-
-  selectAnnotation(i){ return () => {
-    console.log(`Selecting annotation ${i}`);
-    return this.updateState({editingRect: {$set: i}});
-  }; }
-
-  clearChanges() {
-    const {initialRectStore} = this.state;
-    return this.updateState({
-      rectStore: {$set: initialRectStore},
-      editingRect: {$set: null}
-    });
-  }
-
   render() {
     const {subtitleText} = this.props;
     const {currentImage: image} = this.state;
-    const {
-      initialRectStore,
-      rectStore,
-      editingRect,
-      currentTag,
-    } = this.state;
-    const hasChanges = isDifferent(initialRectStore, rectStore);
-    const {editingEnabled} = this.props;
-
-    const actions = {
-      updateAnnotation: this.updateAnnotation,
-      selectAnnotation: this.selectAnnotation
-    }
 
     return h(APITagsProvider, [
       h(PageFrame, {
-        hasChanges,
         subtitleText,
-        editingEnabled,
-        hasInitialContent: initialRectStore.length != 0,
-        onSave: this.saveData.bind(this),
-        onClearChanges: this.clearChanges.bind(this),
         currentImage: image,
         getNextImage: this.getImageToDisplay.bind(this)
-      }, [
-        image == null ? null : h(ImageContainer, {
-          editingRect,
-          editingEnabled,
-          image,
-          imageTags: rectStore,
-          lockedTags,
-          currentTag,
-          actions
-        })
-      ])
+      }, h(ImageContainer, {image}))
     ])
   }
 
@@ -170,27 +116,6 @@ class ViewerPageBase extends StatefulComponent<IViewerProps, ViewerState> {
       return false;
     }
   };
-
-  setupTags(data){
-
-    const cscale = chroma.scale('viridis')
-      .colors(data.length);
-
-    const tags = data.map(function(d, ix){
-      let {tag_id, color, name} = d;
-
-      if ((name == null)) {
-        name = tag_id.replace("-", " ");
-        name = name.charAt(0).toUpperCase()+name.slice(1);
-      }
-      if (color == null) { color = cscale[ix]; }
-      return {tag_id, color, name};});
-
-    return this.setState({
-      tagStore: tags,
-      currentTag: tags[0].tag_id
-    });
-  }
 
   async getImageToDisplay() {
     let {nextImageEndpoint: imageToDisplay,
