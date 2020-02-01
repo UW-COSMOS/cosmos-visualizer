@@ -6,26 +6,10 @@ import {BrowserRouter as Router, Route, Redirect, Switch} from 'react-router-dom
 import {APIContext} from '../api';
 import {AppMode, UserRole} from '../enum';
 import {LoginForm} from './login-form';
-import {ResultsLandingPage} from '../landing-page';
-import {KnowledgeBaseFilterView} from '../knowledge-base';
-import {ResultsPage} from '../results-page';
 import {TaggingPage} from './page-interface';
-import {
-  PermalinkProvider,
-  permalinkRouteTemplate
-} from '../permalinks';
+import {AppRouter, permalinkRouteTemplate} from '~/shared/router'
 
 // /annotation/{stack_id}/page/{image_id}
-
-
-const MainRouter = ({appMode, basename, ...rest}) => h(PermalinkProvider, {appMode}, (
-  h('div.app-main', null, (
-    h(Router, {basename}, (
-      h(Switch, rest)
-    ))
-  ))
-)
-);
 
 class TaggingApplication extends Component {
   static contextType = APIContext;
@@ -135,7 +119,7 @@ class TaggingApplication extends Component {
 
   render = () => {
     const {publicURL} = this.props;
-    return h(MainRouter, {
+    return h(AppRouter, {
       basename: publicURL,
       appMode: AppMode.ANNOTATION
     }, [

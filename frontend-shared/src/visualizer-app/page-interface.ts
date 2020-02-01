@@ -234,9 +234,7 @@ class ViewerPageBase extends StatefulComponent<IViewerProps, ViewerState> {
   }
 
   componentDidMount() {
-    this.context.get("/tags/all")
-      .then(this.setupTags);
-    return this.getImageToDisplay();
+    this.getImageToDisplay();
   }
 
   didUpdateImage(prevProps, prevState){

@@ -3,8 +3,9 @@ import h from 'react-hyperscript';
 import {useRouteMatch} from 'react-router-dom';
 import {LinkButton} from '@macrostrat/ui-components';
 import T from 'prop-types';
-import {AppMode} from './enum';
-import {Image, ImageShape} from './types';
+
+import {AppMode} from '~/enum';
+import {Image, ImageShape} from '~/types';
 
 const PermalinkContext = createContext({});
 

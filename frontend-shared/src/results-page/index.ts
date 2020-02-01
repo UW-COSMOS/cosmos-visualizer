@@ -14,7 +14,7 @@ import {Navbar, Button,
 
 import {StatefulComponent, LinkButton} from '@macrostrat/ui-components';
 import {PageHeader} from '../util';
-import {PermalinkButton} from '../permalinks';
+import {PermalinkButton} from '~/shared/router';
 import {AppToaster} from '../toaster';
 import {APIContext} from '../api';
 import {InfoDialog} from '../info-dialog';

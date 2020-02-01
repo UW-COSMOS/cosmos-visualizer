@@ -2,8 +2,8 @@ import h from '@macrostrat/hyper';
 import {Navbar, Button, ButtonGroup,
         Intent, Alignment} from "@blueprintjs/core";
 
-import {useState, ComponentProps, ReactNode} from 'react'
-import {PermalinkButton} from '../permalinks';
+import {useState, ComponentProps} from 'react'
+import {PermalinkButton} from '~/shared/router';
 import {PageHeader} from '../util';
 import {InfoDialog} from '../info-dialog';
 import {PersistenceButtons} from './persistence-buttons'

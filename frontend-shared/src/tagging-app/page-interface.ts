@@ -3,16 +3,13 @@ import {Intent} from "@blueprintjs/core";
 import T from 'prop-types';
 
 import {join} from 'path'
-import {ReactNode} from 'react'
 import {ImageOverlay} from '~/image-overlay';
-import {AnnotationsProvider} from '~/providers'
-import {AnnotationArr, Annotation} from '~/image-overlay/types'
 import {ScaledImagePanel} from '~/page-interface/scaled-image'
 
 import {StatefulComponent} from '@macrostrat/ui-components';
 import {Component, createContext} from 'react';
 import {AppToaster} from '../toaster';
-import {APIContext, ErrorMessage} from '../api';
+import {APIContext, ErrorMessage} from '~/api';
 import {PageFrame} from '~/page-interface'
 import {
   APITagsProvider,
@@ -24,35 +21,6 @@ interface PageProvider {
   getPermalink(),
   getNextPageInDocument()
 }
-
-const normalizeAnnotation = function(d: AnnotationArr): Annotation {
-  /*
-  Temporary (?) function to normalize an annotation rectangle
-  to the expected internal representation.
-  */
-  console.log(d);
-  const boxes = [d[0]];
-  const name = d[1];
-  const score = d[2];
-  return {boxes, name, score, tag_id: name};
-};
-
-interface ViewerProviderProps {
-  children: ReactNode,
-  annotations: AnnotationArr[]
-}
-
-const PageDataProvider = (props: ViewerProviderProps)=>{
-  const {children, annotations} = props
-  // For tagger
-  return children
-  // For viewer
-  return h(AnnotationsProvider, {
-    annotations: (annotations ?? []).map(normalizeAnnotation),
-    allowSelection: true
-  }, children)
-}
-
 
 const ImageStoreContext = createContext({});
 
