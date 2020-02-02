@@ -1,19 +1,67 @@
 import h from 'react-hyperscript';
-import chroma from 'chroma-js';
 import {Intent} from "@blueprintjs/core";
-import {StatefulComponent, useAPIResult} from '@macrostrat/ui-components';
+import {StatefulComponent} from '@macrostrat/ui-components';
+import {ReactNode} from 'react'
 import {AppToaster} from '../toaster';
-import {APIContext, ErrorMessage} from '../api';
+import {APIContext} from '../api';
 import {Image} from '~/types'
-import {ImageContainer} from './image-container';
-import {PageFrame} from '../page-interface'
-import {APITagsProvider, Tag, AnnotationArr} from '~/providers'
+import {PageFrame, ScaledImagePanel} from '~/page-interface'
+import {
+  APITagsProvider,
+  AnnotationArr,
+  Annotation,
+  AnnotationsProvider
+} from '~/providers'
+import {AnnotationLinks} from '../image-overlay/annotation-links';
+import {AnnotationsOverlay} from '../image-overlay/annotations';
 
-const isDifferent = (a1: any[], a2: any[]): boolean =>{
-  if (a1.length == 0 && a2.length == 0) {
-    return false;
-  }
-  return a1 != a2;
+const normalizeAnnotation = function(d: AnnotationArr): Annotation {
+  /*
+  Temporary (?) function to normalize an annotation rectangle
+  to the expected internal representation.
+  */
+  console.log(d);
+  const boxes = [d[0]];
+  const name = d[1];
+  const score = d[2];
+  return {boxes, name, score, tag_id: name};
+};
+
+interface ViewerProviderProps {
+  children: ReactNode,
+  annotations: AnnotationArr[]
+}
+
+const PageDataProvider = (props: ViewerProviderProps)=>{
+  const {children, annotations} = props
+  // For viewer
+  return h(AnnotationsProvider, {
+    annotations: (annotations ?? []).map(normalizeAnnotation),
+    allowSelection: true
+  }, children)
+}
+
+interface ContainerProps {
+  image: ImageData
+}
+
+const ImageContainer = (props: ContainerProps)=>{
+  const {image} = props
+  if (image == null) return null
+  return h(PageDataProvider, {annotations: image.pp_detected_objs}, [
+    h(ScaledImagePanel, {
+      image,
+      urlForImage(image: Image): string {
+        const {resize_bytes} = image;
+        return "data:image/png;base64," + resize_bytes;
+      }
+    },
+      h('div.image-overlay', [
+        h(AnnotationsOverlay),
+        h(AnnotationLinks)
+      ])
+    )
+  ]);
 }
 
 interface IViewerProps {
@@ -22,12 +70,7 @@ interface IViewerProps {
 }
 
 interface ViewerState {
-  currentImage: Image,ˇ
-  editingRect: number|null,
-  currentTag: number|null,
-  tagStore: Tag[],
-  rectStore: AnnotationArr[],
-  initialRectStore: AnnotationArr[]
+  currentImage: Image,
 }
 
 // Updates props for a rectangle
@@ -47,14 +90,7 @@ class ViewerPageBase extends StatefulComponent<IViewerProps, ViewerState> {
     this.onImageLoaded = this.onImageLoaded.bind(this);
 
     this.state = {
-      currentImage: null,
-      editingRect: null,
-      currentTag: null,
-      tagStore: [],
-      rectStore: [],
-      initialRectStore: [],
-      imageBaseURL: null,
-      lockedTags: new Set()
+      currentImage: null
     };
   }
 
@@ -74,48 +110,6 @@ class ViewerPageBase extends StatefulComponent<IViewerProps, ViewerState> {
   currentStackID() {
     return this.state.currentImage.stack_id || this.props.stack_id;
   }
-
-
-  async saveData(){
-    const {currentImage, rectStore} = this.state;
-    let {extraSaveData} = this.props;
-    if (extraSaveData == null) { extraSaveData = {}; }
-
-    const saveItem = {
-      tags: rectStore,
-      ...extraSaveData
-    };
-
-    const stack_id = this.currentStackID();
-
-    const endpoint = `/image/${currentImage.image_id}/${stack_id}/tags`;
-
-    try {
-      const newData = await this.context.post(endpoint, saveItem, {
-        handleError: false
-      });
-      AppToaster.show({
-        message: "Saved data!",
-        intent: Intent.SUCCESS
-      });
-      this.updateState({
-        rectStore: {$set: newData},
-        initialRectStore: {$set: newData}
-      });
-      return true;
-    } catch (err) {
-      AppToaster.show(ErrorMessage({
-        title: "Could not save tags",
-        method: 'POST',
-        endpoint,
-        error: err.toString(),
-        data: saveItem
-      }));
-      console.log("Save rejected");
-      console.log(err);
-      return false;
-    }
-  };
 
   async getImageToDisplay() {
     let {nextImageEndpoint: imageToDisplay,
@@ -165,11 +159,8 @@ class ViewerPageBase extends StatefulComponent<IViewerProps, ViewerState> {
     // This supports flipping between images and predicted images
     let {imageRoute} = this.props;
     if (imageRoute == null) { imageRoute = '/image'; }
-    if (prevState.currentImage === currentImage) { return; }
-    if (currentImage == null) { return; }
-
-    const image_tags = [];
-    return this.setState({rectStore: image_tags, initialRectStore: image_tags});
+    if (prevState.currentImage === currentImage) return
+    if (currentImage == null) return
   }
 
   componentDidUpdate() {

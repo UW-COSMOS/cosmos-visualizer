@@ -1,5 +1,5 @@
 import h from 'react-hyperscript';
-import {BrowserRouter as Router, Route, Switch} from 'react-router-dom';
+import {Route} from 'react-router-dom';
 import {AppMode} from '../enum';
 import {ResultsLandingPage} from './landing-page';
 import {KnowledgeBaseFilterView} from './knowledge-base';
