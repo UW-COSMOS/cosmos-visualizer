@@ -173,7 +173,6 @@ class ImageOverlay extends StatefulComponent<Props,State> {
   handleDrag() {
     const {subject} = event;
     let {x,y} = subject;
-    console.log("Dragging")
     const annotations: Annotation[] = this.context;
     let {
       clickDistance,

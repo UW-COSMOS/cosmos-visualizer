@@ -176,7 +176,7 @@ class DragRectangle extends Component {
     minSize: {width: 10, height: 10}
   };
   render() {
-    const {children, update, bounds, color} = this.props;
+    const {children, update, bounds, color, onMouseDown} = this.props;
     const margin = 4;
     const className = (update != null) ? 'draggable' : null;
     let {onClick} = this.props
@@ -187,7 +187,7 @@ class DragRectangle extends Component {
     if (update != null) onClick = e => e.stopPropagation();
 
     const {dragInteraction} = this;
-    return h(StaticRectangle, {bounds, color, className, isSelected, onClick}, [
+    return h(StaticRectangle, {bounds, color, className, isSelected, onClick, onMouseDown}, [
       (update != null) ? h(DragHandles, {dragInteraction}) : null,
       children
     ]);
