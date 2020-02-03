@@ -15,6 +15,7 @@ import {Component, useLayoutEffect, useRef} from 'react';
 import {findDOMNode} from 'react-dom';
 import {select, event, mouse} from 'd3-selection';
 import {drag} from 'd3-drag';
+import {CanvasSizeContext} from '~/providers'
 import h from 'react-hyperscript';
 import {Spec} from 'immutability-helper'
 import {
@@ -170,28 +171,32 @@ class DragRectangle extends Component {
     this.dragInteraction = this.dragInteraction.bind(this);
     this.maxPosition = this.maxPosition.bind(this);
   }
+  static contextType = CanvasSizeContext;
 
   static defaultProps = {
     minSize: {width: 10, height: 10}
   };
   render() {
-    const {children, update, ...rest} = this.props;
+    const {children, update, bounds, color} = this.props;
     const margin = 4;
     const className = (update != null) ? 'draggable' : null;
+    let {onClick} = this.props
 
     const isSelected = true;
-    const onClick = e => e.stopPropagation();
+    // TODO: not sure why we were overriding here, but it's weird...
+    // maybe something to do with needing to capture mousdowns instead?
+    if (update != null) onClick = e => e.stopPropagation();
 
     const {dragInteraction} = this;
-    return h(StaticRectangle, {...rest, className, isSelected, onClick}, [
+    return h(StaticRectangle, {bounds, color, className, isSelected, onClick}, [
       (update != null) ? h(DragHandles, {dragInteraction}) : null,
       children
     ]);
   }
 
   dragSubject() {
-    const {scaleFactor} = this.context
     let {bounds} = this.props;
+    const {scaleFactor} = this.context;
     let {x,y,width,height} = getSize(bounds);
 
     const source = mouseCoords();

@@ -15,6 +15,7 @@ import {
   useCanvasSize,
   useAnnotations,
   useSelectedAnnotation,
+  useSelectionUpdater,
   Annotation as IAnnotation,
   Tag as ITag
 } from '~/providers'
