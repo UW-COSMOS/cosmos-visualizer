@@ -16,21 +16,12 @@ import {InlineNavbar} from '~/util';
 import './main.styl';
 
 class KnowledgeBaseFilterView extends StatefulComponent {
-  static initClass() {
-    this.contextType = APIContext;
-  }
+  static contextType = APIContext;
   constructor(props){
-    {
-      // Hack: trick Babel/TypeScript into allowing this before super.
-      if (false) { super(); }
-      let thisFn = (() => { return this; }).toString();
-      let thisName = thisFn.match(/return (?:_assertThisInitialized\()*(\w+)\)*;/)[1];
-      eval(`${thisName} = this;`);
-    }
-    this.renderExtractions = this.renderExtractions.bind(this);
-    this.render = this.render.bind(this);
-    this.updateQuery = this.updateQuery.bind(this);
     super(props);
+    this.renderExtractions = this.renderExtractions.bind(this);
+    this.updateQuery = this.updateQuery.bind(this);
+
     this.state = {
       doc_ids: [],
       types: [],
@@ -129,7 +120,5 @@ class KnowledgeBaseFilterView extends StatefulComponent {
     return this.getTypes();
   }
 }
-KnowledgeBaseFilterView.initClass();
-
 
 export {KnowledgeBaseFilterView};

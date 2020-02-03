@@ -2,65 +2,41 @@ import {Component, memo} from 'react';
 import h from 'react-hyperscript';
 import classNames from 'classnames';
 import {GDDReferenceCard} from '@macrostrat/ui-components';
-import {join, basename} from 'path';
+import {basename} from 'path';
 import {memoize} from 'underscore';
 import styled from '@emotion/styled';
-import {ImageStoreContext} from '../image-container';
 
-class KBImage extends Component {
-  static initClass() {
-    this.contextType = ImageStoreContext;
-  }
-  render() {
-    let src;
-    const {publicURL} = this.context;
-    const {path, bytes, ...rest} = this.props;
-    if (bytes != null) {
-        src="data:image/png;base64," + bytes;
-    } else {
-        const fn = path.replace("img/", "");
-        src = join(publicURL,"kb-images", fn);
-      }
-
-    return h('img', {src, ...rest});
-  }
+const KBImage = (props)=>{
+  const {bytes, ...rest} = props;
+  const src="data:image/png;base64," + bytes;
+  return h('img', {src, ...rest});
 }
-KBImage.initClass();
 
-class KBCode extends Component {
-  render() {
-    const {publicURL} = this.context;
-    const {path, entityType, unicode, ...rest} = this.props;
-    return h('div', {style: {'font-family': 'monospace'}}, unicode);
-  }
+const KBCode = (props)=>{
+  const {path, entityType, unicode, ...rest} = props;
+  return h('div', {style: {'font-family': 'monospace'}}, unicode);
 }
 
 const getEntityType = path => // Hack to get entity type from image path
 basename(path, '.png').replace(/\d+$/, "");
 
-class KBExtraction extends Component {
-  render() {
-    let {unicode, path, className, title, entityType, ...rest} = this.props;
-    //entityType = getEntityType(path)
-    //if entityType == "Body Text"
-      //return null
+const KBExtraction = (props)=>{
+  const {unicode, path, className, title, entityType, ...rest} = props;
+  className = classNames(className, "extracted-entity");
 
-    className = classNames(className, "extracted-entity");
-
-    return h('div', {className}, [
-      h('div.main', [
-        h('div.kb-image-container', [
-          h('h2', [
-            entityType
-          ]),
-          entityType === "code" ?
-            h(KBCode, {path, entityType, unicode, ...rest})
-          :
-            h(KBImage, {path, entityType, ...rest})
-        ])
+  return h('div', {className}, [
+    h('div.main', [
+      h('div.kb-image-container', [
+        h('h2', [
+          entityType
+        ]),
+        entityType === "code" ?
+          h(KBCode, {path, entityType, unicode, ...rest})
+        :
+          h(KBImage, {path, entityType, ...rest})
       ])
-    ]);
-  }
+    ])
+  ]);
 }
 
 const sanitize = memoize(t => t.toLowerCase());
