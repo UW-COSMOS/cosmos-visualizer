@@ -38,18 +38,29 @@ const AnnotationsOverlay = (props: AnnotationsOverlayProps)=>{
   const annotations = useAnnotations()
   const {width, height} = useCanvasSize()
   return h('div.overlay',
-    {style: {width, height}, onClick},
-    annotations.map(props.renderAnnotation)
-  )
+    {style: {width, height}, onClick}, [
+    annotations.map(props.renderAnnotation),
+    children
+  ])
 }
 
 AnnotationsOverlay.defaultProps = {
   renderAnnotation: (obj, ix)=>h(SimpleAnnotation, {obj, ix})
 }
 
+interface AddAnnotationsProps extends AnnotationsOverlayProps {
+  inProgressAnnotation?: IAnnotation
+}
 
-const AddAnnotationsOverlay = (props)=>{
-  return h(AnnotationsOverlay, props)
+const AddAnnotationsOverlay = (props: AddAnnotationsProps)=>{
+  const {inProgressAnnotation, ...rest} = props
+
+  let children = null
+  if (inProgressAnnotation != null) {
+    children = h(SimpleAnnotation, {obj: inProgressAnnotation})
+  }
+
+  return h(AnnotationsOverlay, rest, children)
 }
 
 const oldRenderer = (d, ix)=> {
@@ -83,4 +94,4 @@ AddAnnotationsOverlay.defaultProps = {
   lockedTags: new Set()
 }
 
-export {AnnotationsOverlay};
+export {AnnotationsOverlay, AddAnnotationsOverlay};

@@ -22,7 +22,7 @@ import {EditorContext} from '../context';
 
 import {EditMode} from '~/enum';
 import {ModalNotifications} from './notifications';
-import {AnnotationsOverlay} from '../annotations';
+import {AddAnnotationsOverlay} from '../annotations';
 import {
   AnnotationsContext,
   useAnnotationActions,
@@ -107,8 +107,7 @@ class ImageOverlay extends StatefulComponent<Props,State> {
         isOpen: selectIsOpen,
         onClose: () => this.setState({selectIsOpen: false}),
       }),
-      h(AnnotationsOverlay, {
-        lockedTags,
+      h(AddAnnotationsOverlay, {
         inProgressAnnotation,
         actions,
         onClick,
@@ -150,6 +149,7 @@ class ImageOverlay extends StatefulComponent<Props,State> {
   handleDrag() {
     const {subject} = event;
     let {x,y} = subject;
+    console.log("Dragging")
     const annotations: Annotation[] = this.context;
     let {
       clickDistance,

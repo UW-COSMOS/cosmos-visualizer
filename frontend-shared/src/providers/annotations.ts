@@ -1,7 +1,8 @@
 import {useState, createContext, useContext} from 'react'
 import h from 'react-hyperscript'
 import {AnnotationArr, Annotation} from '../image-overlay/types'
-import {TagID} from './tags'
+import {TagID, useTags} from './tags'
+import chroma from 'chroma-js'
 
 type AnnotationRect = [number, number, number, number]
 type AnnotationArr = [AnnotationRect, TagID, number]
@@ -76,6 +77,14 @@ const useAnnotations = (): Annotation[] => useContext(AnnotationsContext).annota
 const useSelectedAnnotation = (): Annotation => useContext(AnnotationsContext).selected
 const useSelectionUpdater = ()=>useContext(SelectionUpdateContext)
 
+function useAnnotationColor(a: Annotation): chroma.Color {
+  const {name, tag_id} = a
+  const tags = useTags()
+  const idColor = tags.find(d => d.tag_id === tag_id)?.color
+  const nameColor = tags.find(d => d.name === name)?.color
+  return chroma(idColor ?? nameColor ?? 'black')
+}
+
 export {
   AnnotationsProvider,
   AnnotationsContext,
@@ -83,6 +92,7 @@ export {
   useAnnotations,
   useSelectedAnnotation,
   useSelectionUpdater,
+  useAnnotationColor,
   Annotation,
   AnnotationRect,
   AnnotationArr

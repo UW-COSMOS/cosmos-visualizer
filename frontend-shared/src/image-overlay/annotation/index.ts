@@ -18,7 +18,7 @@ import {EditorContext} from '~/image-overlay/context';
 import {
   useCanvasSize,
   useTags,
-  useTagColor,
+  useAnnotationColor,
   useAnnotationUpdater,
   useAnnotationActions,
   useAnnotationIndex,
@@ -149,7 +149,7 @@ const Annotation = (props: AnnotationProps)=>{
   const isSelected = update != null
   const overallBounds = tagBounds(boxes);
 
-  const c = useTagColor(tag_id)
+  const c = useAnnotationColor(obj)
   let alpha = isSelected ? 0.6 : 0.3;
 
   const color = c.alpha(alpha).css();
@@ -216,7 +216,7 @@ const LockedAnnotation = (props: AnnotationProps)=>{
   const {obj} = props;
   const {tag_id, boxes} = obj
 
-  const c = useTagColor(tag_id)
+  const c = useAnnotationColor(obj)
   const alpha = 0.2;
   const color = c.alpha(alpha).css();
 
@@ -230,17 +230,19 @@ const LockedAnnotation = (props: AnnotationProps)=>{
 
 const SimpleAnnotation = (props: AnnotationProps)=>{
   const {obj} = props;
-  const {tag_id, boxes} = obj
+  const {name, tag_id, boxes} = obj
 
-  const c = useTagColor(tag_id)
-  const alpha = 0.2;
+  const c = useAnnotationColor(obj)
+  const alpha = 0.3;
   const color = c.alpha(alpha).css();
 
-  return h('div.annotation.locked', boxes.map((bounds, i)=> {
+  return h('div.annotation', boxes.map((bounds, i)=> {
     return h(Rectangle, {
       bounds,
       color
-    });
+    }, [
+      h('div.tag-name', {style: {color: c.darken(2).css()}}, name),
+    ]);
   }));
 }
 
