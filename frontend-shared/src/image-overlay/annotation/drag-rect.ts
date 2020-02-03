@@ -15,7 +15,6 @@ import {Component, useLayoutEffect, useRef} from 'react';
 import {findDOMNode} from 'react-dom';
 import {select, event, mouse} from 'd3-selection';
 import {drag} from 'd3-drag';
-import {CanvasSizeContext} from '~/providers'
 import h from 'react-hyperscript';
 import {Spec} from 'immutability-helper'
 import {
