@@ -12,7 +12,7 @@ import {drag} from 'd3-drag';
 import {findDOMNode} from 'react-dom';
 import {Hotkey, Hotkeys, HotkeysTarget} from "@blueprintjs/core";
 import {StatefulComponent} from '@macrostrat/ui-components';
-import {useContext} from 'react';
+import {useContext, ComponentProps} from 'react';
 
 import {AnnotationLinks} from '../annotation-links';
 import {TypeSelector} from './type-selector';
@@ -22,19 +22,43 @@ import {EditorContext} from '../context';
 
 import {EditMode} from '~/enum';
 import {ModalNotifications} from './notifications';
-import {AddAnnotationsOverlay} from '../annotations';
+import {AnnotationsOverlay} from '../annotations';
+import {SimpleAnnotation, Annotation} from '../annotation'
 import {
   AnnotationsContext,
   useAnnotationActions,
   useCanvasSize,
   Tag,
-  AnnotationArr
+  AnnotationArr,
+  Annotation as IAnnotation
 } from '~/providers'
 
 import './main.styl';
 
 const {ADD_PART, LINK} = EditMode;
 const SHIFT_MODES = new Set([LINK, ADD_PART]);
+
+
+interface AddAnnotationsProps extends ComponentProps<AnnotationsOverlay> {
+  inProgressAnnotation?: IAnnotation
+}
+const AddAnnotationsOverlay = (props: AddAnnotationsProps)=>{
+  const {inProgressAnnotation, ...rest} = props
+  let children = null
+  if (inProgressAnnotation != null) {
+    children = h(SimpleAnnotation, {obj: inProgressAnnotation})
+  }
+
+  const renderAnnotation = (obj: IAnnotation, ix: number)=>{
+    return h(Annotation, {key: ix, obj, locked: false})
+  }
+
+  return h(AnnotationsOverlay, {
+    ...rest,
+    renderAnnotation
+  }, children)
+}
+
 
 interface Props {
   clickDistance: number,

@@ -48,21 +48,6 @@ AnnotationsOverlay.defaultProps = {
   renderAnnotation: (obj, ix)=>h(SimpleAnnotation, {obj, ix})
 }
 
-interface AddAnnotationsProps extends AnnotationsOverlayProps {
-  inProgressAnnotation?: IAnnotation
-}
-
-const AddAnnotationsOverlay = (props: AddAnnotationsProps)=>{
-  const {inProgressAnnotation, ...rest} = props
-
-  let children = null
-  if (inProgressAnnotation != null) {
-    children = h(SimpleAnnotation, {obj: inProgressAnnotation})
-  }
-
-  return h(AnnotationsOverlay, rest, children)
-}
-
 const oldRenderer = (d, ix)=> {
 
   const isLocked = lockedTags.has(d.tag_id);
@@ -90,8 +75,8 @@ const oldRenderer = (d, ix)=> {
   }
 }
 
-AddAnnotationsOverlay.defaultProps = {
-  lockedTags: new Set()
-}
+// AddAnnotationsOverlay.defaultProps = {
+//   lockedTags: new Set()
+// }
 
-export {AnnotationsOverlay, AddAnnotationsOverlay};
+export {AnnotationsOverlay};
