@@ -12,7 +12,7 @@ import {min, max} from 'd3-array';
 import {Button, Intent} from '@blueprintjs/core';
 import classNames from 'classnames';
 
-import {Rectangle} from './drag-rect';
+import {Rectangle, StaticRectangle} from './drag-rect';
 import {EditMode} from '~/enum';
 import {EditorContext} from '~/image-overlay/context';
 import {
@@ -22,6 +22,8 @@ import {
   useAnnotationUpdater,
   useAnnotationActions,
   useAnnotationIndex,
+  useSelectedAnnotation,
+  useSelectionUpdater,
   Annotation as IAnnotation
 } from '~/providers'
 
@@ -232,14 +234,19 @@ const SimpleAnnotation = (props: AnnotationProps)=>{
   const {obj} = props;
   const {name, tag_id, boxes} = obj
 
+  const selected = useSelectedAnnotation()
+  const isSelected = selected == obj
+  const updateSelection = useSelectionUpdater()
+
   const c = useAnnotationColor(obj)
-  const alpha = 0.3;
+  const alpha = isSelected ? 0.6 : 0.3;
   const color = c.alpha(alpha).css();
 
   return h('div.annotation', boxes.map((bounds, i)=> {
-    return h(Rectangle, {
+    return h(StaticRectangle, {
       bounds,
-      color
+      color,
+      onClick: ()=>updateSelection(obj)
     }, [
       h('div.tag-name', {style: {color: c.darken(2).css()}}, name),
     ]);

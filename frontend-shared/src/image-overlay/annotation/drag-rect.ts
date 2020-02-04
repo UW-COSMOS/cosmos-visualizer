@@ -288,4 +288,4 @@ class DragRectangle extends Component {
 
 const Rectangle = props => h(DragRectangle, props);
 
-export {DragRectangle, Rectangle};
+export {DragRectangle, Rectangle, StaticRectangle};

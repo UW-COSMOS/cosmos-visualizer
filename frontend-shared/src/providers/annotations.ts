@@ -30,21 +30,9 @@ const AnnotationsContext = createContext<AnnotationsCtx>({
   selected: null
 })
 
-type Updater = (v0: AnnotationID)=>void
+type Updater = (v0: Annotation)=>void
 const SelectionUpdateContext = createContext<Updater|null>(null)
 
-
-const normalizeAnnotation = function(d: AnnotationArr): Annotation {
-  /*
-  Temporary (?) function to normalize an annotation rectangle
-  to the expected internal representation.
-  */
-  console.log(d);
-  const boxes = [d[0]];
-  const name = d[1];
-  const score = d[2];
-  return {boxes, name, score, tag_id: name};
-};
 
 interface ProviderProps {
   annotations: Annotation[],
@@ -66,7 +54,12 @@ const AnnotationsProvider = (props: ProviderProps)=>{
     selected: allowSelection? selected : null
   }
 
-  let updateSelection = allowSelection ? setSelected : null
+  let updateSelection = (annotation: Annotation)=>{
+    const ix = annotations.findIndex(d => d == annotation)
+    setSelected(ix)
+  }
+
+  if (!allowSelection) updateSelection = null
 
   return h(AnnotationsContext.Provider, {value}, [
     h(SelectionUpdateContext.Provider, {value: updateSelection}, children)
@@ -74,8 +67,13 @@ const AnnotationsProvider = (props: ProviderProps)=>{
 }
 
 const useAnnotations = (): Annotation[] => useContext(AnnotationsContext).annotations
-const useSelectedAnnotation = (): Annotation => useContext(AnnotationsContext).selected
+
+const useSelectedAnnotation = (): Annotation => {
+  const {annotations, selected} = useContext(AnnotationsContext)
+  return annotations[selected]
+}
 const useSelectionUpdater = ()=>useContext(SelectionUpdateContext)
+
 
 function useAnnotationColor(a: Annotation): chroma.Color {
   const {name, tag_id} = a
