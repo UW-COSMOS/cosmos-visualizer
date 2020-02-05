@@ -26,6 +26,7 @@ import {
   useSelectionUpdater,
   Annotation as IAnnotation
 } from '~/providers'
+import {ApprovalControls} from './controls'
 
 const ToolButton = props => h(Button, {small: true, minimal: true, ...props});
 
@@ -231,7 +232,7 @@ const LockedAnnotation = (props: AnnotationProps)=>{
 }
 
 const SimpleAnnotation = (props: AnnotationProps)=>{
-  const {obj} = props;
+  const {obj, children} = props;
   const {name, tag_id, boxes} = obj
 
   const selected = useSelectedAnnotation()
@@ -249,10 +250,16 @@ const SimpleAnnotation = (props: AnnotationProps)=>{
       onClick: ()=>updateSelection(obj)
     }, [
       h('div.tag-name', {style: {color: c.darken(2).css()}}, name),
+      children
     ]);
   }));
 }
 
+const ApprovableAnnotation = (props: AnnotationProps)=>{
+  return h(SimpleAnnotation, props, [
+    h(ApprovalControls, {annotation: props.obj})
+  ])
+}
 
 
-export {SimpleAnnotation, Annotation, LockedAnnotation, tagCenter, tagBounds};
+export {SimpleAnnotation, Annotation, LockedAnnotation, ApprovableAnnotation, tagCenter, tagBounds};
