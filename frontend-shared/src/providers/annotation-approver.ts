@@ -1,79 +1,86 @@
 import h from 'react-hyperscript'
-import {useContext, createContext} from 'react'
-import {APIContext} from '../api';
-import {AnnotationContext, Annotation, AnnotationRect} from './annotations'
+import {createContext, useContext, useState} from 'react'
+import {
+  AnnotationsContext,
+  Annotation,
+  AnnotationRect,
+  useAnnotations,
+  SelectionUpdateContext
+} from './annotations'
+import {TagID, Tag, TagsContext} from './tags'
+import {isDifferent} from './util'
+import uuidv4 from 'uuid/v4';
+import {StatefulComponent} from '@macrostrat/ui-components';
+import {Spec} from 'immutability-helper'
 
-import {TagRect} from '~/image-overlay/types'
-
-type TagID = number;
+type AnnotationID = number;
 type UpdateSpec = object;
 type TagUpdater = (s: UpdateSpec)=>void
 
-interface Annotation {
-  boxes: AnnotationRect[],
-  tag_id: TagID,
-  name: string,
-  score?: number,
+interface ApproverActions {
+  toggleThumbsUp(i: Annotation, good: boolean): void,
 }
 
-type SelectedAnnotation = Annotation|null
+interface AnnotationApproverCtx {
+  actions: ApproverActions,
+  isAnnotationApproved: [],
+}
+
+const AnnotationApproverContext = createContext<AnnotationApproverCtx|null>(null)
 
 interface AnnotationApproverProps {
   page_num: number,
   pdf_name: string,
-  annotations: Annotation[],
+  children: React.ReactNode
 }
 
-interface AnnotationsCtx {
-  annotations: Annotation[],
-  allowSelection: boolean,
-  selected: SelectedAnnotation
+interface AnnotationApprovalState {
+    [ix: number]: boolean
 }
-const AnnotationsContext = createContext<AnnotationsCtx>({
-  annotations: [],
-  allowSelection: true,
-  selected: null
-})
 
 const AnnotationApproverProvider = (props: AnnotationApproverProps)=>{
-  /** A more advanced annotation provider that allows for
-    adding, removing, and editing the positions of annotations.
-  */
-  const {page_num, pdf_name, annotations} = props;
-  const selected = null
-  const value = {
-    annotations,
-    allowSelection: true,
-    selected
-  }
-  const updateSelection = (ix: number)=>{
-    setSelectedAnnotation(ix)
-  }
+    const [state, setState] = useState<AnnotationApprovalState>({})
 
-  // There should be buttons. They should set classification_success, proposal_success, and note 
-  // SEP wants there to be the ability to easily add additional buttons, as defined by a response, e.g. 
-  // from http://cosmos1.chtc.wisc.edu:5080/search/object/annotate
-  //
-  var classification_success, proposal_success, note = null;
-  var endpoint = `/search/object/annotate`
-  var data = {
-      coords : `({selectedAnnotation.bboxes[0][0]}, {selectedAnnotation.bboxes[0][1]})`,
-      pdf_name,
-      page_num,
-      classification_success,
-      proposal_success,
-      note}
-  try {
-      var success = await this.context.post(endpoint, data)
-  } 
+    const cur_annotations = useAnnotations()
 
-  // ------------------- 
+    const isApprovedOrNot = cur_annotations.map((d, i) => {
+        return state[i] ?? null
+    })
 
-  return h(AnnotationsContext.Provider, {value}, [
-    h(SelectionUpdateContext.Provider, {value: updateSelection}, children)
-  ])
+    const thumbs = (annotation: Annotation, good: boolean) => {
+        const i = cur_annotations.findIndex(d => d == annotation)
+        let new_state = {...state}
+        if (state[i] == good) {
+            new_state[i] = null
+        } else {
+            new_state[i] = good
+        }
+        // TODO: POST to API, if successful, then set state
+        //  var endpoint = `/search/object/annotate`
+        //  var data = {
+        //      coords : `({selectedAnnotation.bboxes[0][0]}, {selectedAnnotation.bboxes[0][1]})`,
+        //      pdf_name,
+        //      page_num,
+        //      classification_success,
+        //      proposal_success,
+        //      note}
+        //  try {
+        //      var success = await this.context.post(endpoint, data)
+        //  } 
+        setState(new_state)
+    }
+
+    const value = {
+        actions : {
+            toggleThumbsUp : thumbs
+        }, 
+        isAnnotationApproved : isApprovedOrNot 
+    }
+
+    return h(AnnotationApproverContext.Provider, {value}, props.children)
 }
 
-AnnotationApproverProvider.defaultProps = {
-  initialAnnotations: []
+export {
+    AnnotationApproverContext,
+    AnnotationApproverProvider
 }

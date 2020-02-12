@@ -249,10 +249,15 @@ const SimpleAnnotation = (props: AnnotationProps)=>{
       onClick: ()=>updateSelection(obj)
     }, [
       h('div.tag-name', {style: {color: c.darken(2).css()}}, name),
+        children
     ]);
   }));
 }
 
-
+const ApprovableAnnotation = (props: AnnotationProps)=> {
+    return h(SimpleAnnotation, props, [
+        h(ApprovalControls, {annotation: props.obj}) // TODO: ApprovalControls should be defined in a to-be-created external "controls" file
+    ])
+}
 
 export {SimpleAnnotation, Annotation, LockedAnnotation, tagCenter, tagBounds};

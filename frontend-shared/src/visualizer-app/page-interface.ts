@@ -10,8 +10,9 @@ import {
   APITagsProvider,
   AnnotationArr,
   Annotation,
-  AnnotationsProvider
+  AnnotationsProvider,
 } from '~/providers'
+import {AnnotationApproverProvider} from '../providers/annotation-approver'
 import {AnnotationLinks} from '../image-overlay/annotation-links';
 import {AnnotationsOverlay} from '../image-overlay/annotations';
 
@@ -38,7 +39,8 @@ const PageDataProvider = (props: ViewerProviderProps)=>{
   return h(AnnotationsProvider, {
     annotations: (annotations ?? []).map(normalizeAnnotation),
     allowSelection: true
-  }, children)
+  }, h(AnnotationApproverProvider, null, children)
+  )
 }
 
 interface ContainerProps {
