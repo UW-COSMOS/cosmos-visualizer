@@ -251,7 +251,6 @@ const SimpleAnnotation = (props: AnnotationProps)=>{
     }, [
       h('div.tag-name', {style: {color: c.darken(2).css()}}, name),
         children
-      children
     ]);
   }));
 }
