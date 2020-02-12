@@ -112,10 +112,30 @@ const AnnotationControls = (props: AnnotationControlsProps)=>{
 }
 
 
+import {AnnotationApproverContext} from "~/providers/annotation-approver"
+
 const ApprovalControls = (props)=>{
-  return h(ControlPanel, {annotation: props.annotation}, [
-    h(ToolButton, {icon: 'thumbs-up'}),
-    h(ToolButton, {icon: 'thumbs-down'})
+  const {annotation} = props
+  const ctx = useContext(AnnotationApproverContext)
+  if (ctx == null) return null
+  const {actions, isAnnotationApproved} = ctx
+
+  const ix = useAnnotationIndex(props.annotation)
+
+  const isApproved = isAnnotationApproved[ix]
+  const isSet = isApproved != null
+
+  return h(ControlPanel, {annotation}, [
+    h(ToolButton, {
+      icon: 'thumbs-up',
+      intent: isSet && isApproved ? 'success' : null,
+      onClick: ()=>actions.toggleThumbsUp(annotation, true)
+    }),
+    h(ToolButton, {
+      icon: 'thumbs-down',
+      intent: isSet && !isApproved ? 'danger' : null,
+      onClick: ()=>actions.toggleThumbsUp(annotation, false)
+    })
   ])
 }
 

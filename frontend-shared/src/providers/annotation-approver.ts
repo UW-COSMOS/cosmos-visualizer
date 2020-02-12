@@ -23,7 +23,7 @@ interface ApproverActions {
 
 interface AnnotationApproverCtx {
   actions: ApproverActions,
-  isAnnotationApproved: [],
+  isAnnotationApproved: boolean[],
 }
 
 const AnnotationApproverContext = createContext<AnnotationApproverCtx|null>(null)
@@ -66,15 +66,15 @@ const AnnotationApproverProvider = (props: AnnotationApproverProps)=>{
         //      note}
         //  try {
         //      var success = await this.context.post(endpoint, data)
-        //  } 
+        //  }
         setState(new_state)
     }
 
     const value = {
         actions : {
             toggleThumbsUp : thumbs
-        }, 
-        isAnnotationApproved : isApprovedOrNot 
+        },
+        isAnnotationApproved : isApprovedOrNot
     }
 
     return h(AnnotationApproverContext.Provider, {value}, props.children)
