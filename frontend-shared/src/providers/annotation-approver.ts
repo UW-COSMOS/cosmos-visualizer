@@ -7,6 +7,8 @@ import {
   useAnnotations,
   SelectionUpdateContext
 } from './annotations'
+import axios from 'axios'
+import {APIContext} from '~/api'
 import {TagID, Tag, TagsContext} from './tags'
 import {isDifferent} from './util'
 import uuidv4 from 'uuid/v4';
@@ -38,16 +40,51 @@ interface AnnotationApprovalState {
     [ix: number]: boolean
 }
 
+interface AnnotationApprovalStatus {
+  classificationGood: boolean|null,
+  proposalGood: boolean|null
+}
+
+
 const AnnotationApproverProvider = (props: AnnotationApproverProps)=>{
+    const {pdf_name, page_num} = props
     const [state, setState] = useState<AnnotationApprovalState>({})
 
     const cur_annotations = useAnnotations()
+    const {post} = useContext(APIContext)
 
     const isApprovedOrNot = cur_annotations.map((d, i) => {
         return state[i] ?? null
     })
 
-    const thumbs = (annotation: Annotation, good: boolean) => {
+
+    async function postAnnotationThumbs(ann: Annotation, classificationGood: boolean, proposalGood: boolean): boolean {
+
+      const box = ann.boxes[0]
+
+       var endpoint = `/search/object/annotate`
+       var data = {
+           coords : [box[0], box[1]],
+           pdf_name,
+           page_num,
+           classification_success: classificationGood,
+           proposal_success: proposalGood,
+           note: null
+        }
+       try {
+           var success = await post(endpoint, {}, data)
+           return true
+       } catch (err) {
+         console.log(err)
+         return false
+       }
+    }
+
+
+    async function thumbs(annotation: Annotation, good: boolean) {
+        //const res = await postAnnotationThumbs(annotation, good, null)
+        if (!res) return
+
         const i = cur_annotations.findIndex(d => d == annotation)
         let new_state = {...state}
         if (state[i] == good) {
@@ -55,18 +92,6 @@ const AnnotationApproverProvider = (props: AnnotationApproverProps)=>{
         } else {
             new_state[i] = good
         }
-        // TODO: POST to API, if successful, then set state
-        //  var endpoint = `/search/object/annotate`
-        //  var data = {
-        //      coords : `({selectedAnnotation.bboxes[0][0]}, {selectedAnnotation.bboxes[0][1]})`,
-        //      pdf_name,
-        //      page_num,
-        //      classification_success,
-        //      proposal_success,
-        //      note}
-        //  try {
-        //      var success = await this.context.post(endpoint, data)
-        //  }
         setState(new_state)
     }
 

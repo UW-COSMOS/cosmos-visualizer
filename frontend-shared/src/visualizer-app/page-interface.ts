@@ -35,12 +35,14 @@ interface ViewerProviderProps {
 }
 
 const PageDataProvider = (props: ViewerProviderProps)=>{
-  const {children, annotations} = props
+  const {children, image} = props
+  const annotations = image.pp_detected_objs
+  const {pdf_name, page_num} = image
   // For viewer
   return h(AnnotationsProvider, {
     annotations: (annotations ?? []).map(normalizeAnnotation),
     allowSelection: true
-  }, h(AnnotationApproverProvider, null, children)
+  }, h(AnnotationApproverProvider, {pdf_name, page_num}, children)
   )
 }
 
@@ -51,7 +53,7 @@ interface ContainerProps {
 const ImageContainer = (props: ContainerProps)=>{
   const {image} = props
   if (image == null) return null
-  return h(PageDataProvider, {annotations: image.pp_detected_objs}, [
+  return h(PageDataProvider, {image}, [
     h(ScaledImagePanel, {
       image,
       urlForImage(image: Image): string {
