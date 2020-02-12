@@ -15,6 +15,7 @@ import {
 import {AnnotationApproverProvider} from '../providers/annotation-approver'
 import {AnnotationLinks} from '../image-overlay/annotation-links';
 import {AnnotationsOverlay} from '../image-overlay/annotations';
+import {ApprovableAnnotation} from '../image-overlay/annotation'
 
 const normalizeAnnotation = function(d: AnnotationArr): Annotation {
   /*
@@ -59,7 +60,9 @@ const ImageContainer = (props: ContainerProps)=>{
       }
     },
       h('div.image-overlay', [
-        h(AnnotationsOverlay),
+        h(AnnotationsOverlay, {
+          renderAnnotation: (a)=>h(ApprovableAnnotation, {obj: a})
+        }),
         h(AnnotationLinks)
       ])
     )
