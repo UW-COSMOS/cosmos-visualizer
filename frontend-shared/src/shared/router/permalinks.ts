@@ -9,36 +9,34 @@ import {Image, ImageShape} from '~/types';
 
 const PermalinkContext = createContext({});
 
-const permalinkRouteTemplate = appMode => `/${appMode}/:stackId/page/:imageId`;
+const permalinkRouteTemplate = (appMode: AppMode): string => {
+  return `/${appMode}/page/:imageId`;
+}
 
-class PermalinkProvider extends Component {
+interface PermalinkProviderProps {
+  appMode: AppMode,
+  children: React.ReactNode
+}
 
-  static propTypes = {
-    appMode: T.oneOf([
-      AppMode.ANNOTATION,
-      AppMode.PREDICTION
-    ])
-  };
+interface PermalinkData {
+  image_id: string,
+}
 
-  permalinkTo = ({stack_id, image_id}) => {
-    const {pageTemplate} = this.getValue();
+const PermalinkProvider = (props: PermalinkProviderProps)=>{
+  const {appMode, ...rest} = props;
+
+  const pageTemplate = permalinkRouteTemplate(appMode);
+
+  function permalinkTo(permalinkInfo: PermalinkData){
+    const {stack_id, image_id} = permalinkInfo
     return pageTemplate
       .replace(":stackId",stack_id)
       .replace(":imageId",image_id);
   }
 
-  getValue = () => {
-    const {appMode} = this.props;
-    const {permalinkTo} = this;
-    const pageTemplate = permalinkRouteTemplate(appMode);
-    return {appMode, pageTemplate, permalinkTo};
-  }
+  const value = {appMode, pageTemplate, permalinkTo}
 
-  render() {
-    const {appMode, ...rest} = this.props;
-    const value = this.getValue();
-    return h(PermalinkContext.Provider, {value, ...rest});
-  }
+  return h(PermalinkContext.Provider, {value, ...rest});
 }
 
 interface PermalinkButtonProps {
@@ -47,21 +45,23 @@ interface PermalinkButtonProps {
 
 const PermalinkButton = function(props: PermalinkButtonProps){
   const {image} = props;
+  console.log(image);
   const ctx = useContext(PermalinkContext);
-  const {params: {imageId, stackId}} = useRouteMatch();
+  const {params: {imageId}} = useRouteMatch();
+
   if (image == null) { return null; }
-  const {image_id, stack_id} = image;
+  const {_id: image_id} = image;
   let text = "Permalink";
   let disabled = false;
 
-  if ((image_id === imageId) && (stack_id === stackId)) {
+  if (image_id === imageId) {
     // We are at the permalink right now
     disabled = true;
     text = [h('span', [text, " to image "]), h('code', image_id)];
   }
   return h(LinkButton, {
     icon: 'bookmark',
-    to: ctx.permalinkTo({stack_id, image_id}),
+    to: ctx.permalinkTo({image_id}),
     disabled,
     text
   });

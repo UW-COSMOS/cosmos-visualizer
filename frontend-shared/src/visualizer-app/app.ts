@@ -4,7 +4,7 @@ import {AppMode} from '../enum';
 import {ResultsLandingPage} from './landing-page';
 import {KnowledgeBaseFilterView} from './knowledge-base';
 import {ViewerPage} from './page-interface'
-import {AppRouter, permalinkRouteTemplate} from '~/shared/router'
+import {AppRouter, permalinkRouteTemplate, PermalinkRoute} from '~/shared/router'
 
 const App = (props) => {
   const appMode = AppMode.PREDICTION;
@@ -15,13 +15,13 @@ const App = (props) => {
       exact: true,
       component: ResultsLandingPage
     }),
+    // Route for permalinks
     h(Route, {
       path: permalinkRouteTemplate(appMode),
       render: props=> {
         return h(ViewerPage, {
-          permalinkRoute: "/training/page",
-          nextImageEndpoint: "/image/validate",
-          subtitleText: "View training data",
+          nextImageEndpoint: "/image/next_prediction",
+          subtitleText: "View extractions",
           ...props
         });
       }
@@ -37,9 +37,6 @@ const App = (props) => {
         });
       }
     }),
-    // h PermalinkRoute, {
-    //   component: ViewResults
-    // }
     h(Route, {
       path: '/knowledge-base',
       component: KnowledgeBaseFilterView

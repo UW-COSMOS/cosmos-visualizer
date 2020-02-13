@@ -73,7 +73,8 @@ const ImageContainer = (props: ContainerProps)=>{
 
 interface IViewerProps {
   allowSaveWithoutChanges?: boolean,
-  imageRoute: string
+  imageRoute: string,
+  initialImage: string
 }
 
 interface ViewerState {
@@ -87,7 +88,6 @@ interface ViewerState {
 class ViewerPageBase extends StatefulComponent<IViewerProps, ViewerState> {
   static defaultProps = {
     allowSaveWithoutChanges: false,
-    editingEnabled: true,
     navigationEnabled: true,
     imageRoute: '/image'
   };
@@ -114,21 +114,23 @@ class ViewerPageBase extends StatefulComponent<IViewerProps, ViewerState> {
     ])
   }
 
-  currentStackID() {
-    return this.state.currentImage.stack_id || this.props.stack_id;
-  }
-
   async getImageToDisplay() {
-    let {nextImageEndpoint: imageToDisplay,
-     imageRoute, initialImage, stack_id} = this.props;
+    let {
+      nextImageEndpoint: imageToDisplay,
+      imageRoute,
+      initialImage,
+    } = this.props;
     const {currentImage} = this.state;
+
+    // Load image with this ID
     if (initialImage && (currentImage == null)) {
       imageToDisplay = `${imageRoute}/${initialImage}`;
     }
-    // We are loading an image and
+    // We are loading an image...
     if (imageToDisplay == null) { return; }
+
     console.log(`Getting image from endpoint ${imageToDisplay}`);
-    const d = await this.context.get(imageToDisplay, {stack_id}, {unwrapResponse(res){ return res.results; }});
+    const d = await this.context.get(imageToDisplay, {unwrapResponse(res){ return res.results; }});
     return this.onImageLoaded(d);
   };
 
@@ -137,14 +139,8 @@ class ViewerPageBase extends StatefulComponent<IViewerProps, ViewerState> {
       // API returns a single-item array
       d = d[0];
     }
-    console.log(d);
 
-    const rectStore = [];
-    this.setState({
-      currentImage: d,
-      rectStore,
-      initialRectStore: rectStore
-    });
+    this.setState({currentImage: d});
 
     return AppToaster.show({
       message: h('div', [
@@ -160,25 +156,14 @@ class ViewerPageBase extends StatefulComponent<IViewerProps, ViewerState> {
   componentDidMount() {
     this.getImageToDisplay();
   }
-
-  didUpdateImage(prevProps, prevState){
-    const {currentImage} = this.state;
-    // This supports flipping between images and predicted images
-    let {imageRoute} = this.props;
-    if (imageRoute == null) { imageRoute = '/image'; }
-    if (prevState.currentImage === currentImage) return
-    if (currentImage == null) return
-  }
-
-  componentDidUpdate() {
-    return this.didUpdateImage.apply(this,arguments);
-  }
 }
 
 
 const ViewerPage = ({match, ...rest})=> {
   // Go to specific image by default, if set
   const {params: {imageId}} = match;
+
+  console.log("image id", imageId)
 
   // This is a hack to disable "NEXT" for now
   // on permalinked images
@@ -188,7 +173,6 @@ const ViewerPage = ({match, ...rest})=> {
 
   return h(ViewerPageBase, {
     initialImage: imageId,
-    allowSaveWithoutChanges: false,
     editingEnabled: false,
     ...rest
   });

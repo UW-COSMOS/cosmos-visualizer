@@ -12,11 +12,11 @@ const EditMode = Object.freeze({
   LINK: 'link'
 });
 
-const AppMode = Object.freeze({
+enum AppMode {
   // Mode for training data
-  ANNOTATION: 'annotation',
+  ANNOTATION = 'annotation',
   // Mode for results
-  PREDICTION: 'prediction'
-});
+  PREDICTION = 'prediction'
+}
 
 export {UserRole, EditMode, AppMode};
