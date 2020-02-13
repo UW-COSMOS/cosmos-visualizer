@@ -52,7 +52,7 @@ const AnnotationApproverProvider = (props: AnnotationApproverProps)=>{
     })
 
     const cur_annotations = useAnnotations()
-    const {post} = useContext(APIContext)
+    const {baseURL} = useContext(APIContext)
 
     const isClassificationApproved = cur_annotations.map((d, i) => {
         return state.classificationApproved[i] ?? null
@@ -70,9 +70,10 @@ const AnnotationApproverProvider = (props: AnnotationApproverProps)=>{
 
       const box = ann.boxes[0]
 
-       var endpoint = `/search/object/annotate`
+       
+       var endpoint = `${baseURL}/object/annotate`
        var data = {
-           coords : [box[0], box[1]],
+           coords : `(${box[0]}, ${box[1]})`,
            pdf_name,
            page_num,
            classification_success: opts?.classification,
@@ -80,7 +81,13 @@ const AnnotationApproverProvider = (props: AnnotationApproverProps)=>{
            note: null
         }
        try {
-           var success = await post(endpoint, {}, data)
+           var success = await axios.post(endpoint, data, {headers : {
+               'Content-Type': 'application/x-www-form-urlencoded'
+           }
+           }
+
+
+           )
            return true
        } catch (err) {
          console.log(err)
@@ -89,7 +96,7 @@ const AnnotationApproverProvider = (props: AnnotationApproverProps)=>{
     }
 
     async function thumbs(annotation: Annotation, opts: AnnotationApprovalStatus) {
-        //const res = await postAnnotationThumbs(annotation, good, null)
+        const res = await postAnnotationThumbs(annotation, opts)
         //if (!res) return
         const ix = cur_annotations.findIndex(d => d == annotation)
 
