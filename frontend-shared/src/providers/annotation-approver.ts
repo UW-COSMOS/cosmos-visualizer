@@ -83,7 +83,7 @@ const AnnotationApproverProvider = (props: AnnotationApproverProps)=>{
 
     async function thumbs(annotation: Annotation, good: boolean) {
         //const res = await postAnnotationThumbs(annotation, good, null)
-        if (!res) return
+        //if (!res) return
 
         const i = cur_annotations.findIndex(d => d == annotation)
         let new_state = {...state}
