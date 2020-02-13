@@ -110,7 +110,7 @@ const AnnotationApproverProvider = (props: AnnotationApproverProps)=>{
           const stateKey = k+'Approved'
           const isAlreadySet = state[stateKey][ix] == value
           spec[stateKey] = {
-            $set: {[ix]: isAlreadySet ? null : value}
+            [ix]: {$set: isAlreadySet ? null : value}
           }
         }
 
