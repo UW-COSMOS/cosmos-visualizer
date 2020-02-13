@@ -95,23 +95,17 @@ const AnnotationApproverProvider = (props: AnnotationApproverProps)=>{
 
         let spec: MapSpec<string, AnnotationApprovalMap> = {}
 
-        console.log(opts)
-
-        if (opts?.classification != null) {
-          const isAlreadySet = state.classificationApproved[ix] == opts.classification
-          spec.classificationApproved = {
-            $set: {[ix]: isAlreadySet ? null : opts.classification}
+        // Check if classification or proposal booleans are provided,
+        // and set appropriate part of state if not
+        for (const k of ['classification', 'proposal']) {
+          const value = opts[k]
+          if (value == null) continue
+          const stateKey = k+'Approved'
+          const isAlreadySet = state[stateKey][ix] == value
+          spec[stateKey] = {
+            $set: {[ix]: isAlreadySet ? null : value}
           }
         }
-
-        if (opts?.proposal != null) {
-          const isAlreadySet = state.proposalApproved[ix] == opts.proposal
-          spec.proposalApproved = {
-            $set: {[ix]: isAlreadySet ? null : opts.proposal}
-          }
-        }
-
-        console.log(spec)
 
         setState(update(state, spec))
     }
