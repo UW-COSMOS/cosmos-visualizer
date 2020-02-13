@@ -29,9 +29,14 @@ const normalizeAnnotation = function(d: AnnotationArr): Annotation {
   return {boxes, name, score, tag_id: name};
 };
 
+interface ImageData {
+  _id: string,
+  pp_detected_objs?: AnnotationArr[],
+}
+
 interface ViewerProviderProps {
   children: ReactNode,
-  annotations: AnnotationArr[]
+  image: ImageData
 }
 
 const PageDataProvider = (props: ViewerProviderProps)=>{
@@ -72,19 +77,27 @@ const ImageContainer = (props: ContainerProps)=>{
 }
 
 interface IViewerProps {
-  allowSaveWithoutChanges?: boolean,
   imageRoute: string,
-  initialImage: string
+  initialImage: string,
+  redirectURL?: string
 }
 
 interface ViewerState {
-  currentImage: Image,
+  currentImage: object,
 }
 
-// Updates props for a rectangle
-// from API signature to our internal signature
-// TODO: make handle multiple boxes
-// TODO: reintegrate with Tagging page
+function notifyImageLoad(im: ImageData){
+  AppToaster.show({
+    message: h('div', [
+      "Loaded image ",
+      h("code", im._id),
+      "."
+    ]),
+    intent: Intent.PRIMARY,
+    timeout: 1000
+  });
+}
+
 class ViewerPageBase extends StatefulComponent<IViewerProps, ViewerState> {
   static defaultProps = {
     allowSaveWithoutChanges: false,
@@ -97,7 +110,7 @@ class ViewerPageBase extends StatefulComponent<IViewerProps, ViewerState> {
     this.onImageLoaded = this.onImageLoaded.bind(this);
 
     this.state = {
-      currentImage: null
+      currentImage: null,
     };
   }
 
@@ -115,6 +128,13 @@ class ViewerPageBase extends StatefulComponent<IViewerProps, ViewerState> {
   }
 
   async getImageToDisplay() {
+
+    // If at permalink, reroute to validation or something
+    const {redirectURL} = this.props;
+    // if (redirectURL && currentImage != null) {
+    //   this.setState({})
+    // }
+
     let {
       nextImageEndpoint: imageToDisplay,
       imageRoute,
@@ -130,7 +150,9 @@ class ViewerPageBase extends StatefulComponent<IViewerProps, ViewerState> {
     if (imageToDisplay == null) { return; }
 
     console.log(`Getting image from endpoint ${imageToDisplay}`);
-    const d = await this.context.get(imageToDisplay, {unwrapResponse(res){ return res.results; }});
+    const d = await this.context.get(imageToDisplay, {
+      unwrapResponse(res){ return res.results }
+    });
     return this.onImageLoaded(d);
   };
 
@@ -139,18 +161,10 @@ class ViewerPageBase extends StatefulComponent<IViewerProps, ViewerState> {
       // API returns a single-item array
       d = d[0];
     }
+    const im = d as ImageData
 
-    this.setState({currentImage: d});
-
-    return AppToaster.show({
-      message: h('div', [
-        "Loaded image ",
-        h("code", d._id),
-        "."
-      ]),
-      intent: Intent.PRIMARY,
-      timeout: 1000
-    });
+    this.setState({currentImage: im});
+    notifyImageLoad(im)
   }
 
   componentDidMount() {
@@ -162,8 +176,6 @@ class ViewerPageBase extends StatefulComponent<IViewerProps, ViewerState> {
 const ViewerPage = ({match, ...rest})=> {
   // Go to specific image by default, if set
   const {params: {imageId}} = match;
-
-  console.log("image id", imageId)
 
   // This is a hack to disable "NEXT" for now
   // on permalinked images

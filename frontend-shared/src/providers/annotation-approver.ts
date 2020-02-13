@@ -1,5 +1,5 @@
 import h from 'react-hyperscript'
-import {createContext, useContext, useState} from 'react'
+import {createContext, useContext, useState, useEffect} from 'react'
 import {
   Annotation,
   useAnnotations,
@@ -43,13 +43,16 @@ interface AnnotationApprovalStatus {
   proposal?: boolean|null
 }
 
+const initialState: AnnotationApprovalState = {
+  proposalApproved: {},
+  classificationApproved: {}
+}
 
 const AnnotationApproverProvider = (props: AnnotationApproverProps)=>{
     const {pdf_name, page_num} = props
-    const [state, setState] = useState<AnnotationApprovalState>({
-      proposalApproved: {},
-      classificationApproved: {}
-    })
+    const [state, setState] = useState<AnnotationApprovalState>(initialState)
+    // Reset annotations on image change
+    useEffect(() => setState(initialState), [pdf_name, page_num])
 
     const cur_annotations = useAnnotations()
     const {baseURL} = useContext(APIContext)
@@ -70,7 +73,7 @@ const AnnotationApproverProvider = (props: AnnotationApproverProps)=>{
 
       const box = ann.boxes[0]
 
-       
+
        var endpoint = `${baseURL}/object/annotate`
        var data = {
            coords : `(${box[0]}, ${box[1]})`,
@@ -81,13 +84,11 @@ const AnnotationApproverProvider = (props: AnnotationApproverProps)=>{
            note: null
         }
        try {
-           var success = await axios.post(endpoint, data, {headers : {
+           await axios.post(endpoint, data, {
+             headers : {
                'Content-Type': 'application/x-www-form-urlencoded'
-           }
-           }
-
-
-           )
+             }
+           })
            return true
        } catch (err) {
          console.log(err)

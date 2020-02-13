@@ -49,7 +49,19 @@ interface AnnotationControlsProps {
 }
 
 const ControlPanel = (props: AnnotationControlsProps)=>{
+  const {children, className} = props
+  // Make sure clicks on the control panel don't dismiss it
+  // due to the competing overlay click handler
+  const onClick = event => event.stopPropagation();
+  const style = {pointerEvents: 'visible'}
+  return h('div.rect-controls', {className, onClick, style}, children);
+}
 
+interface AnnotationLeftControlProps extends AnnotationControlsProps {
+  annotation: IAnnotation
+}
+
+const LeftControlPanel = (props: AnnotationLeftControlProps)=>{
   const {children, annotation} = props
   const {boxes} = annotation;
 
@@ -58,14 +70,7 @@ const ControlPanel = (props: AnnotationControlsProps)=>{
   const maxY = boxes[0][3]/scaleFactor
   const cls = maxY > height-50 ? 'top' : 'bottom'
   const className = classNames(cls, props.className)
-
-
-  // Make sure clicks on the control panel don't dismiss it
-  // due to the competing overlay click handler
-  const onClick = event => event.stopPropagation();
-  const style = {pointerEvents: 'visible'}
-
-  return h('div.rect-controls', {className, onClick, style}, children);
+  return h(ControlPanel, {className}, children);
 }
 
 const AnnotationControls = (props: AnnotationControlsProps)=>{
@@ -83,7 +88,7 @@ const AnnotationControls = (props: AnnotationControlsProps)=>{
 
   const {actions: {setMode}, editModes} = useContext(EditorContext);
 
-  return h(ControlPanel, {annotation}, [
+  return h(LeftControlPanel, {annotation}, [
     h(ToolButton, {
       icon: 'tag',
       onClick: onSelect
@@ -121,6 +126,7 @@ const ThumbControls = (props: ThumbProps)=>{
         h(ToolButton, {
           icon: 'thumbs-up',
           intent: isSet && isApproved ? 'success' : null,
+          small: true,
           onClick() {
             console.log("Clicked thumbs up")
             update(true)
@@ -129,6 +135,7 @@ const ThumbControls = (props: ThumbProps)=>{
         h(ToolButton, {
           icon: 'thumbs-down',
           intent: isSet && !isApproved ? 'danger' : null,
+          small: true,
           onClick() {
             console.log("Clicked thumbs down")
             update(false)
@@ -147,7 +154,7 @@ const ApprovalControls = (props)=>{
   const {actions, isProposalApproved, isClassificationApproved} = ctx
   const ix = useAnnotationIndex(props.annotation)
 
-  return h(ControlPanel, {annotation, className: 'approval-controls'}, [
+  return h(ControlPanel, {className: 'approval-controls'}, [
     h(ThumbControls, {
       label: "Proposal",
       isApproved: isProposalApproved[ix],
