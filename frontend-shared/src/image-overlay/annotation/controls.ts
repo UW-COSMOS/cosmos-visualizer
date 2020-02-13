@@ -12,29 +12,18 @@ import {min, max} from 'd3-array';
 import {Button, Intent} from '@blueprintjs/core';
 import classNames from 'classnames';
 
-import {Rectangle, StaticRectangle} from './drag-rect';
 import {EditMode} from '~/enum';
 import {EditorContext} from '~/image-overlay/context';
+import "./main.styl";
 import {
   useCanvasSize,
-  useTags,
-  useAnnotationColor,
   useAnnotationUpdater,
   useAnnotationActions,
   useAnnotationIndex,
-  useSelectedAnnotation,
-  useSelectionUpdater,
   Annotation as IAnnotation
 } from '~/providers'
 
 const ToolButton = props => h(Button, {small: true, minimal: true, ...props});
-
-const tagBounds = boxes => [
-  min(boxes, d => d[0]),
-  min(boxes, d => d[1]),
-  max(boxes, d => d[2]),
-  max(boxes, d => d[3])
-];
 
 const LinkButton = (props)=>{
   const {update} = props;
@@ -54,8 +43,9 @@ const LinkButton = (props)=>{
   });
 }
 
-interface AnnotationControlProps {
-  annotation: IAnnotation
+interface AnnotationControlsProps {
+  annotation: IAnnotation,
+  className?: string
 }
 
 const ControlPanel = (props: AnnotationControlsProps)=>{
@@ -66,7 +56,8 @@ const ControlPanel = (props: AnnotationControlsProps)=>{
   // Calculate editing menu position
   const {height, scaleFactor} = useCanvasSize()
   const maxY = boxes[0][3]/scaleFactor
-  const className = maxY > height-50 ? 'top' : 'bottom'
+  const cls = maxY > height-50 ? 'top' : 'bottom'
+  const className = classNames(cls, props.className)
 
 
   // Make sure clicks on the control panel don't dismiss it
@@ -114,27 +105,58 @@ const AnnotationControls = (props: AnnotationControlsProps)=>{
 
 import {AnnotationApproverContext} from "~/providers/annotation-approver"
 
+interface ThumbProps {
+  isApproved: boolean|null,
+  update(shouldApprove: boolean): void
+}
+
+const ThumbControls = (props: ThumbProps)=>{
+  const {isApproved, update, label} = props
+  const isSet = isApproved != null
+
+  return h([
+    h("div.thumb-controls", [
+      h.if(label != null)("span.label", label),
+      h("div.buttons", [
+        h(ToolButton, {
+          icon: 'thumbs-up',
+          intent: isSet && isApproved ? 'success' : null,
+          onClick() {
+            console.log("Clicked thumbs up")
+            update(true)
+          }
+        }),
+        h(ToolButton, {
+          icon: 'thumbs-down',
+          intent: isSet && !isApproved ? 'danger' : null,
+          onClick() {
+            console.log("Clicked thumbs down")
+            update(false)
+          }
+        })
+      ])
+    ])
+  ])
+}
+
+
 const ApprovalControls = (props)=>{
   const {annotation} = props
   const ctx = useContext(AnnotationApproverContext)
   if (ctx == null) return null
-  const {actions, isAnnotationApproved} = ctx
-
+  const {actions, isProposalApproved, isClassificationApproved} = ctx
   const ix = useAnnotationIndex(props.annotation)
 
-  const isApproved = isAnnotationApproved[ix]
-  const isSet = isApproved != null
-
-  return h(ControlPanel, {annotation}, [
-    h(ToolButton, {
-      icon: 'thumbs-up',
-      intent: isSet && isApproved ? 'success' : null,
-      onClick: ()=>actions.toggleThumbsUp(annotation, true)
+  return h(ControlPanel, {annotation, className: 'approval-controls'}, [
+    h(ThumbControls, {
+      label: "Proposal",
+      isApproved: isProposalApproved[ix],
+      update(a: boolean) { actions.toggleProposalApproved(annotation, a) }
     }),
-    h(ToolButton, {
-      icon: 'thumbs-down',
-      intent: isSet && !isApproved ? 'danger' : null,
-      onClick: ()=>actions.toggleThumbsUp(annotation, false)
+    h(ThumbControls, {
+      label: "Classification",
+      isApproved: isClassificationApproved[ix],
+      update(a: boolean) { actions.toggleClassificationApproved(annotation, a) }
     })
   ])
 }

@@ -1,31 +1,24 @@
 import h from 'react-hyperscript'
 import {createContext, useContext, useState} from 'react'
 import {
-  AnnotationsContext,
   Annotation,
-  AnnotationRect,
   useAnnotations,
-  SelectionUpdateContext
 } from './annotations'
 import axios from 'axios'
 import {APIContext} from '~/api'
-import {TagID, Tag, TagsContext} from './tags'
-import {isDifferent} from './util'
-import uuidv4 from 'uuid/v4';
-import {StatefulComponent} from '@macrostrat/ui-components';
-import {Spec} from 'immutability-helper'
+import update, {MapSpec} from 'immutability-helper'
 
-type AnnotationID = number;
 type UpdateSpec = object;
-type TagUpdater = (s: UpdateSpec)=>void
 
 interface ApproverActions {
-  toggleThumbsUp(i: Annotation, good: boolean): void,
+  toggleClassificationApproved(i: Annotation, good: boolean): void,
+  toggleProposalApproved(i: Annotation, good: boolean): void
 }
 
 interface AnnotationApproverCtx {
   actions: ApproverActions,
-  isAnnotationApproved: boolean[],
+  isClassificationApproved: boolean[],
+  isProposalApproved: boolean[]
 }
 
 const AnnotationApproverContext = createContext<AnnotationApproverCtx|null>(null)
@@ -36,29 +29,44 @@ interface AnnotationApproverProps {
   children: React.ReactNode
 }
 
+interface AnnotationApprovalMap {
+    [ix: number]: boolean,
+}
+
 interface AnnotationApprovalState {
-    [ix: number]: boolean
+  proposalApproved: AnnotationApprovalMap,
+  classificationApproved: AnnotationApprovalMap
 }
 
 interface AnnotationApprovalStatus {
-  classificationGood: boolean|null,
-  proposalGood: boolean|null
+  classification?: boolean|null,
+  proposal?: boolean|null
 }
 
 
 const AnnotationApproverProvider = (props: AnnotationApproverProps)=>{
     const {pdf_name, page_num} = props
-    const [state, setState] = useState<AnnotationApprovalState>({})
+    const [state, setState] = useState<AnnotationApprovalState>({
+      proposalApproved: {},
+      classificationApproved: {}
+    })
 
     const cur_annotations = useAnnotations()
     const {post} = useContext(APIContext)
 
-    const isApprovedOrNot = cur_annotations.map((d, i) => {
-        return state[i] ?? null
+    const isClassificationApproved = cur_annotations.map((d, i) => {
+        return state.classificationApproved[i] ?? null
     })
 
+    const isProposalApproved = cur_annotations.map((d, i) => {
+        return state.proposalApproved[i] ?? null
+    })
 
-    async function postAnnotationThumbs(ann: Annotation, classificationGood: boolean, proposalGood: boolean): boolean {
+    async function postAnnotationThumbs(
+      ann: Annotation,
+      opts: AnnotationApprovalStatus
+    ): Promise<boolean> {
+
 
       const box = ann.boxes[0]
 
@@ -67,8 +75,8 @@ const AnnotationApproverProvider = (props: AnnotationApproverProps)=>{
            coords : [box[0], box[1]],
            pdf_name,
            page_num,
-           classification_success: classificationGood,
-           proposal_success: proposalGood,
+           classification_success: opts?.classification,
+           proposal_success: opts?.proposal,
            note: null
         }
        try {
@@ -80,26 +88,45 @@ const AnnotationApproverProvider = (props: AnnotationApproverProps)=>{
        }
     }
 
-
-    async function thumbs(annotation: Annotation, good: boolean) {
+    async function thumbs(annotation: Annotation, opts: AnnotationApprovalStatus) {
         //const res = await postAnnotationThumbs(annotation, good, null)
         //if (!res) return
+        const ix = cur_annotations.findIndex(d => d == annotation)
 
-        const i = cur_annotations.findIndex(d => d == annotation)
-        let new_state = {...state}
-        if (state[i] == good) {
-            new_state[i] = null
-        } else {
-            new_state[i] = good
+        let spec: MapSpec<string, AnnotationApprovalMap> = {}
+
+        console.log(opts)
+
+        if (opts?.classification != null) {
+          const isAlreadySet = state.classificationApproved[ix] == opts.classification
+          spec.classificationApproved = {
+            $set: {[ix]: isAlreadySet ? null : opts.classification}
+          }
         }
-        setState(new_state)
+
+        if (opts?.proposal != null) {
+          const isAlreadySet = state.proposalApproved[ix] == opts.proposal
+          spec.proposalApproved = {
+            $set: {[ix]: isAlreadySet ? null : opts.proposal}
+          }
+        }
+
+        console.log(spec)
+
+        setState(update(state, spec))
     }
 
     const value = {
         actions : {
-            toggleThumbsUp : thumbs
+          toggleClassificationApproved(ann: Annotation, res: boolean) {
+            thumbs(ann, {classification: res})
+          },
+          toggleProposalApproved(ann: Annotation, res: boolean) {
+            thumbs(ann, {proposal: res})
+          }
         },
-        isAnnotationApproved : isApprovedOrNot
+        isClassificationApproved,
+        isProposalApproved
     }
 
     return h(AnnotationApproverContext.Provider, {value}, props.children)

@@ -12,4 +12,8 @@ export IMAGES_TO_TAG="./tagging-app/_data/pipeline_output/images"
 export PIPELINE_OUTPUT="./tagging-app/_data/pipeline_output"
 
 docker-compose -f docker-compose.tagging.yml up --force-recreate --detach --build $@
-docker-compose -f docker-compose.tagging.yml logs -f
+if [ $? -eq 0 ]; then
+  docker-compose -f docker-compose.tagging.yml logs -f
+else
+  echo "Error starting containers"
+fi

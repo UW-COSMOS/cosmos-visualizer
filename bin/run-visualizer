@@ -16,4 +16,8 @@ export DEBUG=1
 export PUBLIC_URL="/"
 
 compose up --detach --force-recreate --build $@
-compose logs -f
+if [ $? -eq 0 ]; then
+  compose logs -f
+else
+  echo "Error starting containers"
+fi

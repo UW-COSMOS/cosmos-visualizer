@@ -16,6 +16,7 @@ services:
       - IMAGE_BASE_URL=http://cosmos1.chtc.wisc.edu:5080/images/
     volumes:
       - ./frontend-shared/src:/user/src
+      - node_modules:/user/node_modules
       - visualizer_dist:/user/dist
       - webpack_cache:/user/.cache
   gateway:
@@ -28,6 +29,7 @@ services:
 volumes:
   visualizer_dist:
   webpack_cache:
+  node_modules:
 #
 # # can now do things like connections.create_connection(hosts=['es01'], timeout=20)
 # networks:
