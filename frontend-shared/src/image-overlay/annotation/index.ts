@@ -1,16 +1,9 @@
-/*
- * decaffeinate suggestions:
- * DS001: Remove Babel/TypeScript constructor workaround
- * DS102: Remove unnecessary code created because of implicit returns
- * DS206: Consider reworking classes to avoid initClass
- * DS207: Consider shorter variations of null checks
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
-import {useContext} from 'react';
+import {useContext, useState} from 'react';
 import h from '@macrostrat/hyper';
 import {min, max} from 'd3-array';
 import {Button, Intent} from '@blueprintjs/core';
 import classNames from 'classnames';
+import chroma from 'chroma-js'
 
 import {Rectangle, StaticRectangle} from './drag-rect';
 import {EditMode} from '~/enum';
@@ -24,6 +17,7 @@ import {
   useAnnotationIndex,
   useSelectedAnnotation,
   useSelectionUpdater,
+  useAnnotationApproved,
   Annotation as IAnnotation
 } from '~/providers'
 import {ApprovalControls} from './controls'
@@ -136,7 +130,8 @@ function annotationPartUpdater(update, ix){
 }
 
 interface AnnotationProps {
-  obj: IAnnotation
+  obj: IAnnotation,
+  children: React.ReactChild
 }
 
 const Annotation = (props: AnnotationProps)=>{
@@ -231,23 +226,26 @@ const LockedAnnotation = (props: AnnotationProps)=>{
   }));
 }
 
-const SimpleAnnotation = (props: AnnotationProps)=>{
-  const {obj, children} = props;
-  const {name, tag_id, boxes} = obj
+interface BasicAnnotationProps extends AnnotationProps {
+  alpha?: number,
+  onClick?: React.UIEventHandler,
+  onMouseOver?: React.UIEventHandler,
+  onMouseLeave?: React.UIEventHandler,
+  className?: string
+}
 
-  const selected = useSelectedAnnotation()
-  const isSelected = selected == obj
-  const updateSelection = useSelectionUpdater()
+const BasicAnnotation = (props: BasicAnnotationProps)=>{
+  const {obj, children, alpha, className, ...rest} = props;
+  const {name, boxes} = obj
 
   const c = useAnnotationColor(obj)
-  const alpha = isSelected ? 0.6 : 0.3;
-  const color = c.alpha(alpha).css();
+  const color = c.alpha(alpha ?? 0.5).css();
 
-  return h('div.annotation', boxes.map((bounds, i)=> {
+  return h('div.annotation', {className}, boxes.map((bounds, i)=> {
     return h(StaticRectangle, {
       bounds,
       color,
-      onClick: ()=>updateSelection(obj)
+      ...rest
     }, [
       h('div.tag-name', {style: {color: c.darken(2).css()}}, name),
         children
@@ -255,10 +253,37 @@ const SimpleAnnotation = (props: AnnotationProps)=>{
   }));
 }
 
+
+const SelectableAnnotation = (props: AnnotationProps)=>{
+  const selected = useSelectedAnnotation()
+  const isSelected = selected == props.obj
+  const updateSelection = useSelectionUpdater()
+
+  return h(BasicAnnotation, {
+    ...props,
+    alpha: isSelected ? 0.6 : 0.3,
+    onClick: ()=>updateSelection(props.obj)
+  })
+}
+
 const ApprovableAnnotation = (props: AnnotationProps)=>{
-  return h(SimpleAnnotation, props, [
-    h(ApprovalControls, {annotation: props.obj})
+  const [isHovered, setHovered] = useState(false)
+  let alpha = 0.2
+  const approved = useAnnotationApproved(props.obj)
+  if (approved?.classification != null && approved.proposal != null) {
+    alpha = 0.8
+  }
+
+  return h(BasicAnnotation, {
+    alpha,
+    onMouseEnter: ()=>setHovered(true),
+    onMouseLeave: ()=>setHovered(false),
+    ...props
+  }, [
+    h.if(isHovered)(ApprovalControls, {annotation: props.obj})
   ])
 }
 
-export {SimpleAnnotation, Annotation, LockedAnnotation, ApprovableAnnotation, tagCenter, tagBounds};
+const SimpleAnnotation = BasicAnnotation
+
+export {SimpleAnnotation, SelectableAnnotation, Annotation, LockedAnnotation, ApprovableAnnotation, tagCenter, tagBounds};

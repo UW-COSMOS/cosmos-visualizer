@@ -3,6 +3,7 @@ import {createContext, useContext, useState, useEffect} from 'react'
 import {
   Annotation,
   useAnnotations,
+  useAnnotationIndex
 } from './annotations'
 import axios from 'axios'
 import {APIContext} from '~/api'
@@ -134,7 +135,19 @@ const AnnotationApproverProvider = (props: AnnotationApproverProps)=>{
     return h(AnnotationApproverContext.Provider, {value}, props.children)
 }
 
+function useAnnotationApproved(annotation: Annotation): AnnotationApprovalStatus|null {
+  const ctx = useContext(AnnotationApproverContext)
+  if (ctx == null) return null
+  const {isProposalApproved, isClassificationApproved} = ctx
+  const ix = useAnnotationIndex(annotation)
+  return {
+    classification: isClassificationApproved[ix],
+    proposal: isProposalApproved[ix]
+  }
+}
+
 export {
     AnnotationApproverContext,
-    AnnotationApproverProvider
+    AnnotationApproverProvider,
+    useAnnotationApproved
 }

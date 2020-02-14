@@ -86,19 +86,21 @@ interface RectProps {
 const StaticRectangle = (props: RectProps)=>{
   let {
     bounds,
-    children,
-    className,
     color,
-    style
+    backgroundColor,
+    style,
+    onClick,
+    onMouseDown,
+    ...rest
   } = props;
 
 
   const {scaleFactor} = useCanvasSize()
 
   let {x,y,width, height} = getSize(bounds);
-  const backgroundColor = props.backgroundColor ?? color
+  backgroundColor = backgroundColor ?? color
 
-  const clickHandler = props.onMouseDown ?? props.onClick
+  const clickHandler = onMouseDown ?? onClick
   // Replace componentDidMount/findDOMNode with useRef and and useEffect
   const ref = useRef(null)
   useLayoutEffect(function(){
@@ -118,12 +120,8 @@ const StaticRectangle = (props: RectProps)=>{
     borderColor: color,
   };
 
-  return h('div.rect', {ref, style, className}, children);
+  return h('div.rect', {ref, style, ...rest});
 }
-
-StaticRectangle.defaultProps = {
-  isSelected: false
-};
 
 class DragHandles extends Component {
   render() {

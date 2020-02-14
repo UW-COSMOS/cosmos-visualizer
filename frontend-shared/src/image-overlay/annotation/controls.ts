@@ -8,7 +8,6 @@
  */
 import {useContext} from 'react';
 import h from '@macrostrat/hyper';
-import {min, max} from 'd3-array';
 import {Button, Intent} from '@blueprintjs/core';
 import classNames from 'classnames';
 
@@ -20,6 +19,7 @@ import {
   useAnnotationUpdater,
   useAnnotationActions,
   useAnnotationIndex,
+  useAnnotationApproved,
   Annotation as IAnnotation
 } from '~/providers'
 
@@ -53,8 +53,9 @@ const ControlPanel = (props: AnnotationControlsProps)=>{
   // Make sure clicks on the control panel don't dismiss it
   // due to the competing overlay click handler
   const onClick = event => event.stopPropagation();
+  const onMouseOver = onClick
   const style = {pointerEvents: 'visible'}
-  return h('div.rect-controls', {className, onClick, style}, children);
+  return h('div.rect-controls', {className, onClick, onMouseOver, style}, children);
 }
 
 interface AnnotationLeftControlProps extends AnnotationControlsProps {
@@ -149,20 +150,20 @@ const ThumbControls = (props: ThumbProps)=>{
 
 const ApprovalControls = (props)=>{
   const {annotation} = props
-  const ctx = useContext(AnnotationApproverContext)
-  if (ctx == null) return null
-  const {actions, isProposalApproved, isClassificationApproved} = ctx
-  const ix = useAnnotationIndex(props.annotation)
+  const {actions} = useContext(AnnotationApproverContext) ?? {}
+  if (actions == null) return null
+  const approved = useAnnotationApproved(annotation)
+
 
   return h(ControlPanel, {className: 'approval-controls'}, [
     h(ThumbControls, {
       label: "Proposal",
-      isApproved: isProposalApproved[ix],
+      isApproved: approved.proposal,
       update(a: boolean) { actions.toggleProposalApproved(annotation, a) }
     }),
     h(ThumbControls, {
       label: "Classification",
-      isApproved: isClassificationApproved[ix],
+      isApproved: approved.classification,
       update(a: boolean) { actions.toggleClassificationApproved(annotation, a) }
     })
   ])

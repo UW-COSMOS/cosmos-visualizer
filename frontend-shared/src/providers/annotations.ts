@@ -83,11 +83,20 @@ function useAnnotationColor(a: Annotation): chroma.Color {
   return chroma(idColor ?? nameColor ?? 'black')
 }
 
+const useAnnotationIndex = (ann: Annotation):number =>{
+  const {annotations, selected} = useContext(AnnotationsContext)
+  /* It's most common to be testing for the selected annotation,
+     so we check this first */
+  if (ann == annotations[selected]) return selected
+  return annotations.findIndex(d => ann == d)
+}
+
 export {
   AnnotationsProvider,
   AnnotationsContext,
   SelectionUpdateContext,
   useAnnotations,
+  useAnnotationIndex,
   useSelectedAnnotation,
   useSelectionUpdater,
   useAnnotationColor,

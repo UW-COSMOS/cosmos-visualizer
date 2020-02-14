@@ -270,20 +270,11 @@ const useAnnotationUpdater = (ann: Annotation)=>{
   return updateAnnotation(selected)
 }
 
-const useAnnotationIndex = (ann: Annotation):number =>{
-  const {annotations, selected} = useContext(AnnotationsContext)
-  /* It's most common to be testing for the selected annotation,
-     so we check this first */
-  if (ann == annotations[selected]) return selected
-  return annotations.findIndex(d => ann == d)
-}
-
 export {
   AnnotationEditorProvider,
   AnnotationEditorContext,
   useAnnotationEditor,
   useAnnotationActions,
   useAnnotationUpdater,
-  useAnnotationIndex,
   useEditorActions
 };
