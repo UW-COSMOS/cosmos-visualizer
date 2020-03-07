@@ -73,6 +73,7 @@ const AnnotationApproverProvider = (props: AnnotationApproverProps)=>{
 
 
       const box = ann.boxes[0]
+      const obj_id = ann.obj_id
 
 
        var endpoint = `${baseURL}/object/annotate`
@@ -80,6 +81,7 @@ const AnnotationApproverProvider = (props: AnnotationApproverProps)=>{
            coords : `(${box[0]}, ${box[1]})`,
            pdf_name,
            page_num,
+           object_id : obj_id,
            classification_success: opts?.classification,
            proposal_success: opts?.proposal,
            note: null

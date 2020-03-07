@@ -22,11 +22,11 @@ const normalizeAnnotation = function(d: AnnotationArr): Annotation {
   Temporary (?) function to normalize an annotation rectangle
   to the expected internal representation.
   */
-  console.log(d);
-  const boxes = [d[0]];
-  const name = d[1];
-  const score = d[2];
-  return {boxes, name, score, tag_id: name};
+  const boxes = [d.bounding_box];
+  const name = d.class;
+  const score = -1;
+  const obj_id = d.obj_id; // TODO: do this.. Really, this shouldn't be such a dumb structure.
+  return {boxes, name, score, tag_id: name, obj_id};
 };
 
 interface ImageData {

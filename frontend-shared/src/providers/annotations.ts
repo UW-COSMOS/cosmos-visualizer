@@ -16,6 +16,7 @@ interface Annotation {
   image_tag_id?: string,
   name: string,
   score?: number,
+  obj_id?: number,
 }
 
 interface AnnotationsCtx {
