@@ -24,7 +24,7 @@ const normalizeAnnotation = function(d: AnnotationArr): Annotation {
   */
   const boxes = [d.bounding_box];
   const name = d.class;
-  const score = -1;
+  const score = d.confidence;
   const obj_id = d.obj_id; // TODO: do this.. Really, this shouldn't be such a dumb structure.
   return {boxes, name, score, tag_id: name, obj_id};
 };
