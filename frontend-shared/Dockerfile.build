@@ -1,0 +1,24 @@
+FROM node:11-alpine
+WORKDIR /user
+
+COPY ./package.json /user
+RUN npm install
+
+COPY . /user
+
+ENV PUBLIC_URL="/"
+ENV API_BASE_URL="${PUBLIC_URL}search"
+ENV IMAGE_BASE_URL="${PUBLIC_URL}images/"
+ENV APPMODE="PREDICTION"
+
+# We could change this to bail with just "webpack" for non-development mode
+#CMD npm run-script watch:visualizer
+
+RUN npm run-script build:visualizer
+
+FROM nginx
+
+COPY --from=0 /user/dist /frontend
+COPY ./nginx.conf /etc/nginx/nginx.conf
+
+
