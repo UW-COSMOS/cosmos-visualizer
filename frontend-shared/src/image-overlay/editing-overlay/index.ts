@@ -15,7 +15,7 @@ import {StatefulComponent} from '@macrostrat/ui-components';
 import {useContext, ComponentProps} from 'react';
 
 import {AnnotationLinks} from '../annotation-links';
-import {TypeSelector} from './type-selector';
+import {AnnotationTypeSelector} from './type-selector';
 
 // This context is a bit outmoded
 import {EditorContext} from '../context';
@@ -127,7 +127,7 @@ class ImageOverlay extends StatefulComponent<Props,State> {
     const onClick = this.disableEditing;
 
     return h('div', [
-      h(TypeSelector, {
+      h(AnnotationTypeSelector, {
         isOpen: selectIsOpen,
         onClose: () => this.setState({selectIsOpen: false}),
       }),

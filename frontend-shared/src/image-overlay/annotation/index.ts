@@ -3,7 +3,6 @@ import h from '@macrostrat/hyper';
 import {min, max} from 'd3-array';
 import {Button, Intent} from '@blueprintjs/core';
 import classNames from 'classnames';
-import chroma from 'chroma-js'
 
 import {Rectangle, StaticRectangle} from './drag-rect';
 import {EditMode} from '~/enum';
@@ -54,7 +53,7 @@ const LinkButton = (props)=>{
   });
 }
 
-interface AnnotationControlProps {
+interface AnnotationControlsProps {
   annotation: IAnnotation
 }
 

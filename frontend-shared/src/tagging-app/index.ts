@@ -8,14 +8,11 @@ import "~/shared/_init"
 import {getEnvironmentConfig} from '~/shared/_env'
 
 import {render} from 'react-dom';
-import h, {compose} from '@macrostrat/hyper'
+import h, {compose, C} from '@macrostrat/hyper'
 import {APIProvider} from '../api';
 import {ImageStoreProvider} from './page-interface';
 import {PublicURLProvider} from '~/providers'
 import {TaggingApplication} from './app'
-
-// An aggressive shorthand to create a react component
-const C = (c, props={})=>({children})=>h(c, {...props, children})
 
 const AppHolder = (props)=>{
   const {baseURL, imageBaseURL, publicURL, children} = props

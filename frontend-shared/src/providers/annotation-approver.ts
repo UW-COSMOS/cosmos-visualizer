@@ -24,11 +24,10 @@ interface AnnotationApproverCtx {
 
 const AnnotationApproverContext = createContext<AnnotationApproverCtx|null>(null)
 
-interface AnnotationApproverProps {
+type AnnotationApproverProps = React.PropsWithChildren<{
   page_num: number,
-  pdf_name: string,
-  children: React.ReactNode
-}
+  pdf_name: string
+}>
 
 interface AnnotationApprovalMap {
     [ix: number]: boolean,

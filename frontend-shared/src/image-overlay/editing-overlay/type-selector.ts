@@ -36,7 +36,7 @@ const ListItem = (props)=>{
 
 ListItem.defaultProps = {locked: false}
 
-const TypeSelector = (props)=>{
+const AnnotationTypeSelector = (props)=>{
   const options = {
     shouldSort: true,
     minMatchCharLength: 0,
@@ -82,4 +82,4 @@ const TypeSelector = (props)=>{
   });
 }
 
-export {TypeSelector};
+export {AnnotationTypeSelector};
