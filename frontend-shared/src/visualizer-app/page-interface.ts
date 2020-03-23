@@ -15,7 +15,8 @@ import {
 import {AnnotationApproverProvider} from '../providers/annotation-approver'
 import {AnnotationLinks} from '../image-overlay/annotation-links';
 import {AnnotationsOverlay} from '../image-overlay/annotations';
-import {ApprovableAnnotation} from '../image-overlay/annotation'
+import {ApprovableAnnotation} from '../image-overlay/annotation';
+import {AnnotationTypeSelector} from '../image-overlay/editing-overlay/type-selector'
 
 const normalizeAnnotation = function(d: AnnotationArr): Annotation {
   /*
@@ -70,7 +71,8 @@ const ImageContainer = (props: ContainerProps)=>{
         h(AnnotationsOverlay, {
           renderAnnotation: (a)=>h(ApprovableAnnotation, {obj: a})
         }),
-        h(AnnotationLinks)
+        h(AnnotationLinks),
+        //h(AnnotationTypeSelector)
       ])
     )
   ]);

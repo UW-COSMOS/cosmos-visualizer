@@ -1,7 +1,6 @@
 import {useState, createContext, useContext} from 'react'
 import h from 'react-hyperscript'
-import {AnnotationArr, Annotation} from '../image-overlay/types'
-import {TagID, useTags} from './tags'
+import {useTags} from './tags'
 import chroma from 'chroma-js'
 
 type AnnotationRect = [number, number, number, number]
@@ -36,7 +35,8 @@ const SelectionUpdateContext = createContext<Updater|null>(null)
 
 interface ProviderProps {
   annotations: Annotation[],
-  allowSelection?: boolean
+  allowSelection?: boolean,
+  children?: React.ReactChildren
 }
 
 const AnnotationsProvider = (props: ProviderProps)=>{

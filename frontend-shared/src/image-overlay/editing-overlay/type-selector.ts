@@ -36,6 +36,44 @@ const ListItem = (props)=>{
 
 ListItem.defaultProps = {locked: false}
 
+interface OmniboxProps {
+  selectedTag: Tag[]
+}
+
+const AnnotationTypeOmnibox = (props: OmniboxProps)=>{
+  const {selectedTag} = props
+  return h(Omnibar, {
+    ...rest,
+    onItemSelect,
+    items: tags,
+    resetOnSelect: true,
+    itemListRenderer: obj=> {
+      const {filteredItems} = obj;
+      return h('div.item-list', null, filteredItems.map(d=> {
+        const active = d.tag_id === currentTag;
+        const locked = lockedTags.has(d.tag_id);
+        const onClick = () => {
+          return onItemSelect(d);
+        };
+        return h(ListItem, {
+          active,
+          onClick,
+          toggleLock: toggleTagLock(d.tag_id),
+          locked,
+          ...d
+        });
+      }));
+    },
+    itemListPredicate(query, items){
+      if (query === "") { return items; }
+      if ((fuse == null)) {
+        fuse = new Fuse(items, options);
+      }
+      return fuse.search(query);
+    }
+  });
+}
+
 const AnnotationTypeSelector = (props)=>{
   const options = {
     shouldSort: true,
@@ -82,4 +120,4 @@ const AnnotationTypeSelector = (props)=>{
   });
 }
 
-export {AnnotationTypeSelector};
+export {AnnotationTypeSelector, AnnotationTypeOmnibox};
