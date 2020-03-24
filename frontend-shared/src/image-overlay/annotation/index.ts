@@ -236,7 +236,7 @@ interface BasicAnnotationProps extends AnnotationProps {
 
 const BasicAnnotation = (props: BasicAnnotationProps)=>{
   const {obj, children, alpha, className, ...rest} = props;
-  const {name, boxes} = obj
+  const {name, boxes, score} = obj
 
   const c = useAnnotationColor(obj)
   const color = c.alpha(alpha ?? 0.5).css();
@@ -247,7 +247,7 @@ const BasicAnnotation = (props: BasicAnnotationProps)=>{
       color,
       ...rest
     }, [
-      h('div.tag-name', {style: {color: c.darken(2).css()}}, name),
+    h('div.tag-name', {style: {color: c.darken(2).css()}}, `${name} (${score})`),
         children
     ]);
   }));

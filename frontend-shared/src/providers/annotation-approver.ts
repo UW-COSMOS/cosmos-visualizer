@@ -64,12 +64,15 @@ async function postAnnotationThumbs(
   opts: AnnotationApprovalStatus
 ): Promise<boolean> {
 
+  const obj_id = ann.obj_id
+
   const {baseURL, ...rest} = data;
   const box = ann.boxes[0]
   const endpoint = `${baseURL}/object/annotate`
   const postData = {
      coords : `(${box[0]}, ${box[1]})`,
      ...rest,
+     object_id: obj_id,
      classification_success: opts?.classification,
      proposal_success: opts?.proposal,
      note: null

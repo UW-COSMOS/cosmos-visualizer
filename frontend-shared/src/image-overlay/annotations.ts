@@ -37,7 +37,7 @@ const AnnotationsOverlay = (props: AnnotationsOverlayProps)=>{
 }
 
 AnnotationsOverlay.defaultProps = {
-  renderAnnotation: (obj, ix)=>h(SimpleAnnotation, {obj, ix})
+  renderAnnotation: (obj, ix)=>h(SimpleAnnotation, {obj, ix, key: ix})
 }
 
 const oldRenderer = (d, ix)=> {
