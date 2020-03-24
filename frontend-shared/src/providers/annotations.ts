@@ -3,21 +3,6 @@ import h from 'react-hyperscript'
 import {useTags} from './tags'
 import chroma from 'chroma-js'
 
-type AnnotationRect = [number, number, number, number]
-type AnnotationArr = [AnnotationRect, TagID, number]
-
-// Really, this is an index
-type AnnotationID = number
-interface Annotation {
-  boxes: AnnotationRect[],
-  tag_id: TagID,
-  // Potentially, the uuid of another tag on the page
-  image_tag_id?: string,
-  name: string,
-  score?: number,
-  obj_id?: number,
-}
-
 interface AnnotationsCtx {
   annotations: Annotation[],
   allowSelection: boolean,
@@ -101,7 +86,4 @@ export {
   useSelectedAnnotation,
   useSelectionUpdater,
   useAnnotationColor,
-  Annotation,
-  AnnotationRect,
-  AnnotationArr
 }

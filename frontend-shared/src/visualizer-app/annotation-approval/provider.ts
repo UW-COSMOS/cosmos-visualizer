@@ -1,15 +1,12 @@
 import h from '@macrostrat/hyper'
 import {createContext, useContext, useState, useEffect} from 'react'
-import {
-  Annotation,
-  useAnnotations,
-  useAnnotationIndex
-} from './annotations'
-import {useTags} from './tags'
+import {useAnnotations, useAnnotationIndex} from '~/providers/annotations'
+import {useTags} from '~/providers/tags'
 import axios from 'axios'
 import {APIContext} from '~/api'
 import {AnnotationTypeOmnibox} from '~/image-overlay/editing-overlay/type-selector'
 import update, {MapSpec} from 'immutability-helper'
+//import {AnnotationApprovalStatus} from './index.d'
 
 type UpdateSpec = object;
 
@@ -40,11 +37,6 @@ interface AnnotationApprovalMap {
 interface AnnotationApprovalState {
   proposalApproved: AnnotationApprovalMap,
   classificationApproved: AnnotationApprovalMap,
-}
-
-interface AnnotationApprovalStatus {
-  classification?: boolean|null,
-  proposal?: boolean|null
 }
 
 const initialState: AnnotationApprovalState = {
@@ -87,6 +79,31 @@ async function postAnnotationThumbs(
     console.log(err)
     return false
   }
+}
+
+async function updateTag(ann: Annotation, tag: Tag, data: APIResponseData) {
+
+    const obj_id = ann.obj_id
+
+    const {baseURL, ...rest} = data;
+    const box = ann.boxes[0]
+    const endpoint = `${baseURL}/object/annotate`
+    const postData = {
+       coords : `(${box[0]}, ${box[1]})`,
+       ...rest,
+       object_id: obj_id,
+       annotated_cls: tag.name
+    }
+
+    try {
+      const res = await axios.post(endpoint, postData, {
+        headers : {'Content-Type': 'application/x-www-form-urlencoded'}
+      })
+      return true
+    } catch (err) {
+      console.log(err)
+      return false
+    }
 }
 
 const AnnotationApproverProvider = (props: AnnotationApproverProps)=>{
@@ -152,6 +169,11 @@ const AnnotationApproverProvider = (props: AnnotationApproverProps)=>{
       h.if(tag != null)(AnnotationTypeOmnibox, {
         selectedTag: tag,
         onSelectTag: (t: Tag)=>{
+          const success = updateTag(tagSelectionAnnotation, t, data)
+          const ix = cur_annotations.indexOf(tagSelectionAnnotation)
+          if (success && ix != -1) {
+
+          }
           setSelectionAnnotation(null)
         },
         onClose: ()=>setSelectionAnnotation(null),

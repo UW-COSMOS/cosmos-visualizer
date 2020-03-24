@@ -1,14 +1,14 @@
 import {useContext, useState} from 'react';
 import h from '@macrostrat/hyper';
 import {min, max} from 'd3-array';
-import {Button, Intent} from '@blueprintjs/core';
+import {Intent} from '@blueprintjs/core';
 import classNames from 'classnames';
 
 import {Rectangle, StaticRectangle} from './drag-rect';
 import {EditMode} from '~/enum';
 import {EditorContext} from '~/image-overlay/context';
+import {AnnotationControls} from './controls'
 import {
-  useCanvasSize,
   useTags,
   useAnnotationColor,
   useAnnotationUpdater,
@@ -16,13 +16,8 @@ import {
   useAnnotationIndex,
   useSelectedAnnotation,
   useSelectionUpdater,
-  useAnnotationApproved,
-  Annotation as IAnnotation
 } from '~/providers'
-import {ApprovalControls} from './controls'
-import {AnnotationTypeOmnibox} from '../editing-overlay/type-selector'
 
-const ToolButton = props => h(Button, {small: true, minimal: true, ...props});
 
 const tagBounds = boxes => [
   min(boxes, d => d[0]),
@@ -35,73 +30,6 @@ const tagCenter = function(boxes){
   const d = tagBounds(boxes);
   return [(d[0]+d[2])/2, (d[1]+d[3])/2];
 };
-
-const LinkButton = (props)=>{
-  const {update} = props;
-  const {actions: {setMode}, editModes} = useContext(EditorContext);
-  const removeLink = () => update({linked_to: {$set: null}});
-
-  if (props.linked_to != null) {
-    return h(ToolButton, {
-      icon: 'ungroup-objects',
-      onClick: removeLink
-    });
-  }
-  return h(ToolButton, {
-    icon: 'new-link',
-    intent: editModes.has(EditMode.LINK) ? Intent.SUCCESS : undefined,
-    onClick() { return setMode(EditMode.LINK); }
-  });
-}
-
-interface AnnotationControlsProps {
-  annotation: IAnnotation
-}
-
-const AnnotationControls = (props: AnnotationControlsProps)=>{
-  const {
-    onSelect,
-    annotation
-  } = props;
-
-  const update = useAnnotationUpdater(annotation)!
-  if (update == null) return null
-
-  const {deleteAnnotation} = useAnnotationActions()!
-  const ix = useAnnotationIndex(annotation)
-  const {linked_to, boxes} = annotation;
-
-  // Calculate editing menu position
-  const {height, scaleFactor} = useCanvasSize()
-  const maxY = boxes[0][3]/scaleFactor
-  const className = maxY > height-50 ? 'top' : 'bottom'
-
-  const {actions: {setMode}, editModes} = useContext(EditorContext);
-
-  // Make sure clicks on the control panel don't dismiss it
-  // due to the competing overlay click handler
-  const onClick = event => event.stopPropagation();
-
-  const style = {pointerEvents: 'visible'}
-
-  return h('div.rect-controls', {className, onClick, style}, [
-    h(ToolButton, {
-      icon: 'tag',
-      onClick: onSelect
-    }),
-    h(LinkButton, {update, linked_to}),
-    h(ToolButton, {
-      icon: 'insert',
-      intent: editModes.has(EditMode.ADD_PART) ? Intent.SUCCESS : undefined,
-      onClick() { return setMode(EditMode.ADD_PART); }
-    }),
-    h(ToolButton, {
-      icon: 'cross',
-      intent: Intent.DANGER,
-      onClick: ()=>deleteAnnotation(ix)
-    })
-  ]);
-}
 
 const AnnotationPart = (props)=>{
   const {update, onDelete, bounds, color, ...rest} = props
@@ -130,7 +58,7 @@ function annotationPartUpdater(update, ix){
 }
 
 interface AnnotationProps {
-  obj: IAnnotation,
+  obj: Annotation,
   children: React.ReactChild
 }
 
@@ -266,24 +194,14 @@ const SelectableAnnotation = (props: AnnotationProps)=>{
   })
 }
 
-const ApprovableAnnotation = (props: AnnotationProps)=>{
-  const [isHovered, setHovered] = useState(false)
-  let alpha = 0.2
-  const approved = useAnnotationApproved(props.obj)
-  if (approved?.classification != null && approved.proposal != null) {
-    alpha = 0.8
-  }
-
-  return h(BasicAnnotation, {
-    alpha,
-    onMouseEnter: ()=>setHovered(true),
-    onMouseLeave: ()=>setHovered(false),
-    ...props
-  }, [
-    h.if(isHovered)(ApprovalControls, {annotation: props.obj})
-  ])
-}
-
 const SimpleAnnotation = BasicAnnotation
 
-export {SimpleAnnotation, SelectableAnnotation, Annotation, LockedAnnotation, ApprovableAnnotation, tagCenter, tagBounds};
+export {
+  SimpleAnnotation,
+  SelectableAnnotation,
+  Annotation,
+  AnnotationProps,
+  LockedAnnotation,
+  tagCenter,
+  tagBounds
+};

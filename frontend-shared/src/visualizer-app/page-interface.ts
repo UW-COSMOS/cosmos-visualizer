@@ -1,23 +1,16 @@
 import h from '@macrostrat/hyper';
 import {Intent} from "@blueprintjs/core";
 import {StatefulComponent} from '@macrostrat/ui-components';
-import {ReactNode} from 'react'
 import {AppToaster} from '../toaster';
 import {APIContext} from '../api';
 import {Image} from '~/types'
 import {PageFrame, ScaledImagePanel} from '~/page-interface'
-import {
-  APITagsProvider,
-  AnnotationArr,
-  Annotation,
-  AnnotationsProvider,
-} from '~/providers'
-import {AnnotationApproverProvider} from '../providers/annotation-approver'
+import {APITagsProvider, AnnotationsProvider} from '~/providers'
 import {AnnotationLinks} from '../image-overlay/annotation-links';
 import {AnnotationsOverlay} from '../image-overlay/annotations';
-import {ApprovableAnnotation} from '../image-overlay/annotation';
+import {AnnotationApproverProvider, ApprovableAnnotation} from './annotation-approval';
 
-const normalizeAnnotation = function(d: AnnotationArr): Annotation {
+const normalizeAnnotation = function(d: APIAnnotation): IApprovableAnnotation {
   /*
   Temporary (?) function to normalize an annotation rectangle
   to the expected internal representation.
@@ -26,7 +19,7 @@ const normalizeAnnotation = function(d: AnnotationArr): Annotation {
   const name = d.class;
   const score = d.confidence;
   const obj_id = d.obj_id; // TODO: do this.. Really, this shouldn't be such a dumb structure.
-  return {boxes, name, score, tag_id: name, obj_id};
+  return {boxes, name, score, tag_id: name, obj_id, };
 };
 
 interface ImageData {
