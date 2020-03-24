@@ -1,4 +1,4 @@
-import h from '@macrostrat/hyper';
+import h from 'react-hyperscript' //@macrostrat/hyper';
 import {SimpleAnnotation, Annotation , LockedAnnotation} from './annotation';
 
 import {EditMode} from '../enum';
@@ -13,16 +13,16 @@ import {
 } from '~/providers'
 
 interface AnnotationsOverlayProps {
-  inProgressAnnotation: IAnnotation|null,
-  actions: AnnotationActions,
-  lockedTags: Set<string>,
-  toggleSelect: ()=>void,
-  onSelectAnnotation: (ix: number)=> ()=>void,
+  inProgressAnnotation?: IAnnotation|null,
+  actions?: AnnotationActions,
+  lockedTags?: Set<string>,
+  toggleSelect?: ()=>void,
+  onSelectAnnotation?: (ix: number)=> ()=>void,
   // Function to render a single annotation
-  renderAnnotation(d: IAnnotation, ix: number): React.ReactNode
-  onClick: ()=>void
-  tags: ITag[],
-  children: React.ReactNode
+  renderAnnotation(d: IAnnotation, ix?: number): React.ReactNode
+  onClick?: ()=>void
+  tags?: ITag[],
+  children?: React.ReactChild
 }
 
 const AnnotationsOverlay = (props: AnnotationsOverlayProps)=>{

@@ -1,19 +1,23 @@
-import h from 'react-hyperscript'
+import h from '@macrostrat/hyper'
 import {createContext, useContext, useState, useEffect} from 'react'
 import {
   Annotation,
   useAnnotations,
   useAnnotationIndex
 } from './annotations'
+import {useTags} from './tags'
 import axios from 'axios'
 import {APIContext} from '~/api'
+import {AnnotationTypeOmnibox} from '~/image-overlay/editing-overlay/type-selector'
 import update, {MapSpec} from 'immutability-helper'
 
 type UpdateSpec = object;
 
 interface ApproverActions {
   toggleClassificationApproved(i: Annotation, good: boolean): void,
-  toggleProposalApproved(i: Annotation, good: boolean): void
+  toggleProposalApproved(i: Annotation, good: boolean): void,
+  // Added update tag action
+  requestTagUpdate(i: Annotation): void
 }
 
 interface AnnotationApproverCtx {
@@ -35,7 +39,7 @@ interface AnnotationApprovalMap {
 
 interface AnnotationApprovalState {
   proposalApproved: AnnotationApprovalMap,
-  classificationApproved: AnnotationApprovalMap
+  classificationApproved: AnnotationApprovalMap,
 }
 
 interface AnnotationApprovalStatus {
@@ -48,9 +52,44 @@ const initialState: AnnotationApprovalState = {
   classificationApproved: {}
 }
 
+interface APIResponseData {
+  pdf_name: string,
+  page_num: number,
+  baseURL: string
+}
+
+async function postAnnotationThumbs(
+  ann: Annotation,
+  data: APIResponseData,
+  opts: AnnotationApprovalStatus
+): Promise<boolean> {
+
+  const {baseURL, ...rest} = data;
+  const box = ann.boxes[0]
+  const endpoint = `${baseURL}/object/annotate`
+  const postData = {
+     coords : `(${box[0]}, ${box[1]})`,
+     ...rest,
+     classification_success: opts?.classification,
+     proposal_success: opts?.proposal,
+     note: null
+  }
+
+  try {
+    await axios.post(endpoint, postData, {
+      headers : {'Content-Type': 'application/x-www-form-urlencoded'}
+    })
+    return true
+  } catch (err) {
+    console.log(err)
+    return false
+  }
+}
+
 const AnnotationApproverProvider = (props: AnnotationApproverProps)=>{
     const {pdf_name, page_num} = props
     const [state, setState] = useState<AnnotationApprovalState>(initialState)
+    const [tagSelectionAnnotation, setSelectionAnnotation] = useState<Annotation|null>(null)
     // Reset annotations on image change
     useEffect(() => setState(initialState), [pdf_name, page_num])
 
@@ -65,39 +104,9 @@ const AnnotationApproverProvider = (props: AnnotationApproverProps)=>{
         return state.proposalApproved[i] ?? null
     })
 
-    async function postAnnotationThumbs(
-      ann: Annotation,
-      opts: AnnotationApprovalStatus
-    ): Promise<boolean> {
-
-
-      const box = ann.boxes[0]
-
-
-       var endpoint = `${baseURL}/object/annotate`
-       var data = {
-           coords : `(${box[0]}, ${box[1]})`,
-           pdf_name,
-           page_num,
-           classification_success: opts?.classification,
-           proposal_success: opts?.proposal,
-           note: null
-        }
-       try {
-           await axios.post(endpoint, data, {
-             headers : {
-               'Content-Type': 'application/x-www-form-urlencoded'
-             }
-           })
-           return true
-       } catch (err) {
-         console.log(err)
-         return false
-       }
-    }
-
+    const data = {baseURL, pdf_name, page_num}
     async function thumbs(annotation: Annotation, opts: AnnotationApprovalStatus) {
-        const res = await postAnnotationThumbs(annotation, opts)
+        const res = await postAnnotationThumbs(annotation, data, opts)
         //if (!res) return
         const ix = cur_annotations.findIndex(d => d == annotation)
 
@@ -125,13 +134,25 @@ const AnnotationApproverProvider = (props: AnnotationApproverProps)=>{
           },
           toggleProposalApproved(ann: Annotation, res: boolean) {
             thumbs(ann, {proposal: res})
+          },
+          requestTagUpdate(ann: Annotation) {
+            setSelectionAnnotation(ann)
           }
         },
         isClassificationApproved,
         isProposalApproved
     }
 
-    return h(AnnotationApproverContext.Provider, {value}, props.children)
+    const tag = useTags().find(d => d.name == tagSelectionAnnotation?.name)
+
+    return h(AnnotationApproverContext.Provider, {value}, [
+      h.if(tag != null)(AnnotationTypeOmnibox, {
+        selectedTag: tag,
+        onSelectTag: (t: Tag)=>{},
+        isOpen: tagSelectionAnnotation != null
+      }),
+      props.children
+    ])
 }
 
 function useAnnotationApproved(annotation: Annotation): AnnotationApprovalStatus|null {

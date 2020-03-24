@@ -20,6 +20,7 @@ import {
   Annotation as IAnnotation
 } from '~/providers'
 import {ApprovalControls} from './controls'
+import {AnnotationTypeOmnibox} from '../editing-overlay/type-selector'
 
 const ToolButton = props => h(Button, {small: true, minimal: true, ...props});
 

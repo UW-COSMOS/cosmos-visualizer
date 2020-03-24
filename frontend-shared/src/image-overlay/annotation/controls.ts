@@ -120,29 +120,27 @@ const ThumbControls = (props: ThumbProps)=>{
   const {isApproved, update, label} = props
   const isSet = isApproved != null
 
-  return h([
-    h("div.thumb-controls", [
-      h.if(label != null)("span.label", label),
-      h("div.buttons", [
-        h(ToolButton, {
-          icon: 'thumbs-up',
-          intent: isSet && isApproved ? 'success' : null,
-          small: true,
-          onClick() {
-            console.log("Clicked thumbs up")
-            update(true)
-          }
-        }),
-        h(ToolButton, {
-          icon: 'thumbs-down',
-          intent: isSet && !isApproved ? 'danger' : null,
-          small: true,
-          onClick() {
-            console.log("Clicked thumbs down")
-            update(false)
-          }
-        })
-      ])
+  return h("div.thumb-controls", [
+    h.if(label != null)("span.label", label),
+    h("div.buttons", [
+      h(ToolButton, {
+        icon: 'thumbs-up',
+        intent: isSet && isApproved ? 'success' : null,
+        small: true,
+        onClick() {
+          console.log("Clicked thumbs up")
+          update(true)
+        }
+      }),
+      h(ToolButton, {
+        icon: 'thumbs-down',
+        intent: isSet && !isApproved ? 'danger' : null,
+        small: true,
+        onClick() {
+          console.log("Clicked thumbs down")
+          update(false)
+        }
+      })
     ])
   ])
 }
@@ -154,6 +152,7 @@ const ApprovalControls = (props)=>{
   if (actions == null) return null
   const approved = useAnnotationApproved(annotation)
 
+  const tagChanged = false
 
   return h(ControlPanel, {className: 'approval-controls'}, [
     h(ThumbControls, {
@@ -165,7 +164,21 @@ const ApprovalControls = (props)=>{
       label: "Classification",
       isApproved: approved.classification,
       update(a: boolean) { actions.toggleClassificationApproved(annotation, a) }
-    })
+    }),
+    h("div.tag-control", [
+      h("span.label", "Tag"),
+      h("div.buttons", [
+        h(ToolButton, {
+          icon: 'tag',
+          intent: tagChanged ? 'success' : null,
+          small: true,
+          onClick() {
+            actions.requestTagUpdate(annotation)
+          }
+        }),
+      ])
+    ])
+
   ])
 }
 

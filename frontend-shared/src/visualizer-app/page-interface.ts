@@ -1,4 +1,4 @@
-import h from 'react-hyperscript';
+import h from '@macrostrat/hyper';
 import {Intent} from "@blueprintjs/core";
 import {StatefulComponent} from '@macrostrat/ui-components';
 import {ReactNode} from 'react'
@@ -16,7 +16,6 @@ import {AnnotationApproverProvider} from '../providers/annotation-approver'
 import {AnnotationLinks} from '../image-overlay/annotation-links';
 import {AnnotationsOverlay} from '../image-overlay/annotations';
 import {ApprovableAnnotation} from '../image-overlay/annotation';
-import {AnnotationTypeSelector} from '../image-overlay/editing-overlay/type-selector'
 
 const normalizeAnnotation = function(d: AnnotationArr): Annotation {
   /*
@@ -33,10 +32,12 @@ const normalizeAnnotation = function(d: AnnotationArr): Annotation {
 interface ImageData {
   _id: string,
   pp_detected_objs?: AnnotationArr[],
+  pdf_name: string,
+  page_num: number
 }
 
 interface ViewerProviderProps {
-  children: ReactNode,
+  children: React.ReactChild,
   image: ImageData
 }
 
@@ -69,10 +70,9 @@ const ImageContainer = (props: ContainerProps)=>{
     },
       h('div.image-overlay', [
         h(AnnotationsOverlay, {
-          renderAnnotation: (a)=>h(ApprovableAnnotation, {obj: a})
+          renderAnnotation: (a, ix)=>h(ApprovableAnnotation, {obj: a})
         }),
-        h(AnnotationLinks),
-        //h(AnnotationTypeSelector)
+        h(AnnotationLinks)
       ])
     )
   ]);
