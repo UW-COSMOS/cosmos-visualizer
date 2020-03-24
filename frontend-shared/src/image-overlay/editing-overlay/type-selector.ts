@@ -1,10 +1,12 @@
-import h from '@macrostrat/hyper';
+import {hyperStyled} from '@macrostrat/hyper';
 import classNames from 'classnames';
 import {Button} from '@blueprintjs/core';
-import {Omnibar} from '@blueprintjs/select';
+import {Omnibar, IOmnibarProps} from '@blueprintjs/select';
 import {useTags, useAnnotationEditor} from '~/providers'
 import Fuse from 'fuse.js';
 import chroma from 'chroma-js';
+import styles from './main.styl'
+const h = hyperStyled(styles)
 
 interface TagItemProps {
   active: boolean,
@@ -34,7 +36,7 @@ const TagListItem = (props: TagItemProps)=>{
   ]);
 }
 
-interface OmniboxProps {
+interface OmniboxProps extends IOmnibarProps<Tag> {
   selectedTag: Tag,
   onSelectTag: (t: Tag)=>void,
   listItemComponent: React.ComponentType<TagItemProps>
@@ -43,7 +45,7 @@ interface OmniboxProps {
 
 const AnnotationTypeOmnibox = (props: OmniboxProps)=>{
   /** A general omnibox for annotation types */
-  const {selectedTag, onSelectTag, listItemComponent, isOpen} = props
+  const {selectedTag, onSelectTag, listItemComponent, isOpen, onClose} = props
   const tags = useTags()
   const options = {
     shouldSort: true,
@@ -71,6 +73,7 @@ const AnnotationTypeOmnibox = (props: OmniboxProps)=>{
     items: tags,
     resetOnSelect: true,
     isOpen,
+    onClose,
     itemRenderer: undefined,
     itemListRenderer,
     itemListPredicate(query, items) {

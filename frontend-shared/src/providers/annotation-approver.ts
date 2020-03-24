@@ -148,7 +148,10 @@ const AnnotationApproverProvider = (props: AnnotationApproverProps)=>{
     return h(AnnotationApproverContext.Provider, {value}, [
       h.if(tag != null)(AnnotationTypeOmnibox, {
         selectedTag: tag,
-        onSelectTag: (t: Tag)=>{},
+        onSelectTag: (t: Tag)=>{
+          setSelectionAnnotation(null)
+        },
+        onClose: ()=>setSelectionAnnotation(null),
         isOpen: tagSelectionAnnotation != null
       }),
       props.children
