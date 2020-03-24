@@ -1,12 +1,3 @@
-
-/*
- * decaffeinate suggestions:
- * DS001: Remove Babel/TypeScript constructor workaround
- * DS102: Remove unnecessary code created because of implicit returns
- * DS206: Consider reworking classes to avoid initClass
- * DS207: Consider shorter variations of null checks
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
 import {useContext} from 'react';
 import h from '@macrostrat/hyper';
 import {AnnotationApproverContext, useAnnotationApproved} from "../provider"
@@ -47,14 +38,17 @@ const ThumbControls = (props: ThumbProps)=>{
   ])
 }
 
+interface ApprovalControlsProps {
+  annotation: ApprovableAnnotation
+}
 
-const ApprovalControls = (props)=>{
+const ApprovalControls = (props: ApprovalControlsProps)=>{
   const {annotation} = props
   const {actions} = useContext(AnnotationApproverContext) ?? {}
   if (actions == null) return null
   const approved = useAnnotationApproved(annotation)
 
-  const tagChanged = false
+  const tagChanged = annotation.annotated_cls != null
 
   return h(ControlPanel, {className: 'approval-controls'}, [
     h(ThumbControls, {

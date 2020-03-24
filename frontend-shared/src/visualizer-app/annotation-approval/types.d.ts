@@ -1,7 +1,7 @@
 // An ambient type declaration for annotations
 
-declare interface IApprovableAnnotation extends Annotation {
-  annotated_cls: string|null,
+declare interface ApprovableAnnotation extends Annotation {
+  annotated_cls: string|null
 }
 
 declare interface APIAnnotation {

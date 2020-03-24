@@ -4,7 +4,11 @@ import {useAnnotationApproved} from '../provider'
 import {ApprovalControls} from './controls'
 import {SimpleAnnotation, AnnotationProps} from '~/image-overlay/annotation'
 
-const ApprovableAnnotation = (props: AnnotationProps)=>{
+interface ApprovableAnnotationProps extends AnnotationProps {
+  obj: ApprovableAnnotation
+}
+
+const ApprovableAnnotation = (props: ApprovableAnnotationProps)=>{
   const [isHovered, setHovered] = useState(false)
   let alpha = 0.2
   const approved = useAnnotationApproved(props.obj)

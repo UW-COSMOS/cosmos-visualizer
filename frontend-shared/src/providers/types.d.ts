@@ -1,4 +1,4 @@
-declare type TagID = number
+declare type TagID = string
 declare interface Tag {
   color: string,
   name: string,
@@ -18,4 +18,15 @@ declare interface Annotation {
   name: string,
   score?: number,
   obj_id?: number,
+}
+
+// This interface might be outmoded
+declare interface Image {
+  created: string,
+  doc_id: string,
+  file_path: string,
+  image_id: string,
+  page_no: number,
+  // This is not really a relevant concept anymore
+  stack_id?: string
 }

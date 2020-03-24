@@ -6,7 +6,6 @@ import axios from 'axios'
 import {APIContext} from '~/api'
 import {AnnotationTypeOmnibox} from '~/image-overlay/editing-overlay/type-selector'
 import update, {MapSpec} from 'immutability-helper'
-//import {AnnotationApprovalStatus} from './index.d'
 
 type UpdateSpec = object;
 
@@ -84,6 +83,13 @@ async function postAnnotationThumbs(
 async function updateTag(ann: Annotation, tag: Tag, data: APIResponseData) {
 
     const obj_id = ann.obj_id
+
+    let annotated_cls = tag.name;
+    // Hack to allow deselection by selecting the same overridden tag
+    // Should convert to a {remove} button or something
+    if (annotated_cls == ann.annotated_cls) {
+      annotated_cls = null
+    }
 
     const {baseURL, ...rest} = data;
     const box = ann.boxes[0]
@@ -172,7 +178,7 @@ const AnnotationApproverProvider = (props: AnnotationApproverProps)=>{
           const success = updateTag(tagSelectionAnnotation, t, data)
           const ix = cur_annotations.indexOf(tagSelectionAnnotation)
           if (success && ix != -1) {
-
+            // Update tags to show success
           }
           setSelectionAnnotation(null)
         },

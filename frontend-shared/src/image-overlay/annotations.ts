@@ -67,8 +67,4 @@ const oldRenderer = (d, ix)=> {
   }
 }
 
-// AddAnnotationsOverlay.defaultProps = {
-//   lockedTags: new Set()
-// }
-
 export {AnnotationsOverlay};
