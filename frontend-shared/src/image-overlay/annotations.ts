@@ -1,4 +1,4 @@
-import h from 'react-hyperscript';
+import h from '@macrostrat/hyper';
 import {SimpleAnnotation, Annotation , LockedAnnotation} from './annotation';
 
 import {EditMode} from '../enum';
