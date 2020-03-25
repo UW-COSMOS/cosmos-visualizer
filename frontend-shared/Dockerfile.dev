@@ -4,7 +4,7 @@ WORKDIR /user
 COPY ./package.json /user
 RUN mkdir -p ./bundled-deps/ui-components
 COPY ./bundled-deps/ui-components/package.json ./bundled-deps/ui-components
-RUN npm install -D linklocal bulk && npm install
+RUN npm install -g linklocal bulk concurrently && npm install
 
 COPY . /user
 
@@ -14,4 +14,4 @@ ENV IMAGE_BASE_URL="${PUBLIC_URL}images/"
 ENV APPMODE="PREDICTION"
 
 # We could change this to bail with just "webpack" for non-development mode
-CMD npm run-script watch:visualizer
+CMD concurrently npm:watch:visualizer npm:watch:ui-components

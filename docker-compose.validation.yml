@@ -5,7 +5,7 @@ services:
     build:
       context: frontend-shared
       dockerfile: Dockerfile.dev
-    command: "concurrently npm:watch:visualizer npm:watch:ui-components"
+    command: "concurrently npm:watch:validation npm:watch:ui-components"
     environment:
       # Public URL is settable from the
       # local environment
@@ -22,7 +22,7 @@ services:
   gateway:
     image: nginx
     ports:
-      - "${VISUALIZER_PORT:-5080}:80"
+      - "${VALIDATION_PORT:-5080}:80"
     volumes:
       - visualizer_dist:/frontend:ro
       - ./frontend-shared/nginx.frontend-only.conf:/etc/nginx/nginx.conf:ro

@@ -11,7 +11,12 @@ and [Coffeescript](https://coffeescript.org), with standard
 user-interface primitives provided by [Blueprint.js](https://blueprintjs.com)
 and [the Macrostrat project](https://github.com/UW-Macrostrat/ui-components)
 
-## Image-Tagger
+## Running
+
+This repository houses three user interfaces, which can be run independently
+using the commands in the `bin/` folder.
+
+## Image tagging
 
 Image-Tagger is a basic web UI that allows the definition of rectangular
 tagged areas on images for an arbitrary list of object categories. It is designed

@@ -60,6 +60,7 @@
     "babel-loader": "^8.0.6",
     "coffee-loader": "^0.9.0",
     "coffeescript": "^2.3.2",
+    "concurrently": "^5.1.0",
     "css-loader": "^3.0.0",
     "file-loader": "^4.0.0",
     "html-loader": "^0.5.5",
@@ -72,12 +73,14 @@
     "webpack-cli": "^3.3.5"
   },
   "scripts": {
-    "preinstall": "linklocal",
+    "preinstall": "linklocal link && (cd bundled-deps/ui-components && npm install --production)",
     "build:tagging": "webpack --config webpack.tagging.js ",
+    "build:visualizer": "webpack --config webpack.validation.js",
     "build:visualizer": "webpack --config webpack.visualizer.js",
     "watch:tagging": "webpack --config webpack.tagging.js --watch --mode=development",
+    "watch:validation": "webpack --config webpack.validation.js --watch --mode=development",
     "watch:visualizer": "webpack --config webpack.visualizer.js --watch --mode=development",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "watch:ui-components": "cd bundled-deps/ui-components && npm run dev"
   },
   "repository": {
     "type": "git",

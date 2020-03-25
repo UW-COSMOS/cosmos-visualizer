@@ -1,13 +1,11 @@
 #!/usr/bin/env zsh
-# Run the public visualizer
 
 cd "${0:h:h}"
 
-# Searate this from the visualizer
-export COMPOSE_PROJECT_NAME="cosmos-visualizer"
+export COMPOSE_PROJECT_NAME="cosmos-validation"
 
 function compose {
-  docker-compose -f docker-compose.visualizer.yml $@
+  docker-compose -f docker-compose.validation.yml $@
 }
 
 export MAGIC_MODE=0
