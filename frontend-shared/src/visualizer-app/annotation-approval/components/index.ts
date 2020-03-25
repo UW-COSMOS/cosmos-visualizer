@@ -16,11 +16,19 @@ const ApprovableAnnotation = (props: ApprovableAnnotationProps)=>{
     alpha = 0.8
   }
 
+  // Show annotated class
+  let {obj, ...rest} = props
+  if (obj.annotated_cls != null) {
+    obj.tag_id = obj.annotated_cls
+    obj.score = "overridden"
+  }
+
   return h(SimpleAnnotation, {
     alpha,
     onMouseEnter: ()=>setHovered(true),
     onMouseLeave: ()=>setHovered(false),
-    ...props
+    ...rest,
+    obj
   }, [
     h.if(isHovered)(ApprovalControls, {annotation: props.obj})
   ])

@@ -80,9 +80,9 @@ async function postAnnotationThumbs(
   }
 }
 
-async function updateTag(ann: Annotation, tag: Tag, data: APIResponseData) {
+async function updateTag(ann: ApprovableAnnotation, tag: Tag, data: APIResponseData) {
 
-    const obj_id = ann.obj_id
+    const object_id = ann.obj_id
 
     let annotated_cls = tag.name;
     // Hack to allow deselection by selecting the same overridden tag
@@ -97,8 +97,8 @@ async function updateTag(ann: Annotation, tag: Tag, data: APIResponseData) {
     const postData = {
        coords : `(${box[0]}, ${box[1]})`,
        ...rest,
-       object_id: obj_id,
-       annotated_cls: tag.name
+       object_id,
+       annotated_cls
     }
 
     try {
@@ -115,7 +115,7 @@ async function updateTag(ann: Annotation, tag: Tag, data: APIResponseData) {
 const AnnotationApproverProvider = (props: AnnotationApproverProps)=>{
     const {pdf_name, page_num} = props
     const [state, setState] = useState<AnnotationApprovalState>(initialState)
-    const [tagSelectionAnnotation, setSelectionAnnotation] = useState<Annotation|null>(null)
+    const [tagSelectionAnnotation, setSelectionAnnotation] = useState<ApprovableAnnotation|null>(null)
     // Reset annotations on image change
     useEffect(() => setState(initialState), [pdf_name, page_num])
 

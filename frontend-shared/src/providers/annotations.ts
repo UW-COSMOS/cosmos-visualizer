@@ -22,7 +22,7 @@ const SelectionUpdateContext = createContext<Updater|null>(null)
 interface ProviderProps {
   annotations: Annotation[],
   allowSelection?: boolean,
-  children?: React.ReactChildren
+  children?: React.ReactChild
 }
 
 const AnnotationsProvider = (props: ProviderProps)=>{
