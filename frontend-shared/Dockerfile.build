@@ -20,5 +20,3 @@ FROM nginx
 
 COPY --from=0 /user/dist /frontend
 COPY ./nginx.conf /etc/nginx/nginx.conf
-
-
