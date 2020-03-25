@@ -1,13 +1,14 @@
 import h from '@macrostrat/hyper'
 import {createContext, useContext, useState, useEffect} from 'react'
-import {useAnnotations, useAnnotationIndex} from '~/providers/annotations'
+import {
+  useAnnotations,
+  useAnnotationIndex
+} from '~/providers/annotations'
 import {useTags} from '~/providers/tags'
 import axios from 'axios'
 import {APIContext} from '~/api'
 import {AnnotationTypeOmnibox} from '~/image-overlay/editing-overlay/type-selector'
-import update, {MapSpec} from 'immutability-helper'
-
-type UpdateSpec = object;
+import update, {Spec} from 'immutability-helper'
 
 interface ApproverActions {
   toggleClassificationApproved(i: Annotation, good: boolean): void,
@@ -19,7 +20,8 @@ interface ApproverActions {
 interface AnnotationApproverCtx {
   actions: ApproverActions,
   isClassificationApproved: boolean[],
-  isProposalApproved: boolean[]
+  isProposalApproved: boolean[],
+  isClassApproved: string[]
 }
 
 const AnnotationApproverContext = createContext<AnnotationApproverCtx|null>(null)
@@ -36,11 +38,14 @@ interface AnnotationApprovalMap {
 interface AnnotationApprovalState {
   proposalApproved: AnnotationApprovalMap,
   classificationApproved: AnnotationApprovalMap,
+  annotatedClasses: {[ix: number]: string}
 }
 
 const initialState: AnnotationApprovalState = {
   proposalApproved: {},
-  classificationApproved: {}
+  classificationApproved: {},
+  // store in-progress annotated classes
+  annotatedClasses: {}
 }
 
 interface APIResponseData {
@@ -80,17 +85,8 @@ async function postAnnotationThumbs(
   }
 }
 
-async function updateTag(ann: ApprovableAnnotation, tag: Tag, data: APIResponseData) {
-
+async function updateTag(ann: ApprovableAnnotation, annotated_cls: TagID, data: APIResponseData) {
     const object_id = ann.obj_id
-
-    let annotated_cls = tag.name;
-    // Hack to allow deselection by selecting the same overridden tag
-    // Should convert to a {remove} button or something
-    if (annotated_cls == ann.annotated_cls) {
-      annotated_cls = null
-    }
-
     const {baseURL, ...rest} = data;
     const box = ann.boxes[0]
     const endpoint = `${baseURL}/object/annotate`
@@ -130,13 +126,19 @@ const AnnotationApproverProvider = (props: AnnotationApproverProps)=>{
         return state.proposalApproved[i] ?? null
     })
 
+    const isClassApproved = cur_annotations.map((d,i) => {
+      return state.annotatedClasses[i] ?? null
+    })
+
+    const updateState = (spec)=>setState(update(state, spec))
+
     const data = {baseURL, pdf_name, page_num}
     async function thumbs(annotation: Annotation, opts: AnnotationApprovalStatus) {
         const res = await postAnnotationThumbs(annotation, data, opts)
         //if (!res) return
         const ix = cur_annotations.findIndex(d => d == annotation)
 
-        let spec: MapSpec<string, AnnotationApprovalMap> = {}
+        let spec: Spec<AnnotationApprovalMap> = {}
 
         // Check if classification or proposal booleans are provided,
         // and set appropriate part of state if not
@@ -166,22 +168,33 @@ const AnnotationApproverProvider = (props: AnnotationApproverProps)=>{
           }
         },
         isClassificationApproved,
-        isProposalApproved
+        isProposalApproved,
+        isClassApproved
     }
 
-    const tag = useTags().find(d => d.name == tagSelectionAnnotation?.name)
+    const selectedTag = useTags().find(d => d.tag_id == tagSelectionAnnotation?.tag_id)
+
+    async function onSelectTag(t: Tag) {
+      // Hack to allow deselection by selecting the same overridden tag
+      // Should convert to a {remove} button or something
+      let annotated_cls = t.tag_id
+      if (annotated_cls == tagSelectionAnnotation.annotated_cls) {
+        annotated_cls = null
+      }
+      const success = await updateTag(tagSelectionAnnotation, annotated_cls, data)
+      const ix = cur_annotations.indexOf(tagSelectionAnnotation)
+
+      if (success && ix != -1) {
+        const spec = {annotatedClasses: {[ix]: {$set: annotated_cls}}}
+        updateState(spec)
+      }
+      setSelectionAnnotation(null)
+    }
 
     return h(AnnotationApproverContext.Provider, {value}, [
-      h.if(tag != null)(AnnotationTypeOmnibox, {
-        selectedTag: tag,
-        onSelectTag: (t: Tag)=>{
-          const success = updateTag(tagSelectionAnnotation, t, data)
-          const ix = cur_annotations.indexOf(tagSelectionAnnotation)
-          if (success && ix != -1) {
-            // Update tags to show success
-          }
-          setSelectionAnnotation(null)
-        },
+      h(AnnotationTypeOmnibox, {
+        selectedTag,
+        onSelectTag,
         onClose: ()=>setSelectionAnnotation(null),
         isOpen: tagSelectionAnnotation != null
       }),
@@ -192,11 +205,12 @@ const AnnotationApproverProvider = (props: AnnotationApproverProps)=>{
 function useAnnotationApproved(annotation: Annotation): AnnotationApprovalStatus|null {
   const ctx = useContext(AnnotationApproverContext)
   if (ctx == null) return null
-  const {isProposalApproved, isClassificationApproved} = ctx
+  const {isProposalApproved, isClassificationApproved, isClassApproved} = ctx
   const ix = useAnnotationIndex(annotation)
   return {
     classification: isClassificationApproved[ix],
-    proposal: isProposalApproved[ix]
+    proposal: isProposalApproved[ix],
+    annotated_cls: isClassApproved[ix]
   }
 }
 

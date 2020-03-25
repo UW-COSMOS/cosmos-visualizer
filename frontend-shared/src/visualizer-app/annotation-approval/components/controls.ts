@@ -48,7 +48,7 @@ const ApprovalControls = (props: ApprovalControlsProps)=>{
   if (actions == null) return null
   const approved = useAnnotationApproved(annotation)
 
-  const tagChanged = annotation.annotated_cls != null
+  const tagChanged = approved.annotated_cls ?? annotation.annotated_cls != null
 
   return h(ControlPanel, {className: 'approval-controls'}, [
     h(ThumbControls, {

@@ -16,7 +16,7 @@ interface TagItemProps {
   children?: React.ReactElement
 }
 
-const TagListItem = (props: TagItemProps)=>{
+const TagListItem: React.ComponentType<TagItemProps> = (props)=>{
   /** Render a tag for the omnibox list */
   let {active, className, onSelect, tag, children} = props;
   className = classNames({active}, className);
@@ -36,11 +36,11 @@ const TagListItem = (props: TagItemProps)=>{
   ]);
 }
 
-interface OmniboxProps extends IOmnibarProps<Tag> {
+type BoxLifecycleProps = Pick<IOmnibarProps<Tag>,"onClose"|"isOpen">
+interface OmniboxProps extends BoxLifecycleProps {
   selectedTag: Tag,
   onSelectTag: (t: Tag)=>void,
-  listItemComponent: React.ComponentType<TagItemProps>
-  isOpen: boolean
+  listItemComponent?: React.ComponentType<TagItemProps>
 }
 
 const AnnotationTypeOmnibox = (props: OmniboxProps)=>{
@@ -58,7 +58,7 @@ const AnnotationTypeOmnibox = (props: OmniboxProps)=>{
   const itemListRenderer = (obj)=>{
     const {filteredItems} = obj;
     return h('div.item-list', null, filteredItems.map((tag: Tag)=> {
-      const active = tag.tag_id === selectedTag.tag_id;
+      const active = tag.tag_id === selectedTag?.tag_id;
       const onSelect = () => onSelectTag(tag);
       return h(listItemComponent, {
         active,

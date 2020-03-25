@@ -1,4 +1,4 @@
-import {useState, createContext, useContext} from 'react'
+import {useState, useReducer, createContext, useContext} from 'react'
 import h from 'react-hyperscript'
 import {useTags} from './tags'
 import chroma from 'chroma-js'

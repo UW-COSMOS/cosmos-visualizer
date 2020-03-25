@@ -18,8 +18,9 @@ const ApprovableAnnotation = (props: ApprovableAnnotationProps)=>{
 
   // Show annotated class
   let {obj, ...rest} = props
-  if (obj.annotated_cls != null) {
-    obj.tag_id = obj.annotated_cls
+  const override_cls = approved.annotated_cls ?? obj.annotated_cls
+  if (override_cls != null) {
+    obj.tag_id = override_cls
     obj.score = "overridden"
   }
 
