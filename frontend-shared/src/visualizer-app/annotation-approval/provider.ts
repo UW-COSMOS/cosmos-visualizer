@@ -48,32 +48,22 @@ const initialState: AnnotationApprovalState = {
   annotatedClasses: {}
 }
 
-interface APIResponseData {
+interface APIPayload extends AnnotationApprovalStatus {
   pdf_name: string,
   page_num: number,
   baseURL: string
 }
 
-async function postAnnotationThumbs(
-  ann: Annotation,
-  data: APIResponseData,
-  opts: AnnotationApprovalStatus
-): Promise<boolean> {
-
-  const obj_id = ann.obj_id
-
-  const {baseURL, ...rest} = data;
+async function annotationAPIPost(ann: Annotation, data: APIPayload){
+  const object_id = ann.obj_id
   const box = ann.boxes[0]
+  const {baseURL, ...rest} = data;
   const endpoint = `${baseURL}/object/annotate`
   const postData = {
      coords : `(${box[0]}, ${box[1]})`,
+     object_id,
      ...rest,
-     object_id: obj_id,
-     classification_success: opts?.classification,
-     proposal_success: opts?.proposal,
-     note: null
   }
-
   try {
     await axios.post(endpoint, postData, {
       headers : {'Content-Type': 'application/x-www-form-urlencoded'}
@@ -83,29 +73,6 @@ async function postAnnotationThumbs(
     console.log(err)
     return false
   }
-}
-
-async function updateTag(ann: ApprovableAnnotation, annotated_cls: TagID, data: APIResponseData) {
-    const object_id = ann.obj_id
-    const {baseURL, ...rest} = data;
-    const box = ann.boxes[0]
-    const endpoint = `${baseURL}/object/annotate`
-    const postData = {
-       coords : `(${box[0]}, ${box[1]})`,
-       ...rest,
-       object_id,
-       annotated_cls
-    }
-
-    try {
-      const res = await axios.post(endpoint, postData, {
-        headers : {'Content-Type': 'application/x-www-form-urlencoded'}
-      })
-      return true
-    } catch (err) {
-      console.log(err)
-      return false
-    }
 }
 
 const AnnotationApproverProvider = (props: AnnotationApproverProps)=>{
@@ -134,8 +101,8 @@ const AnnotationApproverProvider = (props: AnnotationApproverProps)=>{
 
     const data = {baseURL, pdf_name, page_num}
     async function thumbs(annotation: Annotation, opts: AnnotationApprovalStatus) {
-        const res = await postAnnotationThumbs(annotation, data, opts)
-        //if (!res) return
+        const res = await annotationAPIPost(annotation, {...data, ...opts})
+        if (!res) return
         const ix = cur_annotations.findIndex(d => d == annotation)
 
         let spec: Spec<AnnotationApprovalMap> = {}
@@ -153,6 +120,23 @@ const AnnotationApproverProvider = (props: AnnotationApproverProps)=>{
         }
 
         setState(update(state, spec))
+    }
+
+    async function onSelectTag(t: Tag) {
+      // Hack to allow deselection by selecting the same overridden tag
+      // Should convert to a {remove} button or something
+      let annotated_cls = t.tag_id
+      if (annotated_cls == tagSelectionAnnotation.annotated_cls) {
+        annotated_cls = null
+      }
+      const success = await annotationAPIPost(tagSelectionAnnotation, {...data, annotated_cls})
+      const ix = cur_annotations.indexOf(tagSelectionAnnotation)
+
+      if (success && ix != -1) {
+        const spec = {annotatedClasses: {[ix]: {$set: annotated_cls}}}
+        updateState(spec)
+      }
+      setSelectionAnnotation(null)
     }
 
     const value = {
@@ -173,23 +157,6 @@ const AnnotationApproverProvider = (props: AnnotationApproverProps)=>{
     }
 
     const selectedTag = useTags().find(d => d.tag_id == tagSelectionAnnotation?.tag_id)
-
-    async function onSelectTag(t: Tag) {
-      // Hack to allow deselection by selecting the same overridden tag
-      // Should convert to a {remove} button or something
-      let annotated_cls = t.tag_id
-      if (annotated_cls == tagSelectionAnnotation.annotated_cls) {
-        annotated_cls = null
-      }
-      const success = await updateTag(tagSelectionAnnotation, annotated_cls, data)
-      const ix = cur_annotations.indexOf(tagSelectionAnnotation)
-
-      if (success && ix != -1) {
-        const spec = {annotatedClasses: {[ix]: {$set: annotated_cls}}}
-        updateState(spec)
-      }
-      setSelectionAnnotation(null)
-    }
 
     return h(AnnotationApproverContext.Provider, {value}, [
       h(AnnotationTypeOmnibox, {
