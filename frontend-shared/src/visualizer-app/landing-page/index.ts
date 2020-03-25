@@ -1,11 +1,3 @@
-/*
- * decaffeinate suggestions:
- * DS102: Remove unnecessary code created because of implicit returns
- * DS206: Consider reworking classes to avoid initClass
- * DS207: Consider shorter variations of null checks
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
-import {Component} from 'react';
 import h from 'react-hyperscript';
 import styled from '@emotion/styled';
 import {APIResultView} from '@macrostrat/ui-components';
@@ -76,51 +68,41 @@ const ModelInfoBox = function() {
 };
 
 
-class ResultsLandingPage extends Component {
-  static initClass() {
-    this.defaultProps = {
-      setRole() {}
-    };
-  }
-
-  render() {
-    const {setRole} = this.props;
-    const selectRole = role=> () => {
-      console.log(`Selected role ${role}`);
-      return setRole(role);
-    };
-
-    return h('div', {className: 'results-landing-page'}, [
-      h(InlineNavbar, {subtitle: "Model results"}),
-      h('div.actions', [
-        h(ButtonGroup, {vertical: true}, [
-          h(InfoButton, {
-            to: "/view-extractions",
-            index: 1,
-            title: "Page-level extractions"
-          }, `Regions of interest extracted and classified for further knowledge-base processing.`
-          ),
-          // h InfoButton, {
-          //   to: "/view-results"
-          //   index: 2
-          //   title: "Model entity extractions",
-          // }, "Model entities (equations, constituent variables defined in text,
-          //     and semantically linked explanatory phrases) shown at a page level."
-          h(InfoButton, {
-            index: 2,
-            title: "Searchable knowledge base",
-            to: "/knowledge-base"
-          }, `Knowledge base of equations, figures, and tables extracted from page-level \
-information and searchable based on contextual information linked by the model.`
-          )
-        ])
-      ]),
-      h(CreditsText, [
-        h('div', {dangerouslySetInnerHTML: {__html: Credits}})
-      ])
-    ]);
-  }
+const LandingPageBase = (props)=> {
+  const {children} = props
+  return h('div', {className: 'results-landing-page'}, [
+    h(InlineNavbar, {subtitle: "Model results"}),
+    h('div.actions', [
+      h(ButtonGroup, {vertical: true}, children)
+    ]),
+    h(CreditsText, [
+      h('div', {dangerouslySetInnerHTML: {__html: Credits}})
+    ])
+  ]);
 }
-ResultsLandingPage.initClass();
+
+const ResultsLandingPage = (props)=>{
+  return h(LandingPageBase, [
+    h(InfoButton, {
+      to: "/view-extractions",
+      index: 1,
+      title: "Page-level extractions"
+    }, `Regions of interest extracted and classified for further knowledge-base processing.`
+    ),
+    // h InfoButton, {
+    //   to: "/view-results"
+    //   index: 2
+    //   title: "Model entity extractions",
+    // }, "Model entities (equations, constituent variables defined in text,
+    //     and semantically linked explanatory phrases) shown at a page level."
+    h(InfoButton, {
+      index: 2,
+      title: "Searchable knowledge base",
+      to: "/knowledge-base"
+    }, `Knowledge base of equations, figures, and tables extracted from page-level \
+    information and searchable based on contextual information linked by the model.`
+    )
+  ])
+}
 
 export {ResultsLandingPage};

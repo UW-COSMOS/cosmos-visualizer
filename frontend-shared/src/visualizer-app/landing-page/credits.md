@@ -18,7 +18,6 @@ for other knowledge-base construction and introspection tasks.
 This work was funded by DARPA ASKE HR00111990013.
 
 - Visualizer: Daven Quinn, Ian Ross
-- Model: Ankur Goswami, Josh McGrath, Paul Luh, and Zifan Liu
-- Integration: Ian Ross
+- Model: Ankur Goswami, Akshata Bhat, Josh McGrath, Paul Luh, and Zifan Liu
+- Infrastructure and integration: Ian Ross
 - Project lead: Theodoros Rekatsinas, Shanan Peters, and Miron Livny
-
