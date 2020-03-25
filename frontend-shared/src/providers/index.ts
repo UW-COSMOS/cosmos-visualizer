@@ -1,5 +1,4 @@
 export * from './annotations'
-export * from './annotation-approver'
 export * from './annotation-editor'
 export * from './canvas-size'
 export * from './tags'

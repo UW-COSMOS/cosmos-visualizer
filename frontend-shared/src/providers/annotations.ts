@@ -1,23 +1,7 @@
-import {useState, createContext, useContext} from 'react'
+import {useState, useReducer, createContext, useContext} from 'react'
 import h from 'react-hyperscript'
-import {AnnotationArr, Annotation} from '../image-overlay/types'
-import {TagID, useTags} from './tags'
+import {useTags} from './tags'
 import chroma from 'chroma-js'
-
-type AnnotationRect = [number, number, number, number]
-type AnnotationArr = [AnnotationRect, TagID, number]
-
-// Really, this is an index
-type AnnotationID = number
-interface Annotation {
-  boxes: AnnotationRect[],
-  tag_id: TagID,
-  // Potentially, the uuid of another tag on the page
-  image_tag_id?: string,
-  name: string,
-  score?: number,
-  obj_id?: number,
-}
 
 interface AnnotationsCtx {
   annotations: Annotation[],
@@ -37,7 +21,8 @@ const SelectionUpdateContext = createContext<Updater|null>(null)
 
 interface ProviderProps {
   annotations: Annotation[],
-  allowSelection?: boolean
+  allowSelection?: boolean,
+  children?: React.ReactChild
 }
 
 const AnnotationsProvider = (props: ProviderProps)=>{
@@ -101,7 +86,4 @@ export {
   useSelectedAnnotation,
   useSelectionUpdater,
   useAnnotationColor,
-  Annotation,
-  AnnotationRect,
-  AnnotationArr
 }

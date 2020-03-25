@@ -16,11 +16,13 @@ interface FrameProps extends
   currentImage: Image,
   subtitleText?: string,
   editingEnabled?: boolean,
-  navigationEnabled?: boolean
+  navigationEnabled: boolean
 }
 
-const sendKey = (k: number, opts={}): void => document.dispatchEvent(
-  new KeyboardEvent('keydown', {which: k, keyCode: k, ...opts, bubbles: true }));
+const sendKey = (k: number, opts={}): void => {
+  const evt = new KeyboardEvent('keydown', {which: k, keyCode: k, ...opts, bubbles: true })
+  document.dispatchEvent(evt);
+}
 
 const PageFrame = (props: FrameProps)=>{
   const {

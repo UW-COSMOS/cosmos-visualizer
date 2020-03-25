@@ -1,19 +1,10 @@
-/*
- * decaffeinate suggestions:
- * DS001: Remove Babel/TypeScript constructor workaround
- * DS101: Remove unnecessary use of Array.from
- * DS102: Remove unnecessary code created because of implicit returns
- * DS206: Consider reworking classes to avoid initClass
- * DS207: Consider shorter variations of null checks
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
 // A d3/react rectangle dragging component
 // Prior art:
 // - http://bl.ocks.org/mccannf/1629464
 // - https://bl.ocks.org/d3noob/204d08d309d2b2903e12554b0aef6a4d
 import {Component, useLayoutEffect, useRef} from 'react';
 import {findDOMNode} from 'react-dom';
-import {select, event, mouse} from 'd3-selection';
+import {select, event} from 'd3-selection';
 import {drag} from 'd3-drag';
 import h from 'react-hyperscript';
 import {Spec} from 'immutability-helper'

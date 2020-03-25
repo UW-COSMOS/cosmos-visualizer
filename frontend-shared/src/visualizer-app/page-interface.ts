@@ -1,23 +1,15 @@
-import h from 'react-hyperscript';
+import h from '@macrostrat/hyper';
 import {Intent} from "@blueprintjs/core";
 import {StatefulComponent} from '@macrostrat/ui-components';
-import {ReactNode} from 'react'
 import {AppToaster} from '../toaster';
 import {APIContext} from '../api';
-import {Image} from '~/types'
 import {PageFrame, ScaledImagePanel} from '~/page-interface'
-import {
-  APITagsProvider,
-  AnnotationArr,
-  Annotation,
-  AnnotationsProvider,
-} from '~/providers'
-import {AnnotationApproverProvider} from '../providers/annotation-approver'
+import {APITagsProvider, AnnotationsProvider} from '~/providers'
 import {AnnotationLinks} from '../image-overlay/annotation-links';
 import {AnnotationsOverlay} from '../image-overlay/annotations';
-import {ApprovableAnnotation} from '../image-overlay/annotation'
+import {AnnotationApproverProvider, ApprovableAnnotation} from './annotation-approval';
 
-const normalizeAnnotation = function(d: AnnotationArr): Annotation {
+const normalizeAnnotation = function(d: APIAnnotation): ApprovableAnnotation {
   /*
   Temporary (?) function to normalize an annotation rectangle
   to the expected internal representation.
@@ -25,17 +17,26 @@ const normalizeAnnotation = function(d: AnnotationArr): Annotation {
   const boxes = [d.bounding_box];
   const name = d.class;
   const score = d.confidence;
-  const obj_id = d.obj_id; // TODO: do this.. Really, this shouldn't be such a dumb structure.
-  return {boxes, name, score, tag_id: name, obj_id};
+  const {obj_id, annotated_cls} = d
+  return {
+    boxes,
+    name,
+    score,
+    tag_id: name,
+    obj_id,
+    annotated_cls
+  };
 };
 
 interface ImageData {
   _id: string,
   pp_detected_objs?: AnnotationArr[],
+  pdf_name: string,
+  page_num: number
 }
 
 interface ViewerProviderProps {
-  children: ReactNode,
+  children: React.ReactChild,
   image: ImageData
 }
 
@@ -68,7 +69,7 @@ const ImageContainer = (props: ContainerProps)=>{
     },
       h('div.image-overlay', [
         h(AnnotationsOverlay, {
-          renderAnnotation: (a)=>h(ApprovableAnnotation, {obj: a})
+          renderAnnotation: (a, ix)=>h(ApprovableAnnotation, {obj: a})
         }),
         h(AnnotationLinks)
       ])

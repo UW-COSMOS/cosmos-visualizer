@@ -1,12 +1,4 @@
-/*
- * decaffeinate suggestions:
- * DS001: Remove Babel/TypeScript constructor workaround
- * DS102: Remove unnecessary code created because of implicit returns
- * DS206: Consider reworking classes to avoid initClass
- * DS207: Consider shorter variations of null checks
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
-import h from 'react-hyperscript';
+import h from 'react-hyperscript' //@macrostrat/hyper';
 import {SimpleAnnotation, Annotation , LockedAnnotation} from './annotation';
 
 import {EditMode} from '../enum';
@@ -21,16 +13,16 @@ import {
 } from '~/providers'
 
 interface AnnotationsOverlayProps {
-  inProgressAnnotation: IAnnotation|null,
-  actions: AnnotationActions,
-  lockedTags: Set<string>,
-  toggleSelect: ()=>void,
-  onSelectAnnotation: (ix: number)=> ()=>void,
+  inProgressAnnotation?: IAnnotation|null,
+  actions?: AnnotationActions,
+  lockedTags?: Set<string>,
+  toggleSelect?: ()=>void,
+  onSelectAnnotation?: (ix: number)=> ()=>void,
   // Function to render a single annotation
-  renderAnnotation(d: IAnnotation, ix: number): React.ReactNode
-  onClick: ()=>void
-  tags: ITag[],
-  children: React.ReactNode
+  renderAnnotation(d: IAnnotation, ix?: number): React.ReactNode
+  onClick?: ()=>void
+  tags?: ITag[],
+  children?: React.ReactChild
 }
 
 const AnnotationsOverlay = (props: AnnotationsOverlayProps)=>{
@@ -45,7 +37,7 @@ const AnnotationsOverlay = (props: AnnotationsOverlayProps)=>{
 }
 
 AnnotationsOverlay.defaultProps = {
-  renderAnnotation: (obj, ix)=>h(SimpleAnnotation, {obj, ix})
+  renderAnnotation: (obj, ix)=>h(SimpleAnnotation, {obj, ix, key: ix})
 }
 
 const oldRenderer = (d, ix)=> {
@@ -74,9 +66,5 @@ const oldRenderer = (d, ix)=> {
     return h(Annotation, opts);
   }
 }
-
-// AddAnnotationsOverlay.defaultProps = {
-//   lockedTags: new Set()
-// }
 
 export {AnnotationsOverlay};

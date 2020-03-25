@@ -6,7 +6,7 @@ import {
   AnnotationRect,
   SelectionUpdateContext
 } from './annotations'
-import {TagID, Tag, TagsContext} from './tags'
+import {TagsContext} from './tags'
 import {isDifferent} from './util'
 import uuidv4 from 'uuid/v4';
 import {StatefulComponent} from '@macrostrat/ui-components';

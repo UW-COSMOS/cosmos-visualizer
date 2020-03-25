@@ -3,16 +3,10 @@ import h from 'react-hyperscript'
 import chroma, {Color} from 'chroma-js'
 import {useAPIResult} from '@macrostrat/ui-components'
 
-type TagID = number
-interface Tag {
-  color: string,
-  name: string,
-  tag_id: TagID
-}
-
 const TagsContext = createContext<Tag[]>([])
+type TagsProviderProps = React.PropsWithChildren<{tags: Tag[]}>
 
-const TagsProvider = (props: TagsCtx)=>{
+const TagsProvider = (props: TagsProviderProps)=>{
   /**
   Provides the ability to select an annotation
   */
@@ -59,8 +53,6 @@ const APITagsProvider = (props)=>{
 
 
 export {
-  TagID,
-  Tag,
   TagsContext,
   TagsProvider,
   APITagsProvider,

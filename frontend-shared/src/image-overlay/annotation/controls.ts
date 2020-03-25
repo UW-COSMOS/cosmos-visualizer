@@ -1,11 +1,3 @@
-/*
- * decaffeinate suggestions:
- * DS001: Remove Babel/TypeScript constructor workaround
- * DS102: Remove unnecessary code created because of implicit returns
- * DS206: Consider reworking classes to avoid initClass
- * DS207: Consider shorter variations of null checks
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
 import {useContext} from 'react';
 import h from '@macrostrat/hyper';
 import {Button, Intent} from '@blueprintjs/core';
@@ -13,14 +5,11 @@ import classNames from 'classnames';
 
 import {EditMode} from '~/enum';
 import {EditorContext} from '~/image-overlay/context';
-import "./main.styl";
 import {
   useCanvasSize,
   useAnnotationUpdater,
   useAnnotationActions,
   useAnnotationIndex,
-  useAnnotationApproved,
-  Annotation as IAnnotation
 } from '~/providers'
 
 const ToolButton = props => h(Button, {small: true, minimal: true, ...props});
@@ -44,7 +33,7 @@ const LinkButton = (props)=>{
 }
 
 interface AnnotationControlsProps {
-  annotation: IAnnotation,
+  annotation: Annotation,
   className?: string
 }
 
@@ -59,7 +48,7 @@ const ControlPanel = (props: AnnotationControlsProps)=>{
 }
 
 interface AnnotationLeftControlProps extends AnnotationControlsProps {
-  annotation: IAnnotation
+  annotation: Annotation
 }
 
 const LeftControlPanel = (props: AnnotationLeftControlProps)=>{
@@ -108,65 +97,4 @@ const AnnotationControls = (props: AnnotationControlsProps)=>{
   ]);
 }
 
-
-import {AnnotationApproverContext} from "~/providers/annotation-approver"
-
-interface ThumbProps {
-  isApproved: boolean|null,
-  update(shouldApprove: boolean): void
-}
-
-const ThumbControls = (props: ThumbProps)=>{
-  const {isApproved, update, label} = props
-  const isSet = isApproved != null
-
-  return h([
-    h("div.thumb-controls", [
-      h.if(label != null)("span.label", label),
-      h("div.buttons", [
-        h(ToolButton, {
-          icon: 'thumbs-up',
-          intent: isSet && isApproved ? 'success' : null,
-          small: true,
-          onClick() {
-            console.log("Clicked thumbs up")
-            update(true)
-          }
-        }),
-        h(ToolButton, {
-          icon: 'thumbs-down',
-          intent: isSet && !isApproved ? 'danger' : null,
-          small: true,
-          onClick() {
-            console.log("Clicked thumbs down")
-            update(false)
-          }
-        })
-      ])
-    ])
-  ])
-}
-
-
-const ApprovalControls = (props)=>{
-  const {annotation} = props
-  const {actions} = useContext(AnnotationApproverContext) ?? {}
-  if (actions == null) return null
-  const approved = useAnnotationApproved(annotation)
-
-
-  return h(ControlPanel, {className: 'approval-controls'}, [
-    h(ThumbControls, {
-      label: "Proposal",
-      isApproved: approved.proposal,
-      update(a: boolean) { actions.toggleProposalApproved(annotation, a) }
-    }),
-    h(ThumbControls, {
-      label: "Classification",
-      isApproved: approved.classification,
-      update(a: boolean) { actions.toggleClassificationApproved(annotation, a) }
-    })
-  ])
-}
-
-export {AnnotationControls, ApprovalControls};
+export {ToolButton, ControlPanel, AnnotationControls};
