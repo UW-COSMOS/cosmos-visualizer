@@ -19,8 +19,8 @@ const InsetText = styled.div`\
 padding: 0 0.2em;\
 `;
 
-const LargeInsetText = styled(InsetText)`\
-font-size: 1.2em;\
+const LargeInsetText = styled(InsetText)`
+font-size: 1.2em;
 `;
 
 const CreditsText = styled(InsetText)`\
@@ -98,8 +98,7 @@ class ResultsLandingPage extends Component {
             to: "/view-extractions",
             index: 1,
             title: "Page-level extractions"
-          }, `Regions of interest extracted and classified \
-for further knowledge-base processing.`
+          }, `Regions of interest extracted and classified for further knowledge-base processing.`
           ),
           // h InfoButton, {
           //   to: "/view-results"

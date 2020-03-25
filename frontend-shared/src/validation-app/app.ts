@@ -1,10 +1,10 @@
 import h from 'react-hyperscript';
 import {Route} from 'react-router-dom';
 import {AppMode} from '../enum';
-import {ResultsLandingPage} from './landing-page';
-import {KnowledgeBaseFilterView} from './knowledge-base';
+import {ResultsLandingPage} from '~/visualizer-app/landing-page';
+import {KnowledgeBaseFilterView} from '~/visualizer-app/knowledge-base';
 import {ViewerPage} from './page-interface'
-import {AppRouter, permalinkRouteTemplate, PermalinkRoute} from '~/shared/router'
+import {AppRouter, permalinkRouteTemplate} from '~/shared/router'
 
 const App = (props) => {
   const appMode = AppMode.PREDICTION;
