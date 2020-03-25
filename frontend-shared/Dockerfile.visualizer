@@ -2,7 +2,9 @@ FROM node:11-alpine
 WORKDIR /user
 
 COPY ./package.json /user
-RUN npm install
+RUN mkdir -p ./bundled-deps/ui-components
+COPY ./bundled-deps/ui-components/package.json ./bundled-deps/ui-components
+RUN npm install -D linklocal bulk && npm install
 
 COPY . /user
 
