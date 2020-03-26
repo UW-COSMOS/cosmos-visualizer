@@ -1,0 +1,43 @@
+#!/usr/bin/env python
+# A simple wrapper around docker-compose to run the COSMOS visualizer
+# with the appropriate settings
+from os.path import join, dirname
+from os import chdir
+from subprocess import run
+from shlex import split
+from sys import argv, exit
+
+args = argv[1:]
+try:
+    args.remove("--production")
+    production = True
+except ValueError:
+    production = False
+
+chdir(join(dirname(__file__), '..'))
+
+try:
+    mode = args.pop(0)
+    assert mode in ["validation", "visualizer"]
+except (AssertionError, IndexError):
+    print("Please supply argument 'validation' or 'visualizer'")
+    exit(1)
+
+
+env = "production" if production else "development"
+compose_args = [
+    "-f docker-compose.{0}.yml".format(f)
+    for f in [env, mode]]
+
+
+def compose(*v):
+    a1 = ["docker-compose", *compose_args, *v]
+    args = split(" ".join(a1))
+    return run(args)
+
+
+res = compose("up --detach --force-recreate --build")
+if res.returncode == 0:
+    compose("logs -f")
+else:
+    print("Error starting containers")

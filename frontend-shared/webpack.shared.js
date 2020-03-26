@@ -56,6 +56,7 @@ module.exports = {
   plugins: [
     new HtmlWebpackPlugin({title: "COSMOS"}),
     new EnvironmentPlugin([
+      'ENVIRONMENT',
       'DEBUG',
       'PUBLIC_URL',
       'API_BASE_URL',

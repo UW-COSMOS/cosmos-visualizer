@@ -9,6 +9,7 @@ services:
       # Public URL is settable from the
       # local environment
       - DEBUG=1
+      - ENVIRONMENT=development
       # The two possible app modes are ANNOTATION and PREDICTION
       - APPMODE=PREDICTION
       - PUBLIC_URL=/
