@@ -5,7 +5,7 @@ services:
     build:
       context: frontend-shared
       dockerfile: Dockerfile.dev
-    command: "concurrently npm:watch:validation npm:watch:ui-components"
+    command: "npm run watch:validation"
     environment:
       # Public URL is settable from the
       # local environment
@@ -16,7 +16,7 @@ services:
       - API_BASE_URL=http://cosmos3.chtc.wisc.edu:8081/search
     volumes:
       - ./frontend-shared/src:/user/src
-      - ./frontend-shared/bundled-deps/ui-components/src:/user/bundled-deps/ui-components/src
+      - ./frontend-shared/bundled-deps/ui-components:/user/bundled-deps/ui-components
       - node_modules:/user/node_modules
       - visualizer_dist:/user/dist
       - webpack_cache:/user/.cache

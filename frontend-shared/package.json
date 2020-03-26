@@ -79,8 +79,7 @@
     "build:visualizer": "webpack --config webpack.visualizer.js",
     "watch:tagging": "webpack --config webpack.tagging.js --watch --mode=development",
     "watch:validation": "webpack --config webpack.validation.js --watch --mode=development",
-    "watch:visualizer": "webpack --config webpack.visualizer.js --watch --mode=development",
-    "watch:ui-components": "cd bundled-deps/ui-components && npm run dev"
+    "watch:visualizer": "webpack --config webpack.visualizer.js --watch --mode=development"
   },
   "repository": {
     "type": "git",

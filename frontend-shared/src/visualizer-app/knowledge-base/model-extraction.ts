@@ -180,7 +180,7 @@ const MainExtraction = (props: ExtractionProps)=>{
     h('div.main', [
       h('div.kb-image-container', [
         h(KBImage, {bytes}),
-        h(AllText, {content})
+        //h(AllText, {content})
       ])
     ])
   ]);
