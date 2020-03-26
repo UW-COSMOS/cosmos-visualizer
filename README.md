@@ -8,21 +8,20 @@ are included.
 
 ## Setup and installation
 
-The *Tagging* application is relatively complex due to its data-storage requirements.
-Setup for that application is covered below.
-
 The *Validation* and *Visualization* apps can be run using the following steps:
 
 1. Copy the `.env.example` file to `.env` and modify the values to your setup.
    A running **COSMOS** pipeline exposing a search API must be specified here.
 2. Run the script `bin/run-frontend [--production] <validation|visualizer>`.
    This will spin up `docker-compose` for either the `validation` or `visualizer`
-   apps, using the correct settings for production if that flag is specified.
-   **NOTE:** As of March 25, 2020, the production setting does not work.
+   apps, using the correct settings for production if that flag is specified, or
+   enabling continuous rebuilding for frontend development if not.
+   **NOTE:** As of March 25, 2020, the production setting does not work properly.
 
 ## Tagging application
 
-The **Tagging** application includes several components:
+The *Tagging* application is relatively complex due to its
+data-storage requirements. The application includes several components:
 
 - A **PostgreSQL** database server that contains training data and model extractions.
 - A **node express**-based API that bridges the data store and user interface.
@@ -32,8 +31,6 @@ The **Tagging** application includes several components:
 Each of these components can be built as a separate **Docker** container and orchestrated
 with **docker-compose**. The entire assemblage can be run with `docker-compose up`. This is
 the preferred way to set up, develop, and run this software.
-
-### Setup
 
 ### Running for production
 
