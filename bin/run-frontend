@@ -29,11 +29,15 @@ compose_args = [
     "-f docker-compose.{0}.yml".format(f)
     for f in [env, mode]]
 
+def cmd(*v):
+    return run(split(" ".join(v)))
+
 
 def compose(*v):
-    a1 = ["docker-compose", *compose_args, *v]
-    args = split(" ".join(a1))
-    return run(args)
+    return cmd("docker-compose", *compose_args, *v)
+
+
+cmd("git submodule update --init --recursive")
 
 
 res = compose("up --detach --force-recreate --build")
