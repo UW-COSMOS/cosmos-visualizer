@@ -1,10 +1,20 @@
 import h from 'react-hyperscript';
 import {Route} from 'react-router-dom';
 import {AppMode} from '../enum';
-import {ResultsLandingPage} from '~/visualizer-app/landing-page';
+import {ResultsLandingPage, InfoButton} from '~/visualizer-app/landing-page';
 import {KnowledgeBaseFilterView} from '~/visualizer-app/knowledge-base';
 import {ViewerPage} from './page-interface'
 import {AppRouter, permalinkRouteTemplate} from '~/shared/router'
+
+const LandingPage = (props)=>{
+  return h(ResultsLandingPage, [
+    h(InfoButton, {
+      to: "/view-extractions",
+      title: "Page-level extractions"
+    }, `Regions of interest extracted and classified for further knowledge-base processing.`
+    )
+  ])
+}
 
 const App = (props) => {
   const appMode = AppMode.PREDICTION;
@@ -13,7 +23,7 @@ const App = (props) => {
     h(Route, {
       path: '/',
       exact: true,
-      component: ResultsLandingPage
+      component: LandingPage
     }),
     // Route for permalinks
     h(Route, {

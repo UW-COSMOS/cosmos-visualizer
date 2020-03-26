@@ -29,7 +29,7 @@ class KnowledgeBaseFilterView extends StatefulComponent {
         unwrapResponse(res){ return res.success.data[0]; }
       },
       filterParams: {
-        query: ""
+        query: "sars"
       }
     };
   }

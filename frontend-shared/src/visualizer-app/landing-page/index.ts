@@ -83,20 +83,8 @@ const LandingPageBase = (props)=> {
 
 const ResultsLandingPage = (props)=>{
   return h(LandingPageBase, [
+    props.children,
     h(InfoButton, {
-      to: "/view-extractions",
-      index: 1,
-      title: "Page-level extractions"
-    }, `Regions of interest extracted and classified for further knowledge-base processing.`
-    ),
-    // h InfoButton, {
-    //   to: "/view-results"
-    //   index: 2
-    //   title: "Model entity extractions",
-    // }, "Model entities (equations, constituent variables defined in text,
-    //     and semantically linked explanatory phrases) shown at a page level."
-    h(InfoButton, {
-      index: 2,
       title: "Searchable knowledge base",
       to: "/knowledge-base"
     }, `Knowledge base of equations, figures, and tables extracted from page-level \
@@ -105,4 +93,4 @@ const ResultsLandingPage = (props)=>{
   ])
 }
 
-export {ResultsLandingPage};
+export {LandingPageBase, ResultsLandingPage, InfoButton};
