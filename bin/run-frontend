@@ -24,17 +24,16 @@ except (AssertionError, IndexError):
     exit(1)
 
 
-environ["MODE"] = mode
-
 env = "production" if production else "development"
-compose_args = ["-f docker-compose.{0}.yml".format(env)]
+environ["COMPOSE_FILE"] = "docker-compose.{0}.yml".format(env)
+environ["MODE"] = mode
 
 def cmd(*v):
     return run(split(" ".join(v)))
 
 
 def compose(*v):
-    return cmd("docker-compose", *compose_args, *v)
+    return cmd("docker-compose", *v)
 
 
 cmd("git submodule update --init --recursive")

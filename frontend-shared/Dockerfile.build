@@ -1,18 +1,28 @@
 FROM node:11-alpine
-WORKDIR /user
 
-RUN npm install -g linklocal typescript concurrently rollup webpack
+RUN npm install --unsafe-perm -g linklocal typescript concurrently rollup webpack
+
+WORKDIR /user/bundled-deps/ui-components
+COPY ./bundled-deps/ui-components/package.json .
+RUN npm install --unsafe-perm --ignore-scripts
+
+WORKDIR /user
+COPY ./package.json ./package.json
+RUN npm install --unsafe-perm
 COPY . /user
 
-ENV PUBLIC_URL="/"
-ENV API_BASE_URL="${PUBLIC_URL}search"
-ENV IMAGE_BASE_URL="${PUBLIC_URL}images/"
-ENV APPMODE="PREDICTION"
-ENV ENVIRONMENT='production'
+# Environment variables are needed at buildtime
+ARG PUBLIC_URL="/"
+ARG API_BASE_URL="${PUBLIC_URL}search"
+ARG IMAGE_BASE_URL="${PUBLIC_URL}images/"
+ARG ENVIRONMENT='production'
+ARG DEBUG=0
+ARG MODE="$MODE"
+ARG APPMODE=PREDICTION
+ENV ENVIRONMENT="$ENVIRONMENT"
 
-RUN npm install \
- && (cd bundled-deps/ui-components && npm run build) \
- && webpack --config webpack.${MODE:-visualizer}.js
+RUN (cd ./bundled-deps/ui-components && npm run build:main)
+RUN ./node_modules/.bin/webpack --mode=production src/visualizer-app/index.ts
 
 FROM nginx
 COPY --from=0 /user/dist /frontend
