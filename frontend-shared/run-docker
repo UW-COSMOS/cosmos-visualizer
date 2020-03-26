@@ -1,10 +1,15 @@
 #!/bin/sh
 # provide the argument 'tagging', 'validation', or 'visualizer'
 
-npm install
-
 PATH="/user/node_modules/.bin:$PATH"
 
+if [ ENVIRONMENT = "production" ]; then
+  cd bundled-deps/ui-components && npm run build
+  webpack --config webpack.$1.js
+  exit 0
+fi
+
+npm install
 webpack --config webpack.$1.js \
   --watch --mode=development & \
 (cd bundled-deps/ui-components && npm run dev)

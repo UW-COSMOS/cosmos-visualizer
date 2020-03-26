@@ -4,7 +4,7 @@ services:
   frontend:
     build:
       context: frontend-shared
-      dockerfile: Dockerfile.dev
+      dockerfile: Dockerfile.build
     environment:
       # Public URL is settable from the
       # local environment
