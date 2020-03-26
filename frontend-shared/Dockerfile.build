@@ -1,16 +1,19 @@
 FROM node:11-alpine
 WORKDIR /user
 
+RUN npm install -g linklocal typescript concurrently rollup webpack
 COPY . /user
-RUN npm install -g linklocal && npm install
 
 ENV PUBLIC_URL="/"
 ENV API_BASE_URL="${PUBLIC_URL}search"
 ENV IMAGE_BASE_URL="${PUBLIC_URL}images/"
 ENV APPMODE="PREDICTION"
+ENV ENVIRONMENT='production'
 
-CMD ./run-docker visualizer
+RUN npm install \
+ && (cd bundled-deps/ui-components && npm run build) \
+ && webpack --config webpack.${MODE:-visualizer}.js
 
-# FROM nginx
-# COPY --from=0 /user/dist /frontend
-# COPY ./nginx.frontend-only.conf /etc/nginx/nginx.conf
+FROM nginx
+COPY --from=0 /user/dist /frontend
+COPY ./nginx.frontend-only.conf /etc/nginx/nginx.conf

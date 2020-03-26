@@ -2,7 +2,7 @@
 # A simple wrapper around docker-compose to run the COSMOS visualizer
 # with the appropriate settings
 from os.path import join, dirname
-from os import chdir
+from os import chdir, environ
 from subprocess import run
 from shlex import split
 from sys import argv, exit
@@ -24,10 +24,10 @@ except (AssertionError, IndexError):
     exit(1)
 
 
+environ["MODE"] = mode
+
 env = "production" if production else "development"
-compose_args = [
-    "-f docker-compose.{0}.yml".format(f)
-    for f in [env, mode]]
+compose_args = ["-f docker-compose.{0}.yml".format(env)]
 
 def cmd(*v):
     return run(split(" ".join(v)))

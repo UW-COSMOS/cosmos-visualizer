@@ -1,8 +1,0 @@
-# Only runs frontend
-version: '3'
-services:
-  frontend:
-    command: "/user/run-docker validation"
-  gateway:
-    ports:
-      - "${VALIDATION_PORT:-5081}:80"

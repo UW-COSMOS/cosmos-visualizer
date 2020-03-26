@@ -1,7 +1,0 @@
-version: '3'
-services:
-  frontend:
-    command: "/user/run-docker visualizer"
-  gateway:
-    ports:
-      - "${VISUALIZER_PORT:-5082}:80"

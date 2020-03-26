@@ -3,13 +3,15 @@
 
 PATH="/user/node_modules/.bin:$PATH"
 
+(cd ./bundled-deps/ui-components && npm install)
+npm install
+
 if [ ENVIRONMENT = "production" ]; then
   cd bundled-deps/ui-components && npm run build
   webpack --config webpack.$1.js
   exit 0
 fi
 
-npm install
 webpack --config webpack.$1.js \
   --watch --mode=development & \
 (cd bundled-deps/ui-components && npm run dev)

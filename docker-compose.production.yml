@@ -9,19 +9,13 @@ services:
       # Public URL is settable from the
       # local environment
       - ENVIRONMENT=production
+      - MODE=${MODE:-visualizer}
       # The two possible app modes are ANNOTATION and PREDICTION
       - APPMODE=PREDICTION
       - PUBLIC_URL=/
       - API_BASE_URL=http://cosmos3.chtc.wisc.edu:8081/search
-    volumes:
-      - visualizer_dist:/user/dist
-  gateway:
-    image: nginx
-    volumes:
-      - visualizer_dist:/frontend:ro
-      - ./frontend-shared/nginx.frontend-only.conf:/etc/nginx/nginx.conf:ro
-volumes:
-  visualizer_dist:
+    ports:
+      - "${APP_PORT:-5080}:80"
 #
 # # can now do things like connections.create_connection(hosts=['es01'], timeout=20)
 # networks:

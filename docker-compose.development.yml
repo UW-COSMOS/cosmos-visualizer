@@ -10,6 +10,7 @@ services:
       # local environment
       - DEBUG=1
       - ENVIRONMENT=development
+      - MODE=${MODE:-visualizer}
       # The two possible app modes are ANNOTATION and PREDICTION
       - APPMODE=PREDICTION
       - PUBLIC_URL=/
@@ -26,6 +27,8 @@ services:
     volumes:
       - visualizer_dist:/frontend:ro
       - ./frontend-shared/nginx.frontend-only.conf:/etc/nginx/nginx.conf:ro
+    ports:
+      - "${APP_PORT:-5080}:80"
 volumes:
   visualizer_dist:
   webpack_cache:

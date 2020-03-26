@@ -2,6 +2,7 @@ let path = require('path');
 const { EnvironmentPlugin } = require('webpack');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 
+console.log(process.env)
 let assetsDir = path.resolve(__dirname, "dist");
 let assetsRoute = path.join(process.env.PUBLIC_URL);
 

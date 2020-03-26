@@ -3,4 +3,4 @@ WORKDIR /user
 
 RUN npm install -g linklocal
 COPY . /user
-CMD ./run-docker visualizer
+CMD ./run-docker ${MODE:-visualizer} 
