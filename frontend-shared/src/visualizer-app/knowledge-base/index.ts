@@ -9,7 +9,7 @@ import h from 'react-hyperscript';
 import {StatefulComponent, APIContext,
         PagedAPIView, APIResultView} from '@macrostrat/ui-components';
 import {InputGroup, Popover, Button, Menu, Position} from '@blueprintjs/core';
-import {ModelExtraction} from './model-extraction';
+import {DocumentExtraction} from './model-extraction';
 import {debounce} from 'underscore';
 
 import {InlineNavbar} from '~/util';
@@ -29,14 +29,15 @@ class KnowledgeBaseFilterView extends StatefulComponent {
         unwrapResponse(res){ return res.success.data[0]; }
       },
       filterParams: {
-        query: "sars"
+        query: ""
       }
     };
   }
 
-  renderExtractions(data){
+  renderExtractions(data: APIDocumentResult[]){
+    console.log(data);
     const {query} = this.state.filterParams;
-    return h('div.results', data.map((d, i) => h(ModelExtraction, {...d, index: i, query})));
+    return h('div.results', data.map((d, i) => h(DocumentExtraction, {data: d, index: i, query})));
   }
 
   render() {
@@ -44,7 +45,7 @@ class KnowledgeBaseFilterView extends StatefulComponent {
     return h('div#knowledge-base-filter.main', [
       h(InlineNavbar, {subtitle: 'Knowledge base filter'}),
       this.renderSearchbar(),
-      h(PagedAPIView, {
+      h(APIResultView, {
         route: '',
         opts: {
           unwrapResponse(res){ return res.results; }
@@ -91,6 +92,8 @@ class KnowledgeBaseFilterView extends StatefulComponent {
     const onChange = event => updateQuery(event.target.value);
 
     return h(InputGroup, {
+      className: 'main-search',
+      large: true,
       leftIcon: 'search',
       placeholder: "Search extractions",
       onChange,

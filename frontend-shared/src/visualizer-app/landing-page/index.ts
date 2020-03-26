@@ -47,7 +47,7 @@ const ModelInfoBox = function() {
     route: "/model/info",
     params: {stack_id: "default"},
     placeholder: null
-  }, data=> {
+  }, (data)=> {
     const R = ({id}) => h(Res, {data, id});
     return h(ModelInfo, [
       h('p', [
@@ -87,8 +87,8 @@ const ResultsLandingPage = (props)=>{
     h(InfoButton, {
       title: "Searchable knowledge base",
       to: "/knowledge-base"
-    }, `Knowledge base of equations, figures, and tables extracted from page-level \
-    information and searchable based on contextual information linked by the model.`
+    }, `Knowledge base extracted from documents and
+        searchable based on contextual information.`
     )
   ])
 }

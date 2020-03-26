@@ -1,12 +1,18 @@
 import {Component, memo} from 'react';
-import h from 'react-hyperscript';
+import h from '@macrostrat/hyper';
 import classNames from 'classnames';
 import {GDDReferenceCard} from '@macrostrat/ui-components';
 import {basename} from 'path';
 import {memoize} from 'underscore';
 import styled from '@emotion/styled';
 
-const KBImage = (props)=>{
+type ImageProps = {
+  bytes: string,
+  width?: number,
+  height?: number
+}
+
+const KBImage = (props: ImageProps)=>{
   const {bytes, ...rest} = props;
   const src="data:image/png;base64," + bytes;
   return h('img', {src, ...rest});
@@ -20,7 +26,7 @@ const KBCode = (props)=>{
 const getEntityType = path => // Hack to get entity type from image path
 basename(path, '.png').replace(/\d+$/, "");
 
-const KBExtraction = (props)=>{
+const KBExtraction = (props: KBExtractionProps)=>{
   const {unicode, path, className, title, entityType, ...rest} = props;
   className = classNames(className, "extracted-entity");
 
@@ -91,95 +97,110 @@ const TextMatch = function(props){
   ]);
 };
 
-class ModelExtraction extends Component {
-  render() {
-    let docid, entityType, gddCard;
-    const {query, target_img_path, target_unicode,
-     assoc_img_path, assoc_unicode, bytes, content, pdf_name, _id, page_num, filename, line_number, full_content} = this.props;
-
-    let main_img_path = null;
-    let main_unicode = null;
-
-
-    let assoc = null;
-    if (assoc_img_path != null) {
-      main_img_path = assoc_img_path;
-      main_unicode;
-      assoc = h(KBExtraction, {
-        title: "Associated entity",
-        path: assoc_img_path,
-        unicode: assoc_unicode
-      });
-    }
-
-    // Don't assume existence of target
-    let target = null;
-    if (target_img_path != null) {
-      main_img_path = target_img_path;
-      main_unicode = target_unicode;
-      target = h(KBExtraction, {
-        title: "Extracted entity",
-        className: 'target',
-        path: target_img_path,
-        unicode: target_unicode
-      });
-    }
-
-    // TODO: handle the new format here.
-    if (bytes != null) {
-      main_img_path = 'page ' + page_num + ' of docid ' + _id.replace('.pdf', '');
-      entityType = this.props['class'];
-      main_unicode = content;
-      assoc = h(KBExtraction, {
-        title: "Extracted thing",
-        bytes,
-        unicode: content,
-        path: _id,
-        entityType
-      });
-    }
-
-    if (full_content != null) {
-      main_img_path = 'line ' + line_number + ' of file ' + filename;
-      main_unicode = full_content;
-      entityType = this.props['class'];
-      assoc = h(KBExtraction, {
-        title: "Extracted thing",
-        unicode: content,
-        path: _id,
-        entityType
-      });
-    }
-
-    // We don't have a result unless either main or target are defined
-    if (main_img_path == null) { return null; }
-
-    try {
-      // Stupid hack
-      docid = main_img_path.match(/([a-f0-9]{24})/g)[0];
-      gddCard = h(GDDReferenceCard, {docid});
-    } catch (error) {
-      gddCard = null;
-    }
-
-    try {
-      docid = pdf_name.match(/([a-f0-9]{24})/g)[0];
-      gddCard = h(GDDReferenceCard, {docid});
-    } catch (error1) {
-      gddCard = null;
-    }
-
-    return h('div.model-extraction', [
-      target,
-      assoc,
-      h(TextMatch, {
-        entityType: getEntityType(main_img_path),
-        text: main_unicode,
-        query
-      }),
-      gddCard
-    ]);
-  }
+type DocExtractionProps = {
+  data: APIDocumentResult,
+  query?: string
 }
 
-export {ModelExtraction};
+const DocumentExtractionA = (props: DocExtractionProps)=>{
+
+  let main_img_path = null;
+  let main_unicode = null;
+
+
+  let assoc = null;
+  if (assoc_img_path != null) {
+    main_img_path = assoc_img_path;
+    main_unicode;
+    assoc = h(KBExtraction, {
+      title: "Associated entity",
+      path: assoc_img_path,
+      unicode: assoc_unicode
+    });
+  }
+
+  // Don't assume existence of target
+  let target = null;
+  if (target_img_path != null) {
+    main_img_path = target_img_path;
+    main_unicode = target_unicode;
+    target = h(KBExtraction, {
+      title: "Extracted entity",
+      className: 'target',
+      path: target_img_path,
+      unicode: target_unicode
+    });
+  }
+
+  // TODO: handle the new format here.
+  if (bytes != null) {
+    main_img_path = 'page ' + page_num + ' of docid ' + _id.replace('.pdf', '');
+    entityType = this.props['class'];
+    main_unicode = content;
+    assoc = h(KBExtraction, {
+      title: "Extracted thing",
+      bytes,
+      unicode: content,
+      path: _id,
+      entityType
+    });
+  }
+
+  if (full_content != null) {
+    main_img_path = 'line ' + line_number + ' of file ' + filename;
+    main_unicode = full_content;
+    entityType = this.props['class'];
+    assoc = h(KBExtraction, {
+      title: "Extracted thing",
+      unicode: content,
+      path: _id,
+      entityType
+    });
+  }
+
+  // We don't have a result unless either main or target are defined
+  if (main_img_path == null) { return null; }
+}
+
+type ExtractionProps = {
+  data: APIExtraction,
+  query?: string
+}
+
+const AllText = ({content})=>{
+  return h("p.text", content)
+}
+
+
+const MainExtraction = (props: ExtractionProps)=>{
+  const {data, query} = props
+  const {bytes, content} = data
+
+  return h('div.extracted-entity', [
+    h('div.main', [
+      h('div.kb-image-container', [
+        h(KBImage, {bytes}),
+        h(AllText, {content})
+      ])
+    ])
+  ]);
+}
+
+const DocumentExtraction = (props: DocExtractionProps)=>{
+  const {data, query} = props;
+  const docid = data.pdf_name.replace(".pdf", "");
+
+  return h('div.model-extraction', [
+    h(MainExtraction, {data: data.children[0], query}),
+    // target,
+    // assoc,
+    // h(TextMatch, {
+    //   entityType: getEntityType(main_img_path),
+    //   text: main_unicode,
+    //   query
+    // }),
+    h(GDDReferenceCard, {docid})
+  ]);
+}
+
+export {DocumentExtraction};

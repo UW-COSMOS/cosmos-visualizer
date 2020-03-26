@@ -16,6 +16,7 @@ services:
       - API_BASE_URL=http://cosmos3.chtc.wisc.edu:8081/search
     volumes:
       - ./frontend-shared/src:/user/src
+      - ./frontend-shared/bundled-deps/ui-components/src:/user/bundled-deps/ui-components/src
       - node_modules:/user/node_modules
       - visualizer_dist:/user/dist
       - webpack_cache:/user/.cache
