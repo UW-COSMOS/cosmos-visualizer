@@ -1,4 +1,3 @@
-import {Component, memo} from 'react';
 import h from '@macrostrat/hyper';
 import classNames from 'classnames';
 import {GDDReferenceCard} from '@macrostrat/ui-components';

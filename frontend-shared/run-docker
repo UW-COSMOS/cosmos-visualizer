@@ -1,0 +1,10 @@
+#!/bin/sh
+# provide the argument 'tagging', 'validation', or 'visualizer'
+
+npm install
+
+PATH="/user/node_modules/.bin:$PATH"
+
+webpack --config webpack.$1.js \
+  --watch --mode=development & \
+(cd bundled-deps/ui-components && npm run dev)

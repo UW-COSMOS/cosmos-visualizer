@@ -1,11 +1,10 @@
 #!/usr/bin/env zsh
-
 cd "${0:h:h}"
 
 export COMPOSE_PROJECT_NAME="cosmos-validation"
 
 function compose {
-  docker-compose -f docker-compose.validation.yml $@
+  docker-compose -f docker-compose.shared.yml -f docker-compose.validation.yml $@
 }
 
 export MAGIC_MODE=0

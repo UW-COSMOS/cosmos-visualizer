@@ -1,0 +1,38 @@
+# Only runs frontend
+version: '3'
+services:
+  frontend:
+    build:
+      context: frontend-shared
+      dockerfile: Dockerfile.dev
+    environment:
+      # Public URL is settable from the
+      # local environment
+      - DEBUG=1
+      # The two possible app modes are ANNOTATION and PREDICTION
+      - APPMODE=PREDICTION
+      - PUBLIC_URL=/
+      - API_BASE_URL=http://cosmos3.chtc.wisc.edu:8081/search
+    volumes:
+      - ./frontend-shared/src:/user/src
+      - ./bundled-deps/ui-components/src:/bundled-deps/ui-components/src
+      - node_modules:/user/node_modules
+      - ui_node_modules:/user/bundled-deps/ui-components/node_modules
+      - visualizer_dist:/user/dist
+      - webpack_cache:/user/.cache
+  gateway:
+    image: nginx
+    volumes:
+      - visualizer_dist:/frontend:ro
+      - ./frontend-shared/nginx.frontend-only.conf:/etc/nginx/nginx.conf:ro
+volumes:
+  visualizer_dist:
+  webpack_cache:
+  node_modules:
+  ui_node_modules:
+#
+# # can now do things like connections.create_connection(hosts=['es01'], timeout=20)
+# networks:
+#    default:
+#       external:
+#          name: elasticsearch_esnet

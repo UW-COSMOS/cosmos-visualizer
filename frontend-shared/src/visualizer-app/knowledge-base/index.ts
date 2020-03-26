@@ -11,6 +11,7 @@ import {StatefulComponent, APIContext,
 import {InputGroup, Popover, Button, Menu, Position} from '@blueprintjs/core';
 import {DocumentExtraction} from './model-extraction';
 import {debounce} from 'underscore';
+import {RelatedTerms} from './related-terms'
 
 import {InlineNavbar} from '~/util';
 import './main.styl';
@@ -35,7 +36,7 @@ class KnowledgeBaseFilterView extends StatefulComponent {
   }
 
   renderExtractions(data: APIDocumentResult[]){
-    console.log(data);
+    console.log(data, query);
     const {query} = this.state.filterParams;
     return h('div.results', data.map((d, i) => h(DocumentExtraction, {data: d, index: i, query})));
   }
@@ -45,6 +46,7 @@ class KnowledgeBaseFilterView extends StatefulComponent {
     return h('div#knowledge-base-filter.main', [
       h(InlineNavbar, {subtitle: 'Knowledge base filter'}),
       this.renderSearchbar(),
+      h(RelatedTerms, {query: filterParams.query}),
       h(APIResultView, {
         route: '',
         opts: {

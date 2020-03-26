@@ -7,7 +7,7 @@ cd "${0:h:h}"
 export COMPOSE_PROJECT_NAME="cosmos-visualizer"
 
 function compose {
-  docker-compose -f docker-compose.visualizer.yml $@
+  docker-compose -f docker-compose.shared.yml -f docker-compose.visualizer.yml $@
 }
 
 export MAGIC_MODE=0
