@@ -3,7 +3,7 @@ const { EnvironmentPlugin } = require('webpack');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 let assetsDir = path.resolve(__dirname, "dist");
-let assetsRoute = path.join(process.env.PUBLIC_URL);
+let assetsRoute = path.join(process.env.PUBLIC_URL || "/");
 
 let jsLoader = {
   loader: 'babel-loader',
@@ -30,7 +30,7 @@ let stylusLoader = {
 console.log(process.env)
 
 module.exports = (env, argv)=> {
-  const mode = argv.mode || "production"
+  const mode = process.env.ENVIRONMENT || "production"
 
   return {
     module: {
@@ -52,6 +52,7 @@ module.exports = (env, argv)=> {
       }
     },
     // entry must be passed as an argument to webpack
+    entry: "./src/visualizer-app/index.ts",
     output: {
       path: assetsDir,
       publicPath: assetsRoute,

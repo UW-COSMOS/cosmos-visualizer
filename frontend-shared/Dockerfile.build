@@ -20,9 +20,10 @@ ARG DEBUG=0
 ARG MODE="$MODE"
 ARG APPMODE=PREDICTION
 ENV ENVIRONMENT="$ENVIRONMENT"
+ENV APP_PORT="${APP_PORT}"
 
 RUN (cd ./bundled-deps/ui-components && npm run build:main)
-RUN ./node_modules/.bin/webpack --mode=production src/visualizer-app/index.ts
+RUN ./node_modules/.bin/webpack src/visualizer-app/index.ts
 
 FROM nginx
 COPY --from=0 /user/dist /frontend
