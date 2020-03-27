@@ -44,7 +44,13 @@ module.exports = (env, argv)=> {
         {test: /\.md$/, use: ["html-loader","markdown-loader"]}
       ]
     },
-    devtool: false, //mode == 'development' ? 'source-map' : false,
+    context: __dirname,
+    watchOptions: {
+      poll: true,
+      ignored: /node_modules/
+    },
+    cache: false,
+    devtool: false, // mode == 'development' ? 'eval' : false,
     resolve: {
       extensions: [".js", ".ts", ".jsx", ".tsx", ".styl",".css",".html",".md"],
       symlinks: true,
@@ -54,6 +60,7 @@ module.exports = (env, argv)=> {
         // Fix "two copies of react"
         "react": path.resolve(__dirname, "node_modules", "react"),
         "react-dom": path.resolve(__dirname, "node_modules", "react-dom"),
+        "#": path.resolve(__dirname, "bundled-deps/ui-components/src")
       }
     },
     // entry must be passed as an argument to webpack

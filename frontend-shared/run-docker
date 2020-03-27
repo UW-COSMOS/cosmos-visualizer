@@ -2,8 +2,11 @@
 # Run docker for development
 # provide the argument 'tagging', 'validation', or 'visualizer'
 
-
-PATH="/user/node_modules/.bin:$PATH"
+if [ ! -f /.dockerenv && -f .local-env ]; then
+  # Running locally
+  echo "Sourcing local environment"
+  source .local-env
+fi
 
 npm install --loglevel=error
 

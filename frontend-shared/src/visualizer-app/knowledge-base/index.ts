@@ -7,7 +7,7 @@
  */
 import h from 'react-hyperscript';
 import {StatefulComponent, APIContext,
-        PagedAPIView, APIResultView} from '@macrostrat/ui-components';
+        PagedAPIView, APIResultView} from "#/";
 import {InputGroup, Popover, Button, Menu, Position} from '@blueprintjs/core';
 import {DocumentExtraction} from './model-extraction';
 import {debounce} from 'underscore';
