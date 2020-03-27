@@ -74,7 +74,7 @@
     "webpack-cli": "^3.3.11"
   },
   "scripts": {
-    "preinstall": "linklocal && (cd bundled-deps/ui-components && npm run build)",
+    "preinstall": "linklocal && cd bundled-deps/ui-components && npm install --unsafe-perm",
     "build:tagging": "webpack --config webpack.tagging.js ",
     "build:visualizer": "webpack --config webpack.visualizer.js",
     "build:validation": "webpack --config webpack.validation.js",

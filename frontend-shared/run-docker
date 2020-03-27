@@ -2,13 +2,7 @@
 # Run docker for development
 # provide the argument 'tagging', 'validation', or 'visualizer'
 
-if [ ! -f /.dockerenv && -f .local-env ]; then
-  # Running locally
-  echo "Sourcing local environment"
-  source .local-env
-fi
-
-npm install --loglevel=error
+npm install --unsafe-perm
 
 (cd bundled-deps/ui-components && npm run dev) &
 node_modules/.bin/webpack --config webpack.config.js \

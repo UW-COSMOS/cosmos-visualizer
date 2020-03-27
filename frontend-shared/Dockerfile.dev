@@ -1,6 +1,6 @@
 FROM node:11-alpine
 WORKDIR /user
 
-RUN npm install -g linklocal
+RUN npm install --unsafe-perm -g linklocal concurrently
 COPY . /user
-CMD ./run-docker ${MODE:-visualizer} 
+CMD ./run-docker ${MODE:-visualizer}

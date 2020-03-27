@@ -37,7 +37,15 @@ module.exports = (env, argv)=> {
   return {
     module: {
       rules: [
-        {test: /\.(js|jsx|ts|tsx)$/, use: [ jsLoader ], exclude: /node_modules/ },
+        {
+          test: /\.(js|jsx|ts|tsx)$/,
+          use: [ jsLoader ],
+          // https://github.com/webpack/webpack/issues/2031
+          include: [
+            path.resolve(__dirname, "src"),
+            path.resolve(__dirname, "node_modules/@macrostrat/ui-components")
+          ]
+        },
         {test: /\.styl$/, use: ["style-loader", "css-loader", stylusLoader]},
         {test: /\.css$/, use: ["style-loader", 'css-loader' ]},
         {test: /\.(eot|svg|ttf|woff|woff2)$/, use: [fontLoader]},
@@ -60,7 +68,7 @@ module.exports = (env, argv)=> {
         // Fix "two copies of react"
         "react": path.resolve(__dirname, "node_modules", "react"),
         "react-dom": path.resolve(__dirname, "node_modules", "react-dom"),
-        "#": path.resolve(__dirname, "bundled-deps/ui-components/src")
+        "@macrostrat/ui-components": path.resolve(__dirname, "node_modules", "@macrostrat", "ui-components")
       }
     },
     // entry must be passed as an argument to webpack
