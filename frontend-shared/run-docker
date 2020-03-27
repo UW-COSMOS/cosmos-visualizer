@@ -7,7 +7,7 @@ PATH="/user/node_modules/.bin:$PATH"
 
 (cd ./bundled-deps/ui-components && npm install --loglevel=error)
 npm install --loglevel=error
-linklocal link
+linklocal
 
 (cd bundled-deps/ui-components && npm run dev) &
 webpack --config webpack.config.js \
