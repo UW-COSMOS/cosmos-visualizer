@@ -66,20 +66,22 @@
     "html-loader": "^0.5.5",
     "linklocal": "^2.8.2",
     "markdown-loader": "^5.0.0",
+    "replace": "^1.1.5",
     "style-loader": "^0.23.1",
     "stylus": "^0.54.5",
     "stylus-relative-loader": "^4.0.0",
-    "webpack": "^4.35.0",
-    "webpack-cli": "^3.3.5"
+    "webpack": "^4.42.1",
+    "webpack-cli": "^3.3.11"
   },
   "scripts": {
-    "preinstall": "linklocal",
+    "preinstall": "linklocal && (cd bundled-deps/ui-components && npm run build)",
     "build:tagging": "webpack --config webpack.tagging.js ",
     "build:visualizer": "webpack --config webpack.visualizer.js",
     "build:validation": "webpack --config webpack.validation.js",
     "watch:tagging": "webpack --config webpack.tagging.js --watch --mode=development",
     "watch:validation": "webpack --config webpack.validation.js --watch --mode=development",
-    "watch:visualizer": "webpack --config webpack.visualizer.js --watch --mode=development"
+    "watch:visualizer": "webpack --config webpack.visualizer.js --watch --mode=development",
+    "postinstall": "replace 'followSymlinks: false' 'followSymlinks: true' node_modules/watchpack/lib/DirectoryWatcher.js"
   },
   "repository": {
     "type": "git",

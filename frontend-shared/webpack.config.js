@@ -29,13 +29,14 @@ let stylusLoader = {
 
 console.log(process.env)
 
+// Watching issues! https://github.com/webpack/watchpack/issues/61
+
 module.exports = (env, argv)=> {
   const mode = process.env.ENVIRONMENT || "production"
 
   return {
     module: {
       rules: [
-        {test: /\.coffee$/, use: [ jsLoader, "coffee-loader" ]},
         {test: /\.(js|jsx|ts|tsx)$/, use: [ jsLoader ], exclude: /node_modules/ },
         {test: /\.styl$/, use: ["style-loader", "css-loader", stylusLoader]},
         {test: /\.css$/, use: ["style-loader", 'css-loader' ]},
@@ -43,12 +44,16 @@ module.exports = (env, argv)=> {
         {test: /\.md$/, use: ["html-loader","markdown-loader"]}
       ]
     },
-    devtool: mode == 'development' ? 'source-map' : false,
+    devtool: false, //mode == 'development' ? 'source-map' : false,
     resolve: {
-      extensions: [".coffee", ".js", ".ts", ".jsx", ".tsx", ".styl",".css",".html",".md"],
+      extensions: [".js", ".ts", ".jsx", ".tsx", ".styl",".css",".html",".md"],
+      symlinks: true,
       alias: {
         "~": path.resolve(__dirname, "src/"),
-        "app": path.resolve(__dirname, "src/")
+        "app": path.resolve(__dirname, "src/"),
+        // Fix "two copies of react"
+        "react": path.resolve(__dirname, "node_modules", "react"),
+        "react-dom": path.resolve(__dirname, "node_modules", "react-dom"),
       }
     },
     // entry must be passed as an argument to webpack
