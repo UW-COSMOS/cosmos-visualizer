@@ -5,9 +5,10 @@
 
 PATH="/user/node_modules/.bin:$PATH"
 
-(cd ./bundled-deps/ui-components && npm install)
-npm install
+(cd ./bundled-deps/ui-components && npm install --loglevel=error)
+npm install --loglevel=error
+linklocal link
 
-webpack --config webpack.$1.js \
-  --watch --mode=development src/$1-app/index.ts & \
-(cd bundled-deps/ui-components && npm run dev)
+(cd bundled-deps/ui-components && npm run dev) &
+webpack --config webpack.config.js \
+  --watch --mode=development src/$1-app/index.ts

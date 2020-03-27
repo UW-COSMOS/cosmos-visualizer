@@ -36,7 +36,6 @@ class KnowledgeBaseFilterView extends StatefulComponent {
   }
 
   renderExtractions(data: APIDocumentResult[]){
-    console.log(data, query);
     const {query} = this.state.filterParams;
     return h('div.results', data.map((d, i) => h(DocumentExtraction, {data: d, index: i, query})));
   }

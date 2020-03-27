@@ -16,13 +16,13 @@ services:
       - PUBLIC_URL=/
       - API_BASE_URL=http://cosmos3.chtc.wisc.edu:8081/search
     volumes:
-      - visualizer_dist:/user/dist
       - ./frontend-shared/src:/user/src
       - ./bundled-deps/ui-components/src:/bundled-deps/ui-components/src
-      # Anonymous volumes
-      - /user/node_modules
-      - /user/bundled-deps/ui-components/node_modules
-      - /user/.cache
+      # Named volumes
+      - visualizer_dist:/user/dist
+      - node_modules:/user/node_modules
+      - ui_node_modules:/user/bundled-deps/ui-components/node_modules
+      - webpack_cache:/user/.cache
   gateway:
     image: nginx
     volumes:
@@ -32,3 +32,6 @@ services:
       - "${APP_PORT:-5080}:80"
 volumes:
   visualizer_dist:
+  ui_node_modules:
+  webpack_cache:
+  node_modules:

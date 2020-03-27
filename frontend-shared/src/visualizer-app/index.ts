@@ -6,7 +6,7 @@ import {getEnvironmentConfig} from '~/shared/_env'
 import {Route} from 'react-router-dom';
 import {AppMode} from '../enum';
 import {ResultsLandingPage} from './landing-page';
-//import {KnowledgeBaseFilterView} from './knowledge-base';
+import {KnowledgeBaseFilterView} from './knowledge-base';
 import {AppRouter} from '~/shared/router'
 
 const App = (props) => {
@@ -18,10 +18,10 @@ const App = (props) => {
       exact: true,
       component: ResultsLandingPage
     }),
-    // h(Route, {
-    //   path: '/knowledge-base',
-    //   component: KnowledgeBaseFilterView
-    // })
+    h(Route, {
+      path: '/knowledge-base',
+      component: KnowledgeBaseFilterView
+    })
   ]);
 }
 

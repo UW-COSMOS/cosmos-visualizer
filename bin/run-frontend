@@ -36,10 +36,7 @@ def compose(*v):
     return cmd("docker-compose", *v)
 
 
-cmd("git submodule update --init --recursive")
-
-
-res = compose("up --detach --force-recreate --build")
+res = compose("up -d --force-recreate --build")
 if res.returncode == 0:
     compose("logs -f")
 else:

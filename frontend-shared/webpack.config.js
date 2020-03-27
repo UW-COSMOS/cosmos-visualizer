@@ -48,7 +48,7 @@ module.exports = (env, argv)=> {
       extensions: [".coffee", ".js", ".ts", ".jsx", ".tsx", ".styl",".css",".html",".md"],
       alias: {
         "~": path.resolve(__dirname, "src/"),
-        "app": path.resolve(__dirname, "src/"),
+        "app": path.resolve(__dirname, "src/")
       }
     },
     // entry must be passed as an argument to webpack
