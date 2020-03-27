@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # A simple wrapper around docker-compose to run the COSMOS visualizer
 # with the appropriate settings
 from os.path import join, dirname
@@ -28,8 +28,11 @@ env = "production" if production else "development"
 environ["COMPOSE_FILE"] = "docker-compose.{0}.yml".format(env)
 environ["MODE"] = mode
 
+
 def cmd(*v):
-    return run(split(" ".join(v)))
+    val = " ".join(v)
+    print(val)
+    return run(split(val))
 
 
 def compose(*v):
