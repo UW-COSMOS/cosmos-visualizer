@@ -8,7 +8,7 @@ RUN npm install --unsafe-perm --ignore-scripts
 
 WORKDIR /user
 COPY ./package.json ./package.json
-RUN npm install --unsafe-perm
+RUN linklocal && npm install --unsafe-perm --ignore-scripts
 COPY . /user
 
 # Environment variables are needed at buildtime
