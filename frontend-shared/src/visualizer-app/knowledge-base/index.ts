@@ -1,10 +1,9 @@
-import h from 'react-hyperscript';
-import {StatefulComponent, APIContext,
-        PagedAPIView, APIResultView} from "@macrostrat/ui-components";
-import {InputGroup, Popover, Button, Menu, Position, NonIdealState} from '@blueprintjs/core';
+import h from '@macrostrat/hyper';
+import {StatefulComponent, APIContext, APIResultView} from "@macrostrat/ui-components";
+import {NonIdealState} from '@blueprintjs/core';
 import {DocumentExtraction} from './model-extraction';
-import {debounce} from 'underscore';
 import {RelatedTerms} from './related-terms'
+import {Searchbar} from './search-interface'
 
 import {InlineNavbar} from '~/util';
 import './main.styl';
@@ -17,14 +16,14 @@ const PlaceholderView = ()=>{
   });
 }
 
-const DocumentResults = (props: {data: APIDocumentResult[]})=>{
+type ResProps = {data: APIDocumentResult[]}
+const DocumentResults = (props: ResProps)=>{
   const {data} = props
   if (data.length == 0) return h(NonIdealState, {
       icon: 'inbox',
       title: "No results",
       description: "No matching extractions found"
   });
-
 
   return h('div.results', data.map((d, i) => {
     return h(DocumentExtraction, {data: d, index: i})
@@ -36,13 +35,6 @@ const ResultsView = (props)=>{
   const {query} = filterParams
   if (query == null || query == '') return h(PlaceholderView)
 
-  const renderExtractions = (data: APIDocumentResult[])=>{
-    console.log(query)
-    return h('div.results', data.map((d, i) => {
-      return h(DocumentExtraction, {data: d, index: i, query})
-    }));
-  }
-
   return h("div.results", [
     h(RelatedTerms, {query}),
     h(APIResultView, {
@@ -53,77 +45,33 @@ const ResultsView = (props)=>{
       params: filterParams,
       topPagination: true,
       bottomPagination: false
-    }, renderExtractions)
+    }, (data)=>h(DocumentResults, {data}))
   ])
 }
 
-class KnowledgeBaseFilterView extends StatefulComponent {
+class KnowledgeBaseFilterView extends StatefulComponent<{},{}> {
   static contextType = APIContext;
-  constructor(props){
-    super(props);
-    this.updateQuery = this.updateQuery.bind(this);
-
-    this.state = {
-      doc_ids: [],
-      types: [],
-      opts: {
-        unwrapResponse(res){ return res.success.data[0]; }
-      },
-      filterParams: {
-        query: ""
-      }
-    };
-  }
+  state = {
+    doc_ids: [],
+    types: [],
+    opts: {
+      unwrapResponse(res){ return res.success.data[0]; }
+    },
+    filterParams: {
+      query: ""
+    }
+  };
 
   render() {
-    const {filterParams} = this.state;
+    const {filterParams, types} = this.state;
+
+    const updateFilter = (spec)=>this.updateState({filterParams: spec})
+
     return h('div#knowledge-base-filter.main', [
       h(InlineNavbar, {subtitle: 'Knowledge base filter'}),
-      this.renderSearchbar(),
+      h(Searchbar, {filterParams, updateFilter, types}),
       h(ResultsView, {filterParams})
     ]);
-  }
-
-  updateQuery(value){
-    return this.updateState({filterParams: {query: {$set: value}}});
-  }
-
-  renderSearchbar() {
-    const {types} = this.state;
-
-    const menuItems = types.map(d=> {
-      const onClick = () => {
-        return this.updateState({filterParams: {type: {$set: d.id}}});
-      };
-      return h(Menu.Item, {onClick, text: d.name});
-  });
-
-    const onClick = () => {
-      const {type, ...val} = this.state.filterParams;
-      return this.updateState({filterParams: {$set: val}});
-    };
-    menuItems.push(h(Menu.Divider));
-    menuItems.push(h(Menu.Item, {onClick, text: "All types"}));
-
-    const content = h(Menu, menuItems);
-    const position = Position.BOTTOM_RIGHT;
-
-    const type = this.state.filterParams.type || "All types";
-    const rightElement = h(Popover, {content, position}, [
-      h(Button, {minimal: true, rightIcon: "filter"}, type)
-    ]);
-
-    const updateQuery = debounce(this.updateQuery,500);
-    const onChange = event => updateQuery(event.target.value);
-
-    return h(InputGroup, {
-      className: 'main-search',
-      large: true,
-      leftIcon: 'search',
-      placeholder: "Search extractions",
-      onChange,
-      rightElement
-    });
   }
 
   getTypes() {

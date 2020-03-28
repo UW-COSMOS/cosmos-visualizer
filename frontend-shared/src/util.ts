@@ -8,7 +8,7 @@ import h from 'react-hyperscript';
 import styled from '@emotion/styled';
 
 import {Link, withRouter} from 'react-router-dom';
-import {Navbar} from '@blueprintjs/core';
+import {Navbar, INavbarProps} from '@blueprintjs/core';
 import {LinkButton} from '@macrostrat/ui-components';
 
 const PageHeader = function(props){
@@ -46,7 +46,9 @@ const PermalinkButton = withRouter(function(props){
     text
   });});
 
-const _ = ({subtitle, children, ...rest}) => h(Navbar, {...rest}, [
+type NavProps = React.PropsWithChildren<{subtitle: string & INavbarProps}>
+
+const _ = ({subtitle, children, ...rest}: NavProps) => h(Navbar, {...rest}, [
   h(PageHeader, {subtitle}),
   children
 ]);
