@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+# Run locally for development
+# provide the argument 'tagging', 'validation', or 'visualizer'
+
+export PATH="node_modules/.bin:$PATH"
+export API_BASE_URL=http://cosmos3.chtc.wisc.edu:8081/search
+export PUBLIC_URL="/"
+export MODE="development"
+
+
+#npm install -g concurrently linklocal
+#npm install
+
+(cd bundled-deps/ui-components && npm run dev) & \
+webpack-dev-server --entry $(pwd)/src/${1:-visualizer}-app/index.ts

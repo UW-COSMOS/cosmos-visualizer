@@ -43,7 +43,7 @@ module.exports = (env, argv)=> {
           // https://github.com/webpack/webpack/issues/2031
           include: [
             path.resolve(__dirname, "src"),
-            path.resolve(__dirname, "node_modules/@macrostrat/ui-components")
+            path.resolve(__dirname, "node_modules", "@macrostrat", "ui-components")
           ]
         },
         {test: /\.styl$/, use: ["style-loader", "css-loader", stylusLoader]},
@@ -51,6 +51,11 @@ module.exports = (env, argv)=> {
         {test: /\.(eot|svg|ttf|woff|woff2)$/, use: [fontLoader]},
         {test: /\.md$/, use: ["html-loader","markdown-loader"]}
       ]
+    },
+    devServer: {
+      historyApiFallback: {
+        index: assetsRoute
+      }
     },
     context: __dirname,
     watchOptions: {
@@ -68,7 +73,9 @@ module.exports = (env, argv)=> {
         // Fix "two copies of react"
         "react": path.resolve(__dirname, "node_modules", "react"),
         "react-dom": path.resolve(__dirname, "node_modules", "react-dom"),
-        "@macrostrat/ui-components": path.resolve(__dirname, "node_modules", "@macrostrat", "ui-components")
+        "react-router": path.resolve(__dirname, "node_modules", "react-router"),
+        "react-router-dom": path.resolve(__dirname, "node_modules", "react-router-dom"),
+        //"@macrostrat/ui-components": path.resolve(__dirname, "bundled-deps", "ui-components")
       }
     },
     // entry must be passed as an argument to webpack
