@@ -1,14 +1,7 @@
-/*
- * decaffeinate suggestions:
- * DS001: Remove Babel/TypeScript constructor workaround
- * DS102: Remove unnecessary code created because of implicit returns
- * DS206: Consider reworking classes to avoid initClass
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
 import h from 'react-hyperscript';
 import {StatefulComponent, APIContext,
         PagedAPIView, APIResultView} from "@macrostrat/ui-components";
-import {InputGroup, Popover, Button, Menu, Position} from '@blueprintjs/core';
+import {InputGroup, Popover, Button, Menu, Position, NonIdealState} from '@blueprintjs/core';
 import {DocumentExtraction} from './model-extraction';
 import {debounce} from 'underscore';
 import {RelatedTerms} from './related-terms'
@@ -16,11 +9,58 @@ import {RelatedTerms} from './related-terms'
 import {InlineNavbar} from '~/util';
 import './main.styl';
 
+const PlaceholderView = ()=>{
+  return h(NonIdealState, {
+    icon: 'search-template',
+    title: "No results yet",
+    description: "Enter a query to search the knowledge base"
+  });
+}
+
+const DocumentResults = (props: {data: APIDocumentResult[]})=>{
+  const {data} = props
+  if (data.length == 0) return h(NonIdealState, {
+      icon: 'inbox',
+      title: "No results",
+      description: "No matching extractions found"
+  });
+
+
+  return h('div.results', data.map((d, i) => {
+    return h(DocumentExtraction, {data: d, index: i})
+  }));
+}
+
+const ResultsView = (props)=>{
+  const {filterParams} = props
+  const {query} = filterParams
+  if (query == null || query == '') return h(PlaceholderView)
+
+  const renderExtractions = (data: APIDocumentResult[])=>{
+    console.log(query)
+    return h('div.results', data.map((d, i) => {
+      return h(DocumentExtraction, {data: d, index: i, query})
+    }));
+  }
+
+  return h("div.results", [
+    h(RelatedTerms, {query}),
+    h(APIResultView, {
+      route: '',
+      opts: {
+        unwrapResponse(res){ return res.results; }
+      },
+      params: filterParams,
+      topPagination: true,
+      bottomPagination: false
+    }, renderExtractions)
+  ])
+}
+
 class KnowledgeBaseFilterView extends StatefulComponent {
   static contextType = APIContext;
   constructor(props){
     super(props);
-    this.renderExtractions = this.renderExtractions.bind(this);
     this.updateQuery = this.updateQuery.bind(this);
 
     this.state = {
@@ -35,26 +75,12 @@ class KnowledgeBaseFilterView extends StatefulComponent {
     };
   }
 
-  renderExtractions(data: APIDocumentResult[]){
-    const {query} = this.state.filterParams;
-    return h('div.results', data.map((d, i) => h(DocumentExtraction, {data: d, index: i, query})));
-  }
-
   render() {
     const {filterParams} = this.state;
     return h('div#knowledge-base-filter.main', [
       h(InlineNavbar, {subtitle: 'Knowledge base filter'}),
       this.renderSearchbar(),
-      h(RelatedTerms, {query: filterParams.query}),
-      h(APIResultView, {
-        route: '',
-        opts: {
-          unwrapResponse(res){ return res.results; }
-        },
-        params: filterParams,
-        topPagination: true,
-        bottomPagination: false
-      }, this.renderExtractions)
+      h(ResultsView, {filterParams})
     ]);
   }
 
@@ -86,8 +112,6 @@ class KnowledgeBaseFilterView extends StatefulComponent {
     const rightElement = h(Popover, {content, position}, [
       h(Button, {minimal: true, rightIcon: "filter"}, type)
     ]);
-
-
 
     const updateQuery = debounce(this.updateQuery,500);
     const onChange = event => updateQuery(event.target.value);
