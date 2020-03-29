@@ -169,7 +169,7 @@ const AllText = ({content})=>{
 
 
 const MainExtraction = (props: ExtractionProps)=>{
-  const {data, query} = props
+  const {data} = props
   const {bytes, content} = data
 
   return h('div.extracted-entity', [
@@ -182,19 +182,20 @@ const MainExtraction = (props: ExtractionProps)=>{
   ]);
 }
 
+function getMainExtraction(data, backend) {
+  return data.children[0]
+}
+
+
+
 const DocumentExtraction = (props: DocExtractionProps)=>{
   const {data, query} = props;
   const docid = data.pdf_name.replace(".pdf", "");
 
+  const main = getMainExtraction(data)
+
   return h('div.model-extraction', [
-    h(MainExtraction, {data: data.children[0], query}),
-    // target,
-    // assoc,
-    // h(TextMatch, {
-    //   entityType: getEntityType(main_img_path),
-    //   text: main_unicode,
-    //   query
-    // }),
+    h(MainExtraction, {data: main}),
     h(GDDReferenceCard, {docid})
   ]);
 }

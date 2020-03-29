@@ -3,7 +3,7 @@ import {useAPIResult, APIProvider, APIResultView} from '@macrostrat/ui-component
 
 const WordRelatedTerms = (props: {word: string})=>{
   const {word} = props
-  const res = useAPIResult("/similar_terms", {term: word}, {debounce: 500})
+  const res = useAPIResult("/similar_terms", {term: word.toLowerCase()}, {debounce: 1000})
 
   const params = {term: word}
   if (res == null) return null

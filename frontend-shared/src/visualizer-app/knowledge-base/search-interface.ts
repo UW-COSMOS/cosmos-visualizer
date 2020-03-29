@@ -2,30 +2,42 @@ import h from '@macrostrat/hyper';
 import {useState} from 'react';
 import {
   InputGroup,
-  Popover,
   Button,
   ButtonGroup,
   Menu,
   Position,
   Collapse,
   Slider,
-  Card
+  Card,
+  Intent
 } from '@blueprintjs/core';
-import {debounce} from 'underscore';
+import {useAppState, useAppDispatch, SearchBackend} from './provider'
+import {Spec} from 'immutability-helper'
 
 interface SearchInterfaceProps {
-  filterParams: object,
-  types: object,
-  updateFilter: any
+  types: object
 }
 
 const FilterPanel = (props)=> {
   const {isOpen} = props
+  const {searchBackend} = useAppState()
+  const dispatch = useAppDispatch()
+
+  const propsFor = (backend: SearchBackend)=>({
+    intent: searchBackend == backend ? Intent.PRIMARY : null,
+    onClick() {
+      if (backend == searchBackend) return
+      dispatch({type: 'set-search-backend', backend})
+    },
+    children: backend,
+    small: true
+  })
+
   return h(Collapse, {isOpen}, [
     h(Card, [
       h(ButtonGroup, [
-        h(Button, {disabled: true}, "Anserini"),
-        h(Button, "ElasticSearch")
+        h(Button, propsFor(SearchBackend.Anserini)),
+        h(Button, propsFor(SearchBackend.ElasticSearch))
       ]),
       h(Slider)
     ])
@@ -33,7 +45,14 @@ const FilterPanel = (props)=> {
 }
 
 const Searchbar = (props: SearchInterfaceProps)=>{
-  const {types, filterParams, updateFilter} = props;
+  const {types} = props;
+
+  const {filterParams} = useAppState()
+  const dispatch = useAppDispatch()
+
+  const updateFilter = (spec: Spec<FilterParams>)=>{
+    dispatch({type: 'update-filter', spec})
+  }
 
   const [filterPanelOpen, setFilterPanelOpen] = useState<boolean>(true)
 

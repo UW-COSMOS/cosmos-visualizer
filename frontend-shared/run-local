@@ -3,7 +3,7 @@
 # provide the argument 'tagging', 'validation', or 'visualizer'
 
 export PATH="node_modules/.bin:$PATH"
-export API_BASE_URL=http://cosmos3.chtc.wisc.edu:8081/search
+export API_BASE_URL=http://cosmos3.chtc.wisc.edu:5010/api/v1
 export PUBLIC_URL="/"
 export MODE="development"
 
