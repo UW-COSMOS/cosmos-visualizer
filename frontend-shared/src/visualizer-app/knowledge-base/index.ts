@@ -51,7 +51,6 @@ const appReducer: AppReducer = (state, action)=>{
     case 'update-query':
       const {query} = action
       return appReducer(state, {type: 'update-filter', spec: {query: {$set: query}}})
-      ///let state = appReducer(state, {type: 'change-query-string'})
     case 'update-filter':
       return update(state, {filterParams: action.spec})
   }
