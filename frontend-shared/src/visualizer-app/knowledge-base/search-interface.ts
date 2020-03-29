@@ -42,7 +42,7 @@ const Searchbar = (props: SearchInterfaceProps)=>{
       return updateFilter({type: {$set: d.id}});
     };
     return h(Menu.Item, {onClick, text: d.name});
-});
+  });
 
   const onClick = () => {
     const {type, ...val} = filterParams;
@@ -55,25 +55,28 @@ const Searchbar = (props: SearchInterfaceProps)=>{
   const position = Position.BOTTOM_RIGHT;
 
   const type = filterParams.type || "All types";
-  const rightElement = h(Popover, {content, position}, [
-    h(Button, {minimal: true, rightIcon: "filter"}, type)
-  ]);
+  const rightElement = h(Button, {
+    minimal: true,
+    rightIcon: "filter",
+    onClick(){ setFilterPanelOpen(!filterPanelOpen) }
+  }, type)
 
-  const __updateQuery = (value)=> updateFilter({query: {$set: value}})
+  const updateQuery = (value)=> updateFilter({query: {$set: value}})
 
-  const updateQuery = debounce(__updateQuery, 500);
+  //const updateQuery = debounce(__updateQuery, 500);
   const onChange = event => updateQuery(event.target.value);
 
   return h('div.search-interface', [
     h(InputGroup, {
       className: 'main-search',
       large: true,
+      value: filterParams.query,
       leftIcon: 'search',
       placeholder: "Search extractions",
       onChange,
       rightElement
     }),
-    h(FilterPanel, {isOpen: filterPanelOpen || (filterParams.query?.length ?? 0) > 0})
+    h(FilterPanel, {isOpen: filterPanelOpen})
   ]);
 }
 

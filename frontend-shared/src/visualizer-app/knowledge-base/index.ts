@@ -19,7 +19,7 @@ type FilterParams = {
 
 interface AppState {
   filterParams: FilterParams,
-  searchBackend: SearchBackend
+  searchBackend: SearchBackend,
 }
 
 enum SearchBackend {
@@ -91,6 +91,7 @@ const ResultsView = (props)=>{
       opts: {
         unwrapResponse(res){ return res.results; }
       },
+      debounce: 500,
       params: filterParams,
       topPagination: true,
       bottomPagination: false
