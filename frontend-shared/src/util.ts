@@ -1,9 +1,3 @@
-/*
- * decaffeinate suggestions:
- * DS102: Remove unnecessary code created because of implicit returns
- * DS207: Consider shorter variations of null checks
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
 import h from 'react-hyperscript';
 import styled from '@emotion/styled';
 
@@ -47,7 +41,6 @@ const PermalinkButton = withRouter(function(props){
   });});
 
 type NavProps = React.PropsWithChildren<{subtitle: string & INavbarProps}>
-
 const _ = ({subtitle, children, ...rest}: NavProps) => h(Navbar, {...rest}, [
   h(PageHeader, {subtitle}),
   children

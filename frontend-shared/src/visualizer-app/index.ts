@@ -22,7 +22,7 @@ const App = (props) => {
       path: '/knowledge-base',
       component: KnowledgeBaseFilterView
     })
-  ]);
+  ])
 }
 
 const AppHolder = (props) => {

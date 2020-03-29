@@ -1,5 +1,16 @@
 import h from '@macrostrat/hyper';
-import {InputGroup, Popover, Button, Menu, Position} from '@blueprintjs/core';
+import {useState} from 'react';
+import {
+  InputGroup,
+  Popover,
+  Button,
+  ButtonGroup,
+  Menu,
+  Position,
+  Collapse,
+  Slider,
+  Card
+} from '@blueprintjs/core';
 import {debounce} from 'underscore';
 
 interface SearchInterfaceProps {
@@ -8,8 +19,23 @@ interface SearchInterfaceProps {
   updateFilter: any
 }
 
+const FilterPanel = (props)=> {
+  const {isOpen} = props
+  return h(Collapse, {isOpen}, [
+    h(Card, [
+      h(ButtonGroup, [
+        h(Button, {disabled: true}, "Anserini"),
+        h(Button, "ElasticSearch")
+      ]),
+      h(Slider)
+    ])
+  ])
+}
+
 const Searchbar = (props: SearchInterfaceProps)=>{
   const {types, filterParams, updateFilter} = props;
+
+  const [filterPanelOpen, setFilterPanelOpen] = useState<boolean>(true)
 
   const menuItems = types.map(d=> {
     const onClick = () => {
@@ -38,14 +64,17 @@ const Searchbar = (props: SearchInterfaceProps)=>{
   const updateQuery = debounce(__updateQuery, 500);
   const onChange = event => updateQuery(event.target.value);
 
-  return h(InputGroup, {
-    className: 'main-search',
-    large: true,
-    leftIcon: 'search',
-    placeholder: "Search extractions",
-    onChange,
-    rightElement
-  });
+  return h('div.search-interface', [
+    h(InputGroup, {
+      className: 'main-search',
+      large: true,
+      leftIcon: 'search',
+      placeholder: "Search extractions",
+      onChange,
+      rightElement
+    }),
+    h(FilterPanel, {isOpen: filterPanelOpen || (filterParams.query?.length ?? 0) > 0})
+  ]);
 }
 
 export {Searchbar}

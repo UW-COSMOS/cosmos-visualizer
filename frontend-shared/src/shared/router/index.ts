@@ -7,7 +7,7 @@ import {PermalinkProvider} from './permalinks';
 
 const AppRouter = ({appMode, basename, ...rest}) => {
   return h(PermalinkProvider, {appMode}, (
-    h('div.app-main', null, [
+    h('div.app-main.bp3-dark', null, [
       h(Router, {basename}, (
         h(Switch, rest)
       ))

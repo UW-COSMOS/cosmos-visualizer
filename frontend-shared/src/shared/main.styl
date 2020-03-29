@@ -1,11 +1,12 @@
+@require "~@macrostrat/ui-components/src/shared/colors.styl"
+
 *
   box-sizing border-box
 
 body
   margin 0
-  padding-top 50px
-  overflow scroll
   height 100vh
+  overflow-y: scroll
 
 html
   overflow: hidden
@@ -178,3 +179,18 @@ svg.annotation-links
     pointer-events none
     &.rect
       cursor pointer
+
+body
+  padding 0
+  margin 0
+
+div.app-main
+  margin-top 0
+  min-height: 100vh
+  padding-top 50px
+  overflow-y scroll
+  &.bp3-dark
+    background-color $dark-gray3
+    img
+      filter: invert()
+      mix-blend-mode: lighten;

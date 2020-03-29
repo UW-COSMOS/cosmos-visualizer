@@ -22,9 +22,6 @@ const KBCode = (props)=>{
   return h('div', {style: {'font-family': 'monospace'}}, unicode);
 }
 
-const getEntityType = path => // Hack to get entity type from image path
-basename(path, '.png').replace(/\d+$/, "");
-
 const KBExtraction = (props: KBExtractionProps)=>{
   const {unicode, path, className, title, entityType, ...rest} = props;
   className = classNames(className, "extracted-entity");
