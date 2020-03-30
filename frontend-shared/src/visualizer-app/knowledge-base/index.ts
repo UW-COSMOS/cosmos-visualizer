@@ -55,7 +55,7 @@ const ResultsView = (props)=>{
 const KnowledgeBaseFilterView = (props)=>{
   const {types} = props;
 
-  return h(AppStateProvider, null,
+  return h(AppStateProvider, {types},
     h('div#knowledge-base-filter.main', [
       h(InlineNavbar, {subtitle: 'Knowledge base filter'}),
       h(Searchbar, {types}),
@@ -72,16 +72,5 @@ KnowledgeBaseFilterView.defaultProps = {
     {id: 'Body Text', name: 'Body Text'}
   ]
 }
-
-const testState = {
-  doc_ids: [],
-  types: [],
-  opts: {
-    unwrapResponse(res){ return res.success.data[0]; }
-  },
-  filterParams: {
-    query: ""
-  }
-};
 
 export {KnowledgeBaseFilterView};

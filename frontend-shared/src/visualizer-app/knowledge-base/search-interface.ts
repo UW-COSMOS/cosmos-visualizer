@@ -9,7 +9,8 @@ import {
   Collapse,
   Slider,
   Card,
-  Intent
+  Intent,
+  FormGroup
 } from '@blueprintjs/core';
 import {useAppState, useAppDispatch, SearchBackend} from './provider'
 import {Spec} from 'immutability-helper'
@@ -18,9 +19,33 @@ interface SearchInterfaceProps {
   types: object
 }
 
+const SliderPanel = (props)=>{
+  const {filterParams} = useAppState()
+
+  const confProps = {min: 0, max: 1, initialValue: 1, stepSize: 0.02, labelStepSize: 0.2}
+
+  return h("div.slider-panel.bp3-text", [
+    h(FormGroup, {label: "Base confidence", inline: true},
+      h(Slider, {...confProps, value: filterParams.base_confidence})
+    ),
+    h(FormGroup, {label: "Postprocessing confidence", inline: true},
+      h(Slider, {...confProps, value: filterParams.postprocessing_confidence})
+    ),
+    // h(FormGroup, {label: "Area"},
+    //   h(Slider, {min: 0, max: 500000, initialValue: 500000, value: filterParams.area})
+    // )
+  ])
+}
+
+const TypeSelector = (props)=> {
+  return h("div.type-selector", [
+
+  ])
+}
+
 const FilterPanel = (props)=> {
   const {isOpen} = props
-  const {searchBackend} = useAppState()
+  const {searchBackend, filterParams} = useAppState()
   const dispatch = useAppDispatch()
 
   const propsFor = (backend: SearchBackend)=>({
@@ -34,12 +59,17 @@ const FilterPanel = (props)=> {
   })
 
   return h(Collapse, {isOpen}, [
-    h(Card, [
-      h(ButtonGroup, [
-        h(Button, propsFor(SearchBackend.Anserini)),
-        h(Button, propsFor(SearchBackend.ElasticSearch))
-      ]),
-      h(Slider)
+    h(Card, {className: 'filter-controls'}, [
+      h(TypeSelector),
+      h("div.tuning-controls", [
+        h(SliderPanel),
+        h(FormGroup, {label: "Search backend", inline: true},
+          h(ButtonGroup, [
+            h(Button, propsFor(SearchBackend.Anserini)),
+            h(Button, propsFor(SearchBackend.ElasticSearch))
+          ])
+        ),
+      ])
     ])
   ])
 }

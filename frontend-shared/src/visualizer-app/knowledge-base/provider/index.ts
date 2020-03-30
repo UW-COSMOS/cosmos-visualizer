@@ -16,7 +16,10 @@ const initialState: AppState = {
 const AppStateContext = createContext<AppState>(initialState)
 const AppDispatchContext = createContext<AppReducer>(appReducer)
 
-const AppStateProvider = (props: {children: React.ReactChild})=>{
+type FeatureType = {id: string, name: string}
+
+type _ = {children: React.ReactChild, types: FeatureType[]}
+const AppStateProvider = (props: _)=>{
 
   const [value, dispatch] = useReducer(appReducer, initialState)
   const {filterParams} = value
