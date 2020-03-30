@@ -1,5 +1,5 @@
 import h from '@macrostrat/hyper';
-import {APIResultView} from "@macrostrat/ui-components";
+import {APIResultView, InfiniteScrollView} from "@macrostrat/ui-components";
 import {NonIdealState} from '@blueprintjs/core';
 import {DocumentExtraction} from './model-extraction';
 import {RelatedTerms} from './related-terms'
@@ -41,16 +41,21 @@ const ResultsView = (props)=>{
 
   return h("div.results", [
     h(RelatedTerms, {query}),
-    h(APIResultView, {
+    h(InfiniteScrollView, {
       route,
       opts: {
+        debounce: 500,
         unwrapResponse(res){ return res; }
       },
-      debounce: 500,
       params: filterParams,
-      topPagination: true,
-      bottomPagination: false
-    }, (data)=>h(DocumentResults, {data: data.objects}))
+      getCount(res) {
+        return res.total_results
+      },
+      getNextParams(res, params) {
+        return {...params, page: res.page+1}
+      },
+      getItems(res){ return res.objects }
+    }, (data)=>h(DocumentResults, {data}))
   ])
 }
 

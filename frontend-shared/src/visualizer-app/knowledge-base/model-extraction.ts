@@ -105,7 +105,7 @@ function getChildExtractions(data: APIDocumentResult, backend: SearchBackend): A
     case SearchBackend.ElasticSearch:
       return []
     case SearchBackend.Anserini:
-      // Duplicate children
+      // TODO: filter duplicate children on the backend
       return data.children.filter(d => d.id != data.header_id)
   }
 }
@@ -126,9 +126,9 @@ const DocumentExtraction = (props: DocExtractionProps)=>{
   const children = getChildExtractions(data, searchBackend)
 
   return h('div.model-extraction', [
+    h(GDDReferenceCard, {docid, elevation: 0}),
     h(MainExtraction, {data: main}),
     h(ChildExtractions, {data: children}),
-    h(GDDReferenceCard, {docid})
   ]);
 }
 
