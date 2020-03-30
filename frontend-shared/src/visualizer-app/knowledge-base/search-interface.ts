@@ -141,7 +141,7 @@ const Searchbar = (props: SearchInterfaceProps)=>{
   const name = types.find(d => d.id == filterParams.type)?.name ?? "All types"
 
   const rightElement = h(Button, {
-    minimal: true,
+    minimal: false,
     intent: filterPanelOpen ? Intent.PRIMARY : null,
     rightIcon: "filter",
     onClick(){ setFilterPanelOpen(!filterPanelOpen) }

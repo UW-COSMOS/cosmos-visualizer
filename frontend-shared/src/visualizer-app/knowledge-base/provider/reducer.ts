@@ -37,7 +37,8 @@ const appReducer: AppReducer = (state, action)=>{
     case 'set-search-backend':
       return update(state, {searchBackend: {$set: action.backend}})
     case 'set-filter-type': {
-      const spec = {type: {$set: action.featureType?.id}}
+      const ft = action.featureType?.id
+      const spec = ft == null ? {$unset: ['type']} : {type: {$set: ft}}
       return appReducer(state, {type: 'update-filter', spec})
     }
     case 'set-threshold': {

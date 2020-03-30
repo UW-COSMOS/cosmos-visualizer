@@ -4,7 +4,7 @@ import {NonIdealState} from '@blueprintjs/core';
 import {DocumentExtraction} from './model-extraction';
 import {RelatedTerms} from './related-terms'
 import {Searchbar} from './search-interface'
-import {AppStateProvider, useAppState, useAppDispatch} from './provider'
+import {AppStateProvider, useAppState, SearchBackend} from './provider'
 import {InlineNavbar} from '~/util';
 import './main.styl';
 
@@ -18,7 +18,7 @@ const PlaceholderView = ()=>{
 
 type ResProps = {data: APIDocumentResult[]}
 const DocumentResults = (props: ResProps)=>{
-  const {data} = props
+  const data = props.data ?? []
   if (data.length == 0) return h(NonIdealState, {
       icon: 'inbox',
       title: "No results",
@@ -32,15 +32,17 @@ const DocumentResults = (props: ResProps)=>{
 
 const ResultsView = (props)=>{
 
-  const {filterParams} = useAppState()
+  const {filterParams, searchBackend} = useAppState()
 
   const {query} = filterParams
   if (query == null || query == '') return h(PlaceholderView)
 
+  let route = searchBackend == SearchBackend.Anserini ? '/search' : '/search_es_objects'
+
   return h("div.results", [
     h(RelatedTerms, {query}),
     h(APIResultView, {
-      route: '/search',
+      route,
       opts: {
         unwrapResponse(res){ return res; }
       },

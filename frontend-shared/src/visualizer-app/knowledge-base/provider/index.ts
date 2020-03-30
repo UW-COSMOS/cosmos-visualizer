@@ -9,7 +9,7 @@ const initialState: AppState = {
     base_confidence: 0.8,
     postprocessing_confidence: 0.8,
     area: 50000,
-    type: null
+    type: "Figure"
   },
   searchBackend: SearchBackend.Anserini
 }
