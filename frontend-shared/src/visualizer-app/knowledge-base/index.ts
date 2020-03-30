@@ -54,7 +54,15 @@ const ResultsView = (props)=>{
       getNextParams(res, params) {
         return {...params, page: res.page+1}
       },
-      getItems(res){ return res.objects }
+      getItems(res){ return res.objects },
+      hasMore(state) {
+        const {count, items, scrollParams: params} = state
+        const page = params.page ?? 0
+        if (count == null && items.length == 0) return true
+        if (items.length >= count) return false
+        if (page*10 > count) return false
+        return true
+      }
     }, (data)=>h(DocumentResults, {data}))
   ])
 }
