@@ -6,7 +6,7 @@ const WordRelatedTerms = (props: {word: string})=>{
   const res = useAPIResult("/word2vec", {
     word: word.replace(" ", "_"),
     model: 'trigram'
-  }, {debounce: 1000})
+  })
 
   const params = {term: word}
   if (res == null) return null

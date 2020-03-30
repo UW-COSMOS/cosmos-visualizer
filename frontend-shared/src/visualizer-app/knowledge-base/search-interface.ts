@@ -1,5 +1,5 @@
 import h from '@macrostrat/hyper';
-import {useState} from 'react';
+import {useState, useEffect} from 'react';
 import {
   InputGroup,
   Button,
@@ -156,6 +156,12 @@ const Searchbar = (props: SearchInterfaceProps)=>{
   const {filterParams, filterPanelOpen} = useAppState()
   const dispatch = useAppDispatch()
 
+  const [inputValue, setInputValue] = useState<string>("")
+
+  useEffect(()=>{
+    setInputValue(filterParams.query)
+  }, [filterParams.query])
+
   const updateFilter = (spec: Spec<FilterParams>)=>{
     dispatch({type: 'update-filter', spec})
   }
@@ -167,25 +173,39 @@ const Searchbar = (props: SearchInterfaceProps)=>{
   const types = useTypes()
   const name = types.find(d => d.id == filterParams.type)?.name ?? "All types"
 
-  const rightElement = h(Button, {
-    minimal: false,
-    intent: filterPanelOpen ? Intent.PRIMARY : null,
-    rightIcon: "filter",
+  const filterButton = h(Button, {
+    minimal: true,
+    intent: !filterPanelOpen ? Intent.PRIMARY : null,
+    icon: "filter",
+    large: true,
     onClick(){ setFilterPanelOpen(!filterPanelOpen) }
   }, name)
 
-  const updateQuery = (value)=> updateFilter({query: {$set: value}})
-  const onChange = event => updateQuery(event.target.value);
+  const updateQuery = ()=> updateFilter({query: {$set: inputValue}})
+  const onChange = event => setInputValue(event.target.value);
 
-  return h('div.search-interface', [
+  return h('div.search-bar-contents', [
     h(InputGroup, {
       className: 'main-search',
       large: true,
-      value: filterParams.query,
+      value: inputValue,
       leftIcon: 'search',
       placeholder: "Search extractions",
       onChange,
-      rightElement
+      onKeyPress: (event)=>{
+        if (event.key === 'Enter') updateQuery()
+      },
+      rightElement: h("div.right-buttons", [
+        filterButton,
+        h(Button, {
+          icon: 'arrow-right',
+          disabled: inputValue == filterParams.query,
+          intent: Intent.SUCCESS,
+          onClick(){
+            updateQuery()
+          }
+        })
+      ])
     }),
   ]);
 }

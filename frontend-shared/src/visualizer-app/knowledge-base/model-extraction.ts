@@ -116,6 +116,12 @@ const ChildExtractions = (props)=>{
   }))
 }
 
+const TableDownloadButtons = (props: {data: APIDocumentResult})=>{
+  const {data} = props
+  //if (data.)
+  return null
+}
+
 
 const DocumentExtraction = (props: DocExtractionProps)=>{
   const {data, query} = props;
@@ -129,6 +135,7 @@ const DocumentExtraction = (props: DocExtractionProps)=>{
     h(GDDReferenceCard, {docid, elevation: 0}),
     h(MainExtraction, {data: main}),
     h(ChildExtractions, {data: children}),
+    h(TableDownloadButtons, {data: main})
   ]);
 }
 

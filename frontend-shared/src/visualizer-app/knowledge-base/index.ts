@@ -44,7 +44,6 @@ const ResultsView = (props)=>{
     h(InfiniteScrollView, {
       route,
       opts: {
-        debounce: 500,
         unwrapResponse(res){ return res; }
       },
       params: filterParams,
