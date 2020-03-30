@@ -4,7 +4,7 @@ import {useAPIResult, APIProvider, APIResultView} from '@macrostrat/ui-component
 const WordRelatedTerms = (props: {word: string})=>{
   const {word} = props
   const res = useAPIResult("/word2vec", {
-    word: word.toLowerCase().replace(" ", "_"),
+    word: word.replace(" ", "_"),
     model: 'trigram'
   }, {debounce: 1000})
 

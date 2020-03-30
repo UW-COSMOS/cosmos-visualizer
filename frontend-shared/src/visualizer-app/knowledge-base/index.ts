@@ -56,7 +56,8 @@ const ResultsView = (props)=>{
       },
       getItems(res){ return res.objects },
       hasMore(state) {
-        const {count, items, scrollParams: params} = state
+        const {count, items, scrollParams: params, hasLoaded} = state
+        if (!hasLoaded) return true
         const page = params.page ?? 0
         if (count == null && items.length == 0) return true
         if (items.length >= count) return false
