@@ -7,11 +7,8 @@
     "allowSyntheticDefaultImports": true,
     "experimentalDecorators": true,
     "declarationDir": "dist/types",
-    "outDir": "dist/lib",
-    "baseUrl": "./",
     "typeRoots": [
-      "node_modules/@types",
-      "@types"
+      "node_modules/@types"
     ],
     "paths": {
         "~/*": ["src/*"]

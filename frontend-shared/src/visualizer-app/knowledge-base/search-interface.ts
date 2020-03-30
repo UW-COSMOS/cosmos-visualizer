@@ -39,7 +39,9 @@ const SliderPanel = (props)=>{
 
 const TypeSelector = (props)=> {
   return h("div.type-selector", [
-
+    h(ButtonGroup, [
+      h(Button, "Figure")
+    ])
   ])
 }
 

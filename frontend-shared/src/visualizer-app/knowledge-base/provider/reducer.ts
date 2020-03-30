@@ -1,22 +1,9 @@
 import update, {Spec} from 'immutability-helper'
 
-declare type FilterParams = {
-  query: string,
-  base_confidence: number,
-  postprocessing_confidence: number,
-  area: number
-}
-
 enum SearchBackend {
   ElasticSearch = 'ElasticSearch',
   Anserini = 'Anserini'
 }
-
-declare interface AppState {
-  filterParams: FilterParams,
-  searchBackend: SearchBackend
-}
-
 
 type UpdateQuery = {type: "update-query", query: string}
 type UpdateFilter = {type: "update-filter", spec: Spec<FilterParams>}
@@ -27,7 +14,8 @@ declare type AppAction =
   | UpdateFilter
   | SetSearchBackend
 
-declare type AppReducer = (a: AppState, action: AppAction)=> AppState
+type AppReducer = (a: AppState, action: AppAction)=> AppState
+type AppDispatch = (action: AppAction)=>void
 
 const appReducer: AppReducer = (state, action)=>{
   switch (action.type) {
@@ -41,4 +29,4 @@ const appReducer: AppReducer = (state, action)=>{
   }
 }
 
-export {appReducer, AppReducer, AppAction, FilterParams, SearchBackend, AppState}
+export {appReducer, AppReducer, AppAction, AppDispatch, SearchBackend}

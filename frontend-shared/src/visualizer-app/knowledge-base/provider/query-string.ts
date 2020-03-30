@@ -1,7 +1,8 @@
 import { useLocation, useHistory } from 'react-router'
-import queryString from 'query-string'
+import queryString, {ParsedQuery} from 'query-string'
 
-const useSearchString = ()=>{
+type Updater = (q: ParsedQuery)=>void
+const useSearchString = (): [ParsedQuery, Updater]=>{
   const loc = useLocation()
   const history = useHistory()
   const searchString = queryString.parse(loc.search)

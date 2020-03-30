@@ -1,9 +1,9 @@
 import h from '@macrostrat/hyper';
 import classNames from 'classnames';
 import {GDDReferenceCard} from '@macrostrat/ui-components';
-import {basename} from 'path';
 import {memoize} from 'underscore';
 import styled from '@emotion/styled';
+import {useAppState, SearchBackend} from './provider'
 
 type ImageProps = {
   bytes: string,
@@ -56,42 +56,6 @@ font-style: italic;
 color: #888;
 font-weight: 400;\
 `;
-
-const MatchParagraph = styled.p`\
-font-size: 0.8em;
-padding: 0.5em 1em;\
-`;
-
-const TextMatch = function(props){
-  let {query, text, entityType} = props;
-  if (text == null) { return null; }
-  text = sanitize(text);
-
-  if (query == null) { return null; }
-  if (query === "") { return null; }
-  const ix = text.indexOf(sanitize(query));
-  console.log(ix);
-  const ixEnd = ix + query.length;
-  let start = ix-100;
-  let end = ixEnd+100;
-
-  // Clamp endpoints
-  if (start < 0) { start = 0; }
-  if (end > text.length) { end = text.length; }
-
-  const match = text.substring(ix, ixEnd);
-  return h("div.match", [
-    h('h2', [
-      "Match ",
-      h(EntityType, `(in ${entityType})`)
-    ]),
-    h(MatchParagraph, [
-      text.substring(start, ix),
-      h(MatchSpan, text.substring(ix, ixEnd)),
-      text.substring(ixEnd, end)
-    ])
-  ]);
-};
 
 type DocExtractionProps = {
   data: APIDocumentResult,
@@ -182,20 +146,47 @@ const MainExtraction = (props: ExtractionProps)=>{
   ]);
 }
 
-function getMainExtraction(data, backend) {
-  return data.children[0]
+function getMainExtraction(data: APIDocumentResult, backend: SearchBackend): APIExtraction {
+  switch (backend) {
+    case SearchBackend.ElasticSearch:
+      return data.children[0]
+    case SearchBackend.Anserini:
+      return {
+        content: data.content,
+        bytes: data.header_bytes,
+        id: data.header_id,
+        page_number: null
+      }
+  }
 }
 
+function getChildExtractions(data: APIDocumentResult, backend: SearchBackend): APIExtraction[] {
+  switch (backend) {
+    case SearchBackend.ElasticSearch:
+      return []
+    case SearchBackend.Anserini:
+      return data.children
+  }
+}
+
+const ChildExtractions = (props)=>{
+  return h("div.children", props.data.map((d,i)=>{
+    return h(MainExtraction, {data: d, key: i})
+  }))
+}
 
 
 const DocumentExtraction = (props: DocExtractionProps)=>{
   const {data, query} = props;
   const docid = data.pdf_name.replace(".pdf", "");
 
-  const main = getMainExtraction(data)
+  const {searchBackend} = useAppState()
+  const main = getMainExtraction(data, searchBackend)
+  const children = getChildExtractions(data, searchBackend)
 
   return h('div.model-extraction', [
     h(MainExtraction, {data: main}),
+    h(ChildExtractions, {data: children}),
     h(GDDReferenceCard, {docid})
   ]);
 }

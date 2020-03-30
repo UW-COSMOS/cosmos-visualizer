@@ -1,6 +1,6 @@
 import {createContext, useEffect, useReducer, useContext} from 'react'
 import h from '@macrostrat/hyper'
-import {appReducer, AppAction, AppState, SearchBackend} from './reducer'
+import {appReducer, AppAction, AppDispatch, AppReducer, SearchBackend} from './reducer'
 import {useSearchString} from "./query-string"
 
 const initialState: AppState = {
@@ -8,18 +8,19 @@ const initialState: AppState = {
     query: "",
     base_confidence: 0.8,
     postprocessing_confidence: 0.8,
-    area: 50000
+    area: 50000,
+    class: null
   },
   searchBackend: SearchBackend.Anserini
 }
 
-const AppStateContext = createContext<AppState>(initialState)
-const AppDispatchContext = createContext<AppReducer>(appReducer)
+const AppStateContext = createContext(initialState)
+const AppDispatchContext = createContext<AppDispatch>(()=>{})
+const FeatureClassContext = createContext<FeatureClass[]>([])
 
-type FeatureType = {id: string, name: string}
-
-type _ = {children: React.ReactChild, types: FeatureType[]}
+type _ = {children: React.ReactChild, types: FeatureClass[]}
 const AppStateProvider = (props: _)=>{
+  const {types} = props
 
   const [value, dispatch] = useReducer(appReducer, initialState)
   const {filterParams} = value
@@ -39,11 +40,14 @@ const AppStateProvider = (props: _)=>{
   }, [filterParams.query])
 
   return h(AppStateContext.Provider, {value},
-    h(AppDispatchContext.Provider, {value: dispatch}, props.children)
+    h(FeatureClassContext.Provider, {value: types},
+      h(AppDispatchContext.Provider, {value: dispatch}, props.children)
+    )
   )
 }
 
 const useAppState = ()=>useContext(AppStateContext)
 const useAppDispatch = ()=>useContext(AppDispatchContext)
+const useClasses = ()=>useContext(FeatureClassContext)
 
-export {AppStateProvider, useAppState, useAppDispatch, SearchBackend}
+export {AppStateProvider, useAppState, useAppDispatch, useClasses, SearchBackend}
