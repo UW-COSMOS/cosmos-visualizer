@@ -62,66 +62,6 @@ type DocExtractionProps = {
   query?: string
 }
 
-const DocumentExtractionA = (props: DocExtractionProps)=>{
-
-  let main_img_path = null;
-  let main_unicode = null;
-
-
-  let assoc = null;
-  if (assoc_img_path != null) {
-    main_img_path = assoc_img_path;
-    main_unicode;
-    assoc = h(KBExtraction, {
-      title: "Associated entity",
-      path: assoc_img_path,
-      unicode: assoc_unicode
-    });
-  }
-
-  // Don't assume existence of target
-  let target = null;
-  if (target_img_path != null) {
-    main_img_path = target_img_path;
-    main_unicode = target_unicode;
-    target = h(KBExtraction, {
-      title: "Extracted entity",
-      className: 'target',
-      path: target_img_path,
-      unicode: target_unicode
-    });
-  }
-
-  // TODO: handle the new format here.
-  if (bytes != null) {
-    main_img_path = 'page ' + page_num + ' of docid ' + _id.replace('.pdf', '');
-    entityType = this.props['class'];
-    main_unicode = content;
-    assoc = h(KBExtraction, {
-      title: "Extracted thing",
-      bytes,
-      unicode: content,
-      path: _id,
-      entityType
-    });
-  }
-
-  if (full_content != null) {
-    main_img_path = 'line ' + line_number + ' of file ' + filename;
-    main_unicode = full_content;
-    entityType = this.props['class'];
-    assoc = h(KBExtraction, {
-      title: "Extracted thing",
-      unicode: content,
-      path: _id,
-      entityType
-    });
-  }
-
-  // We don't have a result unless either main or target are defined
-  if (main_img_path == null) { return null; }
-}
-
 type ExtractionProps = {
   data: APIExtraction,
   query?: string
@@ -165,7 +105,8 @@ function getChildExtractions(data: APIDocumentResult, backend: SearchBackend): A
     case SearchBackend.ElasticSearch:
       return []
     case SearchBackend.Anserini:
-      return data.children
+      // Duplicate children
+      return data.children.filter(d => d.id != data.header_id)
   }
 }
 

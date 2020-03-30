@@ -24,20 +24,22 @@ const AppStateProvider = (props: _)=>{
 
   const [value, dispatch] = useReducer(appReducer, initialState)
   const {filterParams} = value
+  const {query, type} = filterParams
 
   const [searchString, updateSearchString] = useSearchString()
   useEffect(()=>{
     let {query} = searchString
     if (query == null) return
     if (Array.isArray(query)) query = query.join(" ")
-    dispatch({type: "update-query", query})
+    const type = types.find(d => d.id == searchString.type)?.id ?? "Figure" // Hack
+    const spec = {query: {$set: query}, type: {$set: type}}
+    dispatch({type: "update-filter", spec})
   }, [])
 
   useEffect(()=>{
-    const {query} = filterParams
     if (query == null || query == "" || query == searchString.query) return
-    updateSearchString({query})
-  }, [filterParams.query])
+    updateSearchString({query, type})
+  }, [query, type])
 
   return h(AppStateContext.Provider, {value},
     h(FeatureClassContext.Provider, {value: types},
