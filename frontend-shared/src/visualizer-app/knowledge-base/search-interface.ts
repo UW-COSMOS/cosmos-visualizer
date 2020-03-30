@@ -110,16 +110,36 @@ const SearchBackendSelector = ()=>{
 }
 
 const FilterPanel = (props)=> {
-  const {isOpen} = props
+  const {isOpen, setOpen} = props
+
+  const [detailsExpanded, expandDetails] = useState(false)
 
   return h(Collapse, {isOpen}, [
     h(Card, {className: 'filter-controls bp3-text'}, [
-      h(TypeSelector),
-      h("div.tuning-controls", [
-        h("h4", "Thresholds"),
-        h(SliderPanel),
-      ]),
-      h(SearchBackendSelector)
+      h("div.inner", [
+        h("div.top-row", [
+          h(TypeSelector),
+          h("div.right-controls", null,
+            h(ButtonGroup, {minimal: true, small: true}, [
+              h(Button, {
+                onClick() { expandDetails(!detailsExpanded) }
+              }, detailsExpanded ? "Hide details" : "Show details"),
+              h(Button, {
+                icon: "cross",
+                intent: Intent.DANGER,
+                onClick() { setOpen(false) }
+              })
+            ])
+          ),
+        ]),
+        h(Collapse, {className: "search-details", isOpen: detailsExpanded}, [
+          h("div.threshold-controls", [
+            h("h4", "Thresholds"),
+            h(SliderPanel),
+          ]),
+          h(SearchBackendSelector)
+        ])
+      ])
     ])
   ])
 }
@@ -162,7 +182,7 @@ const Searchbar = (props: SearchInterfaceProps)=>{
       onChange,
       rightElement
     }),
-    h(FilterPanel, {isOpen: filterPanelOpen})
+    h(FilterPanel, {isOpen: filterPanelOpen, setOpen: setFilterPanelOpen})
   ]);
 }
 

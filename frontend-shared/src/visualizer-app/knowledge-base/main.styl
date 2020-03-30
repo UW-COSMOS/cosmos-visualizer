@@ -78,18 +78,38 @@ div.related-terms
     display: block
     clear: both
 
-.filter-controls
-  h3
+.filter-controls .inner
+  margin-bottom -1em
+  h3, h4
     margin-top 0
-  &>div
+    margin-bottom 0.2em
+  .top-row
     display flex
     flex-direction row
+  .type-selector, .search-details .bp3-collapse-body
+    display flex
+    flex-grow 1
+    flex-direction row
+    margin-bottom 1em
     &>*
       margin-right 1em
     margin-right -1em
     align-items: baseline
 
+  .type-selector
+    display flex
+    flex-direction row
+
+  .threshold-controls
+    margin-bottom -1em
+    flex-grow 1
+    .bp3-form-content
+      margin 0 2em
+
   .bp3-form-group
     display flex
     .bp3-label
+      min-width 7em
+    .bp3-form-content
       flex-grow 1
+    margin-bottom 5px
