@@ -11,6 +11,7 @@ import {
   FormGroup,
   ISliderProps
 } from '@blueprintjs/core';
+import {InlineNavbar} from '~/util'
 import {
   useAppState,
   useAppDispatch,
@@ -110,11 +111,13 @@ const SearchBackendSelector = ()=>{
 }
 
 const FilterPanel = (props)=> {
-  const {isOpen, setOpen} = props
+  const {filterPanelOpen} = useAppState()
+  const dispatch = useAppDispatch()
+
 
   const [detailsExpanded, expandDetails] = useState(false)
 
-  return h(Collapse, {isOpen}, [
+  return h(Collapse, {isOpen: filterPanelOpen}, [
     h(Card, {className: 'filter-controls bp3-text'}, [
       h("div.inner", [
         h("div.top-row", [
@@ -127,7 +130,9 @@ const FilterPanel = (props)=> {
               h(Button, {
                 icon: "cross",
                 intent: Intent.DANGER,
-                onClick() { setOpen(false) }
+                onClick() {
+                  dispatch({type: "toggle-filter-panel", value: false})
+                }
               })
             ])
           ),
@@ -148,14 +153,16 @@ interface SearchInterfaceProps {}
 
 const Searchbar = (props: SearchInterfaceProps)=>{
 
-  const {filterParams} = useAppState()
+  const {filterParams, filterPanelOpen} = useAppState()
   const dispatch = useAppDispatch()
 
   const updateFilter = (spec: Spec<FilterParams>)=>{
     dispatch({type: 'update-filter', spec})
   }
 
-  const [filterPanelOpen, setFilterPanelOpen] = useState<boolean>(true)
+  const setFilterPanelOpen = (value: boolean|undefined)=> {
+    dispatch({type: "toggle-filter-panel", value})
+  }
 
   const types = useTypes()
   const name = types.find(d => d.id == filterParams.type)?.name ?? "All types"
@@ -168,8 +175,6 @@ const Searchbar = (props: SearchInterfaceProps)=>{
   }, name)
 
   const updateQuery = (value)=> updateFilter({query: {$set: value}})
-
-  //const updateQuery = debounce(__updateQuery, 500);
   const onChange = event => updateQuery(event.target.value);
 
   return h('div.search-interface', [
@@ -182,8 +187,16 @@ const Searchbar = (props: SearchInterfaceProps)=>{
       onChange,
       rightElement
     }),
-    h(FilterPanel, {isOpen: filterPanelOpen, setOpen: setFilterPanelOpen})
   ]);
 }
 
-export {Searchbar}
+const SearchInterface = (props)=>{
+  return h("div.search-interface", [
+    h(InlineNavbar, null, h(Searchbar)),
+    h(FilterPanel)
+  ])
+
+}
+
+
+export {SearchInterface}

@@ -16,6 +16,7 @@ type UpdateFilter = {type: "update-filter", spec: Spec<FilterParams>}
 type SetSearchBackend = {type: "set-search-backend", backend: SearchBackend}
 type SetFilterClass = {type: "set-filter-type", featureType: FeatureType|null}
 type SetThreshold = {type: "set-threshold", key: ThresholdKey, value: number}
+type ToggleFilterPanel = {type: "toggle-filter-panel", value: boolean|undefined}
 
 declare type AppAction =
   | UpdateQuery
@@ -23,6 +24,7 @@ declare type AppAction =
   | SetSearchBackend
   | SetFilterClass
   | SetThreshold
+  | ToggleFilterPanel
 
 type AppReducer = (a: AppState, action: AppAction)=> AppState
 type AppDispatch = (action: AppAction)=>void
@@ -45,6 +47,9 @@ const appReducer: AppReducer = (state, action)=>{
       const spec = {[action.key]: {$set: action.value}}
       return appReducer(state, {type: 'update-filter', spec})
     }
+    case 'toggle-filter-panel':
+      const val = action.value ?? !state.filterPanelOpen
+      return update(state, {filterPanelOpen: {$set: val}})
   }
 }
 

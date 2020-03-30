@@ -11,7 +11,8 @@ const initialState: AppState = {
     area: 50000,
     type: "Figure"
   },
-  searchBackend: SearchBackend.Anserini
+  searchBackend: SearchBackend.Anserini,
+  filterPanelOpen: true
 }
 
 const AppStateContext = createContext(initialState)

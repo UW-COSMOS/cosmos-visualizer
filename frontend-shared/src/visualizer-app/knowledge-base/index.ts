@@ -3,7 +3,7 @@ import {APIResultView, InfiniteScrollView} from "@macrostrat/ui-components";
 import {NonIdealState} from '@blueprintjs/core';
 import {DocumentExtraction} from './model-extraction';
 import {RelatedTerms} from './related-terms'
-import {Searchbar} from './search-interface'
+import {SearchInterface} from './search-interface'
 import {AppStateProvider, useAppState, SearchBackend} from './provider'
 import {InlineNavbar} from '~/util';
 import './main.styl';
@@ -64,8 +64,7 @@ const KnowledgeBaseFilterView = (props)=>{
 
   return h(AppStateProvider, {types},
     h('div#knowledge-base-filter.main', [
-      h(InlineNavbar, {subtitle: 'Knowledge base filter'}),
-      h(Searchbar),
+      h(SearchInterface),
       h(ResultsView)
     ])
   );
