@@ -4,50 +4,91 @@ import {
   InputGroup,
   Button,
   ButtonGroup,
-  Menu,
-  Position,
   Collapse,
   Slider,
   Card,
   Intent,
-  FormGroup
+  FormGroup,
+  ISliderProps
 } from '@blueprintjs/core';
-import {useAppState, useAppDispatch, SearchBackend} from './provider'
+import {
+  useAppState,
+  useAppDispatch,
+  useTypes,
+  SearchBackend,
+  ThresholdKey} from './provider'
 import {Spec} from 'immutability-helper'
 
-interface SearchInterfaceProps {
-  types: object
+interface ConfidenceSliderProps extends ISliderProps {
+  id: ThresholdKey,
+  label: string,
+  labelInfo?: string
+}
+
+const ConfidenceSlider = (props: ConfidenceSliderProps)=>{
+  const {id, label, max: _max, labelInfo, ...rest} = props
+  const {filterParams} = useAppState()
+  const dispatch = useAppDispatch()
+
+  const max = _max ?? 1
+
+  const confProps = {min: 0, max, initialValue: max, stepSize: 0.02, labelStepSize: 0.2}
+  const onChange = (value: number)=> dispatch({type: 'set-threshold', key: id, value})
+
+  const value = filterParams[id]
+
+  return h(FormGroup, {label, labelInfo, inline: true},
+    h(Slider, {...confProps, ...rest, onChange, value})
+  )
 }
 
 const SliderPanel = (props)=>{
-  const {filterParams} = useAppState()
-
-  const confProps = {min: 0, max: 1, initialValue: 1, stepSize: 0.02, labelStepSize: 0.2}
-
-  return h("div.slider-panel.bp3-text", [
-    h(FormGroup, {label: "Base confidence", inline: true},
-      h(Slider, {...confProps, value: filterParams.base_confidence})
-    ),
-    h(FormGroup, {label: "Postprocessing confidence", inline: true},
-      h(Slider, {...confProps, value: filterParams.postprocessing_confidence})
-    ),
-    // h(FormGroup, {label: "Area"},
-    //   h(Slider, {min: 0, max: 500000, initialValue: 500000, value: filterParams.area})
-    // )
+  return h("div.slider-panel", [
+    h(ConfidenceSlider, {
+      id: "base_confidence",
+      label: "Base confidence"
+    }),
+    h(ConfidenceSlider, {
+      id: "postprocessing_confidence",
+      label: "Post confidence"
+    }),
+    h(ConfidenceSlider, {
+      id: "area",
+      label: "Area",
+      labelInfo: "(px²)",
+      min: 30000,
+      max: 100000,
+      stepSize: 10000,
+      labelStepSize: 30000,
+      labelRenderer: (v)=>`${v/1000}k`
+    })
   ])
 }
 
 const TypeSelector = (props)=> {
+  const types = useTypes()
+  const dispatch = useAppDispatch()
+  const {filterParams} = useAppState()
+  const filterType = filterParams.type
+
+  const setFilterType = (cls: FeatureType|null)=>()=>{
+    if (filterType == cls?.id) return
+    dispatch({type: 'set-filter-type', featureType: cls})
+  }
+
   return h("div.type-selector", [
-    h(ButtonGroup, [
-      h(Button, "Figure")
+    h("h3", "Extraction type"),
+    h("div.filter-types", [
+      h(ButtonGroup, [...types, null].map(d => h(Button, {
+        intent: filterType == d?.id ? Intent.PRIMARY : null,
+        onClick: setFilterType(d)
+      }, d?.name ?? "All")))
     ])
   ])
 }
 
-const FilterPanel = (props)=> {
-  const {isOpen} = props
-  const {searchBackend, filterParams} = useAppState()
+const SearchBackendSelector = ()=>{
+  const {searchBackend} = useAppState()
   const dispatch = useAppDispatch()
 
   const propsFor = (backend: SearchBackend)=>({
@@ -60,24 +101,32 @@ const FilterPanel = (props)=> {
     small: true
   })
 
+  return h(FormGroup, {label: h("h4", "Backend")},
+    h(ButtonGroup, [
+      h(Button, propsFor(SearchBackend.Anserini)),
+      h(Button, propsFor(SearchBackend.ElasticSearch))
+    ])
+  )
+}
+
+const FilterPanel = (props)=> {
+  const {isOpen} = props
+
   return h(Collapse, {isOpen}, [
-    h(Card, {className: 'filter-controls'}, [
+    h(Card, {className: 'filter-controls bp3-text'}, [
       h(TypeSelector),
       h("div.tuning-controls", [
+        h("h4", "Thresholds"),
         h(SliderPanel),
-        h(FormGroup, {label: "Search backend", inline: true},
-          h(ButtonGroup, [
-            h(Button, propsFor(SearchBackend.Anserini)),
-            h(Button, propsFor(SearchBackend.ElasticSearch))
-          ])
-        ),
-      ])
+      ]),
+      h(SearchBackendSelector)
     ])
   ])
 }
 
+interface SearchInterfaceProps {}
+
 const Searchbar = (props: SearchInterfaceProps)=>{
-  const {types} = props;
 
   const {filterParams} = useAppState()
   const dispatch = useAppDispatch()
@@ -88,29 +137,15 @@ const Searchbar = (props: SearchInterfaceProps)=>{
 
   const [filterPanelOpen, setFilterPanelOpen] = useState<boolean>(true)
 
-  const menuItems = types.map(d=> {
-    const onClick = () => {
-      return updateFilter({type: {$set: d.id}});
-    };
-    return h(Menu.Item, {onClick, text: d.name});
-  });
+  const types = useTypes()
+  const name = types.find(d => d.id == filterParams.type)?.name ?? "All types"
 
-  const onClick = () => {
-    const {type, ...val} = filterParams;
-    return updateFilter({$set: val});
-  };
-  menuItems.push(h(Menu.Divider));
-  menuItems.push(h(Menu.Item, {onClick, text: "All types"}));
-
-  const content = h(Menu, menuItems);
-  const position = Position.BOTTOM_RIGHT;
-
-  const type = filterParams.type || "All types";
   const rightElement = h(Button, {
     minimal: true,
+    intent: filterPanelOpen ? Intent.PRIMARY : null,
     rightIcon: "filter",
     onClick(){ setFilterPanelOpen(!filterPanelOpen) }
-  }, type)
+  }, name)
 
   const updateQuery = (value)=> updateFilter({query: {$set: value}})
 

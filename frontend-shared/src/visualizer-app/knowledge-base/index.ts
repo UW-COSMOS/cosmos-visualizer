@@ -58,7 +58,7 @@ const KnowledgeBaseFilterView = (props)=>{
   return h(AppStateProvider, {types},
     h('div#knowledge-base-filter.main', [
       h(InlineNavbar, {subtitle: 'Knowledge base filter'}),
-      h(Searchbar, {types}),
+      h(Searchbar),
       h(ResultsView)
     ])
   );

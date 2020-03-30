@@ -1,6 +1,6 @@
 import {createContext, useEffect, useReducer, useContext} from 'react'
 import h from '@macrostrat/hyper'
-import {appReducer, AppAction, AppDispatch, AppReducer, SearchBackend} from './reducer'
+import {appReducer, AppDispatch, SearchBackend} from './reducer'
 import {useSearchString} from "./query-string"
 
 const initialState: AppState = {
@@ -9,16 +9,16 @@ const initialState: AppState = {
     base_confidence: 0.8,
     postprocessing_confidence: 0.8,
     area: 50000,
-    class: null
+    type: null
   },
   searchBackend: SearchBackend.Anserini
 }
 
 const AppStateContext = createContext(initialState)
 const AppDispatchContext = createContext<AppDispatch>(()=>{})
-const FeatureClassContext = createContext<FeatureClass[]>([])
+const FeatureClassContext = createContext<FeatureType[]>([])
 
-type _ = {children: React.ReactChild, types: FeatureClass[]}
+type _ = {children: React.ReactChild, types: FeatureType[]}
 const AppStateProvider = (props: _)=>{
   const {types} = props
 
@@ -48,6 +48,12 @@ const AppStateProvider = (props: _)=>{
 
 const useAppState = ()=>useContext(AppStateContext)
 const useAppDispatch = ()=>useContext(AppDispatchContext)
-const useClasses = ()=>useContext(FeatureClassContext)
+const useTypes = ()=>useContext(FeatureClassContext)
 
-export {AppStateProvider, useAppState, useAppDispatch, useClasses, SearchBackend}
+export {ThresholdKey, SearchBackend} from './reducer'
+export {
+  AppStateProvider,
+  useAppState,
+  useAppDispatch,
+  useTypes
+}

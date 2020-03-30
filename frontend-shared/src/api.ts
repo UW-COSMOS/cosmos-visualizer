@@ -1,17 +1,9 @@
-/*
- * decaffeinate suggestions:
- * DS102: Remove unnecessary code created because of implicit returns
- * DS206: Consider reworking classes to avoid initClass
- * DS207: Consider shorter variations of null checks
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
-import {Component, createContext} from 'react';
+import {Component} from 'react';
 import h from 'react-hyperscript';
 import {AppToaster} from './toaster';
 import {Intent} from '@blueprintjs/core';
 import {
   APIContext,
-  APIConsumer,
   APIProvider
 } from '@macrostrat/ui-components';
 
@@ -71,7 +63,6 @@ APIProviderShim.initClass();
 
 export {
   APIProviderShim as APIProvider,
-  APIConsumer,
   APIContext,
   ErrorMessage
 };

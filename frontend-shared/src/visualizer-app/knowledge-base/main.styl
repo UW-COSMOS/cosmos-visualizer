@@ -79,7 +79,17 @@ div.related-terms
     clear: both
 
 .filter-controls
-  display flex
-  flex-direction row
-  &:>*
-    flex 1
+  h3
+    margin-top 0
+  &>div
+    display flex
+    flex-direction row
+    &>*
+      margin-right 1em
+    margin-right -1em
+    align-items: baseline
+
+  .bp3-form-group
+    display flex
+    .bp3-label
+      flex-grow 1
