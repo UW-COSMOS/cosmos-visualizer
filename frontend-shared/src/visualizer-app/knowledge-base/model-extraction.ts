@@ -157,7 +157,7 @@ const DocumentExtraction = (props: DocExtractionProps)=>{
     h(GDDReferenceCard, {docid, elevation: 0}),
     h(MainExtraction, {data: main}),
     h(ChildExtractions, {data: children}),
-    h(DownloadButtons, {data: children})
+    h(DownloadButtons, {data: [main, ...children]})
   ]);
 }
 
