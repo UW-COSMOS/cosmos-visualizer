@@ -3,61 +3,44 @@ import classNames from 'classnames';
 import {GDDReferenceCard, APIContext} from '@macrostrat/ui-components';
 import {Card, ButtonGroup, AnchorButton, FormGroup} from '@blueprintjs/core'
 import {memoize} from 'underscore';
-import {useContext} from 'react';
+import {useContext, useRef, useEffect, useState} from 'react';
 import styled from '@emotion/styled';
 import {useAppState, SearchBackend} from './provider'
+import {format} from 'd3-format'
+
+const fmt = format(".2f")
 
 type ImageProps = {
   bytes: string,
   width?: number,
   height?: number
+  scale?: number
 }
 
 const KBImage = (props: ImageProps)=>{
-  const {bytes, ...rest} = props;
+  const {bytes, scale, ...rest} = props;
   const src="data:image/png;base64," + bytes;
-  return h('img', {src, ...rest});
+  const ref = useRef()
+  const [sz, setSize] = useState({width: null, height: null})
+
+  useEffect(()=>{
+    ref.current.onload = ()=>{
+      setSize({
+        width: ref.current.naturalWidth,
+        height: ref.current.naturalHeight
+      })
+    }
+  }, [bytes, ref.current])
+
+  const size = {
+    width: sz.width*scale,
+    height: sz.height*scale
+  }
+
+  return h('img', {src, ref, ...size, ...rest})
 }
 
-const KBCode = (props)=>{
-  const {path, entityType, unicode, ...rest} = props;
-  return h('div', {style: {'font-family': 'monospace'}}, unicode);
-}
-
-const KBExtraction = (props: KBExtractionProps)=>{
-  const {unicode, path, className, title, entityType, ...rest} = props;
-  className = classNames(className, "extracted-entity");
-
-  return h('div', {className}, [
-    h('div.main', [
-      h('div.kb-image-container', [
-        h('h2', [
-          entityType
-        ]),
-        entityType === "code" ?
-          h(KBCode, {path, entityType, unicode, ...rest})
-        :
-          h(KBImage, {path, entityType, ...rest})
-      ])
-    ])
-  ]);
-}
-
-const sanitize = memoize(t => t.toLowerCase());
-
-const MatchSpan = styled.span`\
-display: inline-block;
-background-color: dodgerblue;
-border-radius: 2px;
-padding: 1px 2px;
-color: white;\
-`;
-
-const EntityType = styled.span`\
-font-style: italic;
-color: #888;
-font-weight: 400;\
-`;
+KBImage.defaultProps = {scale: 0.6}
 
 type DocExtractionProps = {
   data: APIDocumentResult,
@@ -69,20 +52,23 @@ type ExtractionProps = {
   query?: string
 }
 
-const AllText = ({content})=>{
-  return h("p.text", content)
-}
-
-
 const MainExtraction = (props: ExtractionProps)=>{
   const {data} = props
-  const {bytes, content} = data
+  const {bytes, cls} = data
+
+  let conf = ""
+  if (data.base_confidence != null) {
+    conf = ` (${fmt(data.base_confidence)})`
+  }
 
   return h('div.extracted-entity', [
     h('div.main', [
       h('div.kb-image-container', [
         h(KBImage, {bytes}),
-        //h(AllText, {content})
+        h('p.caption', [
+          h("span.type", cls),
+          conf
+        ])
       ])
     ])
   ]);
@@ -134,7 +120,7 @@ const DownloadButtons = (props: {data: APIExtraction[]})=>{
   return h("div.download-extractions", [
     h("h4", "Extracted data"),
     h(ButtonGroup, {className: "downloads"}, [
-      h(AnchorButton, {text:"OCR output", href, target: "_blank", small: true}),
+      h(AnchorButton, {text:"OCR text", href, target: "_blank", small: true}),
       h.if(table != null)([
         h(AnchorButton, {text:"Table preview", href: base+`/preview?id=${table?.id}`, target: "_blank", small: true}),
         h(AnchorButton, {text:"Pandas dataframe", href: base+`/get_dataframe?id=${table?.id}`, small: true}),

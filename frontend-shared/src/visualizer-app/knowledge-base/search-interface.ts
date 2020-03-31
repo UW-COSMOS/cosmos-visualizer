@@ -10,6 +10,7 @@ import {
   FormGroup,
   ISliderProps
 } from '@blueprintjs/core';
+import {CollapseCard} from '~/shared/ui'
 import {InlineNavbar} from '~/util'
 import {
   NullableSlider
@@ -119,34 +120,30 @@ const FilterPanel = (props)=> {
 
   const [detailsExpanded, expandDetails] = useState(false)
 
-  return h(Collapse, {isOpen: filterPanelOpen}, [
-    h(Card, {elevation: 1, className: 'filter-controls bp3-text'}, [
-      h("div.inner", [
-        h("div.top-row", [
-          h(TypeSelector),
-          h("div.right-controls", null,
-            h(ButtonGroup, {minimal: true, small: true}, [
-              h(Button, {
-                onClick() { expandDetails(!detailsExpanded) }
-              }, detailsExpanded ? "Hide details" : "Show details"),
-              h(Button, {
-                icon: "cross",
-                intent: Intent.DANGER,
-                onClick() {
-                  dispatch({type: "toggle-filter-panel", value: false})
-                }
-              })
-            ])
-          ),
-        ]),
-        h(Collapse, {className: "search-details", isOpen: detailsExpanded}, [
-          h("div.threshold-controls", [
-            h("h4", "Thresholds"),
-            h(SliderPanel),
-          ]),
-          h(SearchBackendSelector)
+  return h(CollapseCard, {isOpen: filterPanelOpen, className: 'filter-controls bp3-text'}, [
+    h("div.top-row", [
+      h(TypeSelector),
+      h("div.right-controls", null,
+        h(ButtonGroup, {minimal: true}, [
+          h(Button, {
+            onClick() { expandDetails(!detailsExpanded) }
+          }, detailsExpanded ? "Hide details" : "Show details"),
+          h(Button, {
+            icon: "cross",
+            intent: Intent.DANGER,
+            onClick() {
+              dispatch({type: "toggle-filter-panel", value: false})
+            }
+          })
         ])
-      ])
+      ),
+    ]),
+    h(Collapse, {className: "search-details", isOpen: detailsExpanded}, [
+      h("div.threshold-controls", [
+        h("h4", "Thresholds"),
+        h(SliderPanel),
+      ]),
+      h(SearchBackendSelector)
     ])
   ])
 }

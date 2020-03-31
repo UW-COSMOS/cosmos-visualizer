@@ -40,19 +40,17 @@ const ResultsView = (props)=>{
   let route = searchBackend == SearchBackend.Anserini ? '/search' : '/search_es_objects'
 
   return h("div.results", [
-    h(RelatedTerms, {query}),
     h(InfiniteScrollView, {
       route,
       opts: {
-        unwrapResponse(res){ return res; },
-        debounce: 500
+        unwrapResponse(res){ return res; }
       },
       params: filterParams,
       getCount(res) {
         return res.total_results
       },
       getNextParams(res, params) {
-        return {...params, page: res.page+1}
+        return {...params, page: (params.page ?? 0) + 1}
       },
       getItems(res){
         switch (searchBackend) {
@@ -75,6 +73,7 @@ const KnowledgeBaseFilterView = (props)=>{
   return h(AppStateProvider, {types},
     h('div#knowledge-base-filter.main', [
       h(SearchInterface),
+      h(RelatedTerms),
       h(ResultsView)
     ])
   );

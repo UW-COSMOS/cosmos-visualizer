@@ -6,6 +6,11 @@
   margin-top -50px
   position relative
   padding 0 1em
+  min-height 100vh
+  display flex
+  flex-direction: column
+  &>.results
+    flex-grow 1
 
   .search-interface
     .bp3-navbar, .bp3-card
@@ -47,29 +52,32 @@
     flex-direction column
     h2
       font-size 14px
+    div.extracted-entity
+      float left
+      margin-right 1em
     div.extracted-entity>.main
       &>div.kb-image-container
         flex 2
-        img
-          max-height 20em
+        &:hover p.caption
+          visibility visible
+        p.caption
+          span.type
+            font-weight 600
+          font-style italic
+          visibility: hidden
+          color $green5
+          margin-top 0
       &>*
         flex 1
-      div.text
-        margin-left 1em
-        font-size 10px
-        max-width 40%
-        overflow hidden
-      display flex
-      flex-direction row
-      span.entity-type
-        font-weight 400
-        color #888
-        font-style italic
     &>div
       flex 1
       position relative
       img
         max-width 100%
+
+.bp3-dark
+  a.link-card.gdd-article
+    background-color: $dark-gray5
 
 a.link-card.gdd-article
   text-decoration none
@@ -90,17 +98,18 @@ a.link-card.gdd-article
     font-weight bold
     color #444
 
-div.bp3-card.filter-controls, div.bp3-card.related-terms
+div.mui-collapse-card
   margin-bottom 1em
   background-color: $light-gray5
   h3, h4
     margin-top 0
     margin-bottom 0.2em
-  &>.inner
+
+div.bp3-card.filter-controls .inner
     margin-bottom -1em
 
 
-div.related-terms
+div.related-terms .inner
   display: flex
   flex-direction row
   align-items first-baseline
@@ -165,5 +174,6 @@ div.related-terms
   align-items: baseline
   h4
     margin-bottom 0
+    margin-top 0
   &>*
     margin-right 1em

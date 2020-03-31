@@ -4,7 +4,8 @@ declare interface APIExtraction {
   id: number|string,
   page_number: number|null,
   bytes: string,
-  cls: string
+  cls: string,
+  base_confidence?: number,
 }
 
 declare interface APIDocumentResult {

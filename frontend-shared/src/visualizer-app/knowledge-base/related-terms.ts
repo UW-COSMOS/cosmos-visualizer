@@ -1,6 +1,7 @@
 import h from '@macrostrat/hyper'
 import {useAPIResult, APIProvider, APIResultView} from '@macrostrat/ui-components'
-import {Card} from '@blueprintjs/core'
+import {useAppState} from './provider'
+import {CollapseCard} from '~/shared/ui'
 
 const WordRelatedTerms = (props: {word: string})=>{
   const {word} = props
@@ -17,16 +18,17 @@ const WordRelatedTerms = (props: {word: string})=>{
   ])
 }
 
-const RelatedTerms = (props: {query: string})=>{
-  const {query} = props
-  if (query == null || query == "") return null
-  let words = query.split(" ")
+const RelatedTerms = ()=>{
+  const {filterParams} = useAppState()
+  const {query} = filterParams
+  const isOpen = query != null && query != ""
+  let words = (query ?? "").split(" ")
   // Up to three words can form a trigram
   if (words.length <= 3) words = [words.join(" ")]
 
-  return h(Card, {elevation: 1, className: "related-terms"}, [
+  return h(CollapseCard, {isOpen, className: "related-terms"}, [
     h("h3", "Related terms"),
-    h(APIProvider, {
+    h.if(isOpen)(APIProvider, {
       baseURL: "http://cosmos3.chtc.wisc.edu:5003",
       unwrapResponse: (d)=>d.data
     },

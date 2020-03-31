@@ -6,7 +6,7 @@ import {useSearchString} from "./query-string"
 const initialState: AppState = {
   filterParams: {
     query: "",
-    base_confidence: 0.72,
+    postprocessing_confidence: 0.72,
     //postprocessing_confidence: 0.8,
     //area: 50000,
     type: "Figure"

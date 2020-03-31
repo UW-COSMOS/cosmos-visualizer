@@ -1,6 +1,8 @@
 import h from 'react-hyperscript';
 import styled from '@emotion/styled';
+import classNames from 'classnames'
 import {LinkButton} from '@macrostrat/ui-components';
+import {Collapse, Card} from '@blueprintjs/core'
 
 const InfoButton_ = function(props){
   let {index, to, title, children, ...rest} = props;
@@ -36,4 +38,17 @@ p {
 }\
 `;
 
-export {InfoButton};
+const CollapseCard = (props)=> {
+  const {isOpen, className, children, ...rest} = props
+  return h(Collapse, {isOpen}, [
+    h(Card, {
+      elevation: 1,
+      className: classNames(className, 'mui-collapse-card'),
+      ...rest
+    }, [
+      h("div.inner", children)
+    ])
+  ])
+}
+
+export {InfoButton, CollapseCard};
