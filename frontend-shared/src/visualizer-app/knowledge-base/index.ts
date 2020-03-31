@@ -11,6 +11,7 @@ import './main.styl';
 const PlaceholderView = ()=>{
   return h(NonIdealState, {
     icon: 'search-template',
+    className: 'placeholder',
     title: "No results yet",
     description: "Enter a query to search the knowledge base"
   });
@@ -21,6 +22,7 @@ const DocumentResults = (props: ResProps)=>{
   const data = props.data ?? []
   if (data.length == 0) return h(NonIdealState, {
       icon: 'inbox',
+      className: 'placeholder',
       title: "No results",
       description: "No matching extractions found"
   });
@@ -35,36 +37,35 @@ const ResultsView = (props)=>{
   const {filterParams, searchBackend} = useAppState()
 
   const {query} = filterParams
-  if (query == null || query == '') return h(PlaceholderView)
+  if (query == null || query == '') return h("div.results", null, h(PlaceholderView))
 
   let route = searchBackend == SearchBackend.Anserini ? '/search' : '/search_es_objects'
 
-  return h("div.results", [
-    h(InfiniteScrollView, {
-      route,
-      opts: {
-        unwrapResponse(res){ return res; }
-      },
-      params: filterParams,
-      getCount(res) {
-        return res.total_results
-      },
-      getNextParams(res, params) {
-        return {...params, page: (params.page ?? 0) + 1}
-      },
-      getItems(res){
-        switch (searchBackend) {
-          case SearchBackend.ElasticSearch:
-            return res.results
-          case SearchBackend.Anserini:
-            return res.objects
-        }
-      },
-      hasMore(state, res) {
-        return true
+  return h(InfiniteScrollView, {
+    className: 'results',
+    route,
+    opts: {
+      unwrapResponse(res){ return res; }
+    },
+    params: filterParams,
+    getCount(res) {
+      return res.total_results
+    },
+    getNextParams(res, params) {
+      return {...params, page: (params.page ?? 0) + 1}
+    },
+    getItems(res){
+      switch (searchBackend) {
+        case SearchBackend.ElasticSearch:
+          return res.results
+        case SearchBackend.Anserini:
+          return res.objects
       }
-    }, (data)=>h(DocumentResults, {data}))
-  ])
+    },
+    hasMore(state, res) {
+      return true
+    }
+  }, (data)=>h(DocumentResults, {data}))
 }
 
 const KnowledgeBaseFilterView = (props)=>{

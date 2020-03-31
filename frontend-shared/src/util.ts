@@ -10,7 +10,7 @@ const PageHeader = function(props){
   if (title == null) { title = 'COSMOS'; }
   return h(Navbar.Group, [
     h(Navbar.Heading, null,  (
-      h(Link, {to: '/'}, [
+      h('a', {href: '/'}, [
         h('h1', title)
       ])
     )

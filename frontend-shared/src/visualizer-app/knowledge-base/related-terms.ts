@@ -1,7 +1,8 @@
 import h from '@macrostrat/hyper'
 import {useAPIResult, APIProvider, APIResultView} from '@macrostrat/ui-components'
-import {useAppState} from './provider'
+import {useAppState, useAppDispatch} from './provider'
 import {CollapseCard} from '~/shared/ui'
+import {Button, Intent} from '@blueprintjs/core'
 
 const WordRelatedTerms = (props: {word: string})=>{
   const {word} = props
@@ -33,7 +34,18 @@ const RelatedTerms = ()=>{
       unwrapResponse: (d)=>d.data
     },
       h("dl.terms", words.map(w => h(WordRelatedTerms, {word: w})))
-    )
+    ),
+    // h("div.right-controls", null,
+    //   h(Button, {
+    //     icon: "cross",
+    //     intent: Intent.DANGER,
+    //     minimal: true,
+    //     onClick() {
+    //       dispatch({type: "toggle-related-panel", value: false})
+    //     }
+    //   })
+    // ),
+
   ])
 }
 

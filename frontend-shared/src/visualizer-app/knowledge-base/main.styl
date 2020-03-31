@@ -1,7 +1,7 @@
 @require "~@macrostrat/ui-components/src/shared/colors.styl"
 
 #knowledge-base-filter
-  margin 1em auto
+  margin 0 auto
   max-width 60em
   margin-top -50px
   position relative
@@ -11,6 +11,10 @@
   flex-direction: column
   &>.results
     flex-grow 1
+    display flex
+    flex-direction: column
+    .placeholder
+      flex-grow 1
 
   .search-interface
     .bp3-navbar, .bp3-card
