@@ -5,13 +5,15 @@ import {
   Button,
   ButtonGroup,
   Collapse,
-  Slider,
   Card,
   Intent,
   FormGroup,
   ISliderProps
 } from '@blueprintjs/core';
 import {InlineNavbar} from '~/util'
+import {
+  NullableSlider
+} from '@macrostrat/ui-components'
 import {
   useAppState,
   useAppDispatch,
@@ -33,13 +35,13 @@ const ConfidenceSlider = (props: ConfidenceSliderProps)=>{
 
   const max = _max ?? 1
 
-  const confProps = {min: 0, max, initialValue: max, stepSize: 0.02, labelStepSize: 0.2}
-  const onChange = (value: number)=> dispatch({type: 'set-threshold', key: id, value})
+  const confProps = {min: 0, max, initialValue: max, stepSize: 0.02, labelStepSize: 0.2, labelPrecision: 1}
+  const onRelease = (value: number)=> dispatch({type: 'set-threshold', key: id, value})
 
   const value = filterParams[id]
 
   return h(FormGroup, {label, labelInfo, inline: true},
-    h(Slider, {...confProps, ...rest, onChange, value})
+    h(NullableSlider, {...confProps, ...rest, onRelease, value})
   )
 }
 
@@ -118,7 +120,7 @@ const FilterPanel = (props)=> {
   const [detailsExpanded, expandDetails] = useState(false)
 
   return h(Collapse, {isOpen: filterPanelOpen}, [
-    h(Card, {className: 'filter-controls bp3-text'}, [
+    h(Card, {elevation: 1, className: 'filter-controls bp3-text'}, [
       h("div.inner", [
         h("div.top-row", [
           h(TypeSelector),

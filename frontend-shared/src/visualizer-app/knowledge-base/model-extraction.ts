@@ -1,6 +1,7 @@
 import h from '@macrostrat/hyper';
 import classNames from 'classnames';
-import {GDDReferenceCard} from '@macrostrat/ui-components';
+import {GDDReferenceCard, useAPIView} from '@macrostrat/ui-components';
+import {Card, ButtonGroup, AnchorButton} from '@blueprintjs/core'
 import {memoize} from 'underscore';
 import styled from '@emotion/styled';
 import {useAppState, SearchBackend} from './provider'
@@ -118,8 +119,14 @@ const ChildExtractions = (props)=>{
 
 const TableDownloadButtons = (props: {data: APIDocumentResult})=>{
   const {data} = props
-  //if (data.)
-  return null
+  debugger
+  const {object_id: _id} = data
+  return h(ButtonGroup, {className: "downloads"}, [
+    h(AnchorButton, {text:"Preview table", href: `./search/preview?id=${_id}`, target: "_blank"}),
+    h(AnchorButton, {text:"Download pickled pandas dataframe", href: `/search/get_dataframe?id=${_id}`}),
+    h(AnchorButton, {text:"Download OCRed text", download: `${_id}.txt`, href: "data:application/octet-stream," + encodeURIComponent(content)}),
+    h(AnchorButton, {text:"See full stored object", href: "./search?id=#{_id}", target: "_blank"})
+  ])
 }
 
 
@@ -131,11 +138,11 @@ const DocumentExtraction = (props: DocExtractionProps)=>{
   const main = getMainExtraction(data, searchBackend)
   const children = getChildExtractions(data, searchBackend)
 
-  return h('div.model-extraction', [
+  return h(Card, {className: 'model-extraction'}, [
     h(GDDReferenceCard, {docid, elevation: 0}),
     h(MainExtraction, {data: main}),
     h(ChildExtractions, {data: children}),
-    h(TableDownloadButtons, {data: main})
+    //h(TableDownloadButtons, {data: main})
   ]);
 }
 

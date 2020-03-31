@@ -53,7 +53,14 @@ const ResultsView = (props)=>{
       getNextParams(res, params) {
         return {...params, page: res.page+1}
       },
-      getItems(res){ return res.objects },
+      getItems(res){
+        switch (searchBackend) {
+          case SearchBackend.ElasticSearch:
+            return res.results
+          case SearchBackend.Anserini:
+            return res.objects
+        }
+      },
       hasMore(state) {
         const {count, items, scrollParams: params, hasLoaded} = state
         if (!hasLoaded) return true

@@ -1,3 +1,5 @@
+@require "~@macrostrat/ui-components/src/shared/colors.styl"
+
 #knowledge-base-filter
   margin 1em auto
   max-width 60em
@@ -90,6 +92,16 @@ div.gdd-article
     font-weight bold
     color #444
 
+div.bp3-card.filter-controls, div.bp3-card.related-terms
+  margin-bottom 1em
+  background-color: $light-gray5
+  h3, h4
+    margin-top 0
+    margin-bottom 0.2em
+  &>.inner
+    margin-bottom -1em
+
+
 div.related-terms
   dt
     clear both
@@ -104,10 +116,6 @@ div.related-terms
     clear: both
 
 .filter-controls .inner
-  margin-bottom -1em
-  h3, h4
-    margin-top 0
-    margin-bottom 0.2em
   .top-row
     display flex
     flex-direction row
