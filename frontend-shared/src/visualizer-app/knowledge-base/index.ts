@@ -44,7 +44,8 @@ const ResultsView = (props)=>{
     h(InfiniteScrollView, {
       route,
       opts: {
-        unwrapResponse(res){ return res; }
+        unwrapResponse(res){ return res; },
+        debounce: 500
       },
       params: filterParams,
       getCount(res) {
@@ -61,13 +62,7 @@ const ResultsView = (props)=>{
             return res.objects
         }
       },
-      hasMore(state) {
-        const {count, items, scrollParams: params, hasLoaded} = state
-        if (!hasLoaded) return true
-        const page = params.page ?? 0
-        if (count == null && items.length == 0) return true
-        if (items.length >= count) return false
-        if (page*10 > count) return false
+      hasMore(state, res) {
         return true
       }
     }, (data)=>h(DocumentResults, {data}))
