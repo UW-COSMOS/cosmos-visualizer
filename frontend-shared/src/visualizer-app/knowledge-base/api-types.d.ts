@@ -3,12 +3,14 @@ declare interface APIExtraction {
   content: string,
   id: number|string,
   page_number: number|null,
-  bytes: string
+  bytes: string,
+  cls: string
 }
 
 declare interface APIDocumentResult {
   children: APIExtraction[],
-  content: string|null,
+  header_content: string|null,
+  header_cls: string,
   header_bytes: string|null,
   header_id: string|number|null,
   pdf_name: string,

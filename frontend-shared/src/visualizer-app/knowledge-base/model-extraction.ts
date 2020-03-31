@@ -1,8 +1,9 @@
 import h from '@macrostrat/hyper';
 import classNames from 'classnames';
-import {GDDReferenceCard, useAPIView} from '@macrostrat/ui-components';
-import {Card, ButtonGroup, AnchorButton} from '@blueprintjs/core'
+import {GDDReferenceCard, APIContext} from '@macrostrat/ui-components';
+import {Card, ButtonGroup, AnchorButton, FormGroup} from '@blueprintjs/core'
 import {memoize} from 'underscore';
+import {useContext} from 'react';
 import styled from '@emotion/styled';
 import {useAppState, SearchBackend} from './provider'
 
@@ -93,7 +94,8 @@ function getMainExtraction(data: APIDocumentResult, backend: SearchBackend): API
       return data.children[0]
     case SearchBackend.Anserini:
       return {
-        content: data.content,
+        content: data.header_content,
+        cls: data.header_cls,
         bytes: data.header_bytes,
         id: data.header_id,
         page_number: null
@@ -117,15 +119,28 @@ const ChildExtractions = (props)=>{
   }))
 }
 
-const TableDownloadButtons = (props: {data: APIDocumentResult})=>{
+const DownloadButtons = (props: {data: APIExtraction[]})=>{
   const {data} = props
-  debugger
-  const {object_id: _id} = data
-  return h(ButtonGroup, {className: "downloads"}, [
-    h(AnchorButton, {text:"Preview table", href: `./search/preview?id=${_id}`, target: "_blank"}),
-    h(AnchorButton, {text:"Download pickled pandas dataframe", href: `/search/get_dataframe?id=${_id}`}),
-    h(AnchorButton, {text:"Download OCRed text", download: `${_id}.txt`, href: "data:application/octet-stream," + encodeURIComponent(content)}),
-    h(AnchorButton, {text:"See full stored object", href: "./search?id=#{_id}", target: "_blank"})
+  const {baseURL} = useContext(APIContext)
+  const base = baseURL.replace(":5010/api/v1", ":8081/search")
+
+  const content = data.reduce((v,d)=>v+d.content+"\n\n", "")
+
+  //const href = "data:application/octet-stream," + encodeURIComponent(content)
+  const href = "data:text/plain," + encodeURIComponent(content)
+
+  const table = data.find(d => d.cls == "Table")
+
+  return h("div.download-extractions", [
+    h("h4", "Extracted data"),
+    h(ButtonGroup, {className: "downloads"}, [
+      h(AnchorButton, {text:"OCR output", href, target: "_blank", small: true}),
+      h.if(table != null)([
+        h(AnchorButton, {text:"Table preview", href: base+`/preview?id=${table?.id}`, target: "_blank", small: true}),
+        h(AnchorButton, {text:"Pandas dataframe", href: base+`/get_dataframe?id=${table?.id}`, small: true}),
+      ])
+    //h(AnchorButton, {text:"See stored object", href: base+`?id=${id}&ignore_bytes=true`, target: "_blank"})
+    ])
   ])
 }
 
@@ -142,7 +157,7 @@ const DocumentExtraction = (props: DocExtractionProps)=>{
     h(GDDReferenceCard, {docid, elevation: 0}),
     h(MainExtraction, {data: main}),
     h(ChildExtractions, {data: children}),
-    //h(TableDownloadButtons, {data: main})
+    h(DownloadButtons, {data: children})
   ]);
 }
 
