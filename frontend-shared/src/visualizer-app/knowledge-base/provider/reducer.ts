@@ -77,7 +77,7 @@ const appReducer: AppReducer = (state, action)=>{
           if (state.scrollOffset < t1 && action.offset >= t1) {
             spec[param] = {$set: false}
           }
-          if (state.scrollOffset >= t1 && action.offset < t1) {
+          if (action.offset  == 0) {
             spec[param] = {$set: true}
           }
         }
