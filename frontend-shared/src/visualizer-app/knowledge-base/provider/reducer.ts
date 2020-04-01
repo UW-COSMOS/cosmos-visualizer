@@ -35,7 +35,10 @@ const appReducer: AppReducer = (state, action)=>{
   switch (action.type) {
     case 'update-query':
       const {query} = action
-      return appReducer(state, {type: 'update-filter', spec: {query: {$set: query}}})
+      return update(state, {
+        relatedPanelOpen: {$set: true},
+        filterParams: {query: {$set: query}}
+      })
     case 'update-filter':
       return update(state, {filterParams: action.spec})
     case 'set-search-backend':

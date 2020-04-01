@@ -12,7 +12,7 @@ const WordRelatedTerms = (props: {word: string})=>{
   })
 
   const params = {term: word}
-  if (res == null) return null
+  if (res == null || res.length == 0) return null
   return h([
     h("dt", word),
     res.map(d => h("dd", d[0].replace("_", " ")))
@@ -66,7 +66,7 @@ const RelatedTermsButton = (props: IButtonProps)=>{
   const {isOpen, canOpen} = useRelatedPanelState()
   const dispatch = useAppDispatch()
 
-  return h(Tooltip, {content: `${isOpen ? "Hide" : "Show"} related terms`}, 
+  return h(Tooltip, {content: `${isOpen ? "Hide" : "Show"} related terms`},
     h(Button, {
       icon: "properties",
       minimal: true,

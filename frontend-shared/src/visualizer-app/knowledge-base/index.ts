@@ -1,6 +1,6 @@
 import h from '@macrostrat/hyper';
 import {APIResultView, InfiniteScrollView} from "@macrostrat/ui-components";
-import {NonIdealState} from '@blueprintjs/core';
+import {NonIdealState, Spinner} from '@blueprintjs/core';
 import {DocumentExtraction} from './model-extraction';
 import {RelatedTerms} from './related-terms'
 import {SearchInterface} from './search-interface'
@@ -8,12 +8,21 @@ import {AppStateProvider, useAppState, SearchBackend} from './provider'
 import {Placeholder} from './placeholder'
 import './main.styl';
 
+const LoadingPlaceholder = ()=>{
+  return h(Placeholder, {
+      icon: h(Spinner),
+      title: "Loading extractions",
+      description: ""
+  })
+}
+
 type ResProps = {data: APIDocumentResult[]}
 const DocumentResults = (props: ResProps)=>{
   const data = props.data ?? []
-  if (data.length == 0) return h(NonIdealState, {
+  const isLoading = true
+  if (data.length == 0 && isLoading) return h(LoadingPlaceholder)
+  if (data.length == 0) return h(Placeholder, {
       icon: 'inbox',
-      className: 'placeholder',
       title: "No results",
       description: "No matching extractions found"
   });
@@ -55,7 +64,9 @@ const ResultsView = (props)=>{
     },
     hasMore(state, res) {
       return true
-    }
+    },
+    // Currently only shows for ongoing pages...
+    placeholder: h(LoadingPlaceholder)
   }, (data)=>h(DocumentResults, {data}))
 }
 
@@ -65,7 +76,6 @@ const KnowledgeBaseFilterView = (props)=>{
   return h(AppStateProvider, {types},
     h('div#knowledge-base-filter.main', [
       h(SearchInterface),
-      h(RelatedTerms),
       h(ResultsView)
     ])
   );

@@ -22,7 +22,7 @@ import {
   useTypes,
   SearchBackend,
   ThresholdKey} from './provider'
-import {RelatedTermsButton} from './related-terms'
+import {RelatedTerms, RelatedTermsButton} from './related-terms'
 import {Spec} from 'immutability-helper'
 
 interface ConfidenceSliderProps extends ISliderProps {
@@ -223,7 +223,8 @@ const SearchInterface = (props)=>{
       h(Searchbar),
       h(RelatedTermsButton)
     ]),
-    h(FilterPanel)
+    h(FilterPanel),
+    h(RelatedTerms)
   ])
 
 }

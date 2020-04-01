@@ -39,7 +39,6 @@ const AppStateProvider = (props: _)=>{
   }, [])
 
   useEffect(()=>{
-    if (query == null || query == "") return
     updateSearchString({query, type})
   }, [query, type])
 
