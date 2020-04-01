@@ -18,8 +18,9 @@
 
   .search-interface
     // Sticky positioning
-    background: rgb(255,255,255, 0.1);
+    background: rgb(255,255,255, 1);
     background: linear-gradient(180deg, rgba(255,255,255,1) 95%, rgba(255,255,255,0) 100%);
+
     z-index 10
     position: sticky
     postion webkit-sticky
@@ -200,3 +201,7 @@ div.related-terms .inner
     flex-grow 1
   .footer
     margin-bottom 2em
+
+.bp3-dark #knowledge-base-filter .search-interface
+  background: $dark-gray3;
+  background: linear-gradient(180deg, $dark-gray3 95%, alpha($dark-gray3,0.0) 100%);
