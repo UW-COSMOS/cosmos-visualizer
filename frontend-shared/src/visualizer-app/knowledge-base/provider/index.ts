@@ -12,7 +12,8 @@ const initialState: AppState = {
     type: "Figure"
   },
   searchBackend: SearchBackend.Anserini,
-  filterPanelOpen: true
+  filterPanelOpen: true,
+  relatedPanelOpen: true
 }
 
 const AppStateContext = createContext(initialState)

@@ -11,5 +11,6 @@ type FilterParams = {
 interface AppState {
   filterParams: FilterParams,
   filterPanelOpen: boolean,
+  relatedPanelOpen: boolean,
   searchBackend: import("./reducer").SearchBackend
 }

@@ -6,6 +6,7 @@ import {
   ButtonGroup,
   Collapse,
   Card,
+  Tooltip,
   Intent,
   FormGroup,
   ISliderProps
@@ -21,6 +22,7 @@ import {
   useTypes,
   SearchBackend,
   ThresholdKey} from './provider'
+import {RelatedTermsButton} from './related-terms'
 import {Spec} from 'immutability-helper'
 
 interface ConfidenceSliderProps extends ISliderProps {
@@ -126,6 +128,8 @@ const FilterPanel = (props)=> {
       h("div.right-controls", null,
         h(ButtonGroup, {minimal: true}, [
           h(Button, {
+            intent: !detailsExpanded ? Intent.PRIMARY : null,
+            rightIcon: !detailsExpanded ? 'caret-down' : 'caret-up',
             onClick() { expandDetails(!detailsExpanded) }
           }, detailsExpanded ? "Hide details" : "Show details"),
           h(Button, {
@@ -172,13 +176,17 @@ const Searchbar = (props: SearchInterfaceProps)=>{
   const types = useTypes()
   const name = types.find(d => d.id == filterParams.type)?.name ?? "All types"
 
-  const filterButton = h(Button, {
-    minimal: true,
-    intent: !filterPanelOpen ? Intent.PRIMARY : null,
-    icon: "filter",
-    large: true,
-    onClick(){ setFilterPanelOpen(!filterPanelOpen) }
-  }, name)
+  const filterButton = h(Tooltip, {
+    content: `${filterPanelOpen ? "Hide" : "Show"} filter panel`
+  },
+    h(Button, {
+      minimal: true,
+      intent: !filterPanelOpen ? Intent.PRIMARY : null,
+      icon: "filter",
+      large: true,
+      onClick(){ setFilterPanelOpen(!filterPanelOpen) }
+    }, name)
+  )
 
   const updateQuery = ()=> updateFilter({query: {$set: inputValue}})
   const onChange = event => setInputValue(event.target.value);
@@ -211,7 +219,10 @@ const Searchbar = (props: SearchInterfaceProps)=>{
 
 const SearchInterface = (props)=>{
   return h("div.search-interface", [
-    h(InlineNavbar, null, h(Searchbar)),
+    h(InlineNavbar, null, [
+      h(Searchbar),
+      h(RelatedTermsButton)
+    ]),
     h(FilterPanel)
   ])
 
