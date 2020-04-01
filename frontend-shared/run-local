@@ -3,13 +3,13 @@
 # provide the argument 'tagging', 'validation', or 'visualizer'
 
 export PATH="node_modules/.bin:$PATH"
-export API_BASE_URL=http://cosmos3.chtc.wisc.edu:5010/api/v1
-export PUBLIC_URL="/"
-export MODE="development"
 
+env="local-env.sh"
+[ -f $env ] && source $env
+[ -z $API_BASE_URL ] && echo "API_BASE_URL not provided. Please create a local-env.sh file" && exit 1
 
-#npm install -g concurrently linklocal
-#npm install
+export PUBLIC_URL=${PUBLIC_URL:-/}
+export MODE=${MODE:-development}
 
 (cd bundled-deps/ui-components && npm run dev) & \
 webpack-dev-server --entry $(pwd)/src/${1:-visualizer}-app/index.ts

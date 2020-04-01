@@ -10,13 +10,31 @@ are included.
 
 The *Validation* and *Visualization* apps can be run using the following steps:
 
-1. Copy the `.env.example` file to `.env` and modify the values to your setup.
+### Docker development
+
+1. Pull submodules: `git submodule update --init`
+2. Copy the `.env.example` file to `.env` and modify the values to your setup.
    A running **COSMOS** pipeline exposing a search API must be specified here.
-2. Run the script `bin/run-frontend [--production] <validation|visualizer>`.
-   This will spin up `docker-compose` for either the `validation` or `visualizer`
-   apps, using the correct settings for production if that flag is specified, or
-   enabling continuous rebuilding for frontend development if not.
-   **NOTE:** As of March 25, 2020, the production setting does not work properly.
+3.  Run the script `bin/run-frontend [--production] <validation|visualizer>`.
+    This will spin up `docker-compose` for either the `validation` or `visualizer`
+    apps, using the correct settings for production if that flag is specified, or
+    enabling continuous rebuilding for frontend development if not.
+    Note: as of April 1, 2020, development mode with code reloading is broken in
+    Docker. Use local development strategy.
+
+### Local development
+
+1. Pull submodules: `git submodule update --init`
+2. Move to frontend directory: `cd frontend-shared`
+3. Copy the `local-env.example.sh` file to `local-env.sh` and modify
+   the values to your setup. A running **COSMOS** pipeline
+   exposing a search API must be specified here.
+4. Install NPM modules: `npm install`
+5. Run webpack bundler and dev server: `./run-local <validation|visualizer>`
+6. The frontend will be available on `localhost:8080`.
+
+Make sure to test a production bundle in Docker (`bin/run-frontend --production visualizer`)
+before pushing code. We should probably set up CI for this command specifically.
 
 ## Tagging application
 
