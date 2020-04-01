@@ -5,17 +5,8 @@ import {DocumentExtraction} from './model-extraction';
 import {RelatedTerms} from './related-terms'
 import {SearchInterface} from './search-interface'
 import {AppStateProvider, useAppState, SearchBackend} from './provider'
-import {InlineNavbar} from '~/util';
+import {Placeholder} from './placeholder'
 import './main.styl';
-
-const PlaceholderView = ()=>{
-  return h(NonIdealState, {
-    icon: 'search-template',
-    className: 'placeholder',
-    title: "No results yet",
-    description: "Enter a query to search the knowledge base"
-  });
-}
 
 type ResProps = {data: APIDocumentResult[]}
 const DocumentResults = (props: ResProps)=>{
@@ -37,7 +28,7 @@ const ResultsView = (props)=>{
   const {filterParams, searchBackend} = useAppState()
 
   const {query} = filterParams
-  if (query == null || query == '') return h("div.results", null, h(PlaceholderView))
+  if (query == null || query == '') return h("div.results", null, h(Placeholder))
 
   let route = searchBackend == SearchBackend.Anserini ? '/search' : '/search_es_objects'
 

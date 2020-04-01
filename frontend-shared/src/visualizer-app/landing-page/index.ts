@@ -19,6 +19,14 @@ const CreditsText = styled(InsetText)`\
 margin-top: 2em;
 color: #888;
 font-size: 0.8em;
+a {
+  color: inherit;
+  text-decoration: underline;
+}
+h4 {
+  margin-bottom: -0.8em
+}
+
 ul {
   padding-left: 1em;
 }\
@@ -47,7 +55,7 @@ const ModelInfoBox = function() {
     route: "/model/info",
     params: {stack_id: "default"},
     placeholder: null
-  }, (data)=> {
+  }, (data)=>{
     const R = ({id}) => h(Res, {data, id});
     return h(ModelInfo, [
       h('p', [
@@ -63,10 +71,15 @@ const ModelInfoBox = function() {
         " pipeline. ",
         "Several interfaces to the extractions and knowledge base are accessible below:"
       ])
-    ]);
-});
+    ])
+  })
 };
 
+const Footer = ()=>{
+  return h('div.footer', [
+    h(CreditsText, {dangerouslySetInnerHTML: {__html: Credits}})
+  ])
+}
 
 const LandingPageBase = (props)=> {
   const {children} = props
@@ -75,9 +88,7 @@ const LandingPageBase = (props)=> {
     h('div.actions', [
       h(ButtonGroup, {vertical: true}, children)
     ]),
-    h(CreditsText, [
-      h('div', {dangerouslySetInnerHTML: {__html: Credits}})
-    ])
+    h(Footer)
   ]);
 }
 
@@ -93,4 +104,4 @@ const ResultsLandingPage = (props)=>{
   ])
 }
 
-export {LandingPageBase, ResultsLandingPage, InfoButton};
+export {LandingPageBase, ResultsLandingPage, InfoButton, Footer};
