@@ -18,6 +18,7 @@ type SetFilterClass = {type: "set-filter-type", featureType: FeatureType|null}
 type SetThreshold = {type: "set-threshold", key: ThresholdKey, value: number}
 type ToggleFilterPanel = {type: "toggle-filter-panel", value: boolean|undefined}
 type ToggleRelatedPanel = {type: "toggle-related-panel", value: boolean|undefined}
+type DocumentScrolled = {type: "document-scrolled", offset: number}
 
 declare type AppAction =
   | UpdateQuery
@@ -27,6 +28,7 @@ declare type AppAction =
   | SetThreshold
   | ToggleFilterPanel
   | ToggleRelatedPanel
+  | DocumentScrolled
 
 type AppReducer = (a: AppState, action: AppAction)=> AppState
 type AppDispatch = (action: AppAction)=>void
@@ -59,6 +61,28 @@ const appReducer: AppReducer = (state, action)=>{
     case 'toggle-related-panel': {
       const val = action.value ?? !state.relatedPanelOpen
       return update(state, {relatedPanelOpen: {$set: val}})
+    }
+    case 'document-scrolled': {
+      console.log(action.offset)
+      let spec: Spec<AppState> = {scrollOffset: {$set: action.offset}}
+      // Collapse panels on scroll
+      const thresholds = {
+        300: "filterPanelOpen",
+        600: "relatedPanelOpen"
+      }
+
+      if ((state.filterParams.query ?? "") != "") {
+        for (const [t, param] of Object.entries(thresholds)) {
+          const t1 = parseInt(t)
+          if (state.scrollOffset < t1 && action.offset >= t1) {
+            spec[param] = {$set: false}
+          }
+          if (state.scrollOffset >= t1 && action.offset < t1) {
+            spec[param] = {$set: true}
+          }
+        }
+      }
+      return update(state, spec)
     }
   }
 }

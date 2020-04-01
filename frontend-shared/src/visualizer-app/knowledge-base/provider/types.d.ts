@@ -12,5 +12,6 @@ interface AppState {
   filterParams: FilterParams,
   filterPanelOpen: boolean,
   relatedPanelOpen: boolean,
+  scrollOffset: number,
   searchBackend: import("./reducer").SearchBackend
 }

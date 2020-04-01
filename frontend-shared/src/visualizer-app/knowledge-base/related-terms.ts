@@ -2,7 +2,7 @@ import h from '@macrostrat/hyper'
 import {useAPIResult, APIProvider, APIResultView} from '@macrostrat/ui-components'
 import {useAppState, useAppDispatch} from './provider'
 import {CollapseCard} from '~/shared/ui'
-import {Button, Intent, Tooltip, IButtonProps} from '@blueprintjs/core'
+import {Button, Intent, Tooltip, IButtonProps, Position} from '@blueprintjs/core'
 
 const WordRelatedTerms = (props: {word: string})=>{
   const {word} = props
@@ -66,7 +66,10 @@ const RelatedTermsButton = (props: IButtonProps)=>{
   const {isOpen, canOpen} = useRelatedPanelState()
   const dispatch = useAppDispatch()
 
-  return h(Tooltip, {content: `${isOpen ? "Hide" : "Show"} related terms`},
+  return h(Tooltip, {
+    content: `${isOpen ? "Hide" : "Show"} related terms`,
+    position: Position.BOTTOM
+  },
     h(Button, {
       icon: "properties",
       minimal: true,

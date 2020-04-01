@@ -5,7 +5,7 @@ import {
   Button,
   ButtonGroup,
   Collapse,
-  Card,
+  Position,
   Tooltip,
   Intent,
   FormGroup,
@@ -177,7 +177,8 @@ const Searchbar = (props: SearchInterfaceProps)=>{
   const name = types.find(d => d.id == filterParams.type)?.name ?? "All types"
 
   const filterButton = h(Tooltip, {
-    content: `${filterPanelOpen ? "Hide" : "Show"} filter panel`
+    content: `${filterPanelOpen ? "Hide" : "Show"} filter panel`,
+    position: Position.BOTTOM
   },
     h(Button, {
       minimal: true,
@@ -218,6 +219,17 @@ const Searchbar = (props: SearchInterfaceProps)=>{
 }
 
 const SearchInterface = (props)=>{
+
+  const dispatch = useAppDispatch()
+
+  const handleScroll = (event)=>{
+    dispatch({type: 'document-scrolled', offset: document.scrollingElement.scrollTop})
+  }
+
+  useEffect(()=>{
+    window.addEventListener("scroll", handleScroll)
+  })
+
   return h("div.search-interface", [
     h(InlineNavbar, null, [
       h(Searchbar),

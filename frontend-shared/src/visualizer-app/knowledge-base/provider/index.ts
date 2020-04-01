@@ -13,7 +13,8 @@ const initialState: AppState = {
   },
   searchBackend: SearchBackend.Anserini,
   filterPanelOpen: true,
-  relatedPanelOpen: true
+  relatedPanelOpen: true,
+  scrollOffset: 0
 }
 
 const AppStateContext = createContext(initialState)
