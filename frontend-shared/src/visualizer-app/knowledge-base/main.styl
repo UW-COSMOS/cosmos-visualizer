@@ -1,9 +1,14 @@
 @require "~@macrostrat/ui-components/src/shared/colors.styl"
 
-#knowledge-base-filter
+body, html
+  overscroll-behavior none
+  .app-main
+    padding-top 0
+
+#knowledge-base-filter.main
+  padding-top 0
   margin 0 auto
   max-width 60em
-  margin-top -50px
   position relative
   padding 0 1em
   min-height 100vh
@@ -13,25 +18,23 @@
     flex-grow 1
     display flex
     flex-direction: column
+    padding 0 5px
     .placeholder
       flex-grow 1
 
   .search-interface
     // Sticky positioning
     background: rgb(255,255,255, 1);
-    background: linear-gradient(180deg, rgba(255,255,255,1) 95%, rgba(255,255,255,0) 100%);
+    margin-bottom: 1em
 
     z-index 10
     position: sticky
     postion webkit-sticky
-    margin-left -5px
-    margin-right -5px
     top 0
-    .bp3-navbar, .bp3-card
-      margin-bottom 0.7em
 
   .bp3-navbar
     align-items: center;
+    margin-bottom 0
     .bp3-navbar-group.bp3-align-left
       flex 0
     padding-right 10px
@@ -113,12 +116,17 @@ a.link-card.gdd-article
     font-weight bold
     color #444
 
+
+.search-interface>.bp3-collapse
+  .bp3-collapse-body
+    padding-top 1em
+
 div.mui-collapse-card
-  margin-bottom 1em
   background-color: $light-gray5
   h3, h4
     margin-top 0
     margin-bottom 0.2em
+
 
 div.bp3-card.filter-controls .inner
     margin-bottom -1em
@@ -199,9 +207,8 @@ div.related-terms .inner
   flex-direction: column;
   .placeholder-inner
     flex-grow 1
-  .footer
-    margin-bottom 2em
+.footer
+  margin-bottom 2em
 
 .bp3-dark #knowledge-base-filter .search-interface
   background: $dark-gray3;
-  background: linear-gradient(180deg, $dark-gray3 95%, alpha($dark-gray3,0.0) 100%);

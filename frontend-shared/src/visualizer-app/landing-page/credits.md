@@ -2,7 +2,7 @@
 heterogeneous sources to accelerate analytics and knowledge discovery.
 It is the result of a collaboration between computer scientists specializing
 in inference across noisy datasets and geoscientists interested in automated recall
-of structured data from the scientific literature.
+of information from the scientific literature.
 
 The [**COSMOS Visualizer**](https://github.com/UW-COSMOS/cosmos-visualizer)
 application provides an interface to

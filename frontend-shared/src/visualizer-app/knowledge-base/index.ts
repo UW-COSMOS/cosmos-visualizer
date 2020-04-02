@@ -1,12 +1,12 @@
 import h from '@macrostrat/hyper';
-import {APIResultView, InfiniteScrollView} from "@macrostrat/ui-components";
-import {NonIdealState, Spinner} from '@blueprintjs/core';
+import {InfiniteScrollView} from "@macrostrat/ui-components";
+import {Spinner} from '@blueprintjs/core';
 import {DocumentExtraction} from './model-extraction';
-import {RelatedTerms} from './related-terms'
 import {SearchInterface} from './search-interface'
 import {AppStateProvider, useAppState, SearchBackend} from './provider'
 import {Placeholder} from './placeholder'
 import './main.styl';
+import {Footer} from '../landing-page'
 
 const LoadingPlaceholder = ()=>{
   return h(Placeholder, {
@@ -27,7 +27,7 @@ const DocumentResults = (props: ResProps)=>{
       description: "No matching extractions found"
   });
 
-  return h('div.results', data.map((d, i) => {
+  return h('div.documents', data.map((d, i) => {
     return h(DocumentExtraction, {data: d, index: i})
   }));
 }
@@ -76,7 +76,8 @@ const KnowledgeBaseFilterView = (props)=>{
   return h(AppStateProvider, {types},
     h('div#knowledge-base-filter.main', [
       h(SearchInterface),
-      h(ResultsView)
+      h(ResultsView),
+      h(Footer)
     ])
   );
 }

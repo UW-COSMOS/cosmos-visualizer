@@ -1,6 +1,5 @@
 import h from '@macrostrat/hyper'
 import {NonIdealState, INonIdealStateProps} from '@blueprintjs/core'
-import {Footer} from '../../landing-page'
 
 interface PlaceholderProps extends INonIdealStateProps {
   loading: boolean
@@ -16,8 +15,7 @@ const Placeholder = (props: PlaceholderProps)=>{
       title: "No results yet",
       description: "Enter a query to search the knowledge base",
       ...rest
-    }),
-    h(Footer)
+    })
   ]);
 }
 

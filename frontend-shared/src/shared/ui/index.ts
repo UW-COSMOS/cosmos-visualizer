@@ -2,7 +2,7 @@ import h from 'react-hyperscript';
 import styled from '@emotion/styled';
 import classNames from 'classnames'
 import {LinkButton} from '@macrostrat/ui-components';
-import {Collapse, Card} from '@blueprintjs/core'
+import {Collapse, Card, ICardProps, ICollapseProps} from '@blueprintjs/core'
 
 const InfoButton_ = function(props){
   let {index, to, title, children, ...rest} = props;
@@ -38,17 +38,28 @@ p {
 }\
 `;
 
-const CollapseCard = (props)=> {
-  const {isOpen, className, children, ...rest} = props
-  return h(Collapse, {isOpen}, [
-    h(Card, {
-      elevation: 1,
-      className: classNames(className, 'mui-collapse-card'),
-      ...rest
-    }, [
-      h("div.inner", children)
+type CollapseCardProps = ICardProps & Pick<ICollapseProps,'isOpen'|'keepChildrenMounted'|'transitionDuration'>
+
+
+const CollapseCard = (props: CollapseCardProps)=> {
+  const {isOpen, keepChildrenMounted, transitionDuration, className, children, ...rest} = props
+  return h(Collapse, {isOpen, keepChildrenMounted, transitionDuration}, [
+    h("div.collapse-card-outer", [
+      h(Card, {
+        elevation: 1,
+        className: classNames(className, 'mui-collapse-card'),
+        ...rest
+      }, [
+        h("div.inner", children)
+      ])      
     ])
   ])
 }
+
+CollapseCard.defaultProps = {
+  keepChildrenMounted: true,
+  transitionDuration: 500
+}
+
 
 export {InfoButton, CollapseCard};

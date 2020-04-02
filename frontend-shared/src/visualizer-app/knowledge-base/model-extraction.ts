@@ -119,7 +119,7 @@ const DownloadButtons = (props: {data: APIExtraction[]})=>{
     h(ButtonGroup, {className: "downloads"}, [
       h(AnchorButton, {text:"OCR text", href, target: "_blank", small: true}),
       // Right now we get the JSON object of the first child. Likely not ideal.
-      h(AnchorButton, {text:"JSON object", href: base+`?id=${data[0].id}`, target: "_blank"}),
+      h(AnchorButton, {text:"JSON object", href: base+`?id=${data[0].id}`, target: "_blank", small: true}),
       h.if(table != null)([
         h(AnchorButton, {text:"Table preview", href: base+`/preview?id=${table?.id}`, target: "_blank", small: true}),
         h(AnchorButton, {text:"Pandas dataframe", href: base+`/get_dataframe?id=${table?.id}`, small: true}),
