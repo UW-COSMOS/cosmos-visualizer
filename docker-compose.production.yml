@@ -1,0 +1,21 @@
+# Only runs frontend
+version: '3'
+services:
+  frontend_dist:
+    build:
+      context: frontend-shared
+      dockerfile: Dockerfile.build
+      args:
+        MODE: ${MODE:-visualizer}
+        ENVIRONMENT: production
+        PUBLIC_URL: ${PUBLIC_URL:-/}
+        API_BASE_URL: ${API_BASE_URL:-/search}
+    environment:
+      # Public URL is settable from the
+      # local environment
+      - ENVIRONMENT=production
+      - MODE=${MODE:-visualizer}
+      - PUBLIC_URL=/
+      - API_BASE_URL=/search
+    ports:
+      - "${APP_PORT:-5080}:80"

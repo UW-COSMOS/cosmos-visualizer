@@ -1,0 +1,9 @@
+#!/bin/sh
+# Run docker for development
+# provide the argument 'tagging', 'validation', or 'visualizer'
+
+npm install --unsafe-perm
+
+(cd bundled-deps/ui-components && npm run dev) &
+node_modules/.bin/webpack --config webpack.config.js \
+  --watch --mode=development src/$1-app/index.ts

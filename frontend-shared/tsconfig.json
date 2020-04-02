@@ -1,0 +1,20 @@
+{
+  "emitDeclarationOnly": true,
+  "compilerOptions": {
+    "moduleResolution": "node",
+    "declaration": true,
+    "sourceMap": true,
+    "allowSyntheticDefaultImports": true,
+    "experimentalDecorators": true,
+    "declarationDir": "dist/types",
+    "typeRoots": [
+      "node_modules/@types"
+    ],
+    "paths": {
+        "~/*": ["src/*"]
+    }
+  },
+  "include": [
+    "src"
+  ]
+}

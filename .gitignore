@@ -4,3 +4,5 @@ annotations.sqlite
 api_key.js
 _data
 frontend/logs
+.env
+frontend-shared/local-env.sh

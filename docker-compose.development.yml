@@ -1,0 +1,37 @@
+# Only runs frontend
+version: '3'
+services:
+  frontend:
+    build:
+      context: frontend-shared
+      dockerfile: Dockerfile.dev
+    environment:
+      # Public URL is settable from the
+      # local environment
+      - DEBUG=1
+      - ENVIRONMENT=development
+      - MODE=${MODE:-visualizer}
+      # The two possible app modes are ANNOTATION and PREDICTION
+      - APPMODE=PREDICTION
+      - PUBLIC_URL=/
+      - API_BASE_URL=http://cosmos3.chtc.wisc.edu:8081/search
+    volumes:
+      - ./frontend-shared/src:/user/src
+      - ./frontend-shared/bundled-deps/ui-components/src:/user/bundled-deps/ui-components/src
+      # Named volumes
+      - visualizer_dist:/user/dist
+      - node_modules:/user/node_modules
+      - ui_node_modules:/user/bundled-deps/ui-components/node_modules
+      - webpack_cache:/user/.cache
+  gateway:
+    image: nginx
+    volumes:
+      - visualizer_dist:/frontend:ro
+      - ./frontend-shared/nginx.frontend-only.conf:/etc/nginx/nginx.conf:ro
+    ports:
+      - "${APP_PORT:-5080}:80"
+volumes:
+  visualizer_dist:
+  ui_node_modules:
+  webpack_cache:
+  node_modules:
