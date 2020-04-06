@@ -1,5 +1,5 @@
 import h from '@macrostrat/hyper';
-import {InfiniteScrollView} from "@macrostrat/ui-components";
+import {InfiniteScrollView, APIResultProps} from "@macrostrat/ui-components";
 import {Spinner} from '@blueprintjs/core';
 import {DocumentExtraction} from './model-extraction';
 import {SearchInterface} from './search-interface'
@@ -16,10 +16,11 @@ const LoadingPlaceholder = ()=>{
   })
 }
 
-type ResProps = {data: APIDocumentResult[]}
+type ResProps = APIResultProps<APIDocumentResult[]>
+
 const DocumentResults = (props: ResProps)=>{
   const data = props.data ?? []
-  const isLoading = true
+  const {isLoading} = props
   if (data.length == 0 && isLoading) return h(LoadingPlaceholder)
   if (data.length == 0) return h(Placeholder, {
       icon: 'inbox',
@@ -41,6 +42,15 @@ const ResultsView = (props)=>{
 
   let route = searchBackend == SearchBackend.Anserini ? '/search' : '/search_es_objects'
 
+  const unwrapResponse = (res)=>{
+    switch (searchBackend) {
+      case SearchBackend.ElasticSearch:
+        return res.results
+      case SearchBackend.Anserini:
+        return res.objects
+    }
+  }
+
   return h(InfiniteScrollView, {
     className: 'results',
     route,
@@ -55,19 +65,15 @@ const ResultsView = (props)=>{
       return {...params, page: (params.page ?? 0) + 1}
     },
     getItems(res){
-      switch (searchBackend) {
-        case SearchBackend.ElasticSearch:
-          return res.results
-        case SearchBackend.Anserini:
-          return res.objects
-      }
+      return unwrapResponse(res)
     },
     hasMore(state, res) {
-      return true
+      const items = unwrapResponse(res)
+      return items.length > 0
     },
     // Currently only shows for ongoing pages...
     placeholder: h(LoadingPlaceholder)
-  }, (data)=>h(DocumentResults, {data}))
+  }, h(DocumentResults))
 }
 
 const KnowledgeBaseFilterView = (props)=>{
