@@ -43,12 +43,7 @@ const ResultsView = (props)=>{
   let route = searchBackend == SearchBackend.Anserini ? '/search' : '/search_es_objects'
 
   const unwrapResponse = (res)=>{
-    switch (searchBackend) {
-      case SearchBackend.ElasticSearch:
-        return res.results
-      case SearchBackend.Anserini:
-        return res.objects
-    }
+    return res.objects ?? res.results ?? []
   }
 
   return h(InfiniteScrollView, {
