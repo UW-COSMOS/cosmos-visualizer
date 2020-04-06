@@ -18,6 +18,7 @@
     "@turf/turf": "^5.1.6",
     "@types/chroma-js": "^1.4.3",
     "@types/react-router": "^5.1.4",
+    "@use-hooks/image-size": "^1.0.5",
     "async": "^2.6.2",
     "babel-plugin-emotion": "^10.0.7",
     "chroma-js": "^1.4.1",

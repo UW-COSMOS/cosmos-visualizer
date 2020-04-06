@@ -3,6 +3,7 @@ import {GDDReferenceCard, APIContext} from '@macrostrat/ui-components';
 import {Card, ButtonGroup, AnchorButton, FormGroup} from '@blueprintjs/core'
 import {useContext, useRef, useEffect, useState} from 'react';
 import {useAppState, SearchBackend} from './provider'
+import useImageSize from '@use-hooks/image-size'
 import {format} from 'd3-format'
 
 const fmt = format(".2f")
@@ -17,24 +18,14 @@ type ImageProps = {
 const KBImage = (props: ImageProps)=>{
   const {bytes, scale, ...rest} = props;
   const src="data:image/png;base64," + bytes;
-  const ref = useRef()
-  const [sz, setSize] = useState({width: null, height: null})
-
-  useEffect(()=>{
-    ref.current.onload = ()=>{
-      setSize({
-        width: ref.current.naturalWidth,
-        height: ref.current.naturalHeight
-      })
-    }
-  }, [bytes, ref.current])
+  const [width, height] = useImageSize(src)
 
   const size = {
-    width: sz.width*scale,
-    height: sz.height*scale
+    width: width*scale,
+    height: height*scale
   }
 
-  return h('img', {src, ref, ...size, ...rest})
+  return h('img', {src, ...size, ...rest})
 }
 
 KBImage.defaultProps = {scale: 0.6}
