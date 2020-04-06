@@ -136,26 +136,30 @@ div.related-terms .inner
   display: flex
   flex-direction row
   align-items first-baseline
+
   dl
     margin 0
     flex-grow 1
     display flex
     flex-flow row wrap
+    padding-left 5em
   h3
     min-width 8em
     margin-right 1em
   dt
     clear both
+    margin-left -5em
+    font-weight bold
   dt, dd
-    //float left
-    margin-right 0.1em
+    float left
+    margin-right 2em
     line-height: 1.2em
     margin-top 0.2em
     display inline-block
+  dd
+    margin-left 0
     &.no-results
       font-style italic
-  dt
-    font-weight bold
   ::after
     content: ""
     display: block
