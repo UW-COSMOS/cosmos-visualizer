@@ -2,20 +2,24 @@ import h from '@macrostrat/hyper'
 import {useAPIResult, APIProvider, APIResultView} from '@macrostrat/ui-components'
 import {useAppState, useAppDispatch} from './provider'
 import {CollapseCard} from '~/shared/ui'
-import {Button, Intent, Tooltip, IButtonProps, Position} from '@blueprintjs/core'
+import {Button, AnchorButton, Intent, Tooltip, IButtonProps, Position} from '@blueprintjs/core'
+
 
 const WordRelatedTerms = (props: {word: string})=>{
   const {word} = props
   const res = useAPIResult("/word2vec", {
     word: word.replace(" ", "_"),
     model: 'trigram'
-  })
+  }) ?? []
 
   const params = {term: word}
-  if (res == null || res.length == 0) return null
+  const hasResults = res != null && res.length != 0
   return h([
     h("dt", word),
-    res.map(d => h("dd", d[0].replace("_", " ")))
+    h.if(hasResults)(
+      res.map((d,i) => h("dd", {key: i}, d[0].replace("_", " ")))
+    ),
+    h.if(!hasResults)("dd.no-results", "No results")
   ])
 }
 
@@ -70,7 +74,7 @@ const RelatedTermsButton = (props: IButtonProps)=>{
     content: `${isOpen ? "Hide" : "Show"} related terms`,
     position: Position.BOTTOM
   },
-    h(Button, {
+    h(AnchorButton, {
       icon: "properties",
       minimal: true,
       intent: !isOpen ? Intent.PRIMARY : null,
