@@ -1,5 +1,5 @@
 import h from '@macrostrat/hyper';
-import {GDDReferenceCard, APIContext} from '@macrostrat/ui-components';
+import {GeoDeepDiveSwatch, APIContext} from '@macrostrat/ui-components';
 import {Card, ButtonGroup, AnchorButton, FormGroup} from '@blueprintjs/core'
 import {useContext, useRef, useEffect, useState} from 'react';
 import {useAppState, SearchBackend} from './provider'
@@ -124,12 +124,13 @@ const DocumentExtraction = (props: DocExtractionProps)=>{
   const {data, query} = props;
   const docid = data.pdf_name.replace(".pdf", "");
 
+  const {bibjson} = data
   const {searchBackend} = useAppState()
   const main = getMainExtraction(data, searchBackend)
   const children = getChildExtractions(data, searchBackend)
 
   return h(Card, {className: 'model-extraction'}, [
-    h(GDDReferenceCard, {docid, elevation: 0}),
+    h(GeoDeepDiveSwatch, bibjson),
     h(MainExtraction, {data: main}),
     h(ChildExtractions, {data: children}),
     h(DownloadButtons, {data: [main, ...children]})

@@ -69,6 +69,7 @@ const RelatedTerms = ()=>{
   return h(CollapseCard, {isOpen, className: "related-terms"}, [
     h("div.top-row", [
       h("h3", "Related terms"),
+      h("div.spacer"),
       h("div.right-controls", null,
         h(Button, {
           icon: "cross",

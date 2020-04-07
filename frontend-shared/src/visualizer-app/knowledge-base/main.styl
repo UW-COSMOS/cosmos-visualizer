@@ -128,8 +128,9 @@ div.mui-collapse-card
     margin-bottom 0.2em
   .top-row
     display flex
-    flex-direction
-    h3,h4
+    flex-direction: row
+    align-items baseline
+    div.spacer
       flex-grow 1
 
 div.bp3-card.filter-controls .inner
@@ -173,33 +174,8 @@ div.related-terms .inner
         text-align: right
         font-style italic
 
-
-  dl
-    margin 0
-    display flex
-    flex-flow row wrap
-    padding-left 5em
-  h3
-    min-width 8em
-    margin-right 1em
-  dt
-    clear both
-    margin-left -5em
-    font-weight bold
-  dt, dd
-    float left
-    margin-right 2em
-    line-height: 1.2em
-    margin-top 0.2em
-    display inline-block
-  dd
-    margin-left 0
-    &.no-results
-      font-style italic
-  ::after
-    content: ""
-    display: block
-    clear: both
+  p.no-results
+    font-style italic
 
 .filter-controls .inner
   .type-selector, .search-details .bp3-collapse-body
