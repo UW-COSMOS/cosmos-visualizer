@@ -1,8 +1,9 @@
 import h from '@macrostrat/hyper';
-import {GDDReferenceCard, APIContext} from '@macrostrat/ui-components';
+import {GeoDeepDiveSwatch, APIContext} from '@macrostrat/ui-components';
 import {Card, ButtonGroup, AnchorButton, FormGroup} from '@blueprintjs/core'
 import {useContext, useRef, useEffect, useState} from 'react';
 import {useAppState, SearchBackend} from './provider'
+import useImageSize from '@use-hooks/image-size'
 import {format} from 'd3-format'
 
 const fmt = format(".2f")
@@ -17,24 +18,14 @@ type ImageProps = {
 const KBImage = (props: ImageProps)=>{
   const {bytes, scale, ...rest} = props;
   const src="data:image/png;base64," + bytes;
-  const ref = useRef()
-  const [sz, setSize] = useState({width: null, height: null})
-
-  useEffect(()=>{
-    ref.current.onload = ()=>{
-      setSize({
-        width: ref.current.naturalWidth,
-        height: ref.current.naturalHeight
-      })
-    }
-  }, [bytes, ref.current])
+  const [width, height] = useImageSize(src)
 
   const size = {
-    width: sz.width*scale,
-    height: sz.height*scale
+    width: width*scale,
+    height: height*scale
   }
 
-  return h('img', {src, ref, ...size, ...rest})
+  return h('img', {src, ...size, ...rest})
 }
 
 KBImage.defaultProps = {scale: 0.6}
@@ -117,7 +108,7 @@ const DownloadButtons = (props: {data: APIExtraction[]})=>{
   return h("div.download-extractions", [
     h("h4", "Extracted data"),
     h(ButtonGroup, {className: "downloads"}, [
-      h(AnchorButton, {text:"OCR text", href, target: "_blank", small: true}),
+      h(AnchorButton, {text:"OCR text", href, download: `${data[0].id}-ocr.txt`, target: "_blank", small: true}),
       // Right now we get the JSON object of the first child. Likely not ideal.
       h(AnchorButton, {text:"JSON object", href: base+`?id=${data[0].id}`, target: "_blank", small: true}),
       h.if(table != null)([
@@ -133,12 +124,13 @@ const DocumentExtraction = (props: DocExtractionProps)=>{
   const {data, query} = props;
   const docid = data.pdf_name.replace(".pdf", "");
 
+  const {bibjson} = data
   const {searchBackend} = useAppState()
   const main = getMainExtraction(data, searchBackend)
   const children = getChildExtractions(data, searchBackend)
 
   return h(Card, {className: 'model-extraction'}, [
-    h(GDDReferenceCard, {docid, elevation: 0}),
+    h(GeoDeepDiveSwatch, bibjson),
     h(MainExtraction, {data: main}),
     h(ChildExtractions, {data: children}),
     h(DownloadButtons, {data: [main, ...children]})

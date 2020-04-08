@@ -125,6 +125,7 @@ const FilterPanel = (props)=> {
   return h(CollapseCard, {isOpen: filterPanelOpen, className: 'filter-controls bp3-text'}, [
     h("div.top-row", [
       h(TypeSelector),
+      h("div.spacer"),
       h("div.right-controls", null,
         h(ButtonGroup, {minimal: true}, [
           h(Button, {

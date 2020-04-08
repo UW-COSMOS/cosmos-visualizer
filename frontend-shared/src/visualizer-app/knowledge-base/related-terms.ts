@@ -1,21 +1,47 @@
 import h from '@macrostrat/hyper'
-import {useAPIResult, APIProvider, APIResultView} from '@macrostrat/ui-components'
+import {useAPIResult, useAPIHelpers, APIProvider, APIContext} from '@macrostrat/ui-components'
 import {useAppState, useAppDispatch} from './provider'
 import {CollapseCard} from '~/shared/ui'
-import {Button, Intent, Tooltip, IButtonProps, Position} from '@blueprintjs/core'
+import {Button, AnchorButton, Intent, Tooltip, IButtonProps, Position} from '@blueprintjs/core'
+import {format} from 'd3-format'
+
+const fmt = format(".3f")
+
+type WordResult = [string, number]
+
+const TermResult = (props: {data: WordResult})=>{
+  const [word, corr] = props.data
+  return h("li", [
+    h("span.word", word.replace("_", " ")),
+    h("span.correlation", fmt(corr))
+  ])
+}
+
+const TermResults = (props: {words: WordResult[]|null})=>{
+  const {words} = props
+  if (words == null || words.length == 0) return h("p.no-results", "No results")
+  return h("ul.term-results", words.map((d,i) => h(TermResult, {key: i, data: d})))
+}
+
 
 const WordRelatedTerms = (props: {word: string})=>{
   const {word} = props
-  const res = useAPIResult("/word2vec", {
+  const route = "/word2vec"
+  const params = {
     word: word.replace(" ", "_"),
     model: 'trigram'
-  })
+  }
+  const res = useAPIResult(route, params) ?? []
+  const {buildURL} = useAPIHelpers()
+  const url = buildURL(route, {...params, n: 50})
 
-  const params = {term: word}
-  if (res == null || res.length == 0) return null
-  return h([
-    h("dt", word),
-    res.map(d => h("dd", d[0].replace("_", " ")))
+  return h("div.related-terms-response", [
+    h("h4", word),
+    h(TermResults, {words: res}),
+    h(AnchorButton, {
+      href: url, small: true, minimal: true, rightIcon: 'code',
+      target: "_blank", className: "json-object"}, "JSON"
+    )
   ])
 }
 
@@ -41,24 +67,26 @@ const RelatedTerms = ()=>{
   const dispatch = useAppDispatch()
 
   return h(CollapseCard, {isOpen, className: "related-terms"}, [
-    h("h3", "Related terms"),
-    h.if(isOpen)(APIProvider, {
+    h("div.top-row", [
+      h("h3", "Related terms"),
+      h("div.spacer"),
+      h("div.right-controls", null,
+        h(Button, {
+          icon: "cross",
+          intent: Intent.DANGER,
+          minimal: true,
+          onClick() {
+            dispatch({type: "toggle-related-panel", value: false})
+          }
+        })
+      ),
+    ]),
+    h(APIProvider, {
       baseURL: "http://cosmos3.chtc.wisc.edu:5003",
       unwrapResponse: (d)=>d.data
     },
-      h("dl.terms", words.map(w => h(WordRelatedTerms, {word: w})))
+      h("div.terms", words.map(w => h(WordRelatedTerms, {word: w})))
     ),
-    h("div.right-controls", null,
-      h(Button, {
-        icon: "cross",
-        intent: Intent.DANGER,
-        minimal: true,
-        onClick() {
-          dispatch({type: "toggle-related-panel", value: false})
-        }
-      })
-    ),
-
   ])
 }
 
@@ -70,7 +98,7 @@ const RelatedTermsButton = (props: IButtonProps)=>{
     content: `${isOpen ? "Hide" : "Show"} related terms`,
     position: Position.BOTTOM
   },
-    h(Button, {
+    h(AnchorButton, {
       icon: "properties",
       minimal: true,
       intent: !isOpen ? Intent.PRIMARY : null,

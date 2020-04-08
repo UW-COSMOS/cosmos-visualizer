@@ -126,43 +126,58 @@ div.mui-collapse-card
   h3, h4
     margin-top 0
     margin-bottom 0.2em
-
+  .top-row
+    display flex
+    flex-direction: row
+    align-items baseline
+    div.spacer
+      flex-grow 1
 
 div.bp3-card.filter-controls .inner
     margin-bottom -1em
 
 
 div.related-terms .inner
-  display: flex
-  flex-direction row
   align-items first-baseline
-  dl
-    margin 0
-    flex-grow 1
-    display flex
-    flex-flow row wrap
-  h3
-    min-width 8em
-    margin-right 1em
-  dt
-    clear both
-  dt, dd
-    //float left
-    margin-right 0.1em
-    line-height: 1.2em
-    margin-top 0.2em
-    display inline-block
-  dt
-    font-weight bold
-  ::after
-    content: ""
-    display: block
-    clear: both
 
-.filter-controls .inner
-  .top-row
+  div.terms
     display flex
     flex-direction row
+    flex-grow 1
+    div.related-terms-response
+      width 100%
+      display flex
+      flex-direction row
+      align-items: baseline
+      .json-object
+        color: $gray1
+        font-style italic
+      h4
+        margin-right 2em
+
+    ul
+      list-style: none
+      padding-left 0
+      display flex
+      flex-flow row wrap
+      margin-top 0
+      margin-bottom: 0
+      li
+        margin-right 1em
+        margin-top 0.2em
+        span
+          display block
+
+      span.correlation
+        color: $gray1
+        font-size: 0.7em
+        text-align: right
+        font-style italic
+
+  p.no-results
+    font-style italic
+
+.filter-controls .inner
   .type-selector, .search-details .bp3-collapse-body
     display flex
     flex-grow 1
@@ -186,7 +201,7 @@ div.related-terms .inner
   .bp3-form-group
     display flex
     .bp3-label
-      min-width 7em
+      min-width 8em
     .bp3-form-content
       flex-grow 1
     margin-bottom 5px

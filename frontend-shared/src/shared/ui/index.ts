@@ -51,7 +51,7 @@ const CollapseCard = (props: CollapseCardProps)=> {
         ...rest
       }, [
         h("div.inner", children)
-      ])      
+      ])
     ])
   ])
 }
