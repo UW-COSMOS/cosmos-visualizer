@@ -39,20 +39,23 @@ const AppStateProvider = (props: _)=>{
   const [searchString, updateSearchString] = useSearchString()
 
   useEffect(()=>{
-    let {query, backend} = searchString
-    if (query == null) return
-
     // These are basically hacks for weirdness in the query-string library
-    if (Array.isArray(backend)) backend = backend.join(" ")
-    if (Array.isArray(query)) query = query.join(" ")
+    let spec: Spec<AppState> = {filterParams: {}}
 
-    const type = types.find(d => d.id == searchString.type)?.id ?? "Figure" // Hack
-    let spec: Spec<AppState> = {filterParams: {$set: {query, type}}}
-
-    const searchBackend = searchBackendForString(backend)
-    if (searchBackend != null) {
-      // We have a valid search backend
-      spec.searchBackend = {$set: searchBackend}
+    // Crazy way to get the right values from search string
+    // Should probably refactor or use some sort of spec
+    for (const [k,v] of Object.entries(searchString)) {
+      let value = Array.isArray(v) ? v[0] : v
+      if (k == 'backend') {
+        const bk = searchBackendForString(value as String)
+        if (bk != null) spec.searchBackend = {$set: bk}
+      } else {
+        if (k == 'type') {
+          // Default to figure if type isn't found
+          value = types.find(d => d.id == value as String)?.id ?? "Figure"
+        }
+        spec.filterParams[k] = {$set: value}
+      }
     }
 
     dispatch({type: "update-state", spec})

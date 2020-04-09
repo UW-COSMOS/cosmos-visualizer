@@ -11,7 +11,7 @@ enum ThresholdKey {
   Area = "area"
 }
 
-type UpdateState = {type: "update-spec", spec: Spec<AppState>}
+type UpdateState = {type: "update-state", spec: Spec<AppState>}
 type UpdateQuery = {type: "update-query", query: string}
 type UpdateFilter = {type: "update-filter", spec: Spec<FilterParams>}
 type SetSearchBackend = {type: "set-search-backend", backend: SearchBackend}
@@ -55,7 +55,8 @@ const appReducer: AppReducer = (state, action)=>{
       return appReducer(state, {type: 'update-filter', spec})
     }
     case 'set-threshold': {
-      const spec = {[action.key]: {$set: action.value}}
+      const spec: Spec<FilterParams> = action.value != null ?
+        {[action.key]: {$set: action.value}} : {$unset: [action.key]}
       return appReducer(state, {type: 'update-filter', spec})
     }
     case 'toggle-filter-panel': {

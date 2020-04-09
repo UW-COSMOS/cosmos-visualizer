@@ -29,7 +29,7 @@ const DocumentResults = (props: ResProps)=>{
   });
 
   return h('div.documents', data.map((d, i) => {
-    return h(DocumentExtraction, {data: d, index: i})
+    return h(DocumentExtraction, {key: i, data: d, index: i})
   }));
 }
 
