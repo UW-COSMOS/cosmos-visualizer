@@ -42,10 +42,6 @@ const ResultsView = (props)=>{
 
   let route = searchBackend == SearchBackend.Anserini ? '/search' : '/search_es_objects'
 
-  const unwrapResponse = (res)=>{
-    return res.objects ?? res.results ?? []
-  }
-
   return h(InfiniteScrollView, {
     className: 'results',
     route,
@@ -60,11 +56,10 @@ const ResultsView = (props)=>{
       return {...params, page: (params.page ?? 0) + 1}
     },
     getItems(res){
-      return unwrapResponse(res)
+      return res.objects
     },
     hasMore(state, res) {
-      const items = unwrapResponse(res)
-      return items.length > 0
+      return res.objects.length > 0
     },
     // Currently only shows for ongoing pages...
     placeholder: h(LoadingPlaceholder)
