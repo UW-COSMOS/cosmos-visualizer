@@ -11,6 +11,7 @@ enum ThresholdKey {
   Area = "area"
 }
 
+type UpdateState = {type: "update-state", spec: Spec<AppState>}
 type UpdateQuery = {type: "update-query", query: string}
 type UpdateFilter = {type: "update-filter", spec: Spec<FilterParams>}
 type SetSearchBackend = {type: "set-search-backend", backend: SearchBackend}
@@ -21,6 +22,7 @@ type ToggleRelatedPanel = {type: "toggle-related-panel", value: boolean|undefine
 type DocumentScrolled = {type: "document-scrolled", offset: number}
 
 declare type AppAction =
+  | UpdateState
   | UpdateQuery
   | UpdateFilter
   | SetSearchBackend
@@ -35,6 +37,8 @@ type AppDispatch = (action: AppAction)=>void
 
 const appReducer: AppReducer = (state, action)=>{
   switch (action.type) {
+    case 'update-state':
+      return update(state, action.spec)
     case 'update-query':
       const {query} = action
       return update(state, {
@@ -51,7 +55,8 @@ const appReducer: AppReducer = (state, action)=>{
       return appReducer(state, {type: 'update-filter', spec})
     }
     case 'set-threshold': {
-      const spec = {[action.key]: {$set: action.value}}
+      const spec: Spec<FilterParams> = action.value != null ?
+        {[action.key]: {$set: action.value}} : {$unset: [action.key]}
       return appReducer(state, {type: 'update-filter', spec})
     }
     case 'toggle-filter-panel': {
@@ -63,7 +68,6 @@ const appReducer: AppReducer = (state, action)=>{
       return update(state, {relatedPanelOpen: {$set: val}})
     }
     case 'document-scrolled': {
-      console.log(action.offset)
       let spec: Spec<AppState> = {scrollOffset: {$set: action.offset}}
       // Collapse panels on scroll
       const thresholds = {
@@ -88,5 +92,10 @@ const appReducer: AppReducer = (state, action)=>{
 }
 
 export {
-  appReducer, AppReducer, AppAction,
-  AppDispatch, SearchBackend, ThresholdKey}
+  appReducer,
+  AppReducer,
+  AppAction,
+  AppDispatch,
+  SearchBackend,
+  ThresholdKey
+}

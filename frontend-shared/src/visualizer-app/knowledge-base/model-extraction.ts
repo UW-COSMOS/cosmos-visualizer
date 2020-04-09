@@ -1,8 +1,7 @@
 import h from '@macrostrat/hyper';
 import {GeoDeepDiveSwatch, APIContext} from '@macrostrat/ui-components';
-import {Card, ButtonGroup, AnchorButton, FormGroup} from '@blueprintjs/core'
-import {useContext, useRef, useEffect, useState} from 'react';
-import {useAppState, SearchBackend} from './provider'
+import {Card, ButtonGroup, AnchorButton} from '@blueprintjs/core'
+import {useContext} from 'react';
 import useImageSize from '@use-hooks/image-size'
 import {format} from 'd3-format'
 
@@ -25,7 +24,9 @@ const KBImage = (props: ImageProps)=>{
     height: height*scale
   }
 
-  return h('img', {src, ...size, ...rest})
+  return h("div.kb-image", [
+    h('img', {src, ...size, ...rest})
+  ])
 }
 
 KBImage.defaultProps = {scale: 0.6}
@@ -42,6 +43,7 @@ type ExtractionProps = {
 
 const MainExtraction = (props: ExtractionProps)=>{
   const {data} = props
+  if (data == null) return null
   const {bytes, cls} = data
 
   let conf = ""
@@ -62,31 +64,6 @@ const MainExtraction = (props: ExtractionProps)=>{
   ]);
 }
 
-function getMainExtraction(data: APIDocumentResult, backend: SearchBackend): APIExtraction {
-  switch (backend) {
-    case SearchBackend.ElasticSearch:
-      return data.children[0]
-    case SearchBackend.Anserini:
-      return {
-        content: data.header_content,
-        cls: data.header_cls,
-        bytes: data.header_bytes,
-        id: data.header_id,
-        page_number: null
-      }
-  }
-}
-
-function getChildExtractions(data: APIDocumentResult, backend: SearchBackend): APIExtraction[] {
-  switch (backend) {
-    case SearchBackend.ElasticSearch:
-      return []
-    case SearchBackend.Anserini:
-      // TODO: filter duplicate children on the backend
-      return data.children.filter(d => d.id != data.header_id)
-  }
-}
-
 const ChildExtractions = (props)=>{
   return h("div.children", props.data.map((d,i)=>{
     return h(MainExtraction, {data: d, key: i})
@@ -103,6 +80,7 @@ const DownloadButtons = (props: {data: APIExtraction[]})=>{
   //const href = "data:application/octet-stream," + encodeURIComponent(content)
   const href = "data:text/plain," + encodeURIComponent(content)
 
+  // Find the first table
   const table = data.find(d => d.cls == "Table")
 
   return h("div.download-extractions", [
@@ -113,7 +91,7 @@ const DownloadButtons = (props: {data: APIExtraction[]})=>{
       h(AnchorButton, {text:"JSON object", href: base+`?id=${data[0].id}`, target: "_blank", small: true}),
       h.if(table != null)([
         h(AnchorButton, {text:"Table preview", href: base+`/preview?id=${table?.id}`, target: "_blank", small: true}),
-        h(AnchorButton, {text:"Pandas dataframe", href: base+`/get_dataframe?id=${table?.id}`, small: true}),
+        h(AnchorButton, {text:"Pandas dataframe", href: base+`/get_dataframe?id=${table?.id}`, small: true})
       ])
     ])
   ])
@@ -121,19 +99,19 @@ const DownloadButtons = (props: {data: APIExtraction[]})=>{
 
 
 const DocumentExtraction = (props: DocExtractionProps)=>{
-  const {data, query} = props;
-  const docid = data.pdf_name.replace(".pdf", "");
+  const {data} = props;
 
   const {bibjson} = data
-  const {searchBackend} = useAppState()
-  const main = getMainExtraction(data, searchBackend)
-  const children = getChildExtractions(data, searchBackend)
+  const main = data.header?.id != null ? data.header : null
+  // Get all children (enforce non-overlap with header)
+  const children = data.children.filter(d => d.id != data.header?.id)
+  const allExtractions = [main, ...children].filter(d => d != null)
 
   return h(Card, {className: 'model-extraction'}, [
     h(GeoDeepDiveSwatch, bibjson),
     h(MainExtraction, {data: main}),
     h(ChildExtractions, {data: children}),
-    h(DownloadButtons, {data: [main, ...children]})
+    h(DownloadButtons, {data: allExtractions})
   ]);
 }
 

@@ -38,7 +38,11 @@ const ConfidenceSlider = (props: ConfidenceSliderProps)=>{
 
   const max = _max ?? 1
 
-  const confProps = {min: 0, max, initialValue: max, stepSize: 0.02, labelStepSize: 0.2, labelPrecision: 1}
+  const confProps = {
+    min: 0, max, initialValue: max,
+    stepSize: 0.02, labelStepSize: 0.2,
+    labelPrecision: 2
+  }
   const onRelease = (value: number)=> dispatch({type: 'set-threshold', key: id, value})
 
   const value = filterParams[id]
@@ -48,7 +52,7 @@ const ConfidenceSlider = (props: ConfidenceSliderProps)=>{
   )
 }
 
-const SliderPanel = (props)=>{
+const ConfidenceControls = (props)=>{
   return h("div.slider-panel", [
     h(ConfidenceSlider, {
       id: "base_confidence",
@@ -146,7 +150,7 @@ const FilterPanel = (props)=> {
     h(Collapse, {className: "search-details", isOpen: detailsExpanded}, [
       h("div.threshold-controls", [
         h("h4", "Thresholds"),
-        h(SliderPanel),
+        h(ConfidenceControls),
       ]),
       h(SearchBackendSelector)
     ])
