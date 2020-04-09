@@ -11,6 +11,7 @@ enum ThresholdKey {
   Area = "area"
 }
 
+type UpdateState = {type: "update-spec", spec: Spec<AppState>}
 type UpdateQuery = {type: "update-query", query: string}
 type UpdateFilter = {type: "update-filter", spec: Spec<FilterParams>}
 type SetSearchBackend = {type: "set-search-backend", backend: SearchBackend}
@@ -21,6 +22,7 @@ type ToggleRelatedPanel = {type: "toggle-related-panel", value: boolean|undefine
 type DocumentScrolled = {type: "document-scrolled", offset: number}
 
 declare type AppAction =
+  | UpdateState
   | UpdateQuery
   | UpdateFilter
   | SetSearchBackend
@@ -35,6 +37,8 @@ type AppDispatch = (action: AppAction)=>void
 
 const appReducer: AppReducer = (state, action)=>{
   switch (action.type) {
+    case 'update-state':
+      return update(state, action.spec)
     case 'update-query':
       const {query} = action
       return update(state, {
