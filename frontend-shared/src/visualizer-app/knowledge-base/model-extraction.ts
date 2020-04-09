@@ -24,7 +24,9 @@ const KBImage = (props: ImageProps)=>{
     height: height*scale
   }
 
-  return h('img', {src, ...size, ...rest})
+  return h("div.kb-image", [
+    h('img', {src, ...size, ...rest})
+  ])
 }
 
 KBImage.defaultProps = {scale: 0.6}
