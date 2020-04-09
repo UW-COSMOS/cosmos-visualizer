@@ -68,7 +68,6 @@ const appReducer: AppReducer = (state, action)=>{
       return update(state, {relatedPanelOpen: {$set: val}})
     }
     case 'document-scrolled': {
-      console.log(action.offset)
       let spec: Spec<AppState> = {scrollOffset: {$set: action.offset}}
       // Collapse panels on scroll
       const thresholds = {
