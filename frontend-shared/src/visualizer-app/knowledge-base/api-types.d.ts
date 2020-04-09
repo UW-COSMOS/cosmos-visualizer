@@ -6,14 +6,13 @@ declare interface APIExtraction {
   bytes: string,
   cls: string,
   base_confidence?: number,
+  postprocessing_confidence?: number
 }
 
 declare interface APIDocumentResult {
+  bibjson: object,
   children: APIExtraction[],
-  header_content: string|null,
-  header_cls: string,
-  header_bytes: string|null,
-  header_id: string|number|null,
+  header: APIExtraction,
   pdf_name: string,
   context_id?: number
 }

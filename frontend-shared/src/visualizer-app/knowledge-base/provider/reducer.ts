@@ -92,5 +92,10 @@ const appReducer: AppReducer = (state, action)=>{
 }
 
 export {
-  appReducer, AppReducer, AppAction,
-  AppDispatch, SearchBackend, ThresholdKey}
+  appReducer,
+  AppReducer,
+  AppAction,
+  AppDispatch,
+  SearchBackend,
+  ThresholdKey
+}
