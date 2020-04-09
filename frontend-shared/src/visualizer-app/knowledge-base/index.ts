@@ -1,5 +1,5 @@
 import h from '@macrostrat/hyper';
-import {InfiniteScrollView, APIResultProps} from "@macrostrat/ui-components";
+import {InfiniteScrollView, APIResultProps, useAPIView} from "@macrostrat/ui-components";
 import {Spinner} from '@blueprintjs/core';
 import {DocumentExtraction} from './model-extraction';
 import {SearchInterface} from './search-interface'
@@ -8,13 +8,34 @@ import {Placeholder} from './placeholder'
 import './main.styl';
 import {Footer} from '../landing-page'
 
-const LoadingPlaceholder = ()=>{
+const LoadingPlaceholder = (props: {perPage: number})=>{
+  const {perPage} = props
+  const ctx = useAPIView()
+  const page = ctx.params?.page ?? 1
+  console.log(ctx)
+
+
+  let computedPageCount = null
+  if (perPage != null && ctx.totalCount != null) {
+    computedPageCount = Math.ceil(ctx.totalCount/perPage)
+  }
+  const pageCount = ctx.pageCount ?? computedPageCount
+
+  let title = "Loading extractions"
+  if (page > 1) {
+    title = `Loading page ${page}`
+  }
+  if (pageCount != null) title += ` of ${pageCount}`
+
+
   return h(Placeholder, {
       icon: h(Spinner),
-      title: "Loading extractions",
+      title,
       description: ""
   })
 }
+
+LoadingPlaceholder.defaultProps = {perPage: 10}
 
 type ResProps = APIResultProps<APIDocumentResult[]>
 
@@ -28,9 +49,12 @@ const DocumentResults = (props: ResProps)=>{
       description: "No matching extractions found"
   });
 
-  return h('div.documents', data.map((d, i) => {
-    return h(DocumentExtraction, {key: i, data: d, index: i})
-  }));
+  return h([
+    h('div.documents', data.map((d, i) => {
+      return h(DocumentExtraction, {key: i, data: d, index: i})
+    })),
+    h.if(isLoading)(LoadingPlaceholder)
+  ]);
 }
 
 const ResultsView = (props)=>{
@@ -60,9 +84,7 @@ const ResultsView = (props)=>{
     },
     hasMore(state, res) {
       return res.objects.length > 0
-    },
-    // Currently only shows for ongoing pages...
-    placeholder: h(LoadingPlaceholder)
+    }
   }, h(DocumentResults))
 }
 

@@ -31,6 +31,8 @@ const WordRelatedTerms = (props: {word: string})=>{
     word: word.replace(" ", "_"),
     model: 'trigram'
   }
+  if (params.word == "") return null 
+
   const res = useAPIResult(route, params) ?? []
   const {buildURL} = useAPIHelpers()
   const url = buildURL(route, {...params, n: 50})
