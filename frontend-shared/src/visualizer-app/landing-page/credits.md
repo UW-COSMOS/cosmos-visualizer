@@ -9,7 +9,8 @@ application provides an interface to
 training data, model components, and results for the
 [**COSMOS** knowledge-base construction pipeline](https://github.com/UW-COSMOS/cosmos),
 which is backed by the UW-Madison xDD
-([**GeoDeepDive**](https://geodeepdive.org/)) digital library and HTC infrastructure.
+([**GeoDeepDive**](https://geodeepdive.org/)) digital library and high-throughput
+computing infrastructure.
 Our software is released under an Apache License, Version 2.0.
 
 <!--The [backend](https://github.com/UW-COSMOS/cosmos-result-visualizer) (
