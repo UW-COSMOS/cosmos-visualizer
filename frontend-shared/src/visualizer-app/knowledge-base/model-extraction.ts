@@ -1,11 +1,13 @@
 import h from '@macrostrat/hyper';
-import {GeoDeepDiveSwatch, APIContext} from '@macrostrat/ui-components';
+import {GeoDeepDiveSwatch, APIContext, useAPIView} from '@macrostrat/ui-components';
 import {Card, ButtonGroup, AnchorButton} from '@blueprintjs/core'
 import {useContext} from 'react';
 import useImageSize from '@use-hooks/image-size'
+import {useInView} from 'react-intersection-observer'
 import {format} from 'd3-format'
 
 const fmt = format(".2f")
+const fmt1 = format(",.0f")
 
 type ImageProps = {
   bytes: string,
@@ -33,6 +35,7 @@ KBImage.defaultProps = {scale: 0.6}
 
 type DocExtractionProps = {
   data: APIDocumentResult,
+  index?: number,
   query?: string
 }
 
@@ -97,9 +100,23 @@ const DownloadButtons = (props: {data: APIExtraction[]})=>{
   ])
 }
 
+const ResultIndex = (props: {index: number|null})=>{
+  const {index} = props
+  const {totalCount} = useAPIView()
+  if (index == null) return null
+  let txt = fmt1(index+1)
+  if (totalCount != null) {
+    txt += ` of ${fmt1(totalCount)}`
+  }
+  return h("p.result-index", txt)
+}
+
 
 const DocumentExtraction = (props: DocExtractionProps)=>{
-  const {data} = props;
+  const {data, index} = props;
+
+  const [ref, inView, entry] = useInView()
+  //const {height} = entry?.boundingClientRect ?? {}
 
   const {bibjson} = data
   const main = data.header?.id != null ? data.header : null
@@ -107,11 +124,16 @@ const DocumentExtraction = (props: DocExtractionProps)=>{
   const children = data.children.filter(d => d.id != data.header?.id)
   const allExtractions = [main, ...children].filter(d => d != null)
 
+  let style = inView ? null : {visibility: 'hidden'}
+
   return h(Card, {className: 'model-extraction'}, [
-    h(GeoDeepDiveSwatch, bibjson),
-    h(MainExtraction, {data: main}),
-    h(ChildExtractions, {data: children}),
-    h(DownloadButtons, {data: allExtractions})
+    h(ResultIndex, {index}),
+    h('div.extraction-inner', {ref, style}, h([
+      h(GeoDeepDiveSwatch, bibjson),
+      h(MainExtraction, {data: main}),
+      h(ChildExtractions, {data: children}),
+      h(DownloadButtons, {data: allExtractions})
+    ]))
   ]);
 }
 

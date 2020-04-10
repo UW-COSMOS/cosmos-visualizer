@@ -2,6 +2,7 @@ import h from '@macrostrat/hyper';
 import {
   InfiniteScrollView,
   APIResultProps,
+  DarkModeButton,
   useAPIView,
   useAPIResult
 } from "@macrostrat/ui-components";
@@ -11,7 +12,39 @@ import {SearchInterface} from './search-interface'
 import {AppStateProvider, useAppState, SearchBackend} from './provider'
 import {Placeholder} from './placeholder'
 import {Footer} from '../landing-page'
+import {format} from 'd3-format'
 import './main.styl';
+
+const fmt = format(',.0f')
+
+const PlaceholderDescription = ()=>{
+  const res = useAPIResult("/statistics")
+  const description = "Enter a query to search."
+  if (res == null) {
+    return h("div.description", [
+      h(Spinner, {size: 20}),
+      description
+    ])
+  }
+  return h("div.description", [
+    h("p", [
+      "The ",
+      // TODO: Make sure we add this to the "statistics" API.
+      h("b", "novel coronavirus"),
+      ` knowledge base is derived from ${fmt(res.n_objects)}
+        entities extracted from ${fmt(res.n_pdfs)} documents.`]
+    ),
+    h("p", description)
+  ])
+}
+
+const StartingPlaceholder = (props)=>{
+  return h(Placeholder, {
+    icon: 'inbox',
+    title: "COSMOS visualizer",
+    description: h(PlaceholderDescription)
+  })
+}
 
 const LoadingPlaceholder = (props: {perPage: number})=>{
   const {perPage} = props
@@ -50,6 +83,8 @@ const DocumentResults = (props: ResProps)=>{
       description: "No matching extractions found"
   });
 
+  const offset = 0
+
   return h([
     h('div.documents', data.map((d, i) => {
       return h(DocumentExtraction, {key: i, data: d, index: i})
@@ -72,7 +107,7 @@ const ResultsView = (props)=>{
   const count = res?.total_results
 
   if (queryNotSet) {
-    return h("div.results", null, h(Placeholder))
+    return h("div.results", null, h(StartingPlaceholder))
   }
 
   return h(InfiniteScrollView, {
@@ -100,9 +135,11 @@ const ResultsView = (props)=>{
 
 const KnowledgeBaseFilterView = (props)=>{
   const {types} = props;
-
   return h(AppStateProvider, {types},
     h('div#knowledge-base-filter.main', [
+      h("div.corner-controls", [
+        h(DarkModeButton, {minimal: true})
+      ]),
       h(SearchInterface),
       h(ResultsView),
       h(Footer)
