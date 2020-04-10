@@ -87,11 +87,15 @@ module.exports = (env, argv)=> {
     },
     plugins: [
       new HtmlWebpackPlugin({title: "COSMOS"}),
-      new EnvironmentPlugin([
-        'ENVIRONMENT',
-        'PUBLIC_URL',
-        'API_BASE_URL'
-      ], {ENVIRONMENT: "production"})
+      new EnvironmentPlugin({
+        ENVIRONMENT: "production",
+        PUBLIC_URL: "/",
+        API_BASE_URL: "/api",
+        APPMODE: "prediction",
+        // Deprecated
+        IMAGE_BASE_URL: "/images",
+        DEBUG: "0"
+      })
     ]
   }
 }

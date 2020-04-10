@@ -24,16 +24,16 @@ const LoadingPlaceholder = (props: {perPage: number})=>{
   }
   const pageCount = ctx.pageCount ?? computedPageCount
 
-  let title = "Loading extractions"
+  let desc = null
   if (page >= 1) {
-    title = `Loading page ${page+1}`
+    desc = `Page ${page+1}`
     if (pageCount != null) title += ` of ${pageCount}`
   }
 
   return h(Placeholder, {
       icon: h(Spinner),
-      title,
-      description: ""
+      title: "Loading extractions",
+      description: desc
   })
 }
 

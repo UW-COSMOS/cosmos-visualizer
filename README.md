@@ -30,7 +30,8 @@ The *Validation* and *Visualization* apps can be run using the following steps:
    the values to your setup. A running **COSMOS** pipeline
    exposing a search API must be specified here.
 4. Install NPM modules: `npm install`
-5. Run webpack bundler and dev server: `./run-local <validation|visualizer>`
+5. Run webpack bundler and dev server: `./run-local <validation|visualizer>`  
+   (`npm run dev` is aliased to `./run-local visualizer`).
 6. The frontend will be available on `localhost:8080`.
 
 Make sure to test a production bundle in Docker (`bin/run-frontend --production visualizer`)
