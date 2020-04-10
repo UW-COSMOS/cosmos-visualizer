@@ -13,16 +13,37 @@ import {AppStateProvider, useAppState, SearchBackend} from './provider'
 import {Placeholder} from './placeholder'
 import {Footer} from '../landing-page'
 import {format} from 'd3-format'
+import queryString from 'query-string'
 import './main.styl';
 
 const fmt = format(',.0f')
 
+// TODO: Trial queries should be provided by the API
+const trialQueries = [
+  "incidence rate",
+  "ACE2",
+  "coronavirus lungs",
+  "opacity",
+  "peak infections",
+  "death rate",
+]
+
+const TrialQueries = (props)=>{
+  return h("ul.trial-queries", trialQueries.map((d,i)=>{
+    const qstr = queryString.stringify({query: d})
+    return h("li", {key: i}, h('a', {href: "?"+qstr}, d))
+  }))
+}
+
 const PlaceholderDescription = ()=>{
   const res = useAPIResult("/statistics")
-  const description = "Enter a query to search."
+  const description = h([
+    h("p","Enter a query to search. Or try one of these examples:"),
+    h(TrialQueries)
+  ])
   if (res == null) {
     return h("div.description", [
-      h(Spinner, {size: 20}),
+      h('div.desc-spinner', null, h(Spinner, {size: 20})),
       description
     ])
   }
@@ -31,16 +52,16 @@ const PlaceholderDescription = ()=>{
       "The ",
       // TODO: Make sure we add this to the "statistics" API.
       h("b", "novel coronavirus"),
-      ` knowledge base is derived from ${fmt(res.n_objects)}
-        entities extracted from ${fmt(res.n_pdfs)} documents.`]
+      ` knowledge base consists of ${fmt(res.n_objects)}
+        entities extracted from ${fmt(res.n_pdfs)} scientific publications.`]
     ),
-    h("p", description)
+    description
   ])
 }
 
 const StartingPlaceholder = (props)=>{
   return h(Placeholder, {
-    icon: 'inbox',
+    icon: 'search-template',
     title: "COSMOS visualizer",
     description: h(PlaceholderDescription)
   })
