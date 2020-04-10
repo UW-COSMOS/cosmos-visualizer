@@ -8,8 +8,8 @@ The [**COSMOS Visualizer**](https://github.com/UW-COSMOS/cosmos-visualizer)
 application provides an interface to
 training data, model components, and results for the
 [**COSMOS** knowledge-base construction pipeline](https://github.com/UW-COSMOS/cosmos),
-which is backed by the
-[**GeoDeepDive**](https://geodeepdive.org/) digital library.
+which is backed by the UW-Madison xDD
+([**GeoDeepDive**](https://geodeepdive.org/)) digital library and HTC infrastructure.
 Our software is released under an Apache License, Version 2.0.
 
 <!--The [backend](https://github.com/UW-COSMOS/cosmos-result-visualizer) (
