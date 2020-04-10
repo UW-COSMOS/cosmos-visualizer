@@ -22,7 +22,7 @@ const PlaceholderDescription = ()=>{
   const description = "Enter a query to search."
   if (res == null) {
     return h("div.description", [
-      h("p", null, h(Spinner, {size: 20})),
+      h(Spinner, {size: 20}),
       description
     ])
   }

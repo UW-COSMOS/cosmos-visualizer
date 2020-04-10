@@ -3,6 +3,7 @@ import {GeoDeepDiveSwatch, APIContext, useAPIView} from '@macrostrat/ui-componen
 import {Card, ButtonGroup, AnchorButton} from '@blueprintjs/core'
 import {useContext} from 'react';
 import useImageSize from '@use-hooks/image-size'
+import {useInView} from 'react-intersection-observer'
 import {format} from 'd3-format'
 
 const fmt = format(".2f")
@@ -114,18 +115,25 @@ const ResultIndex = (props: {index: number|null})=>{
 const DocumentExtraction = (props: DocExtractionProps)=>{
   const {data, index} = props;
 
+  const [ref, inView, entry] = useInView()
+  //const {height} = entry?.boundingClientRect ?? {}
+
   const {bibjson} = data
   const main = data.header?.id != null ? data.header : null
   // Get all children (enforce non-overlap with header)
   const children = data.children.filter(d => d.id != data.header?.id)
   const allExtractions = [main, ...children].filter(d => d != null)
 
+  let style = inView ? null : {visibility: 'hidden'}
+
   return h(Card, {className: 'model-extraction'}, [
     h(ResultIndex, {index}),
-    h(GeoDeepDiveSwatch, bibjson),
-    h(MainExtraction, {data: main}),
-    h(ChildExtractions, {data: children}),
-    h(DownloadButtons, {data: allExtractions})
+    h('div.extraction-inner', {ref, style}, h([
+      h(GeoDeepDiveSwatch, bibjson),
+      h(MainExtraction, {data: main}),
+      h(ChildExtractions, {data: children}),
+      h(DownloadButtons, {data: allExtractions})
+    ]))
   ]);
 }
 
