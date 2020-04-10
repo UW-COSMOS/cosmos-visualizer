@@ -1,19 +1,22 @@
 import h from '@macrostrat/hyper';
-import {InfiniteScrollView, APIResultProps, useAPIView} from "@macrostrat/ui-components";
+import {
+  InfiniteScrollView,
+  APIResultProps,
+  useAPIView,
+  useAPIResult
+} from "@macrostrat/ui-components";
 import {Spinner} from '@blueprintjs/core';
 import {DocumentExtraction} from './model-extraction';
 import {SearchInterface} from './search-interface'
 import {AppStateProvider, useAppState, SearchBackend} from './provider'
 import {Placeholder} from './placeholder'
-import './main.styl';
 import {Footer} from '../landing-page'
+import './main.styl';
 
 const LoadingPlaceholder = (props: {perPage: number})=>{
   const {perPage} = props
   const ctx = useAPIView()
-  const page = ctx.params?.page ?? 1
-  console.log(ctx)
-
+  const page = ctx.params?.page ?? 0
 
   let computedPageCount = null
   if (perPage != null && ctx.totalCount != null) {
@@ -22,11 +25,10 @@ const LoadingPlaceholder = (props: {perPage: number})=>{
   const pageCount = ctx.pageCount ?? computedPageCount
 
   let title = "Loading extractions"
-  if (page > 1) {
-    title = `Loading page ${page}`
+  if (page >= 1) {
+    title = `Loading page ${page+1}`
+    if (pageCount != null) title += ` of ${pageCount}`
   }
-  if (pageCount != null) title += ` of ${pageCount}`
-
 
   return h(Placeholder, {
       icon: h(Spinner),
@@ -42,8 +44,7 @@ type ResProps = APIResultProps<APIDocumentResult[]>
 const DocumentResults = (props: ResProps)=>{
   const data = props.data ?? []
   const {isLoading} = props
-  if (data.length == 0 && isLoading) return h(LoadingPlaceholder)
-  if (data.length == 0) return h(Placeholder, {
+  if (data.length == 0 && !isLoading) return h(Placeholder, {
       icon: 'inbox',
       title: "No results",
       description: "No matching extractions found"
@@ -58,13 +59,21 @@ const DocumentResults = (props: ResProps)=>{
 }
 
 const ResultsView = (props)=>{
-
   const {filterParams, searchBackend} = useAppState()
 
   const {query} = filterParams
-  if (query == null || query == '') return h("div.results", null, h(Placeholder))
+  const queryNotSet = query == null || query == ''
 
   let route = searchBackend == SearchBackend.Anserini ? '/search' : '/search_es_objects'
+
+  // Get query count as separate transaction for Anserini backend
+  const countRoute = searchBackend == SearchBackend.Anserini && !queryNotSet ? "/count" : null
+  const res = useAPIResult(countRoute, filterParams)
+  const count = res?.total_results
+
+  if (queryNotSet) {
+    return h("div.results", null, h(Placeholder))
+  }
 
   return h(InfiniteScrollView, {
     className: 'results',
@@ -73,6 +82,7 @@ const ResultsView = (props)=>{
       unwrapResponse(res){ return res; }
     },
     params: filterParams,
+    totalCount: count,
     getCount(res) {
       return res.total_results
     },
@@ -82,7 +92,7 @@ const ResultsView = (props)=>{
     getItems(res){
       return res.objects
     },
-    hasMore(state, res) {
+    hasMore(res) {
       return res.objects.length > 0
     }
   }, h(DocumentResults))

@@ -53,7 +53,7 @@ class APIProviderShim extends Component {
       baseURL,
       onError,
       unwrapResponse(res){
-        return res.data;
+        return res.data ?? res;
       },
       ...rest
     });
