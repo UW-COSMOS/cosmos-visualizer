@@ -107,7 +107,7 @@ const ResultIndex = (props: {index: number|null})=>{
   if (totalCount != null) {
     txt += ` of ${fmt1(totalCount)}`
   }
-  return h("p.index", txt)
+  return h("p.result-index", txt)
 }
 
 
