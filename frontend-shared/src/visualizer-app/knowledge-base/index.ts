@@ -50,6 +50,8 @@ const DocumentResults = (props: ResProps)=>{
       description: "No matching extractions found"
   });
 
+  const offset = 0
+
   return h([
     h('div.documents', data.map((d, i) => {
       return h(DocumentExtraction, {key: i, data: d, index: i})
