@@ -27,7 +27,7 @@ const LoadingPlaceholder = (props: {perPage: number})=>{
   let desc = null
   if (page >= 1) {
     desc = `Page ${page+1}`
-    if (pageCount != null) title += ` of ${pageCount}`
+    if (pageCount != null) desc += ` of ${pageCount}`
   }
 
   return h(Placeholder, {
