@@ -78,6 +78,7 @@
     "webpack-dev-server": "^3.10.3"
   },
   "scripts": {
+    "dev": "./run-local",
     "preinstall": "linklocal && cd bundled-deps/ui-components && npm install",
     "build:tagging": "webpack --config webpack.tagging.js ",
     "build:visualizer": "webpack --config webpack.visualizer.js",

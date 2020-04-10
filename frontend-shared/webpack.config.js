@@ -89,12 +89,9 @@ module.exports = (env, argv)=> {
       new HtmlWebpackPlugin({title: "COSMOS"}),
       new EnvironmentPlugin([
         'ENVIRONMENT',
-        'DEBUG',
         'PUBLIC_URL',
-        'API_BASE_URL',
-        'IMAGE_BASE_URL',
-        'APPMODE'
-      ])
+        'API_BASE_URL'
+      ], {ENVIRONMENT: "production"})
     ]
   }
 }

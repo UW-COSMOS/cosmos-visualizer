@@ -7,7 +7,7 @@ of user-interface components to enable training of the model and interaction
 with its output.
 
 The web components are built using [React](https://reactjs.org)
-and [Coffeescript](https://coffeescript.org), with standard
+and [Typescript](https://typescriptlang.org), with standard
 user-interface primitives provided by [Blueprint.js](https://blueprintjs.com)
 and [the Macrostrat project](https://github.com/UW-Macrostrat/ui-components)
 
