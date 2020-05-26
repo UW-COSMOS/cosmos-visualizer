@@ -91,6 +91,7 @@ module.exports = (env, argv)=> {
         ENVIRONMENT: "production",
         PUBLIC_URL: "/",
         API_BASE_URL: "/api",
+        WORD2VEC_API_BASE_URL: "/word2vec",
         APPMODE: "prediction",
         // Deprecated
         IMAGE_BASE_URL: "/images",
