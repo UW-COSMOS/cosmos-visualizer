@@ -10,6 +10,7 @@ services:
         ENVIRONMENT: production
         PUBLIC_URL: ${PUBLIC_URL:-/}
         API_BASE_URL: ${API_BASE_URL:-/search}
+        OBJECT_API_BASE_URL: ${OBJECT_API_BASE_URL:-/search}
         WORD2VEC_API_BASE_URL: ${WORD2VEC_API_BASE_URL:-/word2vec}
     environment:
       # Public URL is settable from the
@@ -18,6 +19,7 @@ services:
       - MODE=${MODE:-visualizer}
       - PUBLIC_URL=/
       - API_BASE_URL=/search
+      - OBJECT_API_BASE_URL=/search
       - WORD2VEC_API_BASE_URL=/word2vec
     ports:
       - "${APP_PORT:-5080}:80"

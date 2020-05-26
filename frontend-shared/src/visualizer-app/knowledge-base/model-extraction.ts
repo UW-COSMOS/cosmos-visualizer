@@ -75,8 +75,7 @@ const ChildExtractions = (props)=>{
 
 const DownloadButtons = (props: {data: APIExtraction[]})=>{
   const {data} = props
-  const {baseURL} = useContext(APIContext)
-  const base = baseURL.replace(":5010/api/v1", ":8081/search")
+  const base = process.env.OBJECT_API_BASE_URL
 
   const content = data.reduce((v,d)=>v+d.content+"\n\n", "")
 
