@@ -91,6 +91,7 @@ module.exports = (env, argv)=> {
         ENVIRONMENT: "production",
         PUBLIC_URL: "/",
         API_BASE_URL: "/api",
+        API_ERROR_MESSAGE: null,
         APPMODE: "prediction",
         // Deprecated
         IMAGE_BASE_URL: "/images",

@@ -4,6 +4,9 @@ import {appReducer, AppDispatch, SearchBackend} from './reducer'
 import {useSearchString} from "./query-string"
 import {Spec} from 'immutability-helper'
 
+let errorMessage = process.env.API_ERROR_MESSAGE
+if (errorMessage == "") errorMessage = null
+
 const initialState: AppState = {
   filterParams: {
     query: "",
@@ -13,6 +16,8 @@ const initialState: AppState = {
     //area: 50000,
     type: "Figure"
   },
+  allowSearch: errorMessage == null,
+  errorMessage,
   searchBackend: SearchBackend.Anserini,
   filterPanelOpen: true,
   relatedPanelOpen: true,

@@ -8,10 +8,17 @@ type FilterParams = {
   type?: string
 }
 
-interface AppState {
+interface AppMainState {
   filterParams: FilterParams,
   filterPanelOpen: boolean,
   relatedPanelOpen: boolean,
   scrollOffset: number,
   searchBackend: import("./reducer").SearchBackend
 }
+
+interface AppErrorState {
+  errorMessage: string,
+  allowSearch: boolean
+}
+
+type AppState = AppMainState & AppErrorState
