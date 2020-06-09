@@ -14,6 +14,8 @@ COPY . /user
 # Environment variables are needed at buildtime
 ARG PUBLIC_URL="/"
 ARG API_BASE_URL="${PUBLIC_URL}search"
+ARG OBJECT_API_BASE_URL="${PUBLIC_URL}search"
+ARG WORD2VEC_API_BASE_URL="${WORD2VEC_API_BASE_URL}word2vec"
 ARG IMAGE_BASE_URL="${PUBLIC_URL}images/"
 ARG ENVIRONMENT='production'
 ARG DEBUG=0

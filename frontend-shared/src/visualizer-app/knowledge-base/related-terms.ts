@@ -84,7 +84,7 @@ const RelatedTerms = ()=>{
       ),
     ]),
     h(APIProvider, {
-      baseURL: "http://cosmos3.chtc.wisc.edu:5003",
+      baseURL: process.env.WORD2VEC_API_BASE_URL,
       unwrapResponse: (d)=>d.data
     },
       h("div.terms", words.map(w => h(WordRelatedTerms, {word: w})))
