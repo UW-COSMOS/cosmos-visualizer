@@ -161,7 +161,7 @@ interface SearchInterfaceProps {}
 
 const Searchbar = (props: SearchInterfaceProps)=>{
 
-  const {filterParams, filterPanelOpen} = useAppState()
+  const {filterParams, filterPanelOpen, allowSearch} = useAppState()
   const dispatch = useAppDispatch()
 
   const [inputValue, setInputValue] = useState<string>("")
@@ -197,10 +197,13 @@ const Searchbar = (props: SearchInterfaceProps)=>{
   const updateQuery = ()=> updateFilter({query: {$set: inputValue}})
   const onChange = event => setInputValue(event.target.value);
 
+  const searchDisabled = (inputValue == filterParams.query) || !allowSearch
+
   return h('div.search-bar-contents', [
     h(InputGroup, {
       className: 'main-search',
       large: true,
+      disabled: !allowSearch,
       value: inputValue,
       leftIcon: 'search',
       placeholder: "Search extractions",
@@ -212,7 +215,7 @@ const Searchbar = (props: SearchInterfaceProps)=>{
         filterButton,
         h(Button, {
           icon: 'arrow-right',
-          disabled: inputValue == filterParams.query,
+          disabled: searchDisabled,
           intent: Intent.SUCCESS,
           onClick(){
             updateQuery()

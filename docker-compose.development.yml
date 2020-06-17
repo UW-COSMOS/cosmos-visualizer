@@ -15,6 +15,7 @@ services:
       - APPMODE=PREDICTION
       - PUBLIC_URL=/
       - API_BASE_URL=http://cosmos3.chtc.wisc.edu:8081/search
+      - API_ERROR_MESSAGE
     volumes:
       - ./frontend-shared/src:/user/src
       - ./frontend-shared/bundled-deps/ui-components/src:/user/bundled-deps/ui-components/src

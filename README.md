@@ -22,6 +22,11 @@ The *Validation* and *Visualization* apps can be run using the following steps:
     Note: as of April 1, 2020, development mode with code reloading is broken in
     Docker. Use local development strategy.
 
+## Environment variables
+
+An `API_ERROR_MESSAGE` environment variable can be provided to forward an error
+to the user. This disables all search functionality if set.
+
 ### Local development
 
 1. Pull submodules: `git submodule update --init`

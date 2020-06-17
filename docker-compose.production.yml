@@ -10,6 +10,7 @@ services:
         ENVIRONMENT: production
         PUBLIC_URL: ${PUBLIC_URL:-/}
         API_BASE_URL: ${API_BASE_URL:-/search}
+        API_ERROR_MESSAGE: $API_ERROR_MESSAGE
         OBJECT_API_BASE_URL: ${OBJECT_API_BASE_URL:-/search}
         WORD2VEC_API_BASE_URL: ${WORD2VEC_API_BASE_URL:-/word2vec}
     environment:
@@ -19,6 +20,7 @@ services:
       - MODE=${MODE:-visualizer}
       - PUBLIC_URL=/
       - API_BASE_URL=/search
+      - API_ERROR_MESSAGE
       - OBJECT_API_BASE_URL=/search
       - WORD2VEC_API_BASE_URL=/word2vec
     ports:

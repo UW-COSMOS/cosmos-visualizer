@@ -6,7 +6,7 @@ import {
   useAPIView,
   useAPIResult
 } from "@macrostrat/ui-components";
-import {Spinner} from '@blueprintjs/core';
+import {Spinner, Intent} from '@blueprintjs/core';
 import {DocumentExtraction} from './model-extraction';
 import {SearchInterface} from './search-interface'
 import {AppStateProvider, useAppState, SearchBackend} from './provider'
@@ -59,7 +59,23 @@ const PlaceholderDescription = ()=>{
   ])
 }
 
+const APINotAvailable = ()=>{
+  const {errorMessage} = useAppState()
+  return h(Placeholder, {
+    icon: 'error',
+    intent: Intent.DANGER,
+    title: "COSMOS API Error",
+    description: errorMessage
+  })
+}
+
 const StartingPlaceholder = (props)=>{
+  const {errorMessage} = useAppState()
+  if (errorMessage != null) {
+    // Return an error placeholder overriding the entire application state
+    return h(APINotAvailable)
+  }
+
   return h(Placeholder, {
     icon: 'search-template',
     title: "COSMOS visualizer",
@@ -82,6 +98,12 @@ const LoadingPlaceholder = (props: {perPage: number})=>{
   if (page >= 1) {
     desc = `Page ${page+1}`
     if (pageCount != null) desc += ` of ${pageCount}`
+  }
+
+  const {errorMessage} = useAppState()
+  if (errorMessage != null) {
+    // Return an error placeholder overriding the entire application state
+    return h(APINotAvailable)
   }
 
   return h(Placeholder, {
