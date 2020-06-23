@@ -134,7 +134,7 @@ const SearchBackendDetails = ()=>{
           onClick() {
             dispatch({type: 'set-es-search-logic', value: ESSearchLogic.Any})
           },
-          selected: searchLogic == ESSearchLogic.Any ? Intent.PRIMARY : null
+          intent: searchLogic == ESSearchLogic.Any ? Intent.PRIMARY : null
         }, "Any")
       ]),
     )
