@@ -85,7 +85,7 @@ const useAppState = ()=>useContext(AppStateContext)
 const useAppDispatch = ()=>useContext(AppDispatchContext)
 const useTypes = ()=>useContext(FeatureClassContext)
 
-export {ThresholdKey, SearchBackend} from './reducer'
+export {ThresholdKey, SearchBackend, ESSearchLogic} from './reducer'
 export {
   AppStateProvider,
   useAppState,

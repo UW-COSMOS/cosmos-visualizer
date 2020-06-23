@@ -11,6 +11,11 @@ enum ThresholdKey {
   Area = "area"
 }
 
+enum ESSearchLogic {
+  Any = "any",
+  All = "all"
+}
+
 type UpdateState = {type: "update-state", spec: Spec<AppState>}
 type UpdateQuery = {type: "update-query", query: string}
 type UpdateFilter = {type: "update-filter", spec: Spec<FilterParams>}
@@ -20,12 +25,14 @@ type SetThreshold = {type: "set-threshold", key: ThresholdKey, value: number}
 type ToggleFilterPanel = {type: "toggle-filter-panel", value: boolean|undefined}
 type ToggleRelatedPanel = {type: "toggle-related-panel", value: boolean|undefined}
 type DocumentScrolled = {type: "document-scrolled", offset: number}
+type SetESSearchLogic = {type: "set-es-search-logic", value: ESSearchLogic}
 
 declare type AppAction =
   | UpdateState
   | UpdateQuery
   | UpdateFilter
   | SetSearchBackend
+  | SetESSearchLogic
   | SetFilterClass
   | SetThreshold
   | ToggleFilterPanel
@@ -34,6 +41,7 @@ declare type AppAction =
 
 type AppReducer = (a: AppState, action: AppAction)=> AppState
 type AppDispatch = (action: AppAction)=>void
+
 
 const appReducer: AppReducer = (state, action)=>{
   switch (action.type) {
@@ -48,7 +56,13 @@ const appReducer: AppReducer = (state, action)=>{
     case 'update-filter':
       return update(state, {filterParams: action.spec})
     case 'set-search-backend':
-      return update(state, {searchBackend: {$set: action.backend}})
+      return update(state, {
+        searchBackend: {$set: action.backend}
+      })
+    case 'set-es-search-logic':
+      const search_logic = action.value
+      const spec = {search_logic: {$set: search_logic}}
+      return appReducer(state, {type: 'update-filter', spec})
     case 'set-filter-type': {
       const ft = action.featureType?.id
       const spec = ft == null ? {$unset: ['type']} : {type: {$set: ft}}
@@ -97,5 +111,6 @@ export {
   AppAction,
   AppDispatch,
   SearchBackend,
-  ThresholdKey
+  ThresholdKey,
+  ESSearchLogic
 }

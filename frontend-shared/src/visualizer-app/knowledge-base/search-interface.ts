@@ -21,7 +21,9 @@ import {
   useAppDispatch,
   useTypes,
   SearchBackend,
-  ThresholdKey} from './provider'
+  ThresholdKey,
+  ESSearchLogic
+} from './provider'
 import {RelatedTerms, RelatedTermsButton} from './related-terms'
 import {Spec} from 'immutability-helper'
 
@@ -97,6 +99,48 @@ const TypeSelector = (props)=> {
   ])
 }
 
+const useSearchLogic = (): ESSearchLogic|null =>{
+  const {filterParams, searchBackend} = useAppState()
+  if (searchBackend == SearchBackend.Anserini) return null
+  console.log(filterParams)
+  return filterParams?.search_logic == 'any' ? ESSearchLogic.Any : ESSearchLogic.All
+}
+
+
+const SearchBackendDetails = ()=>{
+  const {searchBackend} = useAppState()
+  const dispatch = useAppDispatch()
+
+  if (searchBackend != SearchBackend.ElasticSearch) {
+    return null
+  }
+
+  const searchLogic = useSearchLogic()
+  console.log(searchLogic)
+
+  return h("div.es-backend-details", [
+    h("p", "Search phrases are separated with commas."),
+    h(FormGroup, {label: "Match terms", inline: true},
+      h(ButtonGroup, [
+        h(Button, {
+          small: true,
+          onClick() {
+            dispatch({type: 'set-es-search-logic', value: ESSearchLogic.All})
+          },
+          intent: searchLogic == ESSearchLogic.All ? Intent.PRIMARY : null
+        }, "All"),
+        h(Button, {
+          small: true,
+          onClick() {
+            dispatch({type: 'set-es-search-logic', value: ESSearchLogic.Any})
+          },
+          selected: searchLogic == ESSearchLogic.Any ? Intent.PRIMARY : null
+        }, "Any")
+      ]),
+    )
+  ])
+}
+
 const SearchBackendSelector = ()=>{
   const {searchBackend} = useAppState()
   const dispatch = useAppDispatch()
@@ -111,12 +155,15 @@ const SearchBackendSelector = ()=>{
     small: true
   })
 
-  return h(FormGroup, {label: h("h4", "Backend")},
-    h(ButtonGroup, [
-      h(Button, propsFor(SearchBackend.Anserini)),
-      h(Button, propsFor(SearchBackend.ElasticSearch))
-    ])
-  )
+  return h("div.search-backend-selector", [
+    h(FormGroup, {label: h("h4", "Backend")},
+      h(ButtonGroup, [
+        h(Button, propsFor(SearchBackend.Anserini)),
+        h(Button, propsFor(SearchBackend.ElasticSearch))
+      ]),
+    ),
+    h(SearchBackendDetails)
+  ])
 }
 
 const FilterPanel = (props)=> {
