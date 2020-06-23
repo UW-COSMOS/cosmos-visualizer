@@ -68,10 +68,10 @@ const AppStateProvider = (props: _)=>{
 
 
   const {filterParams, searchBackend} = value
-  const {query, type} = filterParams
+  const {query, type, search_logic} = filterParams
 
   useEffect(()=>{
-    updateSearchString({query, type, backend: searchBackend})
+    updateSearchString({query, type, search_logic, backend: searchBackend})
   }, [filterParams, searchBackend])
 
   return h(AppStateContext.Provider, {value},
@@ -85,7 +85,7 @@ const useAppState = ()=>useContext(AppStateContext)
 const useAppDispatch = ()=>useContext(AppDispatchContext)
 const useTypes = ()=>useContext(FeatureClassContext)
 
-export {ThresholdKey, SearchBackend} from './reducer'
+export {ThresholdKey, SearchBackend, ESSearchLogic} from './reducer'
 export {
   AppStateProvider,
   useAppState,

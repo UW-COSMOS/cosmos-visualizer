@@ -14,7 +14,7 @@ services:
       # The two possible app modes are ANNOTATION and PREDICTION
       - APPMODE=PREDICTION
       - PUBLIC_URL=/
-      - API_BASE_URL=http://cosmos3.chtc.wisc.edu:8081/search
+      - API_BASE_URL
       - API_ERROR_MESSAGE
     volumes:
       - ./frontend-shared/src:/user/src
