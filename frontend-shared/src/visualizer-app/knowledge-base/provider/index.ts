@@ -68,10 +68,10 @@ const AppStateProvider = (props: _)=>{
 
 
   const {filterParams, searchBackend} = value
-  const {query, type} = filterParams
+  const {query, type, search_logic} = filterParams
 
   useEffect(()=>{
-    updateSearchString({query, type, backend: searchBackend})
+    updateSearchString({query, type, search_logic, backend: searchBackend})
   }, [filterParams, searchBackend])
 
   return h(AppStateContext.Provider, {value},

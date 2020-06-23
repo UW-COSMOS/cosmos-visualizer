@@ -57,7 +57,8 @@ const appReducer: AppReducer = (state, action)=>{
       return update(state, {filterParams: action.spec})
     case 'set-search-backend':
       return update(state, {
-        searchBackend: {$set: action.backend}
+        searchBackend: {$set: action.backend},
+        filterParams: {$unset: ['search_logic']}
       })
     case 'set-es-search-logic':
       const search_logic = action.value
