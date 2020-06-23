@@ -215,7 +215,7 @@ const Searchbar = (props: SearchInterfaceProps)=>{
 
   useEffect(()=>{
     setInputValue(filterParams.query)
-  }, [filterParams.query])
+  }, [filterParams])
 
   const updateFilter = (spec: Spec<FilterParams>)=>{
     dispatch({type: 'update-filter', spec})
