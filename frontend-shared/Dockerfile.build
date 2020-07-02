@@ -13,8 +13,8 @@ COPY . /user
 
 # Environment variables are needed at buildtime
 ARG PUBLIC_URL="/"
-ARG API_BASE_URL="${PUBLIC_URL}search"
-ARG OBJECT_API_BASE_URL="${PUBLIC_URL}search"
+ARG API_BASE_URL="${PUBLIC_URL}api/v1/"
+ARG OBJECT_API_BASE_URL="${PUBLIC_URL}api/v1/"
 ARG WORD2VEC_API_BASE_URL="${WORD2VEC_API_BASE_URL}word2vec"
 ARG IMAGE_BASE_URL="${PUBLIC_URL}images/"
 ARG ENVIRONMENT='production'
@@ -30,4 +30,5 @@ RUN ./node_modules/.bin/webpack src/visualizer-app/index.ts
 
 FROM nginx
 COPY --from=0 /user/dist /frontend
-COPY ./nginx.frontend-only.conf /etc/nginx/nginx.conf
+#COPY ./nginx.frontend-only.conf /etc/nginx/nginx.conf
+COPY ./nginx.conf /etc/nginx/nginx.conf
