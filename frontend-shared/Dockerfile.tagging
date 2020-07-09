@@ -1,8 +1,10 @@
 FROM node:11-alpine
 WORKDIR /user
 
+RUN npm install --unsafe-perm -g linklocal concurrently
+COPY ./bundled-deps/ui-components /user/bundled-deps/ui-components
 COPY ./package.json /user
-RUN npm install
+RUN npm install --unsafe-perm
 
 COPY . /user
 
