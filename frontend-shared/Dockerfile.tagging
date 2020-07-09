@@ -6,12 +6,11 @@ COPY ./bundled-deps/ui-components /user/bundled-deps/ui-components
 COPY ./package.json /user
 RUN npm install --unsafe-perm
 
-COPY . /user
-
 ENV PUBLIC_URL="/"
 ENV API_BASE_URL="${PUBLIC_URL}search"
 ENV IMAGE_BASE_URL="${PUBLIC_URL}images/"
 ENV APPMODE="ANNOTATION"
 
-# We could change this to bail with just "webpack" for non-development mode
-CMD npm run-script watch:tagging
+RUN npm install --unsafe-perm -g linklocal concurrently
+COPY . /user
+CMD ./run-docker ${MODE:-tagging}

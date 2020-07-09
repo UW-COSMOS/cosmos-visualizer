@@ -26,6 +26,7 @@ const AppHolder = (props)=>{
 }
 
 const createUI = function(opts){
+  console.log("Creating UI")
   // Image base url is properly set here
   const el = document.createElement('div');
   document.body.appendChild(el);

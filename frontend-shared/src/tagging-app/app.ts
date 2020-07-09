@@ -18,6 +18,8 @@ class TaggingApplication extends Component {
     this.setupPeople = this.setupPeople.bind(this);
     this.setPerson = this.setPerson.bind(this);
     this.componentDidMount = this.componentDidMount.bind(this);
+    this.renderLoginForm = this.renderLoginForm.bind(this);
+    this.render = this.render.bind(this);
 
     this.state = {
       people: null,
@@ -108,7 +110,7 @@ class TaggingApplication extends Component {
     });
   }
 
-  renderLoginForm = ()=> {
+  renderLoginForm() {
     const {person, people} = this.state;
     if (people == null) { return null; }
     return h(LoginForm, {
@@ -117,8 +119,9 @@ class TaggingApplication extends Component {
     });
   }
 
-  render = () => {
+  render() {
     const {publicURL} = this.props;
+    if (this.context == null) return null
     return h(AppRouter, {
       basename: publicURL,
       appMode: AppMode.ANNOTATION
