@@ -7,7 +7,7 @@ import classNames from 'classnames';
 import {Rectangle, StaticRectangle} from './drag-rect';
 import {EditMode} from '~/enum';
 import {EditorContext} from '~/image-overlay/context';
-import {AnnotationControls} from './controls'
+import {AnnotationControls, ToolButton} from './controls'
 import {
   useTags,
   useAnnotationColor,
