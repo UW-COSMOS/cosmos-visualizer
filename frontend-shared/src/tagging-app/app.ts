@@ -3,6 +3,7 @@ import h from 'react-hyperscript';
 
 import {BrowserRouter as Router, Route, Redirect, Switch} from 'react-router-dom';
 
+import {APIActions} from '@macrostrat/ui-components'
 import {APIContext} from '../api';
 import {AppMode, UserRole} from '../enum';
 import {LoginForm} from './login-form';
@@ -154,8 +155,8 @@ class TaggingApplication extends Component {
   }
 
   componentDidMount = ()=> {
-    this.context.get("/people/all")
-    .then(this.setupPeople);
+    const {get} = APIActions(this.context);
+    get("/people/all").then(this.setupPeople);
 
     const p = localStorage.getItem('person');
     if (p == null) { return; }

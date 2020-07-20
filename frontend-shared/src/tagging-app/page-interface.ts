@@ -6,7 +6,7 @@ import {join} from 'path'
 import {ImageOverlay} from '~/image-overlay';
 import {ScaledImagePanel} from '~/page-interface/scaled-image'
 
-import {StatefulComponent} from '@macrostrat/ui-components';
+import {StatefulComponent, APIActions} from '@macrostrat/ui-components';
 import {Component, createContext} from 'react';
 import {AppToaster} from '../toaster';
 import {APIContext, ErrorMessage} from '~/api';
@@ -193,9 +193,12 @@ class TaggingPage extends StatefulComponent {
 
     var hacky_stack_id = "tag_more";
 
+    // Should switch to newer hooks-based API
+    const {get} = APIActions(this.context)
+
     if (imageToDisplay == null) { return; }
     console.log(`Getting image from endpoint ${imageToDisplay}`);
-    const d = await this.context.get(imageToDisplay, {stack_id: hacky_stack_id}, {
+    const d = await get(imageToDisplay, {stack_id: hacky_stack_id}, {
       unwrapResponse(res){
         console.log(`res: ${res}`)
         console.log(`res.results: ${res.results}`)

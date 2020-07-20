@@ -12,7 +12,7 @@ import 'd3-jetpack';
 import {Navbar, Button,
         Intent, Alignment} from "@blueprintjs/core";
 
-import {StatefulComponent, LinkButton} from '@macrostrat/ui-components';
+import {StatefulComponent, LinkButton, APIActions} from '@macrostrat/ui-components';
 import {PageHeader} from '../util';
 import {PermalinkButton} from '~/shared/router';
 import {AppToaster} from '../toaster';
@@ -172,10 +172,11 @@ class ResultsPage extends StatefulComponent {
     if (initialImage && (currentImage == null)) {
       imageToDisplay = `${imageRoute}/${initialImage}`;
     }
+    const {get} = APIActions(this.context);
     // We are loading an image and
     if (imageToDisplay == null) { return; }
     console.log(`Getting image from endpoint ${imageToDisplay}`);
-    return this.context.get(imageToDisplay)
+    return get(imageToDisplay)
       .then(this.onImageLoaded);
   }
 
@@ -216,9 +217,11 @@ class ResultsPage extends StatefulComponent {
     if (currentImage == null) { return; }
     const {image_id} = this.state.currentImage;
 
+    const {get} = APIActions(this.context)
+
     let image_tags = [];
     for (let route of Array.from(this.props.apiRoutes)) {
-      const t = await this.context.get(`${imageRoute}/${image_id}/${route}`);
+      const t = await get(`${imageRoute}/${image_id}/${route}`);
       if (t == null) { continue; }
       image_tags = image_tags.concat(t);
     }

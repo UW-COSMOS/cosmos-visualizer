@@ -1,6 +1,6 @@
 import h from '@macrostrat/hyper';
 import {Intent} from "@blueprintjs/core";
-import {StatefulComponent} from '@macrostrat/ui-components';
+import {StatefulComponent, APIActions} from '@macrostrat/ui-components';
 import {AppToaster} from '../toaster';
 import {APIContext} from '../api';
 import {PageFrame, ScaledImagePanel} from '~/page-interface'
@@ -151,7 +151,10 @@ class ViewerPageBase extends StatefulComponent<IViewerProps, ViewerState> {
     if (imageToDisplay == null) { return; }
 
     console.log(`Getting image from endpoint ${imageToDisplay}`);
-    const d = await this.context.get(imageToDisplay, {
+
+    const {get} = APIActions(this.context);
+
+    const d = await get(imageToDisplay, {
       unwrapResponse(res){ return res.results }
     });
     return this.onImageLoaded(d);
