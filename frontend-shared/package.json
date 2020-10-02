@@ -20,6 +20,7 @@
     "@types/react-router": "^5.1.4",
     "@use-hooks/image-size": "^1.0.5",
     "async": "^2.6.2",
+    "axios": "^0.20.0",
     "babel-plugin-emotion": "^10.0.7",
     "chroma-js": "^1.4.1",
     "classnames": "^2.2.6",
@@ -80,6 +81,7 @@
   },
   "scripts": {
     "dev": "./run-local visualizer",
+    "dev:validation": "./run-local validation",
     "preinstall": "linklocal && cd bundled-deps/ui-components && npm install",
     "build:tagging": "webpack --config webpack.tagging.js ",
     "build:visualizer": "webpack --config webpack.visualizer.js",
