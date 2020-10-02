@@ -1,0 +1,4 @@
+#!/bin/sh
+# Format code with prettier
+
+prettier frontend-shared/src/**/*.ts --write

@@ -1,2 +1,2 @@
-export * from './frame'
-export * from './scaled-image'
+export * from "./frame";
+export * from "./scaled-image";

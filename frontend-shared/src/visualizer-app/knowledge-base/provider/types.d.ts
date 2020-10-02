@@ -1,24 +1,24 @@
-type FeatureType = {id: string, name: string}
+type FeatureType = { id: string; name: string };
 
 type FilterParams = {
-  query: string,
-  base_confidence?: number,
-  postprocessing_confidence?: number,
-  area?: number,
-  type?: string
-}
+  query: string;
+  base_confidence?: number;
+  postprocessing_confidence?: number;
+  area?: number;
+  type?: string;
+};
 
 interface AppMainState {
-  filterParams: FilterParams,
-  filterPanelOpen: boolean,
-  relatedPanelOpen: boolean,
-  scrollOffset: number,
-  searchBackend: import("./reducer").SearchBackend
+  filterParams: FilterParams;
+  filterPanelOpen: boolean;
+  relatedPanelOpen: boolean;
+  scrollOffset: number;
+  searchBackend: import("./reducer").SearchBackend;
 }
 
 interface AppErrorState {
-  errorMessage: string,
-  allowSearch: boolean
+  errorMessage: string;
+  allowSearch: boolean;
 }
 
-type AppState = AppMainState & AppErrorState
+type AppState = AppMainState & AppErrorState;

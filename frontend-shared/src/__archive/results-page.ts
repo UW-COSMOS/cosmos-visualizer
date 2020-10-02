@@ -7,25 +7,30 @@
  * DS207: Consider shorter variations of null checks
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
  */
-import h from 'react-hyperscript';
-import 'd3-jetpack';
-import {Navbar, Button,
-        Intent, Alignment} from "@blueprintjs/core";
+import h from "react-hyperscript";
+import "d3-jetpack";
+import { Navbar, Button, Intent, Alignment } from "@blueprintjs/core";
 
-import {StatefulComponent, LinkButton, APIActions} from '@macrostrat/ui-components';
-import {PageHeader} from '../util';
-import {PermalinkButton} from '~/shared/router';
-import {AppToaster} from '../toaster';
-import {APIContext} from '../api';
-import {InfoDialog} from '../info-dialog';
-import {ImageContainer} from '../image-container';
+import {
+  StatefulComponent,
+  LinkButton,
+  APIActions,
+} from "@macrostrat/ui-components";
+import { PageHeader } from "../util";
+import { PermalinkButton } from "~/shared/router";
+import { AppToaster } from "../toaster";
+import { APIContext } from "../api";
+import { InfoDialog } from "../info-dialog";
+import { ImageContainer } from "../image-container";
 
-const ExtractionsButton = ({image})=> {
-  if (image == null) { return null; }
+const ExtractionsButton = ({ image }) => {
+  if (image == null) {
+    return null;
+  }
   return h(LinkButton, {
     to: `/view-extractions/${image.image_id}`,
-    disabled: (image == null),
-    text: "View tag extractions"
+    disabled: image == null,
+    text: "View tag extractions",
   });
 };
 
@@ -38,12 +43,12 @@ class ResultsPage extends StatefulComponent {
       allowSaveWithoutChanges: false,
       editingEnabled: true,
       navigationEnabled: true,
-      imageRoute: '/image',
-      apiRoutes: ["phrases","equations","variables"]
+      imageRoute: "/image",
+      apiRoutes: ["phrases", "equations", "variables"],
     };
     this.contextType = APIContext;
   }
-  constructor(props){
+  constructor(props) {
     super(props);
     this.selectAnnotation = this.selectAnnotation.bind(this);
     this.renderImageContainer = this.renderImageContainer.bind(this);
@@ -62,19 +67,29 @@ class ResultsPage extends StatefulComponent {
       tagStore: [],
       rectStore: [],
       initialRectStore: [],
-      imageBaseURL: null
+      imageBaseURL: null,
     };
   }
 
-  selectAnnotation(i){ return () => {
-    return this.updateState({editingRect: {$set: i}});
-  }; }
+  selectAnnotation(i) {
+    return () => {
+      return this.updateState({ editingRect: { $set: i } });
+    };
+  }
 
   renderImageContainer() {
-    const {currentImage, rectStore, tagStore, currentTag, lockedTags} = this.state;
+    const {
+      currentImage,
+      rectStore,
+      tagStore,
+      currentTag,
+      lockedTags,
+    } = this.state;
 
-    const actions = (() => { let selectAnnotation;
-    return ({selectAnnotation} = this); })();
+    const actions = (() => {
+      let selectAnnotation;
+      return ({ selectAnnotation } = this);
+    })();
 
     return h(ImageContainer, {
       image: currentImage,
@@ -83,17 +98,20 @@ class ResultsPage extends StatefulComponent {
       editingEnabled: false,
       lockedTags,
       currentTag,
-      actions
+      actions,
     });
   }
 
   renderNextImageButton() {
-    const {navigationEnabled} = this.props;
-    if (!navigationEnabled) { return null; }
+    const { navigationEnabled } = this.props;
+    if (!navigationEnabled) {
+      return null;
+    }
     return h(Button, {
-      intent: Intent.PRIMARY, text: "Next image",
-      rightIcon: 'chevron-right',
-      onClick: this.getImageToDisplay
+      intent: Intent.PRIMARY,
+      text: "Next image",
+      rightIcon: "chevron-right",
+      onClick: this.getImageToDisplay,
     });
   }
 
@@ -101,87 +119,115 @@ class ResultsPage extends StatefulComponent {
     // Blueprint doesn't allow us to show keyboard shortcuts programmatically
     // without simulating the keycode. Wait for resolution of
     // https://github.com/palantir/blueprint/issues/1590
-    this.setState({infoDialogIsOpen: false});
-    return document.dispatchEvent(new KeyboardEvent('keydown', {
-      which: 47, keyCode: 47, shiftKey: true, bubbles: true }));
+    this.setState({ infoDialogIsOpen: false });
+    return document.dispatchEvent(
+      new KeyboardEvent("keydown", {
+        which: 47,
+        keyCode: 47,
+        shiftKey: true,
+        bubbles: true,
+      })
+    );
   }
 
-  displayInfoBox(isOpen){ return () => {
-    if (isOpen == null) { isOpen = true; }
-    return this.setState({infoDialogIsOpen: isOpen});
-  }; }
+  displayInfoBox(isOpen) {
+    return () => {
+      if (isOpen == null) {
+        isOpen = true;
+      }
+      return this.setState({ infoDialogIsOpen: isOpen });
+    };
+  }
 
   renderInfoDialog() {
-    const {infoDialogIsOpen: isOpen} = this.state;
-    const {editingEnabled} = this.props;
-    const {displayKeyboardShortcuts} = this;
-    return h(InfoDialog, {isOpen, onClose: this.displayInfoBox(false), editingEnabled, displayKeyboardShortcuts});
+    const { infoDialogIsOpen: isOpen } = this.state;
+    const { editingEnabled } = this.props;
+    const { displayKeyboardShortcuts } = this;
+    return h(InfoDialog, {
+      isOpen,
+      onClose: this.displayInfoBox(false),
+      editingEnabled,
+      displayKeyboardShortcuts,
+    });
   }
 
   render() {
-    const {subtitleText, permalinkRoute} = this.props;
-    const {currentImage: image} = this.state;
-    return h('div.main', [
-      h(Navbar, {fixedToTop: true}, [
-        h(PageHeader, {subtitle: subtitleText}, [
-          h(Button, {
-            icon: 'info-sign',
-            onClick: this.displayInfoBox()
-          }, "Usage")
+    const { subtitleText, permalinkRoute } = this.props;
+    const { currentImage: image } = this.state;
+    return h("div.main", [
+      h(Navbar, { fixedToTop: true }, [
+        h(PageHeader, { subtitle: subtitleText }, [
+          h(
+            Button,
+            {
+              icon: "info-sign",
+              onClick: this.displayInfoBox(),
+            },
+            "Usage"
+          ),
         ]),
-        h(Navbar.Group, {align: Alignment.RIGHT}, [
-          h(ExtractionsButton, {image}),
-          h(PermalinkButton, {permalinkRoute, image}),
-          this.renderNextImageButton()
-        ])
+        h(Navbar.Group, { align: Alignment.RIGHT }, [
+          h(ExtractionsButton, { image }),
+          h(PermalinkButton, { permalinkRoute, image }),
+          this.renderNextImageButton(),
+        ]),
       ]),
       this.renderImageContainer(),
-      this.renderInfoDialog()
+      this.renderInfoDialog(),
     ]);
   }
 
-  setupTags(data){
-
-    const tags = [{
+  setupTags(data) {
+    const tags = [
+      {
         tag_id: "phrase",
         name: "Phrase",
-        color: "#fca"
-      }, {
+        color: "#fca",
+      },
+      {
         tag_id: "sentence",
         name: "Sentence",
-        color: "#acf"
-      }, {
+        color: "#acf",
+      },
+      {
         tag_id: "equation",
         name: "Equation",
-        color: "#f22"
-      }, {
+        color: "#f22",
+      },
+      {
         tag_id: "variable",
         name: "Variable",
-        color: "#41f"
-      }];
+        color: "#41f",
+      },
+    ];
 
     return this.setState({
       tagStore: tags,
-      currentTag: tags[0].tag_id
+      currentTag: tags[0].tag_id,
     });
   }
 
   getImageToDisplay() {
-    let {nextImageEndpoint: imageToDisplay, imageRoute, initialImage} = this.props;
-    const {currentImage} = this.state;
-    if (initialImage && (currentImage == null)) {
+    let {
+      nextImageEndpoint: imageToDisplay,
+      imageRoute,
+      initialImage,
+    } = this.props;
+    const { currentImage } = this.state;
+    if (initialImage && currentImage == null) {
       imageToDisplay = `${imageRoute}/${initialImage}`;
     }
-    const {get} = APIActions(this.context);
+    const { get } = APIActions(this.context);
     // We are loading an image and
-    if (imageToDisplay == null) { return; }
+    if (imageToDisplay == null) {
+      return;
+    }
     console.log(`Getting image from endpoint ${imageToDisplay}`);
-    return get(imageToDisplay)
-      .then(this.onImageLoaded);
+    return get(imageToDisplay).then(this.onImageLoaded);
   }
 
-  onImageLoaded(d){
-    if (Array.isArray(d) && (d.length === 1)) {
+  onImageLoaded(d) {
+    if (Array.isArray(d) && d.length === 1) {
       // API returns a single-item array
       d = d[0];
     }
@@ -190,16 +236,12 @@ class ResultsPage extends StatefulComponent {
     this.setState({
       currentImage: d,
       rectStore,
-      initialRectStore: rectStore
+      initialRectStore: rectStore,
     });
     return AppToaster.show({
-      message: h('div', [
-        "Loaded image ",
-        h("code", d.image_id),
-        "."
-      ]),
+      message: h("div", ["Loaded image ", h("code", d.image_id), "."]),
       intent: Intent.PRIMARY,
-      timeout: 1000
+      timeout: 1000,
     });
   }
 
@@ -208,33 +250,44 @@ class ResultsPage extends StatefulComponent {
     return this.getImageToDisplay();
   }
 
-  async didUpdateImage(prevProps, prevState){
-    const {currentImage} = this.state;
+  async didUpdateImage(prevProps, prevState) {
+    const { currentImage } = this.state;
     // This supports flipping between images and predicted images
-    let {imageRoute} = this.props;
-    if (imageRoute == null) { imageRoute = '/image'; }
-    if (prevState.currentImage === currentImage) { return; }
-    if (currentImage == null) { return; }
-    const {image_id} = this.state.currentImage;
+    let { imageRoute } = this.props;
+    if (imageRoute == null) {
+      imageRoute = "/image";
+    }
+    if (prevState.currentImage === currentImage) {
+      return;
+    }
+    if (currentImage == null) {
+      return;
+    }
+    const { image_id } = this.state.currentImage;
 
-    const {get} = APIActions(this.context)
+    const { get } = APIActions(this.context);
 
     let image_tags = [];
     for (let route of Array.from(this.props.apiRoutes)) {
       const t = await get(`${imageRoute}/${image_id}/${route}`);
-      if (t == null) { continue; }
+      if (t == null) {
+        continue;
+      }
       image_tags = image_tags.concat(t);
     }
 
     console.log(image_tags);
 
-    return this.setState({rectStore: image_tags, initialRectStore: image_tags});
+    return this.setState({
+      rectStore: image_tags,
+      initialRectStore: image_tags,
+    });
   }
 
   componentDidUpdate() {
-    return this.didUpdateImage.apply(this,arguments);
+    return this.didUpdateImage.apply(this, arguments);
   }
 }
 ResultsPage.initClass();
 
-export {ResultsPage};
+export { ResultsPage };
