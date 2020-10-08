@@ -10,7 +10,7 @@
     "@emotion/core": "^10.0.7",
     "@emotion/styled": "^10.0.7",
     "@macrostrat/hyper": "^1.2.4",
-    "@macrostrat/ui-components": "file:./bundled-deps/ui-components",
+    "@macrostrat/ui-components": "^0.4.1",
     "@turf/bbox-polygon": "^6.0.1",
     "@turf/centroid": "^6.0.2",
     "@turf/combine": "^6.0.1",
@@ -82,7 +82,6 @@
   "scripts": {
     "dev": "./run-local visualizer",
     "dev:validation": "./run-local validation",
-    "preinstall": "linklocal && cd bundled-deps/ui-components && npm install",
     "build:tagging": "webpack --config webpack.tagging.js ",
     "build:visualizer": "webpack --config webpack.visualizer.js",
     "build:validation": "webpack --config webpack.validation.js",

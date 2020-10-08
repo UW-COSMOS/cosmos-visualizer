@@ -11,5 +11,4 @@ env="local-env.sh"
 export PUBLIC_URL=${PUBLIC_URL:-/}
 export MODE=${MODE:-development}
 
-(cd bundled-deps/ui-components && npm run dev) & \
 webpack-dev-server --entry $(pwd)/src/${1:-visualizer}-app/index.ts
