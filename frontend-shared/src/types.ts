@@ -1,4 +1,4 @@
-import T from 'prop-types';
+import T from "prop-types";
 
 // Shape for image API response
 const ImageShape = T.shape({
@@ -7,7 +7,7 @@ const ImageShape = T.shape({
   file_path: T.string,
   image_id: T.string,
   page_no: T.number,
-  stack_id: T.string.isRequired
+  stack_id: T.string.isRequired,
 });
 
 const PageExtractionShape = T.shape({
@@ -18,7 +18,7 @@ const PageExtractionShape = T.shape({
   pp_detected_objs: T.arrayOf(T.array),
   resize_bytes: T.string.isRequired,
   page_height: T.number.isRequired,
-  page_width: T.number.isRequired
+  page_width: T.number.isRequired,
 });
 
-export {ImageShape, PageExtractionShape};
+export { ImageShape, PageExtractionShape };

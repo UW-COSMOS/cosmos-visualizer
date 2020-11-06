@@ -52,8 +52,7 @@ implemented in any way. Image-Tagger requires a simple API interface:
 
 - `/image [GET]`: returns the URL of the next image to tag, and
   its natural size `{url, width, height}`
-- `/tags [GET]`: array of possible tags as `{id,name?,description?,
-  color?}` objects. If `name` is not provided, it will be guessed
+- `/tags [GET]`: array of possible tags as `{id,name?,description?, color?}` objects. If `name` is not provided, it will be guessed
   from the `id`. If `color` isn't given, an arbitrary color will
   be assigned.
 

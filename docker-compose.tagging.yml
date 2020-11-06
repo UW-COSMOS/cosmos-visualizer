@@ -43,7 +43,7 @@ services:
     environment:
       - DB_HOST=db
       - PG_CONN_STR=postgresql://postgres:@db:5432/annotations
-      - ANNOTATION_STACK_NAME=default_to_tag
+      - ANNOTATION_STACK_NAME=tag_more
       - PREDICTION_STACK_NAME=default
 #      # STACK_TYPE should be annotation or prediction
 #      - STACK_TYPE=annotation

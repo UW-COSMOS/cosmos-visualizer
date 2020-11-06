@@ -2,13 +2,10 @@ FROM node:11-alpine
 
 RUN npm install --unsafe-perm -g linklocal typescript concurrently rollup webpack
 
-WORKDIR /user/bundled-deps/ui-components
-COPY ./bundled-deps/ui-components/package.json .
-RUN npm install --unsafe-perm --ignore-scripts
 
 WORKDIR /user
 COPY ./package.json ./package.json
-RUN linklocal && npm install --unsafe-perm --ignore-scripts
+RUN npm install --unsafe-perm --ignore-scripts
 COPY . /user
 
 # Environment variables are needed at buildtime
@@ -25,7 +22,6 @@ ARG API_ERROR_MESSAGE="${API_ERROR_MESSAGE}"
 ENV ENVIRONMENT="$ENVIRONMENT"
 ENV APP_PORT="${APP_PORT}"
 
-RUN (cd ./bundled-deps/ui-components && npm run build:main)
 RUN ./node_modules/.bin/webpack src/visualizer-app/index.ts
 
 FROM nginx

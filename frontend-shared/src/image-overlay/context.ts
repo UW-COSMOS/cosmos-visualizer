@@ -1,6 +1,5 @@
-import {createContext} from 'react';
+import { createContext } from "react";
 
 const EditorContext = createContext({});
 
-export {EditorContext};
-
+export { EditorContext };

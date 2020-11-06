@@ -1,20 +1,17 @@
-import h from 'react-hyperscript';
-import styled from '@emotion/styled';
-import classNames from 'classnames'
-import {LinkButton} from '@macrostrat/ui-components';
-import {Collapse, Card, ICardProps, ICollapseProps} from '@blueprintjs/core'
+import h from "react-hyperscript";
+import styled from "@emotion/styled";
+import classNames from "classnames";
+import { LinkButton } from "@macrostrat/ui-components";
+import { Collapse, Card, ICardProps, ICollapseProps } from "@blueprintjs/core";
 
-const InfoButton_ = function(props){
-  let {index, to, title, children, ...rest} = props;
+const InfoButton_ = function (props) {
+  let { index, to, title, children, ...rest } = props;
   if (index != null) {
-    index = h('span.index', `${index}. `);
+    index = h("span.index", `${index}. `);
   }
-  return h(LinkButton, {to, large: true, ...rest}, [
-    h('h3', [
-      index,
-      title
-    ]),
-    h('p', children)
+  return h(LinkButton, { to, large: true, ...rest }, [
+    h("h3", [index, title]),
+    h("p", children),
   ]);
 };
 
@@ -38,28 +35,36 @@ p {
 }\
 `;
 
-type CollapseCardProps = ICardProps & Pick<ICollapseProps,'isOpen'|'keepChildrenMounted'|'transitionDuration'>
+type CollapseCardProps = ICardProps &
+  Pick<ICollapseProps, "isOpen" | "keepChildrenMounted" | "transitionDuration">;
 
-
-const CollapseCard = (props: CollapseCardProps)=> {
-  const {isOpen, keepChildrenMounted, transitionDuration, className, children, ...rest} = props
-  return h(Collapse, {isOpen, keepChildrenMounted, transitionDuration}, [
+const CollapseCard = (props: CollapseCardProps) => {
+  const {
+    isOpen,
+    keepChildrenMounted,
+    transitionDuration,
+    className,
+    children,
+    ...rest
+  } = props;
+  return h(Collapse, { isOpen, keepChildrenMounted, transitionDuration }, [
     h("div.collapse-card-outer", [
-      h(Card, {
-        elevation: 1,
-        className: classNames(className, 'mui-collapse-card'),
-        ...rest
-      }, [
-        h("div.inner", children)
-      ])
-    ])
-  ])
-}
+      h(
+        Card,
+        {
+          elevation: 1,
+          className: classNames(className, "mui-collapse-card"),
+          ...rest,
+        },
+        [h("div.inner", children)]
+      ),
+    ]),
+  ]);
+};
 
 CollapseCard.defaultProps = {
   keepChildrenMounted: true,
-  transitionDuration: 500
-}
+  transitionDuration: 500,
+};
 
-
-export {InfoButton, CollapseCard};
+export { InfoButton, CollapseCard };

@@ -3,24 +3,24 @@
 The **COSMOS** visualizer codebase consists of several applications
 that build training datasets and showcase model results for
 the **COSMOS** knowledge-base extraction pipeline.
-Separate apps for *Tagging*, *validation*, and *knowledge-base visualization*
+Separate apps for _Tagging_, _validation_, and _knowledge-base visualization_
 are included.
 
 ## Setup and installation
 
-The *Validation* and *Visualization* apps can be run using the following steps:
+The _Validation_ and _Visualization_ apps can be run using the following steps:
 
 ### Docker development
 
 1. Pull submodules: `git submodule update --init`
 2. Copy the `.env.example` file to `.env` and modify the values to your setup.
    A running **COSMOS** pipeline exposing a search API must be specified here.
-3.  Run the script `bin/run-frontend [--production] <validation|visualizer>`.
-    This will spin up `docker-compose` for either the `validation` or `visualizer`
-    apps, using the correct settings for production if that flag is specified, or
-    enabling continuous rebuilding for frontend development if not.
-    Note: as of April 1, 2020, development mode with code reloading is broken in
-    Docker. Use local development strategy.
+3. Run the script `bin/run-frontend [--production] <validation|visualizer>`.
+   This will spin up `docker-compose` for either the `validation` or `visualizer`
+   apps, using the correct settings for production if that flag is specified, or
+   enabling continuous rebuilding for frontend development if not.
+   Note: as of April 1, 2020, development mode with code reloading is broken in
+   Docker. Use local development strategy.
 
 ## Environment variables
 
@@ -44,7 +44,7 @@ before pushing code. We should probably set up CI for this command specifically.
 
 ## Tagging application
 
-The *Tagging* application is relatively complex due to its
+The _Tagging_ application is relatively complex due to its
 data-storage requirements. The application includes several components:
 
 - A **PostgreSQL** database server that contains training data and model extractions.
@@ -79,7 +79,7 @@ variable for hot-reloading and local development. The development server will th
 The `PIPELINE_OUTPUT` data directory of each model output collection
 should maintain a the following format:
 
-````
+```
 _data/output_from_pipeline
 ├── html
 │   ├── img     <knowledge-base
@@ -97,29 +97,32 @@ _data/output_from_pipeline
 ├── figures.csv
 ├── images      <page-level images>
 └── xml         <xml extractions>
-````
+```
 
 ### API Routes
 
-#### /image/:image_id  
+#### /image/:image_id
+
 **Methods**: `GET`  
 **Description**: Return or create annotations. The `image_id` parameter can be replaced with `next` to get a random image for annotation or `validate` to get a random image for validation.  
 **Parameters**:
-  + `validated` : Boolean : when used with `validate`, returns only images that have or have not already been validated
 
-#### /image/:image_id/tags  
+- `validated` : Boolean : when used with `validate`, returns only images that have or have not already been validated
+
+#### /image/:image_id/tags
+
 **Methods**: `GET`, `POST`  
 **Description**: Return or create annotations.
 
+#### /tags/:tag_id?
 
-#### /tags/:tag_id?  
 **Methods**: `GET`  
 **Description**: Get available tags and their descriptions. All tags can be retrieved by passing `all` as the `tag_id`
 
-
 #### /people/:person_id?
+
 **Methods**: `GET`, `POST`  
-**Description**: Return users.  
+**Description**: Return users.
 
 ## Credits
 
@@ -131,6 +134,7 @@ This work was funded by DARPA ASKE HR00111990013.
 - Project lead: Theodoros Rekatsinas, Shanan Peters, and Miron Livny
 
 ## License and Acknowledgements
+
 All development work supported by DAPRA ASKE HR00111990013 and UW-Madison.
 
 Licensed under the Apache License, Version 2.0 (the "License");

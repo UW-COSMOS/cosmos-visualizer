@@ -1,26 +1,26 @@
-import h from 'react-hyperscript'
-import {createContext, useContext} from 'react'
+import h from "react-hyperscript";
+import { createContext, useContext } from "react";
 
 export interface TagManagerActions {
-  openTagSelector(): void
+  openTagSelector(): void;
 }
 
 interface TagSelectionState {
-  currentTag: number|null,
-  lockedTags: number[],
+  currentTag: number | null;
+  lockedTags: number[];
 }
 
 const TagSelectionContext = createContext<TagSelectionState>({
   currentTag: null,
-  lockedTags: []
-})
+  lockedTags: [],
+});
 
-const TagSelectionProvider = (props)=>{
-  const {children} = props
+const TagSelectionProvider = (props) => {
+  const { children } = props;
   const value = {
-    actions: {}
-  }
-  return h(TagSelectionContext.Provider, {value}, children)
-}
+    actions: {},
+  };
+  return h(TagSelectionContext.Provider, { value }, children);
+};
 
-export {TagSelectionProvider, TagSelectionContext}
+export { TagSelectionProvider, TagSelectionContext };
