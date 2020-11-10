@@ -124,13 +124,11 @@ const useSearchLogic = (): ESSearchLogic | null => {
 const SearchBackendDetails = () => {
   const { searchBackend } = useAppState();
   const dispatch = useAppDispatch();
+  const searchLogic = useSearchLogic();
 
   if (searchBackend != SearchBackend.ElasticSearch) {
     return null;
   }
-
-  const searchLogic = useSearchLogic();
-  console.log(searchLogic);
 
   return h("div.es-backend-details", [
     h("p", "Search phrases are separated with commas."),
