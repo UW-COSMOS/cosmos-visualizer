@@ -16,6 +16,7 @@ const initialState: AppState = {
     //area: 50000,
     type: "Figure",
   },
+  setName: "Novel coronavirus",
   allowSearch: errorMessage == null,
   errorMessage,
   searchBackend: SearchBackend.Anserini,
@@ -35,11 +36,14 @@ function searchBackendForString(string: String): SearchBackend | null {
   return null;
 }
 
-type _ = { children: React.ReactChild; types: FeatureType[] };
+type _ = { children: React.ReactChild; types: FeatureType[]; setName: string };
 const AppStateProvider = (props: _) => {
-  const { types } = props;
+  const { types, setName } = props;
 
-  const [value, dispatch] = useReducer(appReducer, initialState);
+  const [value, dispatch] = useReducer(appReducer, {
+    ...initialState,
+    setName, // TODO: we need to be able to update this after initial render
+  });
 
   const [searchString, updateSearchString] = useSearchString();
 

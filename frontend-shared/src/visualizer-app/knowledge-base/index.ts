@@ -40,6 +40,7 @@ const TrialQueries = (props) => {
 
 const PlaceholderDescription = () => {
   const res = useAPIResult("/statistics");
+  const { setName } = useAppState();
   const description = h([
     h("p", "Enter a query to search. Or try one of these examples:"),
     h(TrialQueries),
@@ -54,7 +55,7 @@ const PlaceholderDescription = () => {
     h("p", [
       "The ",
       // TODO: Make sure we add this to the "statistics" API.
-      h("b", "novel coronavirus"),
+      h("b", setName),
       ` knowledge base consists of ${fmt(res.n_objects)}
         entities extracted from ${fmt(res.n_pdfs)} scientific publications.`,
     ]),
@@ -191,11 +192,16 @@ const ResultsView = (props) => {
   );
 };
 
-const KnowledgeBaseFilterView = (props) => {
-  const { types } = props;
+interface KBProps {
+  types: any[];
+  setName: string;
+}
+
+const KnowledgeBaseFilterView = (props: KBProps) => {
+  const { types, setName = "novel coronavirus" } = props;
   return h(
     AppStateProvider,
-    { types },
+    { types, setName },
     h("div#knowledge-base-filter.main", [
       h("div.corner-controls", [h(DarkModeButton, { minimal: true })]),
       h(SearchInterface),

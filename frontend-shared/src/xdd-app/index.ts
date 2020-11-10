@@ -15,14 +15,21 @@ import { ButtonGroup, Button } from "@blueprintjs/core";
 import "./main.styl";
 
 const Visualizer = (props) => {
-  const { publicURL } = props;
-  return h(AppRouter, { basename: publicURL }, [
-    h(Route, {
-      path: "/",
-      exact: true,
-      component: KnowledgeBaseFilterView,
-    }),
+  return h("div.filter-view", [
+    h(
+      "nav.section-nav",
+      null,
+      h(LinkButton, { to: "/", icon: "home", minimal: true })
+    ),
+    h(KnowledgeBaseFilterView, props),
   ]);
+  // return h(AppRouter, { basename: publicURL }, [
+  //   h(Route, {
+  //     path: "/",
+  //     exact: true,
+  //     component: KnowledgeBaseFilterView,
+  //   }),
+  // ]);
 };
 
 function SetsSelector() {
@@ -45,10 +52,11 @@ function SetsSelector() {
 
 function SetVisualizer() {
   const { set } = useParams();
+  const base = `https://xdd.wisc.edu/sets/${set}`;
   return h(
     APIProvider,
-    { baseURL: `https://xdddev.chtc.io/sets/${set}/cosmos/api/v2_beta` },
-    h(KnowledgeBaseFilterView)
+    { baseURL: `${base}/cosmos/api/v2_beta` },
+    h(Visualizer, { setName: set })
   );
 }
 
@@ -68,7 +76,7 @@ function App() {
 
 const AppHolder = (props) => {
   const { baseURL, imageBaseURL, publicURL, ...rest } = props;
-  return h(APIProvider, { baseURL: "https://xdddev.chtc.io" }, h(App));
+  return h(APIProvider, { baseURL: "https://xdd.wisc.edu" }, h(App));
 };
 
 const createUI = function (opts = {}) {
