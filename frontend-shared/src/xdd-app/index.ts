@@ -23,13 +23,6 @@ const Visualizer = (props) => {
     ),
     h(KnowledgeBaseFilterView, props),
   ]);
-  // return h(AppRouter, { basename: publicURL }, [
-  //   h(Route, {
-  //     path: "/",
-  //     exact: true,
-  //     component: KnowledgeBaseFilterView,
-  //   }),
-  // ]);
 };
 
 function SetsSelector() {
