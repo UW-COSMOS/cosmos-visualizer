@@ -8,7 +8,8 @@ import {
 } from "@macrostrat/ui-components";
 import { Spinner, Intent } from "@blueprintjs/core";
 import { DocumentExtraction } from "./model-extraction";
-import { SearchInterface, FilterPanel } from "./search-interface";
+import { SearchInterface } from "./search-interface";
+import { FilterPanel } from "./filter-panel";
 import { AppStateProvider, useAppState, SearchBackend } from "./provider";
 import { RelatedTerms } from "./related-terms";
 import { Placeholder } from "./placeholder";
