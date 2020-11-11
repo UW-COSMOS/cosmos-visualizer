@@ -49,7 +49,15 @@ function SetVisualizer() {
   return h(
     APIProvider,
     { baseURL: `${base}/cosmos/api/v2_beta` },
-    h(Visualizer, { setName: set, word2VecAPIBaseURL })
+    h(Visualizer, {
+      setName: set,
+      word2VecAPIBaseURL,
+      types: [
+        { id: "Figure", name: "Figure" },
+        { id: "Table", name: "Table" },
+        { id: "Equation", name: "Equation" },
+      ],
+    })
   );
 }
 

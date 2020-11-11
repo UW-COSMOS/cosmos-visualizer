@@ -52,25 +52,32 @@ const ConfidenceSlider = (props: ConfidenceSliderProps) => {
   );
 };
 
+/** The area slider is outmoded */
+const AreaSlider = () =>
+  h(ConfidenceSlider, {
+    id: "area",
+    label: "Area",
+    labelInfo: "(px²)",
+    min: 30000,
+    max: 100000,
+    stepSize: 10000,
+    labelStepSize: 30000,
+    labelRenderer: (v) => `${v / 1000}k`,
+  });
+
 const ConfidenceControls = (props) => {
   return h("div.slider-panel", [
+    // A score out of 10 (?) seems to have replaced the 0-1 base confidence?
     h(ConfidenceSlider, {
       id: "base_confidence",
-      label: "Base confidence",
+      max: 10,
+      labelStepSize: 2,
+      labelPrecision: 0,
+      label: "Score",
     }),
     h(ConfidenceSlider, {
       id: "postprocessing_confidence",
       label: "Post confidence",
-    }),
-    h(ConfidenceSlider, {
-      id: "area",
-      label: "Area",
-      labelInfo: "(px²)",
-      min: 30000,
-      max: 100000,
-      stepSize: 10000,
-      labelStepSize: 30000,
-      labelRenderer: (v) => `${v / 1000}k`,
     }),
   ]);
 };
@@ -164,6 +171,8 @@ const SearchBackendDetails = () => {
 };
 
 const SearchBackendSelector = () => {
+  /** This selector allows moving between ElasticSearh and Anserini search
+  backend. It's currently not necessary, but we could reactivate if needed */
   const { searchBackend } = useAppState();
   const dispatch = useAppDispatch();
 
@@ -190,10 +199,38 @@ const SearchBackendSelector = () => {
   ]);
 };
 
-const FilterPanel = (props) => {
-  const { filterPanelOpen } = useAppState();
+function FilterPanelControls(props) {
+  const { detailsExpanded, expandDetails } = props;
   const dispatch = useAppDispatch();
 
+  return h(
+    "div.right-controls",
+    null,
+    h(ButtonGroup, { minimal: true }, [
+      h(
+        Button,
+        {
+          intent: !detailsExpanded ? Intent.PRIMARY : null,
+          rightIcon: !detailsExpanded ? "caret-down" : "caret-up",
+          onClick() {
+            expandDetails(!detailsExpanded);
+          },
+        },
+        detailsExpanded ? "Hide details" : "Show details"
+      ),
+      h(Button, {
+        icon: "cross",
+        intent: Intent.DANGER,
+        onClick() {
+          dispatch({ type: "toggle-filter-panel", value: false });
+        },
+      }),
+    ])
+  );
+}
+
+const FilterPanel = (props) => {
+  const { filterPanelOpen } = useAppState();
   const [detailsExpanded, expandDetails] = useState(false);
 
   return h(
@@ -203,37 +240,17 @@ const FilterPanel = (props) => {
       h("div.top-row", [
         h(TypeSelector),
         h("div.spacer"),
-        h(
-          "div.right-controls",
-          null,
-          h(ButtonGroup, { minimal: true }, [
-            h(
-              Button,
-              {
-                intent: !detailsExpanded ? Intent.PRIMARY : null,
-                rightIcon: !detailsExpanded ? "caret-down" : "caret-up",
-                onClick() {
-                  expandDetails(!detailsExpanded);
-                },
-              },
-              detailsExpanded ? "Hide details" : "Show details"
-            ),
-            h(Button, {
-              icon: "cross",
-              intent: Intent.DANGER,
-              onClick() {
-                dispatch({ type: "toggle-filter-panel", value: false });
-              },
-            }),
-          ])
-        ),
+        h(FilterPanelControls, { expandDetails, detailsExpanded }),
       ]),
       h(Collapse, { className: "search-details", isOpen: detailsExpanded }, [
         h("div.threshold-controls", [
           h("h4", "Thresholds"),
           h(ConfidenceControls),
         ]),
-        h(SearchBackendSelector),
+        h("div.elasticsearch-controls", [
+          h("h4", "ElasticSearch"),
+          h(SearchBackendDetails),
+        ]),
       ]),
     ]
   );

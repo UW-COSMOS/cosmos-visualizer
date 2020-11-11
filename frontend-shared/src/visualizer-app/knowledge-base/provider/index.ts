@@ -19,7 +19,7 @@ const initialState: AppState = {
   setName: "Novel coronavirus",
   allowSearch: errorMessage == null,
   errorMessage,
-  searchBackend: SearchBackend.Anserini,
+  searchBackend: SearchBackend.ElasticSearch,
   filterPanelOpen: true,
   relatedPanelOpen: true,
   scrollOffset: 0,
@@ -56,8 +56,9 @@ const AppStateProvider = (props: _) => {
     for (const [k, v] of Object.entries(searchString)) {
       let value = Array.isArray(v) ? v[0] : v;
       if (k == "backend") {
-        const bk = searchBackendForString(value as String);
-        if (bk != null) spec.searchBackend = { $set: bk };
+        // Don't set search backend
+        //const bk = searchBackendForString(value as String);
+        //if (bk != null) spec.searchBackend = { $set: bk };
       } else {
         if (k == "type") {
           // Default to figure if type isn't found
@@ -74,7 +75,7 @@ const AppStateProvider = (props: _) => {
   const { query, type, search_logic } = filterParams;
 
   useEffect(() => {
-    updateSearchString({ query, type, search_logic, backend: searchBackend });
+    updateSearchString({ query, type, search_logic });
   }, [filterParams, searchBackend]);
 
   return h(

@@ -152,12 +152,11 @@ const ResultsView = (props) => {
   const { query } = filterParams;
   const queryNotSet = query == null || query == "";
 
-  let route =
-    searchBackend == SearchBackend.Anserini ? "/search" : "/search_es_objects";
-
+  // We used to parameterize these by search backend but now there's no need
+  let route = "/search";
+  const countRoute = "/count";
   // Get query count as separate transaction for Anserini backend
-  const countRoute =
-    searchBackend == SearchBackend.Anserini && !queryNotSet ? "/count" : null;
+
   const res = useAPIResult(countRoute, filterParams);
   const count = res?.total_results;
 
@@ -230,7 +229,7 @@ KnowledgeBaseFilterView.defaultProps = {
     { id: "Figure", name: "Figure" },
     { id: "Table", name: "Table" },
     { id: "Equation", name: "Equation" },
-    { id: "Body Text", name: "Body Text" },
+    //{ id: "Body Text", name: "Body Text" },
   ],
 };
 
