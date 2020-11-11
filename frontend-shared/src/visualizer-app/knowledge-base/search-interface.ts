@@ -22,7 +22,7 @@ import {
   ThresholdKey,
   ESSearchLogic,
 } from "./provider";
-import { RelatedTerms, RelatedTermsButton } from "./related-terms";
+import { RelatedTermsButton } from "./related-terms";
 import { Spec } from "immutability-helper";
 
 interface ConfidenceSliderProps extends ISliderProps {
@@ -323,6 +323,7 @@ const Searchbar = (props: SearchInterfaceProps) => {
 };
 
 const SearchInterface = (props) => {
+  const { children } = props;
   const dispatch = useAppDispatch();
 
   const handleScroll = (event) => {
@@ -338,9 +339,8 @@ const SearchInterface = (props) => {
 
   return h("div.search-interface", [
     h(InlineNavbar, null, [h(Searchbar), h(RelatedTermsButton)]),
-    h(FilterPanel),
-    h(RelatedTerms),
+    children,
   ]);
 };
 
-export { SearchInterface };
+export { SearchInterface, FilterPanel };

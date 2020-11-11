@@ -39,18 +39,25 @@ const TermResults = (props: { words: WordResult[] | null }) => {
   );
 };
 
-const WordRelatedTerms = (props: { word: string }) => {
-  const { word } = props;
-  const route = "/word2vec";
+type WordRelatedTermsProps = { word: string; route?: string; params?: object };
+
+const WordRelatedTerms = (props: WordRelatedTermsProps) => {
+  const { word, route = "", params: baseParams = {} } = props;
   const params = {
     word: word.replace(" ", "_"),
-    model: "trigram",
+    model: "trigram_lowered_cleaned",
+    ...baseParams,
   };
-  if (params.word == "") return null;
 
-  const res = useAPIResult(route, params) ?? [];
+  const res = useAPIResult("", params) ?? [];
   const { buildURL } = useAPIHelpers();
-  const url = buildURL(route, { ...params, n: 50 });
+  const url = buildURL("", {
+    ...params,
+    n: 50,
+    // we've hardcoded this; that may need to change
+  });
+
+  if (params.word == "") return null;
 
   return h("div.related-terms-response", [
     h("h4", word),
@@ -87,9 +94,14 @@ const useRelatedPanelState = (): RelatedPanelState => {
   };
 };
 
-const RelatedTerms = () => {
+type _ = {
+  baseURL?: string;
+};
+
+const RelatedTerms = (props: _) => {
   const { words, isOpen } = useRelatedPanelState();
   const dispatch = useAppDispatch();
+  const { baseURL } = props;
 
   return h(CollapseCard, { isOpen, className: "related-terms" }, [
     h("div.top-row", [
@@ -111,7 +123,7 @@ const RelatedTerms = () => {
     h(
       APIProvider,
       {
-        baseURL: process.env.WORD2VEC_API_BASE_URL,
+        baseURL,
         unwrapResponse: (d) => d.data,
       },
       h(

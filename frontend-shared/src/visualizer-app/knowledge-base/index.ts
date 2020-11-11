@@ -8,8 +8,9 @@ import {
 } from "@macrostrat/ui-components";
 import { Spinner, Intent } from "@blueprintjs/core";
 import { DocumentExtraction } from "./model-extraction";
-import { SearchInterface } from "./search-interface";
+import { SearchInterface, FilterPanel } from "./search-interface";
 import { AppStateProvider, useAppState, SearchBackend } from "./provider";
+import { RelatedTerms } from "./related-terms";
 import { Placeholder } from "./placeholder";
 import { Footer } from "../landing-page";
 import { format } from "d3-format";
@@ -195,16 +196,28 @@ const ResultsView = (props) => {
 interface KBProps {
   types: any[];
   setName: string;
+  word2VecAPIBaseURL?: string;
 }
 
 const KnowledgeBaseFilterView = (props: KBProps) => {
-  const { types, setName = "novel coronavirus" } = props;
+  const {
+    types,
+    setName = "novel coronavirus",
+    // Should get rid of this default or push higher up...
+    word2VecAPIBaseURL,
+  } = props;
   return h(
     AppStateProvider,
     { types, setName },
     h("div#knowledge-base-filter.main", [
       h("div.corner-controls", [h(DarkModeButton, { minimal: true })]),
-      h(SearchInterface),
+      h(SearchInterface, [
+        h(FilterPanel),
+        // Related terms only loads if its API Base URL is defined...
+        h.if(word2VecAPIBaseURL != null)(RelatedTerms, {
+          baseURL: word2VecAPIBaseURL,
+        }),
+      ]),
       h(ResultsView),
       h(Footer),
     ])

@@ -8,7 +8,6 @@ import { render } from "react-dom";
 import h from "react-hyperscript";
 import { Route, useParams } from "react-router-dom";
 import { APIProvider } from "~/api";
-import { getEnvironmentConfig } from "~/shared/_env";
 import { KnowledgeBaseFilterView } from "~/visualizer-app/knowledge-base";
 import { AppRouter } from "~/shared/router";
 import { ButtonGroup, Button } from "@blueprintjs/core";
@@ -46,10 +45,11 @@ function SetsSelector() {
 function SetVisualizer() {
   const { set } = useParams();
   const base = `https://xdd.wisc.edu/sets/${set}`;
+  const word2VecAPIBaseURL = `https://xdd.wisc.edu/sets/${set}/word2vec/api/most_similar`;
   return h(
     APIProvider,
     { baseURL: `${base}/cosmos/api/v2_beta` },
-    h(Visualizer, { setName: set })
+    h(Visualizer, { setName: set, word2VecAPIBaseURL })
   );
 }
 
@@ -67,17 +67,16 @@ function App() {
   ]);
 }
 
-const AppHolder = (props) => {
-  const { baseURL, imageBaseURL, publicURL, ...rest } = props;
+const AppHolder = () => {
   return h(APIProvider, { baseURL: "https://xdd.wisc.edu" }, h(App));
 };
 
 const createUI = function (opts = {}) {
-  const env = getEnvironmentConfig(opts);
+  // This app doesn't have any environment configuration options
   // Image base url is properly set here
   const el = document.createElement("div");
   document.body.appendChild(el);
-  const __ = h(AppHolder, { ...env });
+  const __ = h(AppHolder);
   return render(__, el);
 };
 
