@@ -1,11 +1,6 @@
 import h from "@macrostrat/hyper";
-import {
-  GeoDeepDiveSwatch,
-  APIContext,
-  useAPIView,
-} from "@macrostrat/ui-components";
+import { GeoDeepDiveSwatch, useAPIView } from "@macrostrat/ui-components";
 import { Card, ButtonGroup, AnchorButton } from "@blueprintjs/core";
-import { useContext } from "react";
 import useImageSize from "@use-hooks/image-size";
 import { useInView } from "react-intersection-observer";
 import { format } from "d3-format";
@@ -91,7 +86,7 @@ const DownloadButtons = (props: { data: APIExtraction[] }) => {
     h("h4", "Extracted data"),
     h(ButtonGroup, { className: "downloads" }, [
       h(AnchorButton, {
-        text: "OCR text",
+        text: "Text",
         href,
         download: `${data[0].id}-ocr.txt`,
         target: "_blank",

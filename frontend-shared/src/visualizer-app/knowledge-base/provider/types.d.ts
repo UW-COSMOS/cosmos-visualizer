@@ -9,6 +9,7 @@ type FilterParams = {
 };
 
 interface AppMainState {
+  setName: string;
   filterParams: FilterParams;
   filterPanelOpen: boolean;
   relatedPanelOpen: boolean;

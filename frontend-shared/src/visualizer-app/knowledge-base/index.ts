@@ -9,7 +9,9 @@ import {
 import { Spinner, Intent } from "@blueprintjs/core";
 import { DocumentExtraction } from "./model-extraction";
 import { SearchInterface } from "./search-interface";
+import { FilterPanel } from "./filter-panel";
 import { AppStateProvider, useAppState, SearchBackend } from "./provider";
+import { RelatedTerms } from "./related-terms";
 import { Placeholder } from "./placeholder";
 import { Footer } from "../landing-page";
 import { format } from "d3-format";
@@ -40,6 +42,7 @@ const TrialQueries = (props) => {
 
 const PlaceholderDescription = () => {
   const res = useAPIResult("/statistics");
+  const { setName } = useAppState();
   const description = h([
     h("p", "Enter a query to search. Or try one of these examples:"),
     h(TrialQueries),
@@ -54,7 +57,7 @@ const PlaceholderDescription = () => {
     h("p", [
       "The ",
       // TODO: Make sure we add this to the "statistics" API.
-      h("b", "novel coronavirus"),
+      h("b", setName),
       ` knowledge base consists of ${fmt(res.n_objects)}
         entities extracted from ${fmt(res.n_pdfs)} scientific publications.`,
     ]),
@@ -149,12 +152,11 @@ const ResultsView = (props) => {
   const { query } = filterParams;
   const queryNotSet = query == null || query == "";
 
-  let route =
-    searchBackend == SearchBackend.Anserini ? "/search" : "/search_es_objects";
-
+  // We used to parameterize these by search backend but now there's no need
+  let route = "/search";
+  const countRoute = "/count";
   // Get query count as separate transaction for Anserini backend
-  const countRoute =
-    searchBackend == SearchBackend.Anserini && !queryNotSet ? "/count" : null;
+
   const res = useAPIResult(countRoute, filterParams);
   const count = res?.total_results;
 
@@ -191,14 +193,31 @@ const ResultsView = (props) => {
   );
 };
 
-const KnowledgeBaseFilterView = (props) => {
-  const { types } = props;
+interface KBProps {
+  types: any[];
+  setName: string;
+  word2VecAPIBaseURL?: string;
+}
+
+const KnowledgeBaseFilterView = (props: KBProps) => {
+  const {
+    types,
+    setName = "novel coronavirus",
+    // Should get rid of this default or push higher up...
+    word2VecAPIBaseURL,
+  } = props;
   return h(
     AppStateProvider,
-    { types },
+    { types, setName },
     h("div#knowledge-base-filter.main", [
       h("div.corner-controls", [h(DarkModeButton, { minimal: true })]),
-      h(SearchInterface),
+      h(SearchInterface, [
+        h(FilterPanel),
+        // Related terms only loads if its API Base URL is defined...
+        h.if(word2VecAPIBaseURL != null)(RelatedTerms, {
+          baseURL: word2VecAPIBaseURL,
+        }),
+      ]),
       h(ResultsView),
       h(Footer),
     ])
@@ -210,7 +229,7 @@ KnowledgeBaseFilterView.defaultProps = {
     { id: "Figure", name: "Figure" },
     { id: "Table", name: "Table" },
     { id: "Equation", name: "Equation" },
-    { id: "Body Text", name: "Body Text" },
+    //{ id: "Body Text", name: "Body Text" },
   ],
 };
 

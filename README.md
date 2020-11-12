@@ -35,12 +35,28 @@ to the user. This disables all search functionality if set.
    the values to your setup. A running **COSMOS** pipeline
    exposing a search API must be specified here.
 4. Install NPM modules: `npm install`
-5. Run webpack bundler and dev server: `./run-local <validation|visualizer>`  
+5. Run webpack bundler and dev server: `./run-local <validation|visualizer|xdd>`  
    (`npm run dev` is aliased to `./run-local visualizer`).
 6. The frontend will be available on `localhost:8080`.
 
 Make sure to test a production bundle in Docker (`bin/run-frontend --production visualizer`)
 before pushing code. We should probably set up CI for this command specifically.
+
+# Applications
+
+## xDD application
+
+The xDD application wraps COSMOS visualizers for all of the document
+sets organized within the xDD API. Since all of the endpoint configuration is provided by the API, it has a much simpler configuration than the the standalone visualizer (for now).
+
+This application can be built locally using the above instructions,
+OR it can be built using `frontend-shared/Dockerfile.xdd`. The
+appropriate build/run instructions for a version running at
+`localhost:8080` are available in the `make xdd` command.
+
+The application can be configured using the `PUBLIC_URL` and
+`API_BASE_URL` environment variables, although this has not been
+fully validated.
 
 ## Tagging application
 

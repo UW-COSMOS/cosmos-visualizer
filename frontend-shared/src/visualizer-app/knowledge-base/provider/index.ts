@@ -16,9 +16,10 @@ const initialState: AppState = {
     //area: 50000,
     type: "Figure",
   },
+  setName: "Novel coronavirus",
   allowSearch: errorMessage == null,
   errorMessage,
-  searchBackend: SearchBackend.Anserini,
+  searchBackend: SearchBackend.ElasticSearch,
   filterPanelOpen: true,
   relatedPanelOpen: true,
   scrollOffset: 0,
@@ -35,11 +36,14 @@ function searchBackendForString(string: String): SearchBackend | null {
   return null;
 }
 
-type _ = { children: React.ReactChild; types: FeatureType[] };
+type _ = { children: React.ReactChild; types: FeatureType[]; setName: string };
 const AppStateProvider = (props: _) => {
-  const { types } = props;
+  const { types, setName } = props;
 
-  const [value, dispatch] = useReducer(appReducer, initialState);
+  const [value, dispatch] = useReducer(appReducer, {
+    ...initialState,
+    setName, // TODO: we need to be able to update this after initial render
+  });
 
   const [searchString, updateSearchString] = useSearchString();
 
@@ -52,8 +56,9 @@ const AppStateProvider = (props: _) => {
     for (const [k, v] of Object.entries(searchString)) {
       let value = Array.isArray(v) ? v[0] : v;
       if (k == "backend") {
-        const bk = searchBackendForString(value as String);
-        if (bk != null) spec.searchBackend = { $set: bk };
+        // Don't set search backend
+        //const bk = searchBackendForString(value as String);
+        //if (bk != null) spec.searchBackend = { $set: bk };
       } else {
         if (k == "type") {
           // Default to figure if type isn't found
@@ -70,7 +75,7 @@ const AppStateProvider = (props: _) => {
   const { query, type, search_logic } = filterParams;
 
   useEffect(() => {
-    updateSearchString({ query, type, search_logic, backend: searchBackend });
+    updateSearchString({ query, type, search_logic });
   }, [filterParams, searchBackend]);
 
   return h(
