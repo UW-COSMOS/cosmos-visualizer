@@ -62,7 +62,8 @@ function SetVisualizer() {
 }
 
 function App() {
-  return h(AppRouter, { basename: "/" }, [
+  const basename = process.env.PUBLIC_URL || "/";
+  return h(AppRouter, { basename }, [
     h(Route, {
       path: "/sets/:set",
       component: SetVisualizer,
@@ -76,7 +77,8 @@ function App() {
 }
 
 const AppHolder = () => {
-  return h(APIProvider, { baseURL: "https://xdd.wisc.edu" }, h(App));
+  const baseURL = process.env.API_BASE_URL || "https://xdd.wisc.edu";
+  return h(APIProvider, { baseURL }, h(App));
 };
 
 const createUI = function (opts = {}) {
