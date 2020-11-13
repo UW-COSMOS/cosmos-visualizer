@@ -21,6 +21,7 @@ jobs:
         with:
           path: ./frontend-shared
           dockerfile: ./frontend-shared/Dockerfile.xdd
+          build_args: PUBLIC_URL=/set_visualizer
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
           repository: uwxdd/cosmos_set_visualizer
