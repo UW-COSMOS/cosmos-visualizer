@@ -3,7 +3,7 @@
 The **COSMOS** visualizer codebase consists of several applications
 that build training datasets and showcase model results for
 the **COSMOS** knowledge-base extraction pipeline.
-Separate apps for _Tagging_, _validation_, and _knowledge-base visualization_
+Separate apps for _tagging_, _validation_, and _knowledge-base visualization_
 are included.
 
 ## Setup and installation
