@@ -177,10 +177,10 @@ const ResultsView = (props) => {
       params: filterParams,
       totalCount: count,
       getCount(res) {
-        return res.total_results;
+        return res.total;
       },
       getNextParams(res, params) {
-        return { ...params, page: (params.page ?? 0) + 1 };
+        return { ...params, page: (res.page ?? -1) + 1 };
       },
       getItems(res) {
         return res.objects;
