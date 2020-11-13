@@ -16,4 +16,6 @@ COPY . /user
 RUN webpack src/xdd-app/index.ts
 
 FROM nginx
-COPY --from=base /user/dist /usr/share/nginx/html
+
+COPY ./nginx.frontend-only.conf /etc/nginx/nginx.conf
+COPY --from=base /user/dist /frontend
