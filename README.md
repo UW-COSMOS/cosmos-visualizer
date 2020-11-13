@@ -55,8 +55,14 @@ appropriate build/run instructions for a version running at
 `localhost:8080` are available in the `make xdd` command.
 
 The application can be configured using the `PUBLIC_URL` and
-`API_BASE_URL` environment variables, although this has not been
-fully validated.
+`API_BASE_URL` build-time arguments, as such:
+
+```
+docker build -t xdd_cosmos_visualizer:latest \
+  --build-arg PUBLIC_URL="https://xdddev.chtc.io/set_visualizer" \
+  -f frontend-shared/Dockerfile.xdd \
+  frontend-shared
+```
 
 ## Tagging application
 
