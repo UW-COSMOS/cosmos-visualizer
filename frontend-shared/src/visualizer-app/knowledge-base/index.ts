@@ -15,6 +15,7 @@ import { RelatedTerms } from "./related-terms";
 import { Placeholder } from "./placeholder";
 import { Footer } from "../landing-page";
 import { format } from "d3-format";
+import { useRouteMatch, useParams, Route, Switch } from "react-router-dom";
 import queryString from "query-string";
 import "./main.styl";
 
@@ -92,18 +93,21 @@ const StartingPlaceholder = (props) => {
 const LoadingPlaceholder = (props: { perPage: number }) => {
   const { perPage } = props;
   const ctx = useAPIView();
-  const page = ctx.params?.page ?? 0;
-
-  let computedPageCount = null;
-  if (perPage != null && ctx.totalCount != null) {
-    computedPageCount = Math.ceil(ctx.totalCount / perPage);
-  }
-  const pageCount = ctx.pageCount ?? computedPageCount;
 
   let desc = null;
-  if (page >= 1) {
-    desc = `Page ${page + 1}`;
-    if (pageCount != null) desc += ` of ${pageCount}`;
+  if (ctx != null) {
+    const page = ctx.params?.page ?? 0;
+
+    let computedPageCount = null;
+    if (perPage != null && ctx.totalCount != null) {
+      computedPageCount = Math.ceil(ctx.totalCount / perPage);
+    }
+    const pageCount = ctx.pageCount ?? computedPageCount;
+
+    if (page >= 1) {
+      desc = `Page ${page + 1}`;
+      if (pageCount != null) desc += ` of ${pageCount}`;
+    }
   }
 
   const { errorMessage } = useAppState();
@@ -233,8 +237,27 @@ SearchInterfaceView.defaultProps = {
   ],
 };
 
+function ObjectPage() {
+  const { id } = useParams();
+  const res = useAPIResult(`/object/${id}`);
+  console.log(res);
+
+  if (res?.objects == null) return null;
+  return h("div.object-page", null, h(DocumentResults, { data: res.objects }));
+}
+
 const KnowledgeBaseFilterView = (props: KBProps) => {
-  return h(SearchInterfaceView, props);
+  const { url } = useRouteMatch();
+  return h(Switch, [
+    h(Route, {
+      path: url + "/object/:id",
+      component: ObjectPage,
+    }),
+    h(Route, {
+      path: url + "/",
+      render: () => h(SearchInterfaceView, props),
+    }),
+  ]);
 };
 
 export { KnowledgeBaseFilterView };
