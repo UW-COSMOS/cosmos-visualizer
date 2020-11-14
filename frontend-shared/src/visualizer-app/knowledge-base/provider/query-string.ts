@@ -11,7 +11,10 @@ const useSearchString = (): [ParsedQuery<string | number>, Updater] => {
   });
 
   const updateSearchString = (q) => {
+    // Don't update the search string unless we actually have conducted a search
+    if (q.query == "") return;
     const qstr = queryString.stringify(q);
+    if (qstr == null || qstr == "") return;
     history.push(loc.pathname + "?" + qstr);
   };
 
