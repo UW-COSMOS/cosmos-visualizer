@@ -5,6 +5,7 @@ import {
   DarkModeButton,
   useAPIView,
   useAPIResult,
+  LinkButton,
 } from "@macrostrat/ui-components";
 import { Spinner, Intent } from "@blueprintjs/core";
 import { DocumentExtraction } from "./model-extraction";
@@ -13,7 +14,7 @@ import { FilterPanel } from "./filter-panel";
 import { AppStateProvider, useAppState } from "./provider";
 import { RelatedTerms } from "./related-terms";
 import { Placeholder } from "./placeholder";
-import { InlineNavbar } from "~/util";
+import { Navbar } from "./components";
 
 import { Footer } from "../landing-page";
 import { format } from "d3-format";
@@ -216,7 +217,6 @@ const SearchInterfaceView = (props: KBProps) => {
     AppStateProvider,
     { types, setName },
     h("div#knowledge-base-filter.main", [
-      h("div.corner-controls", [h(DarkModeButton, { minimal: true })]),
       h(SearchInterface, [
         h(FilterPanel),
         // Related terms only loads if its API Base URL is defined...
@@ -239,14 +239,21 @@ SearchInterfaceView.defaultProps = {
   ],
 };
 
-function PermalinkPage() {
+function PermalinkPage({ backURL }) {
   const { id } = useParams();
   const res = useAPIResult(`/object/${id}`);
   console.log(res);
 
   if (res?.objects == null) return null;
   return h("div.permalink-page", [
-    h(InlineNavbar),
+    h(Navbar, [
+      h("div.spacer"),
+      h.if(backURL)(
+        LinkButton,
+        { to: backURL, icon: "chevron-left", minimal: true },
+        "Back"
+      ),
+    ]),
     h(DocumentResults, { data: res.objects }),
   ]);
 }
@@ -256,7 +263,9 @@ const KnowledgeBaseFilterView = (props: KBProps) => {
   return h(Switch, [
     h(Route, {
       path: url + "/object/:id",
-      component: PermalinkPage,
+      render() {
+        return h(PermalinkPage, { backURL: url });
+      },
     }),
     h(Route, {
       path: url + "/",
