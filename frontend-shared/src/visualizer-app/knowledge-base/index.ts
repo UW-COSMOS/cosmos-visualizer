@@ -10,7 +10,7 @@ import { Spinner, Intent } from "@blueprintjs/core";
 import { DocumentExtraction } from "./model-extraction";
 import { SearchInterface } from "./search-interface";
 import { FilterPanel } from "./filter-panel";
-import { AppStateProvider, useAppState, SearchBackend } from "./provider";
+import { AppStateProvider, useAppState } from "./provider";
 import { RelatedTerms } from "./related-terms";
 import { Placeholder } from "./placeholder";
 import { Footer } from "../landing-page";
@@ -199,7 +199,7 @@ interface KBProps {
   word2VecAPIBaseURL?: string;
 }
 
-const KnowledgeBaseFilterView = (props: KBProps) => {
+const SearchInterfaceView = (props: KBProps) => {
   const {
     types,
     setName = "novel coronavirus",
@@ -224,13 +224,17 @@ const KnowledgeBaseFilterView = (props: KBProps) => {
   );
 };
 
-KnowledgeBaseFilterView.defaultProps = {
+SearchInterfaceView.defaultProps = {
   types: [
     { id: "Figure", name: "Figure" },
     { id: "Table", name: "Table" },
     { id: "Equation", name: "Equation" },
     //{ id: "Body Text", name: "Body Text" },
   ],
+};
+
+const KnowledgeBaseFilterView = (props: KBProps) => {
+  return h(SearchInterfaceView, props);
 };
 
 export { KnowledgeBaseFilterView };
