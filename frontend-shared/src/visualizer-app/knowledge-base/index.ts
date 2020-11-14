@@ -13,6 +13,8 @@ import { FilterPanel } from "./filter-panel";
 import { AppStateProvider, useAppState } from "./provider";
 import { RelatedTerms } from "./related-terms";
 import { Placeholder } from "./placeholder";
+import { InlineNavbar } from "~/util";
+
 import { Footer } from "../landing-page";
 import { format } from "d3-format";
 import { useRouteMatch, useParams, Route, Switch } from "react-router-dom";
@@ -237,13 +239,16 @@ SearchInterfaceView.defaultProps = {
   ],
 };
 
-function ObjectPage() {
+function PermalinkPage() {
   const { id } = useParams();
   const res = useAPIResult(`/object/${id}`);
   console.log(res);
 
   if (res?.objects == null) return null;
-  return h("div.object-page", null, h(DocumentResults, { data: res.objects }));
+  return h("div.permalink-page", [
+    h(InlineNavbar),
+    h(DocumentResults, { data: res.objects }),
+  ]);
 }
 
 const KnowledgeBaseFilterView = (props: KBProps) => {
@@ -251,7 +256,7 @@ const KnowledgeBaseFilterView = (props: KBProps) => {
   return h(Switch, [
     h(Route, {
       path: url + "/object/:id",
-      component: ObjectPage,
+      component: PermalinkPage,
     }),
     h(Route, {
       path: url + "/",
