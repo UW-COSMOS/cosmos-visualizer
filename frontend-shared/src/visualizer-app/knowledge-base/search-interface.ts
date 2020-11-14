@@ -115,4 +115,4 @@ const SearchInterface = (props) => {
   ]);
 };
 
-export { SearchInterface, Navbar };
+export { SearchInterface };
