@@ -1,5 +1,9 @@
 import h from "@macrostrat/hyper";
-import { GeoDeepDiveSwatch, useAPIView } from "@macrostrat/ui-components";
+import {
+  GeoDeepDiveSwatch,
+  useAPIView,
+  useAPIHelpers,
+} from "@macrostrat/ui-components";
 import { Card, ButtonGroup, AnchorButton } from "@blueprintjs/core";
 import useImageSize from "@use-hooks/image-size";
 import { useInView } from "react-intersection-observer";
@@ -72,7 +76,11 @@ const ChildExtractions = (props) => {
 
 const DownloadButtons = (props: { data: APIExtraction[] }) => {
   const { data } = props;
-  const base = process.env.OBJECT_API_BASE_URL;
+  // We used to use an env var here
+  // const base = process.env.OBJECT_API_BASE_URL;
+  const { buildURL } = useAPIHelpers();
+  const { id } = data[0];
+  const base = buildURL(`/object/${id}`);
 
   const content = data.reduce((v, d) => v + d.content + "\n\n", "");
 
@@ -88,14 +96,14 @@ const DownloadButtons = (props: { data: APIExtraction[] }) => {
       h(AnchorButton, {
         text: "Text",
         href,
-        download: `${data[0].id}-ocr.txt`,
+        download: `${id}-ocr.txt`,
         target: "_blank",
         small: true,
       }),
       // Right now we get the JSON object of the first child. Likely not ideal.
       h(AnchorButton, {
         text: "JSON object",
-        href: base + `?id=${data[0].id}`,
+        href: base,
         target: "_blank",
         small: true,
       }),

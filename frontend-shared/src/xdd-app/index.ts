@@ -48,7 +48,7 @@ function SetVisualizer() {
   const word2VecAPIBaseURL = `https://xdd.wisc.edu/sets/${set}/word2vec/api/most_similar`;
   return h(
     APIProvider,
-    { baseURL: `${base}/cosmos/api/v2_beta` },
+    { baseURL: `${base}/cosmos/api` },
     h(Visualizer, {
       setName: set,
       word2VecAPIBaseURL,
