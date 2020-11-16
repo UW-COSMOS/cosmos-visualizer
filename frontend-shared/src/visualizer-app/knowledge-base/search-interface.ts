@@ -7,7 +7,7 @@ import {
   Tooltip,
   Intent,
 } from "@blueprintjs/core";
-import { InlineNavbar } from "~/util";
+import { Navbar } from "./components";
 import { useAppState, useAppDispatch, useTypes } from "./provider";
 import { RelatedTermsButton } from "./related-terms";
 import { Spec } from "immutability-helper";
@@ -110,7 +110,7 @@ const SearchInterface = (props) => {
   });
 
   return h("div.search-interface", [
-    h(InlineNavbar, null, [h(Searchbar), h(RelatedTermsButton)]),
+    h(Navbar, null, [h(Searchbar), h(RelatedTermsButton)]),
     children,
   ]);
 };

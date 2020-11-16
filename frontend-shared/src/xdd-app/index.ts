@@ -13,17 +13,6 @@ import { AppRouter } from "~/shared/router";
 import { ButtonGroup, Button } from "@blueprintjs/core";
 import "./main.styl";
 
-const Visualizer = (props) => {
-  return h("div.filter-view", [
-    h(
-      "nav.section-nav",
-      null,
-      h(LinkButton, { to: "/", icon: "home", minimal: true })
-    ),
-    h(KnowledgeBaseFilterView, props),
-  ]);
-};
-
 function SetsSelector() {
   const sets = useAPIResult("/sets");
   if (sets == null) return null;
@@ -49,7 +38,7 @@ function SetVisualizer() {
   return h(
     APIProvider,
     { baseURL: `${base}/cosmos/api` },
-    h(Visualizer, {
+    h(KnowledgeBaseFilterView, {
       setName: set,
       word2VecAPIBaseURL,
       types: [

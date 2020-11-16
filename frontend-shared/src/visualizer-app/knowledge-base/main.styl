@@ -5,15 +5,10 @@ body, html
   .app-main
     padding-top 0
 
-.corner-controls
-  position fixed
-  top 1em
-  right 1em
-
 .desc-spinner
   margin-bottom 1em
 
-#knowledge-base-filter.main
+#knowledge-base-filter.main, div.permalink-page
   padding-top 0
   margin 0 auto
   max-width 60em
@@ -22,6 +17,8 @@ body, html
   min-height 100vh
   display flex
   flex-direction: column
+  div.spacer
+    flex-grow 1
   &>.results
     flex-grow 1
     display flex
@@ -46,6 +43,12 @@ body, html
     .bp3-navbar-group.bp3-align-left
       flex 0
     padding-right 10px
+    .spacer
+      flex-grow 1
+    &>*
+      margin-right 10px
+      &:last-child
+        margin-right 0px
 
   .bp3-navbar-heading
     margin-right 10px
@@ -242,6 +245,9 @@ div.related-terms .inner
     margin-top 0
   &>*
     margin-right 1em
+  div.spacer
+    flex-grow 1
+  margin-right -1em
 
 .placeholder
   display: flex

@@ -3,11 +3,13 @@ import {
   GeoDeepDiveSwatch,
   useAPIView,
   useAPIHelpers,
+  LinkButton,
 } from "@macrostrat/ui-components";
 import { Card, ButtonGroup, AnchorButton } from "@blueprintjs/core";
 import useImageSize from "@use-hooks/image-size";
 import { useInView } from "react-intersection-observer";
 import { format } from "d3-format";
+import { useRouteMatch } from "react-router-dom";
 
 const fmt = format(".2f");
 const fmt1 = format(",.0f");
@@ -74,8 +76,25 @@ const ChildExtractions = (props) => {
   );
 };
 
+function PermalinkButton({ id }) {
+  const { url } = useRouteMatch();
+  const permalinkURL = url + "/object/" + id;
+  const disabled = url.includes(id);
+
+  return h(LinkButton, {
+    icon: "bookmark",
+    text: "Permalink",
+    to: permalinkURL,
+    small: true,
+    minimal: true,
+    disabled,
+    active: disabled,
+  });
+}
+
 const DownloadButtons = (props: { data: APIExtraction[] }) => {
   const { data } = props;
+
   // We used to use an env var here
   // const base = process.env.OBJECT_API_BASE_URL;
   const { buildURL } = useAPIHelpers();
@@ -121,13 +140,16 @@ const DownloadButtons = (props: { data: APIExtraction[] }) => {
         }),
       ]),
     ]),
+    h("div.spacer"),
+    h(PermalinkButton, { id }),
   ]);
 };
 
 const ResultIndex = (props: { index: number | null }) => {
   const { index } = props;
-  const { totalCount } = useAPIView();
-  if (index == null) return null;
+  const ctx = useAPIView();
+  if (index == null || ctx == null) return null;
+  const { totalCount } = ctx;
   let txt = fmt1(index + 1);
   if (totalCount != null) {
     txt += ` of ${fmt1(totalCount)}`;
