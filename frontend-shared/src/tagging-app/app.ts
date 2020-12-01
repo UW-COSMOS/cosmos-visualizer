@@ -14,6 +14,7 @@ import { useParams } from "react-router-dom";
 // /annotation/{stack_id}/page/{image_id}
 
 function allRequiredOptionsAreSet(person, role) {
+  console.log(person);
   if (role == null) {
     return false;
   }
@@ -35,10 +36,12 @@ function allRequiredOptionsAreSet(person, role) {
 }
 
 function TaggingInterface(props) {
-  const { person = "COSMOS" } = props;
+  const { person } = props;
   // Go to specific image by default, if set
   let navigationEnabled, subtitleText;
   const { role: newRole, imageId, stackId } = useParams();
+  if (person == null) return null;
+
   // Allow role to be overridden by programmatically
   // set one (to support permalinks)
   const role = props.role ?? newRole;
