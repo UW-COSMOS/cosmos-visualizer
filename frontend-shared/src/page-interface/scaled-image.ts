@@ -31,6 +31,7 @@ class ScaledImagePanel extends Component<ImagePanelProps, ImagePanelState> {
   static defaultProps = {
     // By default, just assume we pass a URL
     urlForImage: (d) => d,
+    dimensionsForImage: imageSize,
   };
   state = {
     windowWidth: window.innerWidth,
@@ -66,11 +67,13 @@ class ScaledImagePanel extends Component<ImagePanelProps, ImagePanelState> {
     const { image } = this.props;
     if (!image) return null;
     let sz = this.props.dimensionsForImage?.(image);
+
     if (sz?.width != null && sz?.height != null) return Promise.resolve(sz);
 
     // Make sure we have image dimensions set before loading an image
     // into the UI
     const imageURL = this.props.urlForImage(image);
+    console.log(imageURL);
     return imageSize(imageURL);
   }
 
@@ -78,6 +81,7 @@ class ScaledImagePanel extends Component<ImagePanelProps, ImagePanelState> {
     if (prevProps?.image == this.props.image) return;
     console.log("Calling didUpdateImage");
     const sz = await this.getImageDimensions();
+    console.log(sz);
     this.setState({ imageSize: sz });
   }
 

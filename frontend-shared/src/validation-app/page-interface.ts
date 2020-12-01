@@ -189,9 +189,7 @@ class ViewerPageBase extends StatefulComponent<IViewerProps, ViewerState> {
 
 const ViewerPage = ({ match, ...rest }) => {
   // Go to specific image by default, if set
-  const {
-    params: { imageId },
-  } = match;
+  const imageId = match?.params.imageId;
 
   // This is a hack to disable "NEXT" for now
   // on permalinked images

@@ -5,7 +5,6 @@ import T from "prop-types";
 import { join } from "path";
 import { ImageOverlay } from "~/image-overlay";
 import { ScaledImagePanel } from "~/page-interface/scaled-image";
-
 import { StatefulComponent, APIActions } from "@macrostrat/ui-components";
 import { Component, createContext } from "react";
 import { AppToaster } from "../toaster";
@@ -21,15 +20,13 @@ interface DocumentPageProvider {
 
 const ImageStoreContext = createContext({});
 
-class ImageStoreProvider extends Component {
-  render() {
-    const { baseURL, publicURL, children } = this.props;
-    if (baseURL == null) {
-      throw "baseURL for image store must be set in context";
-    }
-    const value = { baseURL, publicURL };
-    return h(ImageStoreContext.Provider, { value }, children);
+function ImageStoreProvider(props) {
+  const { baseURL, publicURL, children } = props;
+  if (baseURL == null) {
+    throw "baseURL for image store must be set in context";
   }
+  const value = { baseURL, publicURL };
+  return h(ImageStoreContext.Provider, { value }, children);
 }
 
 interface ContainerProps {}
@@ -45,7 +42,7 @@ class ImageContainer extends Component<ContainerProps, ContainerState> {
     super(props);
     this.state = { image: null };
   }
-  async componentDidUpdate(nextProps) {
+  componentDidUpdate(nextProps) {
     // Store prevUserId in state so we can compare when props change.
     // Clear out any previously-loaded user data (so we don't render stale stuff).
     let oldId;
@@ -55,8 +52,9 @@ class ImageContainer extends Component<ContainerProps, ContainerState> {
     } catch (error) {
       oldId = null;
     }
-
+    console.log("Updating image");
     if (image == null) return;
+    if (nextProps.image == this.state.image) return;
     if (nextProps.image._id === oldId) return;
     this.setState({ image });
   }
@@ -66,8 +64,8 @@ class ImageContainer extends Component<ContainerProps, ContainerState> {
     //console.log(`image: ${image}`)
     //const {resize_bytes} = image;
     //return "data:image/png;base64," + resize_bytes;
-    const prefix = "https://xdddev.chtc.io/tagger"
-    const imgPath = image.file_path.replace(/^(\/data\/pngs)/,"/images")
+    const prefix = "https://xdddev.chtc.io/tagger";
+    const imgPath = image.file_path.replace(/^(\/data\/pngs)/, "/images");
 
     return join(prefix, imgPath);
   }
@@ -126,23 +124,19 @@ class TaggingPage extends StatefulComponent {
           initialAnnotations: initialRectStore,
           editingEnabled: true,
         },
-        [
-          h(
-            PageFrame,
-            {
-              subtitleText,
-              editingEnabled,
-              currentImage: image,
-              getNextImage: this.getImageToDisplay.bind(this),
-            },
-            [
-              h(ImageContainer, {
-                editingEnabled,
-                image,
-              }),
-            ]
-          ),
-        ]
+        h(
+          PageFrame,
+          {
+            subtitleText,
+            editingEnabled,
+            currentImage: image,
+            getNextImage: this.getImageToDisplay.bind(this),
+          },
+          h(ImageContainer, {
+            editingEnabled,
+            image,
+          })
+        )
       ),
     ]);
   }
@@ -232,7 +226,7 @@ class TaggingPage extends StatefulComponent {
         },
       }
     );
-    return this.onImageLoaded(d);
+    this.onImageLoaded(d);
   };
 
   onImageLoaded(d) {
@@ -240,7 +234,7 @@ class TaggingPage extends StatefulComponent {
       // API returns a single-item array
       d = d[0];
     }
-    console.log(d);
+    if (this.state.currentImage == d) return;
 
     const rectStore = [];
     this.setState({
@@ -249,7 +243,7 @@ class TaggingPage extends StatefulComponent {
       initialRectStore: rectStore,
     });
 
-    return AppToaster.show({
+    AppToaster.show({
       message: h("div", ["Loaded image ", h("code", d._id), "."]),
       intent: Intent.PRIMARY,
       timeout: 1000,

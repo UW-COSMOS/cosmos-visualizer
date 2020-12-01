@@ -28,8 +28,9 @@ const RoleContainer = styled.div`
   }
 `;
 
-const RoleControl = ({ person, people, setPerson, ...props }) =>
-  h(RoleContainer, props, [
+const RoleControl = ({ person, people, setPerson, ...props }) => {
+  if (people == null) return null;
+  return h(RoleContainer, props, [
     h(
       Select,
       {
@@ -65,6 +66,7 @@ const RoleControl = ({ person, people, setPerson, ...props }) =>
       },
     }),
   ]);
+};
 
 class LoginForm extends Component {
   static initClass() {
