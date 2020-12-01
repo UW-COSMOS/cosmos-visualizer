@@ -1,0 +1,20 @@
+FROM node:12-alpine AS base
+# A simple docker image to install the xDD application
+
+RUN npm install -g npm@7 webpack-cli webpack
+
+ARG ENVIRONMENT="production"
+ARG PUBLIC_URL="/"
+ARG API_BASE_URL="https://xdddev.chtc.io/tagger/api"
+
+WORKDIR /user
+COPY ./package.json /user/package.json
+RUN npm install
+COPY . /user
+
+RUN webpack src/tagging-app/index.ts
+
+FROM nginx
+
+COPY ./nginx.frontend-only.conf /etc/nginx/nginx.conf
+COPY --from=base /user/dist /frontend
