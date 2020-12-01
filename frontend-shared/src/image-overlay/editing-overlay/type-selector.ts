@@ -141,6 +141,8 @@ const AnnotationTypeSelector = (props) => {
   /** A lockable annotation type selector (first output, for tagging app) */
   const { onItemSelect, ...rest } = props;
 
+  console.log(rest);
+
   return h(AnnotationTypeOmnibox, {
     ...rest,
     onItemSelect,

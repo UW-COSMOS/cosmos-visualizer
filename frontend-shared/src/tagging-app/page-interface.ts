@@ -66,7 +66,10 @@ class ImageContainer extends Component<ContainerProps, ContainerState> {
     //console.log(`image: ${image}`)
     //const {resize_bytes} = image;
     //return "data:image/png;base64," + resize_bytes;
-    return join("/", stackName, image.file_path);
+    const prefix = "https://xdddev.chtc.io/tagger"
+    const imgPath = image.file_path.replace(/^(\/data\/pngs)/,"/images")
+
+    return join(prefix, imgPath);
   }
 
   render() {
@@ -209,7 +212,7 @@ class TaggingPage extends StatefulComponent {
       imageToDisplay = `${imageRoute}/${initialImage}`;
     }
 
-    var hacky_stack_id = "tag_more";
+    var hacky_stack_id = "mars";
 
     // Should switch to newer hooks-based API
     const { get } = APIActions(this.context);
@@ -220,7 +223,7 @@ class TaggingPage extends StatefulComponent {
     console.log(`Getting image from endpoint ${imageToDisplay}`);
     const d = await get(
       imageToDisplay,
-      { stack_id: hacky_stack_id },
+      { stack_name: hacky_stack_id },
       {
         unwrapResponse(res) {
           console.log(`res: ${res}`);
@@ -272,6 +275,7 @@ class TaggingPage extends StatefulComponent {
     }
 
     const image_tags = [];
+    console.log("Did update");
     return this.setState({
       rectStore: image_tags,
       initialRectStore: image_tags,

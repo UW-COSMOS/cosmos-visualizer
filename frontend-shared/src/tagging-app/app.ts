@@ -2,10 +2,8 @@ import { Component } from "react";
 import h from "react-hyperscript";
 
 import {
-  BrowserRouter as Router,
   Route,
   Redirect,
-  Switch,
 } from "react-router-dom";
 
 import { APIActions } from "@macrostrat/ui-components";
