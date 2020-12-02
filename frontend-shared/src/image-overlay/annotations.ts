@@ -39,28 +39,4 @@ AnnotationsOverlay.defaultProps = {
   renderAnnotation: (obj, ix) => h(SimpleAnnotation, { obj, ix, key: ix }),
 };
 
-const oldRenderer = (d, ix) => {
-  const isLocked = lockedTags.has(d.tag_id);
-  if (isLocked) {
-    return h(LockedAnnotation, { tags, obj: d });
-  }
-
-  const isSelected = d == selected && !isLocked;
-
-  let opts = {
-    key: ix,
-    obj: d,
-    locked: isLocked,
-  };
-
-  if (isSelected) {
-    return h(Annotation, {
-      enterLinkMode() {},
-      ...opts,
-    });
-  } else {
-    return h(Annotation, opts);
-  }
-};
-
 export { AnnotationsOverlay };

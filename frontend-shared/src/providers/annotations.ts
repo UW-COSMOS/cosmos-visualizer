@@ -39,7 +39,11 @@ const AnnotationsProvider = (props: ProviderProps) => {
     selected: allowSelection ? selected : null,
   };
 
-  let updateSelection = (annotation: Annotation) => {
+  let updateSelection = (annotation: Annotation | null) => {
+    if (annotation == null) {
+      setSelected(null);
+      return;
+    }
     const ix = annotations.findIndex((d) => d == annotation);
     setSelected(ix);
   };

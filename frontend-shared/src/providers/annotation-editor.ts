@@ -218,18 +218,15 @@ class AnnotationEditorProvider extends StatefulComponent<
 
   render() {
     const { children, initialAnnotations, editingEnabled } = this.props;
-    const {
-      annotations,
-      selectedAnnotation,
-      lockedTags,
-      currentTag,
-    } = this.state;
+    const { annotations, selectedAnnotation, lockedTags } = this.state;
     const hasChanges = isDifferent(initialAnnotations, annotations);
 
     const editorActions: EditorActions = {
       clearChanges: this.clearChanges.bind(this),
       saveChanges: this.saveAnnotations.bind(this),
     };
+
+    const currentTag = this.state.currentTag ?? this.context[0]?.tag_id;
 
     const actions: AnnotationActions = {
       // It sucks we have to bind all of these separately...

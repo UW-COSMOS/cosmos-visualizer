@@ -22,8 +22,6 @@ function ImageContainer() {
 }
 
 function App() {
-  // Nest a bunch of providers
-
   return h(
     TagListProvider,
     { tags },
