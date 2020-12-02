@@ -51,14 +51,11 @@ interface OmniboxProps extends BoxLifecycleProps {
 
 const AnnotationTypeOmnibox = (props: OmniboxProps) => {
   /** A general omnibox for annotation types */
-  const {
-    selectedTag,
-    onSelectTag,
-    listItemComponent,
-    isOpen,
-    onClose,
-  } = props;
+  const { onSelectTag, listItemComponent, isOpen, onClose } = props;
   const tags = useTags();
+  const { currentTag } = useAnnotationEditor();
+  const { updateCurrentTag } = useAnnotationActions();
+
   const options = {
     shouldSort: true,
     minMatchCharLength: 0,
@@ -73,8 +70,8 @@ const AnnotationTypeOmnibox = (props: OmniboxProps) => {
       "div.item-list",
       null,
       filteredItems.map((tag: Tag) => {
-        const active = tag.tag_id === selectedTag?.tag_id;
-        const onSelect = () => onSelectTag(tag);
+        const active = tag.tag_id === currentTag;
+        const onSelect = updateCurrentTag(tag.tag_id);
         return h(listItemComponent, {
           active,
           onSelect,
@@ -85,7 +82,9 @@ const AnnotationTypeOmnibox = (props: OmniboxProps) => {
   };
 
   return h(Omnibar, {
-    onItemSelect: onSelectTag,
+    onItemSelect(tag) {
+      updateCurrentTag(tag.tag_id)();
+    },
     items: tags,
     resetOnSelect: true,
     isOpen,
@@ -142,11 +141,9 @@ const LockableListItem = (props: LockableItemProps) => {
 LockableListItem.defaultProps = { locked: false };
 
 const AnnotationTypeSelector = (props) => {
-  const { updateCurrentTag } = useAnnotationActions();
   /** A lockable annotation type selector (first output, for tagging app) */
   return h(AnnotationTypeOmnibox, {
     ...props,
-    onSelectTag: (tag) => updateCurrentTag(tag.tag_id)(),
     listItemComponent: LockableListItem,
   });
 };

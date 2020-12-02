@@ -124,7 +124,6 @@ class ImageOverlay extends StatefulComponent<Props, State> {
     return h("div", [
       h(AnnotationTypeSelector, {
         isOpen: selectIsOpen,
-        onItemSelect(item) {},
         onClose: () => this.setState({ selectIsOpen: false }),
       }),
       h(AddAnnotationsOverlay, {
