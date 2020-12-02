@@ -100,8 +100,6 @@ class TaggingPage extends StatefulComponent {
   static contextType = APIContext;
   constructor(props) {
     super(props);
-    this.currentStackID = this.currentStackID.bind(this);
-    this.onImageLoaded = this.onImageLoaded.bind(this);
 
     this.state = {
       currentImage: null,
@@ -141,14 +139,6 @@ class TaggingPage extends StatefulComponent {
     ]);
   }
 
-  currentStackID() {
-    return (
-      this.state.currentImage.stack_id ||
-      this.props.stack_id ||
-      "default_to_tag"
-    );
-  }
-
   saveData = async () => {
     const { currentImage, rectStore } = this.state;
     let { extraSaveData } = this.props;
@@ -161,7 +151,12 @@ class TaggingPage extends StatefulComponent {
       ...extraSaveData,
     };
 
-    const stack_id = this.currentStackID();
+    // TODO: Fix this
+    // Set the current stack ID to save data with
+    const stack_id =
+      this.state.currentImage.stack_id ||
+      this.props.stack_id ||
+      "default_to_tag";
 
     const endpoint = `/image/${currentImage.image_id}/${stack_id}/tags`;
 
@@ -226,10 +221,9 @@ class TaggingPage extends StatefulComponent {
         },
       }
     );
-    this.onImageLoaded(d);
-  };
 
-  onImageLoaded(d) {
+    // On image loaded
+
     if (Array.isArray(d) && d.length === 1) {
       // API returns a single-item array
       d = d[0];
@@ -248,7 +242,7 @@ class TaggingPage extends StatefulComponent {
       intent: Intent.PRIMARY,
       timeout: 1000,
     });
-  }
+  };
 
   componentDidMount() {
     return this.getImageToDisplay();
