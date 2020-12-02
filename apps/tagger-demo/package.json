@@ -4,7 +4,7 @@
   "description": "",
   "main": "webpack.config.js",
   "scripts": {
-    "dev": "npm install && webpack -w"
+    "dev": "npm install && webpack-dev-server"
   },
   "author": "Daven Quinn",
   "license": "ISC",
@@ -12,5 +12,10 @@
     "react": "^16.12.0",
     "react-dom": "^16.12.0",
     "shared": "*"
+  },
+  "devDependencies": {
+    "webpack": "^4.42.1",
+    "webpack-cli": "^3.3.11",
+    "webpack-dev-server": "^3.10.3"
   }
 }

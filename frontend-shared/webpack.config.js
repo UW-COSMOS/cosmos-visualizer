@@ -103,7 +103,6 @@ module.exports = (env, argv) => {
     output: {
       path: assetsDir,
       publicPath: assetsRoute,
-      filename: "[name].js",
     },
     plugins: [
       new HtmlWebpackPlugin({ title: "COSMOS" }),
