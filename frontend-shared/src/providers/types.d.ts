@@ -15,7 +15,6 @@ declare interface Annotation {
   tag_id: TagID;
   // Potentially, the uuid of another tag on the page
   image_tag_id?: string;
-  name: string;
   score?: number;
   obj_id?: number;
 }

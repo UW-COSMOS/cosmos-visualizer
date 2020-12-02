@@ -4,7 +4,7 @@ import { drag } from "d3-drag";
 import { findDOMNode } from "react-dom";
 import { Hotkey, Hotkeys, HotkeysTarget } from "@blueprintjs/core";
 import { StatefulComponent } from "@macrostrat/ui-components";
-import { useContext, ComponentProps } from "react";
+import { ComponentProps } from "react";
 
 import { AnnotationLinks } from "../annotation-links";
 import { AnnotationTypeSelector } from "./type-selector";
@@ -19,6 +19,7 @@ import { SimpleAnnotation, Annotation } from "../annotation";
 import {
   AnnotationsContext,
   useAnnotationActions,
+  useAnnotationEditor,
   useCanvasSize,
   Tag,
   AnnotationArr,
@@ -326,7 +327,8 @@ const WrappedImageOverlay = (props) => {
   // Get editing actions into the props
   const actions = useAnnotationActions();
   const { scaleFactor } = useCanvasSize();
-  return h(ImageOverlay, { ...props, scaleFactor, actions });
+  const { currentTag } = useAnnotationEditor();
+  return h(ImageOverlay, { ...props, currentTag, scaleFactor, actions });
 };
 
 export { WrappedImageOverlay as ImageOverlay };

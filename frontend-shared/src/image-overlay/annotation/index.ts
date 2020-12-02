@@ -16,6 +16,7 @@ import {
   useAnnotationIndex,
   useSelectedAnnotation,
   useSelectionUpdater,
+  Annotation as IAnnotation,
 } from "~/providers";
 
 const tagBounds = (boxes) => [
@@ -61,7 +62,7 @@ function annotationPartUpdater(update, ix) {
 }
 
 interface AnnotationProps {
-  obj: Annotation;
+  obj: IAnnotation;
   children: React.ReactChild;
 }
 
@@ -173,6 +174,7 @@ interface BasicAnnotationProps extends AnnotationProps {
   onMouseOver?: React.UIEventHandler;
   onMouseLeave?: React.UIEventHandler;
   className?: string;
+  obj: IAnnotation;
 }
 
 const BasicAnnotation = (props: BasicAnnotationProps) => {
@@ -181,6 +183,9 @@ const BasicAnnotation = (props: BasicAnnotationProps) => {
 
   const c = useAnnotationColor(obj);
   const color = c.alpha(alpha ?? 0.5).css();
+
+  let tagName = name;
+  if (score != null) tagName += `(${score})`;
 
   return h(
     "div.annotation",
@@ -194,11 +199,7 @@ const BasicAnnotation = (props: BasicAnnotationProps) => {
           ...rest,
         },
         [
-          h(
-            "div.tag-name",
-            { style: { color: c.darken(2).css() } },
-            `${name} (${score})`
-          ),
+          h("div.tag-name", { style: { color: c.darken(2).css() } }, tagName),
           children,
         ]
       );

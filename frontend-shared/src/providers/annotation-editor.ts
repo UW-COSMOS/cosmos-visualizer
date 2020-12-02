@@ -158,7 +158,8 @@ class AnnotationEditorProvider extends StatefulComponent<
       return;
     }
     const { currentTag, annotations } = this.state;
-    rect.tag_id = currentTag;
+
+    rect.tag_id = currentTag ?? this.context[0]?.tag_id;
     // Create UUID on client side to allow
     // creation of tag links
     rect.image_tag_id = uuidv4();
