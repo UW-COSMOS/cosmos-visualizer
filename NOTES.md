@@ -4,3 +4,7 @@ https://medium.com/swlh/building-a-multi-cra-using-lerna-and-monorepo-4628de405c
 
 IDEAS:
 Could build all output to a common folder?
+
+Issues:
+
+- Shared packages are not installed

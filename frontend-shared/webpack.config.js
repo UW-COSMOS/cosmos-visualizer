@@ -53,6 +53,7 @@ module.exports = (env, argv) => {
             ),
           ],
         },
+        { test: /\.(png|jpe?g|gif)$/i, use: ["file-loader"] },
         { test: /\.styl$/, use: ["style-loader", "css-loader", stylusLoader] },
         { test: /\.css$/, use: ["style-loader", "css-loader"] },
         { test: /\.(eot|svg|ttf|woff|woff2)$/, use: [fontLoader] },

@@ -1,35 +1,45 @@
 import "~/shared/_init";
-import { getEnvironmentConfig } from "~/shared/_env";
 import { render } from "react-dom";
-import h, { compose, C } from "@macrostrat/hyper";
-import { APIProvider } from "~/api";
-import { ImageStoreProvider } from "~/tagging-app/page-interface";
-import { PublicURLProvider } from "~/providers";
-import { TaggingApplication } from "~/tagging-app/app";
+import h from "@macrostrat/hyper";
+import { ImageOverlay } from "~/image-overlay";
+import { ScaledImagePanel } from "~/page-interface/scaled-image";
+import { TagListProvider, AnnotationEditorProvider } from "~/providers";
+import tags from "./tag-list";
+import image from "../page-images/quinn_ehlmann_2019-05.png";
 
-const AppHolder = (props) => {
-  const { baseURL, imageBaseURL, publicURL, children } = props;
-  // Nest a bunch of providers
+function ImageContainer() {
   return h(
-    compose(
-      C(PublicURLProvider, { publicURL }),
-      C(APIProvider, { baseURL }),
-      C(ImageStoreProvider, { baseURL: imageBaseURL }),
-      C(TaggingApplication, props)
-    ),
-    children
+    ScaledImagePanel,
+    {
+      image,
+      urlForImage(im) {
+        // The simplest possible Image URL
+        return im;
+      },
+    },
+    h(ImageOverlay)
   );
-};
+}
 
-const createUI = function (opts) {
-  console.log("Creating UI");
-  // Image base url is properly set here
-  const el = document.createElement("div");
-  document.body.appendChild(el);
-  const env = getEnvironmentConfig(opts);
-  const __ = h(AppHolder, { ...env });
-  return render(__, el);
-};
+function App() {
+  // Nest a bunch of providers
 
-// Actually run the UI (changed for webpack)
-createUI();
+  return h(
+    TagListProvider,
+    { tags },
+    h(
+      AnnotationEditorProvider,
+      {
+        initialAnnotations: [],
+      },
+      h(ImageContainer, {
+        editingEnabled: true,
+        image,
+      })
+    )
+  );
+}
+
+const el = document.createElement("div");
+document.body.appendChild(el);
+render(h(App), el);

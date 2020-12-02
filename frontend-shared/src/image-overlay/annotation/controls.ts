@@ -80,7 +80,7 @@ const AnnotationControls = (props: AnnotationControlsProps) => {
   const update = useAnnotationUpdater(annotation)!;
   if (update == null) return null;
 
-  const { deleteAnnotation } = useAnnotationActions()!;
+  const { deleteAnnotation, updateCurrentTag } = useAnnotationActions()!;
   const ix = useAnnotationIndex(annotation);
   const { linked_to } = annotation;
 

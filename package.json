@@ -22,7 +22,8 @@
   },
   "workspaces": [
     "packages/*",
-    "apps/*"
+    "apps/*",
+    "frontend-shared"
   ],
   "author": "Daven Quinn",
   "license": "ISC",

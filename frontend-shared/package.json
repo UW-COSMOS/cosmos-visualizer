@@ -1,5 +1,5 @@
 {
-  "name": "image-tagger",
+  "name": "frontend-shared",
   "version": "1.0.0",
   "description": "Tag images with rectangles",
   "main": "index.html",
@@ -67,7 +67,7 @@
     "coffeescript": "^2.3.2",
     "concurrently": "^5.1.0",
     "css-loader": "^3.0.0",
-    "file-loader": "^4.0.0",
+    "file-loader": "^4.3.0",
     "html-loader": "^0.5.5",
     "linklocal": "^2.8.2",
     "markdown-loader": "^5.0.0",

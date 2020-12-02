@@ -42,23 +42,26 @@ const parseResponse = (cscale) => (d, ix) => {
   return { tag_id, color, name };
 };
 
-const APITagsProvider = (props) => {
-  const { children } = props;
-  const data = useAPIResult("/tags/all") ?? [];
-  const cscale = chroma.scale("viridis").colors(data.length);
-
+function TagListProvider({ children, tags }) {
+  const cscale = chroma.scale("viridis").colors(tags.length);
   return h(
     TagsProvider,
     {
-      tags: data.map(parseResponse(cscale)),
+      tags: tags.map(parseResponse(cscale)),
     },
     children
   );
+}
+
+const APITagsProvider = ({ children }) => {
+  const tags = useAPIResult("/tags/all") ?? [];
+  return h(TagListProvider, { tags }, children);
 };
 
 export {
   TagsContext,
   TagsProvider,
+  TagListProvider,
   APITagsProvider,
   useTags,
   useTagColor,
