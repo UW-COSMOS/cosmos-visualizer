@@ -95,6 +95,7 @@ class AnnotationEditorProvider extends StatefulComponent<
       if (updateSpec.tag_id != null) {
         spec.currentTag = updateSpec.tag_id;
       }
+      console.log(updateSpec);
       this.updateState(spec);
     };
   }

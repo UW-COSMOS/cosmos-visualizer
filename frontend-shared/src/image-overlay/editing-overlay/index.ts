@@ -19,6 +19,7 @@ import { SimpleAnnotation, Annotation } from "../annotation";
 import {
   AnnotationsContext,
   AnnotationEditorContext,
+  SelectionUpdateContext,
   useAnnotationActions,
   useAnnotationEditor,
   useSelectedAnnotation,
@@ -72,7 +73,7 @@ interface State {
 
 function EditorContextForwarder(props) {
   /** Modifies the annotation editor context to support multipart editing */
-  const ctx = useAnnotationEditor();
+  const updateSelection = useSelectionUpdater();
   const { editModes, children } = props;
 
   function selectAnnotation(id: AnnotationID) {
@@ -86,16 +87,16 @@ function EditorContextForwarder(props) {
         ctx.actions.addLink(id)();
         return ctx.actions.setMode(LINK, false);
       } else {
-        return ctx.actions.selectAnnotation(id)();
+        return updateSelection(id)();
       }
     };
   }
 
-  const actions = { ...ctx.actions, selectAnnotation };
-
-  const value = { ...ctx, actions };
-
-  return h(AnnotationEditorContext.Provider, { value }, children);
+  return h(
+    SelectionUpdateContext.Provider,
+    { value: selectAnnotation },
+    children
+  );
 }
 
 class ImageOverlay extends StatefulComponent<Props, State> {
@@ -147,6 +148,7 @@ class ImageOverlay extends StatefulComponent<Props, State> {
         editingRect,
         onShiftKeyDown: this.handleShift(true),
         onToggleSelect: this.toggleSelect,
+        onDeleteAnnotation: this.deleteAnnotation,
       },
       [
         h(AnnotationTypeSelector, {

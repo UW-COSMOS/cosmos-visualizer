@@ -9,6 +9,7 @@ interface Props {
   children?: React.ReactNode;
   onShiftKeyDown(): void;
   onToggleSelect(): void;
+  onDeleteAnnotation(): void;
 }
 
 class EditorHotkeys extends PureComponent<Props> {
@@ -18,7 +19,7 @@ class EditorHotkeys extends PureComponent<Props> {
   }
 
   renderHotkeys() {
-    const { editingRect, onShiftKeyDown, onToggleSelect } = this.props;
+    const { onDeleteAnnotation, onShiftKeyDown, onToggleSelect } = this.props;
     const { actions } = this.context;
     return h(Hotkeys, [
       h(Hotkey, {
@@ -27,13 +28,7 @@ class EditorHotkeys extends PureComponent<Props> {
         global: true,
         preventDefault: true,
         stopPropagation: true,
-        onKeyDown: (evt) => {
-          if (editingRect == null) {
-            return;
-          }
-          console.log(`Delete annotation ${editingRect.tag_id}`);
-          actions.deleteAnnotation(editingRect)();
-        },
+        onKeyDown: onDeleteAnnotation,
       }),
       h(Hotkey, {
         global: true,
