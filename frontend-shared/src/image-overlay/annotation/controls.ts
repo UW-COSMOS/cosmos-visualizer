@@ -80,19 +80,19 @@ const AnnotationControls = (props: AnnotationControlsProps) => {
   const update = useAnnotationUpdater(annotation)!;
   if (update == null) return null;
 
-  const { deleteAnnotation, updateCurrentTag } = useAnnotationActions()!;
+  const { deleteAnnotation } = useAnnotationActions()!;
   const ix = useAnnotationIndex(annotation);
   const { linked_to } = annotation;
 
   const {
-    actions: { setMode },
+    actions: { setMode, toggleSelect },
     editModes,
   } = useContext(EditorContext);
 
   return h(LeftControlPanel, { annotation }, [
     h(ToolButton, {
       icon: "tag",
-      onClick: updateCurrentTag,
+      onClick: toggleSelect,
     }),
     h(LinkButton, { update, linked_to }),
     h(ToolButton, {

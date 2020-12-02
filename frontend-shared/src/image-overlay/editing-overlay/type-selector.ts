@@ -2,7 +2,11 @@ import { hyperStyled } from "@macrostrat/hyper";
 import classNames from "classnames";
 import { Button } from "@blueprintjs/core";
 import { Omnibar, IOmnibarProps } from "@blueprintjs/select";
-import { useTags, useAnnotationEditor } from "~/providers";
+import {
+  useTags,
+  useAnnotationEditor,
+  useAnnotationActions,
+} from "~/providers";
 import Fuse from "fuse.js";
 import chroma from "chroma-js";
 import styles from "./main.styl";
@@ -138,12 +142,11 @@ const LockableListItem = (props: LockableItemProps) => {
 LockableListItem.defaultProps = { locked: false };
 
 const AnnotationTypeSelector = (props) => {
+  const { updateCurrentTag } = useAnnotationActions();
   /** A lockable annotation type selector (first output, for tagging app) */
-  const { onItemSelect, ...rest } = props;
-
   return h(AnnotationTypeOmnibox, {
-    ...rest,
-    onItemSelect,
+    ...props,
+    onSelectTag: (tag) => updateCurrentTag(tag.tag_id)(),
     listItemComponent: LockableListItem,
   });
 };
