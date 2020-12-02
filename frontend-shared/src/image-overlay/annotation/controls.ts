@@ -41,6 +41,7 @@ const LinkButton = (props) => {
 interface AnnotationControlsProps {
   annotation: Annotation;
   className?: string;
+  children?: React.ReactNode;
 }
 
 const ControlPanel = (props: AnnotationControlsProps) => {
@@ -74,7 +75,7 @@ const LeftControlPanel = (props: AnnotationLeftControlProps) => {
 };
 
 const AnnotationControls = (props: AnnotationControlsProps) => {
-  const { onSelect, annotation } = props;
+  const { annotation } = props;
 
   const update = useAnnotationUpdater(annotation)!;
   if (update == null) return null;
@@ -91,7 +92,7 @@ const AnnotationControls = (props: AnnotationControlsProps) => {
   return h(LeftControlPanel, { annotation }, [
     h(ToolButton, {
       icon: "tag",
-      onClick: onSelect,
+      onClick: updateCurrentTag,
     }),
     h(LinkButton, { update, linked_to }),
     h(ToolButton, {

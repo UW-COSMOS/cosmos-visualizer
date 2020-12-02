@@ -55,7 +55,6 @@ const oldRenderer = (d, ix) => {
 
   if (isSelected) {
     return h(Annotation, {
-      onSelect: toggleSelect,
       enterLinkMode() {},
       ...opts,
     });

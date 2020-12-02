@@ -1,0 +1,33 @@
+{
+  "name": "cosmos-visualizer",
+  "version": "1.0.0",
+  "private": true,
+  "description": "The **COSMOS** visualizer codebase consists of several applications that build training datasets and showcase model results for the **COSMOS** knowledge-base extraction pipeline. Separate apps for _tagging_, _validation_, and _knowledge-base visualization_ are included.",
+  "main": "index.js",
+  "dependencies": {},
+  "devDependencies": {
+    "husky": "^4.3.0",
+    "lerna": "^3.22.1",
+    "pretty-quick": "^3.0.2",
+    "webpack": "^4.42.1",
+    "webpack-cli": "^3.3.11"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "tagger-demo": "cd apps/tagger-demo && npm run dev"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/UW-COSMOS/cosmos-visualizer.git"
+  },
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "author": "Daven Quinn",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/UW-COSMOS/cosmos-visualizer/issues"
+  },
+  "homepage": "https://github.com/UW-COSMOS/cosmos-visualizer#readme"
+}

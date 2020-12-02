@@ -31,8 +31,6 @@ let stylusLoader = {
   loader: "stylus-relative-loader",
 };
 
-console.log(process.env);
-
 // Watching issues! https://github.com/webpack/watchpack/issues/61
 
 module.exports = (env, argv) => {

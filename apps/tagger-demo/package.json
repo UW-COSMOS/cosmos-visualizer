@@ -1,0 +1,16 @@
+{
+  "name": "@macrostrat/cosmos-tagger-demo",
+  "version": "1.0.0",
+  "description": "",
+  "main": "webpack.config.js",
+  "scripts": {
+    "dev": "npm install && webpack -w"
+  },
+  "author": "Daven Quinn",
+  "license": "ISC",
+  "dependencies": {
+    "react": "^16.12.0",
+    "react-dom": "^16.12.0",
+    "shared": "*"
+  }
+}
