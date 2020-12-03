@@ -1,15 +1,14 @@
-import { useContext, useState } from "react";
+import { useContext, useCallback } from "react";
 import h from "@macrostrat/hyper";
 import { min, max } from "d3-array";
 import { Intent } from "@blueprintjs/core";
 import classNames from "classnames";
 
 import { Rectangle, StaticRectangle } from "./drag-rect";
-import { EditMode } from "~/enum";
-import { EditorContext } from "~/image-overlay/context";
 import { AnnotationControls, ToolButton } from "./controls";
 import {
   useTags,
+  tagColor,
   useAnnotationColor,
   useAnnotationUpdater,
   useAnnotationActions,
@@ -65,44 +64,52 @@ interface AnnotationProps {
   obj: IAnnotation;
   children: React.ReactChild;
   multipartEditingEnabled: boolean;
+  locked?: boolean;
+  index: number;
 }
 
 const Annotation = (props: AnnotationProps) => {
-  const { obj, multipartEditingEnabled = true } = props;
+  const { obj, index, multipartEditingEnabled = true, locked = null } = props;
   const { boxes, name: tag_name, tag_id } = obj;
 
-  const { selectAnnotation } = useAnnotationActions()!;
+  const { selectAnnotation, updateAnnotation } = useAnnotationActions()!;
   /* This could be simplified significantly;
      we rely on indexing to tell if we have the same annotations
   */
-  const ix = useAnnotationIndex(obj);
-  const update = useAnnotationUpdater(obj);
+  const update = useCallback(
+    (spec) => {
+      updateAnnotation(index)(spec);
+    },
+    [index]
+  );
   const isSelected = update != null;
   const overallBounds = tagBounds(boxes);
 
-  const c = useAnnotationColor(obj);
   let alpha = isSelected ? 0.6 : 0.3;
-
-  const color = c.alpha(alpha).css();
-
   const tags = useTags();
-  let tagName = tags.find((d) => d.tag_id === tag_id)?.name ?? tag_name;
+  const currentTag = tags.find((d) => d.tag_id === tag_id);
+  const c = tagColor(currentTag);
+  const color = c.alpha(alpha).css();
+  let tagName = currentTag.name ?? tag_name;
+  let tagIsLocked = locked ?? currentTag.locked;
+
   // Sometimes we don't return tags
 
-  const { actions, editModes } = useContext(EditorContext);
+  const onMouseDown = useCallback(
+    (event) => {
+      selectAnnotation(index);
+      event?.stopPropagation();
+    },
+    [index]
+  );
 
-  const onMouseDown = () => {
-    if (editModes.has(EditMode.LINK)) {
-      actions.addLink(ix)();
-      actions.setMode(EditMode.LINK, false);
-    } else {
-      selectAnnotation(ix)();
-    }
-    // Don't allow dragging
-    event.stopPropagation();
-  };
+  if (tagIsLocked) {
+    return LockedAnnotation(obj);
+  }
 
   const className = classNames({ active: isSelected });
+  const editingEnabled = boxes.length > 1 ? multipartEditingEnabled : false;
+
   return h("div.annotation", { className }, [
     h(
       StaticRectangle,
@@ -115,6 +122,7 @@ const Annotation = (props: AnnotationProps) => {
       [
         h("div.tag-name", { style: { color: c.darken(2).css() } }, tagName),
         h(AnnotationControls, {
+          annotationIndex: index,
           annotation: obj,
         }),
       ]
@@ -124,17 +132,12 @@ const Annotation = (props: AnnotationProps) => {
       { className },
       boxes.map((bounds, i) => {
         // Need actual logic here to allow display if editing is enabled
-        let onDelete = null;
-        let editingEnabled = multipartEditingEnabled;
-        if (boxes.length <= 1) editingEnabled = false;
-        if (editingEnabled) {
-          onDelete = () => update({ boxes: { $splice: [[i, 1]] } });
-        }
+        const deletionCallback = () => update({ boxes: { $splice: [[i, 1]] } });
 
         return h(AnnotationPart, {
           bounds,
           update: annotationPartUpdater(update, i),
-          onDelete,
+          onDelete: editingEnabled ? deletionCallback : null,
           onMouseDown,
           color,
         });
@@ -175,6 +178,7 @@ interface BasicAnnotationProps extends AnnotationProps {
   onMouseOver?: React.UIEventHandler;
   onMouseLeave?: React.UIEventHandler;
   className?: string;
+  index: number;
   obj: IAnnotation;
 }
 

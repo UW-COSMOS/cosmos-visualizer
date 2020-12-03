@@ -11,6 +11,7 @@ import { Component, useContext } from "react";
 import h from "react-hyperscript";
 import { EditorContext } from "./context";
 import { useAnnotations, useTags, useCanvasSize } from "~/providers";
+import chroma from "chroma-js";
 import {
   bboxPolygon,
   featureCollection,
@@ -128,7 +129,7 @@ const useAnnotationLinks = (scaleFactor: number): Link[] => {
     const coords = [...c1, ...c2].map((d) => (d / scaleFactor) * shrinkFactor);
     let color = tags.find((d) => d.tag_id === fromTag.tag_id)?.color ?? "black";
 
-    links.push({ coords, color });
+    links.push({ coords, color: chroma(color) });
   }
 
   return links;

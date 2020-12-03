@@ -3,7 +3,7 @@ import { select, event } from "d3-selection";
 import { drag } from "d3-drag";
 import { findDOMNode } from "react-dom";
 import { StatefulComponent } from "@macrostrat/ui-components";
-import { ComponentProps } from "react";
+import { ComponentProps, useCallback } from "react";
 
 import { AnnotationsEditorHotkeys } from "./hotkeys";
 import { AnnotationLinks } from "../annotation-links";
@@ -18,8 +18,7 @@ import { AnnotationsOverlay } from "../annotations";
 import { SimpleAnnotation, Annotation } from "../annotation";
 import {
   AnnotationsContext,
-  AnnotationEditorContext,
-  SelectionUpdateContext,
+  AnnotationEditorCtxProvider,
   useAnnotationActions,
   useAnnotationEditor,
   useSelectedAnnotation,
@@ -48,9 +47,9 @@ const AddAnnotationsOverlay = (props: AddAnnotationsProps) => {
     children = h(SimpleAnnotation, { obj });
   }
 
-  const renderAnnotation = (obj: IAnnotation, ix: number) => {
-    return h(Annotation, { key: ix, obj, locked: false });
-  };
+  const renderAnnotation = useCallback((obj: IAnnotation, ix: number) => {
+    return h(Annotation, { key: ix, obj, index: ix });
+  }, []);
 
   return h(
     AnnotationsOverlay,
@@ -64,31 +63,29 @@ const AddAnnotationsOverlay = (props: AddAnnotationsProps) => {
 
 function EditorContextForwarder(props) {
   /** Modifies the annotation editor context to support multipart editing */
-  const updateSelection = useSelectionUpdater();
   const ctx = useAnnotationEditor();
   const { editModes, children, setMode } = props;
-  const { actions } = ctx;
+  const { addLink, selectAnnotation } = ctx.actions;
 
-  function selectAnnotation(id: AnnotationID) {
-    // TODO: this is currently broken, which prevents us from properly linking tags
-    return (event) => {
+  const newSelectAnnotation = useCallback(
+    (id: AnnotationID) => {
+      // TODO: this is currently broken, which prevents us from properly linking tags
       // Make sure we don't activate the
       // general click or drag handlers
-      console.log(event, id, editModes);
       if (editModes.has(LINK)) {
-        actions.addLink(id)();
+        addLink(id);
         setMode(LINK, false);
       } else {
-        updateSelection(id)();
+        selectAnnotation(id);
       }
-    };
-  }
-
-  return h(
-    SelectionUpdateContext.Provider,
-    { value: selectAnnotation },
-    children
+    },
+    [editModes, selectAnnotation, setMode, addLink]
   );
+
+  const newActions = { ...ctx.actions, selectAnnotation: newSelectAnnotation };
+  const newCtx = { ...ctx, actions: newActions };
+
+  return h(AnnotationEditorCtxProvider, { value: newCtx }, children);
 }
 
 interface Props {
@@ -116,16 +113,22 @@ class ImageOverlay extends StatefulComponent<Props, State> {
 
     this.contextValue = this.contextValue.bind(this);
     this.setMode = this.setMode.bind(this);
+    this.editModes = this.editModes.bind(this);
+    this.shiftKeyDown = this.shiftKeyDown.bind(this);
     this.handleDrag = this.handleDrag.bind(this);
+    this.deleteAnnotation = this.deleteAnnotation.bind(this);
     this.handleAddAnnotation = this.handleAddAnnotation.bind(this);
     this.disableEditing = this.disableEditing.bind(this);
     this.toggleSelect = this.toggleSelect.bind(this);
     this.handleShift = this.handleShift.bind(this);
+    this.closeSelector = this.closeSelector.bind(this);
+
     this.state = {
       inProgressAnnotation: null,
       editModes: new Set(),
       shiftKey: false,
       clickingInRect: null,
+      selectIsOpen: false,
     };
   }
 
@@ -149,18 +152,17 @@ class ImageOverlay extends StatefulComponent<Props, State> {
       AnnotationsEditorHotkeys,
       {
         editingRect,
-        onShiftKeyDown: this.handleShift(true),
+        onShiftKeyDown: this.shiftKeyDown,
         onToggleSelect: this.toggleSelect,
-        onDeleteAnnotation: this.deleteAnnotation.bind(this),
+        onDeleteAnnotation: this.deleteAnnotation,
       },
       [
         h(AnnotationTypeSelector, {
           isOpen: selectIsOpen,
-          onClose: () => this.setState({ selectIsOpen: false }),
+          onClose: this.closeSelector,
         }),
         h(AddAnnotationsOverlay, {
           inProgressAnnotation,
-          actions,
           onClick,
           toggleSelect: this.toggleSelect,
           onSelectAnnotation: this.selectAnnotation,
@@ -171,23 +173,36 @@ class ImageOverlay extends StatefulComponent<Props, State> {
     );
   }
 
+  closeSelector() {
+    this.setState({ selectIsOpen: false });
+  }
+
+  shiftKeyDown() {
+    this.setState({ shiftKey: true });
+  }
+
   deleteAnnotation() {
     const ix = this.context.annotations.indexOf(this.props.editingRect);
     this.props.actions.deleteAnnotation(ix);
   }
 
-  contextValue() {
-    const { actions, tags, currentTag } = this.props;
+  editModes() {
     let { editModes, shiftKey } = this.state;
     if (shiftKey) {
       editModes = SHIFT_MODES;
     }
+    return editModes;
+  }
+
+  contextValue() {
+    const { actions, tags, currentTag } = this.props;
+    let { shiftKey } = this.state;
     actions.setMode = this.setMode;
 
     return {
       tags,
       currentTag,
-      editModes,
+      editModes: this.editModes(),
       shiftKey,
       actions: {
         toggleSelect: this.toggleSelect,
@@ -202,13 +217,13 @@ class ImageOverlay extends StatefulComponent<Props, State> {
       val = !this.state.editModes.has(mode);
     }
     const action = val ? "$add" : "$remove";
-    return this.updateState({ editModes: { [action]: [mode] } });
+    this.updateState({ editModes: { [action]: [mode] } });
   }
 
   render() {
     return h(
       EditorContextForwarder,
-      { editModes: this.state.editModes, setMode: this.setMode.bind(this) },
+      { editModes: this.editModes(), setMode: this.setMode },
       h(
         EditorContext.Provider,
         { value: this.contextValue() },
@@ -238,7 +253,7 @@ class ImageOverlay extends StatefulComponent<Props, State> {
     }
 
     // Make sure we color with the tag this will be
-    const { editModes } = this.contextValue();
+    const editModes = this.editModes();
     if (editModes.has(ADD_PART) && editingRect != null) {
       currentTag = editingRect.tag_id;
     }
@@ -277,8 +292,7 @@ class ImageOverlay extends StatefulComponent<Props, State> {
     if (r == null) {
       return;
     }
-    const { editModes } = this.contextValue();
-
+    const editModes = this.editModes();
     const ix = this.context.annotations.indexOf(editingRect);
 
     if (editModes.has(ADD_PART) && editingRect != null) {
@@ -294,7 +308,7 @@ class ImageOverlay extends StatefulComponent<Props, State> {
   }
 
   disableEditing() {
-    const { actions, editingRect, updateSelection } = this.props;
+    const { editingRect, updateSelection } = this.props;
     if (editingRect == null) {
       return;
     }

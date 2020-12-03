@@ -24,9 +24,9 @@ export interface EditorActions {
 export interface AnnotationActions {
   appendAnnotation(r: Annotation): void;
   deleteAnnotation(i: AnnotationID): void;
-  selectAnnotation(i: AnnotationID): () => void;
+  selectAnnotation(i: AnnotationID): void;
   updateAnnotation(i: AnnotationID): TagUpdater;
-  addLink(i: AnnotationID): () => void;
+  addLink(i: AnnotationID): void;
   toggleTagLock(i: TagID): () => void;
   updateCurrentTag(i: TagID): () => void;
   // This should not be passed through...
@@ -106,29 +106,26 @@ class AnnotationEditorProvider extends StatefulComponent<
       if (updateSpec.tag_id != null) {
         spec.currentTag = updateSpec.tag_id;
       }
-      console.log(updateSpec);
       this.updateState(spec);
     };
   }
 
   addLink(i: AnnotationID) {
-    return () => {
-      // Add a link to another annotation
-      const { selectedAnnotation, annotations } = this.state;
-      const { image_tag_id } = annotations[i];
-      if (selectedAnnotation == null) {
-        throw "Annotation must be selected to add a link";
-      }
-      if (selectedAnnotation === i) {
-        throw "Cannot create self-referential link";
-      }
-      const spec = {
-        annotations: {
-          [selectedAnnotation]: { linked_to: { $set: image_tag_id } },
-        },
-      };
-      this.updateState(spec);
+    // Add a link to another annotation
+    const { selectedAnnotation, annotations } = this.state;
+    const { image_tag_id } = annotations[i];
+    if (selectedAnnotation == null) {
+      throw "Annotation must be selected to add a link";
+    }
+    if (selectedAnnotation === i) {
+      throw "Cannot create self-referential link";
+    }
+    const spec = {
+      annotations: {
+        [selectedAnnotation]: { linked_to: { $set: image_tag_id } },
+      },
     };
+    this.updateState(spec);
   }
 
   deleteAnnotation(i: number) {
@@ -159,10 +156,9 @@ class AnnotationEditorProvider extends StatefulComponent<
   }
 
   selectAnnotation(i: AnnotationID) {
-    return () => {
-      console.log(`Selecting annotation ${i}`);
-      return this.updateState({ selectedAnnotation: { $set: i } });
-    };
+    console.log(`Selecting annotation ${i}`);
+    if (i == null) return;
+    return this.updateState({ selectedAnnotation: { $set: i } });
   }
 
   appendAnnotation(rect: Annotation) {
@@ -304,6 +300,7 @@ const useAnnotationUpdater = (ann: Annotation) => {
 
 export {
   AnnotationEditorProvider,
+  AnnotationEditorCtxProvider,
   AnnotationEditorContext,
   useAnnotationEditor,
   useAnnotationActions,

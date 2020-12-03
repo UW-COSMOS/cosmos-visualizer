@@ -88,13 +88,14 @@ const StaticRectangle = (props: RectProps) => {
     onClick,
     onMouseDown,
     isSelected,
+    backgroundColor,
     ...rest
   } = props;
 
   const { scaleFactor } = useCanvasSize();
 
   let { x, y, width, height } = getSize(bounds);
-  const backgroundColor = props.backgroundColor ?? color;
+  backgroundColor = backgroundColor ?? color;
 
   const clickHandler = onMouseDown ?? onClick;
   // Replace componentDidMount/findDOMNode with useRef and and useEffect

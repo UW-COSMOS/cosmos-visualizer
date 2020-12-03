@@ -6,15 +6,12 @@ import { AnnotationActions } from "~/providers/annotation-editor";
 import {
   useCanvasSize,
   useAnnotations,
-  useSelectedAnnotation,
-  useSelectionUpdater,
   Annotation as IAnnotation,
   Tag as ITag,
 } from "~/providers";
 
 interface AnnotationsOverlayProps {
   inProgressAnnotation?: IAnnotation | null;
-  actions?: AnnotationActions;
   lockedTags?: Set<string>;
   toggleSelect?: () => void;
   onSelectAnnotation?: (ix: number) => () => void;
@@ -36,7 +33,8 @@ const AnnotationsOverlay = (props: AnnotationsOverlayProps) => {
 };
 
 AnnotationsOverlay.defaultProps = {
-  renderAnnotation: (obj, ix) => h(SimpleAnnotation, { obj, ix, key: ix }),
+  renderAnnotation: (obj, index) =>
+    h(SimpleAnnotation, { obj, index, key: index }),
 };
 
 export { AnnotationsOverlay };

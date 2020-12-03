@@ -17,16 +17,18 @@ const TagsProvider = (props: TagsProviderProps) => {
 
 const useTags = (): Tag[] => useContext(TagsContext);
 
+function tagColor(tag?: Tag): Color {
+  return chroma(tag?.color ?? "black");
+}
+
 function useTagColor(tag_id: number): Color {
   const tags = useTags();
-  let color = tags.find((d) => d.tag_id === tag_id)?.color ?? "black";
-  return chroma(color);
+  return tagColor(tags.find((d) => d.tag_id === tag_id));
 }
 
 function useTagColorForName(tag_name: string): Color {
   const tags = useTags();
-  let color = tags.find((d) => d.name === tag_name)?.color ?? "black";
-  return chroma(color);
+  return tagColor(tags.find((d) => d.name === tag_name));
 }
 
 const parseResponse = (cscale) => (d, ix) => {
@@ -63,6 +65,7 @@ export {
   TagsProvider,
   TagListProvider,
   APITagsProvider,
+  tagColor,
   useTags,
   useTagColor,
   useTagColorForName,
