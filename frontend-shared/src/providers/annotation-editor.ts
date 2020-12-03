@@ -59,6 +59,18 @@ interface AnnotationEditorState {
   lockedTags: Set<TagID>;
 }
 
+function AnnotationEditorCtxProvider({ value, children }) {
+  return h(
+    AnnotationEditorContext.Provider,
+    { value },
+    h(
+      SelectionUpdateContext.Provider,
+      { value: value?.actions.selectAnnotation },
+      children
+    )
+  );
+}
+
 // Updates props for a rectangle
 // from API signature to our internal signature
 // TODO: make handle multiple boxes
@@ -69,6 +81,9 @@ class AnnotationEditorProvider extends StatefulComponent<
   /**
   A more advanced annotation provider that allows for
   adding, removing, and editing the positions of annotations.
+
+  It allows certain tags to be locked to prevent selection.
+  It does NOT allow the creation of multipart tags.
   */
   static defaultProps = {
     initialAnnotations: [],
@@ -83,10 +98,6 @@ class AnnotationEditorProvider extends StatefulComponent<
       currentTag: null,
       lockedTags: new Set(),
     };
-  }
-
-  currentTag() {
-    return this.state.currentTag ?? this.context[0]?.tag_id;
   }
 
   updateAnnotation(i) {
@@ -258,21 +269,17 @@ class AnnotationEditorProvider extends StatefulComponent<
 
     const { selectAnnotation } = actions;
 
-    return h(AnnotationsContext.Provider, { value: annotationsContext }, [
+    return h(
+      AnnotationsContext.Provider,
+      { value: annotationsContext },
       h(
-        AnnotationEditorContext.Provider,
+        AnnotationEditorCtxProvider,
         {
           value: editingEnabled ? editorContext : null,
         },
-        [
-          h(
-            SelectionUpdateContext.Provider,
-            { value: selectAnnotation },
-            children
-          ),
-        ]
-      ),
-    ]);
+        children
+      )
+    );
   }
 
   componentDidUpdate() {
@@ -290,8 +297,8 @@ const useEditorActions = () => useAnnotationEditor()?.editorActions;
 const useAnnotationUpdater = (ann: Annotation) => {
   const { annotations, selected } = useContext(AnnotationsContext);
   const isSelected = ann == annotations[selected];
-  if (!isSelected) return null;
   const { updateAnnotation } = useAnnotationActions()!;
+  if (!isSelected) return null;
   return updateAnnotation(selected);
 };
 

@@ -5,6 +5,7 @@ import classNames from "classnames";
 
 import { EditMode } from "~/enum";
 import { EditorContext } from "~/image-overlay/context";
+import { useCallback } from "react";
 import {
   useCanvasSize,
   useAnnotationUpdater,
@@ -21,7 +22,10 @@ const LinkButton = (props) => {
     actions: { setMode },
     editModes,
   } = useContext(EditorContext);
-  const removeLink = () => update({ linked_to: { $set: null } });
+  const removeLink = useCallback(
+    () => update({ linked_to: { $set: null } }),
+    []
+  );
 
   if (props.linked_to != null) {
     return h(ToolButton, {
@@ -48,7 +52,7 @@ const ControlPanel = (props: AnnotationControlsProps) => {
   const { children, className } = props;
   // Make sure clicks on the control panel don't dismiss it
   // due to the competing overlay click handler
-  const onClick = (event) => event.stopPropagation();
+  const onClick = useCallback((event) => event.stopPropagation(), []);
   const onMouseOver = onClick;
   const style = { pointerEvents: "visible" };
   return h(

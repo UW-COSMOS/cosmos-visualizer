@@ -27,6 +27,7 @@ import {
   useCanvasSize,
   Tag,
   AnnotationArr,
+  AnnotationActions,
   Annotation as IAnnotation,
   AnnotationID,
 } from "~/providers";
@@ -61,33 +62,24 @@ const AddAnnotationsOverlay = (props: AddAnnotationsProps) => {
   );
 };
 
-interface Props {
-  clickDistance: number;
-  editingEnabled: boolean;
-  selectIsOpen: boolean;
-  lockedTags: Set<Tag>;
-}
-interface State {
-  inProgressAnnotation: AnnotationArr | null;
-}
-
 function EditorContextForwarder(props) {
   /** Modifies the annotation editor context to support multipart editing */
   const updateSelection = useSelectionUpdater();
-  const { editModes, children } = props;
+  const ctx = useAnnotationEditor();
+  const { editModes, children, setMode } = props;
+  const { actions } = ctx;
 
   function selectAnnotation(id: AnnotationID) {
     // TODO: this is currently broken, which prevents us from properly linking tags
     return (event) => {
-      const { actions } = ctx;
       // Make sure we don't activate the
       // general click or drag handlers
       console.log(event, id, editModes);
       if (editModes.has(LINK)) {
-        ctx.actions.addLink(id)();
-        return ctx.actions.setMode(LINK, false);
+        actions.addLink(id)();
+        setMode(LINK, false);
       } else {
-        return updateSelection(id)();
+        updateSelection(id)();
       }
     };
   }
@@ -97,6 +89,17 @@ function EditorContextForwarder(props) {
     { value: selectAnnotation },
     children
   );
+}
+
+interface Props {
+  clickDistance: number;
+  editingEnabled: boolean;
+  selectIsOpen: boolean;
+  lockedTags: Set<Tag>;
+  actions: AnnotationActions;
+}
+interface State {
+  inProgressAnnotation: AnnotationArr | null;
 }
 
 class ImageOverlay extends StatefulComponent<Props, State> {
@@ -148,7 +151,7 @@ class ImageOverlay extends StatefulComponent<Props, State> {
         editingRect,
         onShiftKeyDown: this.handleShift(true),
         onToggleSelect: this.toggleSelect,
-        onDeleteAnnotation: this.deleteAnnotation,
+        onDeleteAnnotation: this.deleteAnnotation.bind(this),
       },
       [
         h(AnnotationTypeSelector, {
@@ -166,6 +169,11 @@ class ImageOverlay extends StatefulComponent<Props, State> {
         h(ModalNotifications),
       ]
     );
+  }
+
+  deleteAnnotation() {
+    const ix = this.context.annotations.indexOf(this.props.editingRect);
+    this.props.actions.deleteAnnotation(ix);
   }
 
   contextValue() {
@@ -200,7 +208,7 @@ class ImageOverlay extends StatefulComponent<Props, State> {
   render() {
     return h(
       EditorContextForwarder,
-      { editModes: this.state.editModes },
+      { editModes: this.state.editModes, setMode: this.setMode.bind(this) },
       h(
         EditorContext.Provider,
         { value: this.contextValue() },
@@ -271,10 +279,12 @@ class ImageOverlay extends StatefulComponent<Props, State> {
     }
     const { editModes } = this.contextValue();
 
+    const ix = this.context.annotations.indexOf(editingRect);
+
     if (editModes.has(ADD_PART) && editingRect != null) {
       // We are adding a box to the currently
       // selected annotation
-      const fn = actions.updateAnnotation(editingRect);
+      const fn = actions.updateAnnotation(ix);
       fn({ boxes: { $push: r.boxes } });
       // Disable linking mode
     } else {

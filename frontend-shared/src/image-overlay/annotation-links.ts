@@ -10,7 +10,7 @@
 import { Component, useContext } from "react";
 import h from "react-hyperscript";
 import { EditorContext } from "./context";
-import { useAnnotations, useTagColor, useCanvasSize } from "~/providers";
+import { useAnnotations, useTags, useCanvasSize } from "~/providers";
 import {
   bboxPolygon,
   featureCollection,
@@ -86,6 +86,7 @@ interface Link {
 
 const useAnnotationLinks = (scaleFactor: number): Link[] => {
   const annotations = useAnnotations();
+  const tags = useTags();
 
   /* We are abusing geographic functions
      (which error for positions > 180º etc.)
@@ -125,8 +126,8 @@ const useAnnotationLinks = (scaleFactor: number): Link[] => {
     c2 = e2.geometry.coordinates;
 
     const coords = [...c1, ...c2].map((d) => (d / scaleFactor) * shrinkFactor);
+    let color = tags.find((d) => d.tag_id === fromTag.tag_id)?.color ?? "black";
 
-    const color = useTagColor(fromTag.tag_id);
     links.push({ coords, color });
   }
 

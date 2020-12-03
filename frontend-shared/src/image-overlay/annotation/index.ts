@@ -64,10 +64,11 @@ function annotationPartUpdater(update, ix) {
 interface AnnotationProps {
   obj: IAnnotation;
   children: React.ReactChild;
+  multipartEditingEnabled: boolean;
 }
 
 const Annotation = (props: AnnotationProps) => {
-  const { obj } = props;
+  const { obj, multipartEditingEnabled = true } = props;
   const { boxes, name: tag_name, tag_id } = obj;
 
   const { selectAnnotation } = useAnnotationActions()!;
@@ -104,7 +105,7 @@ const Annotation = (props: AnnotationProps) => {
   const className = classNames({ active: isSelected });
   return h("div.annotation", { className }, [
     h(
-      Rectangle,
+      StaticRectangle,
       {
         bounds: overallBounds,
         color,
@@ -124,7 +125,7 @@ const Annotation = (props: AnnotationProps) => {
       boxes.map((bounds, i) => {
         // Need actual logic here to allow display if editing is enabled
         let onDelete = null;
-        let editingEnabled = false;
+        let editingEnabled = multipartEditingEnabled;
         if (boxes.length <= 1) editingEnabled = false;
         if (editingEnabled) {
           onDelete = () => update({ boxes: { $splice: [[i, 1]] } });
