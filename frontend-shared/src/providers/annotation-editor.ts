@@ -90,6 +90,8 @@ class AnnotationEditorProvider extends StatefulComponent<
     editingEnabled: true,
   };
   static contextType = TagsContext;
+  actions: AnnotationActions;
+  editorActions: EditorActions;
   constructor(props: AnnotationEditorProps) {
     super(props);
     this.state = {
@@ -97,6 +99,31 @@ class AnnotationEditorProvider extends StatefulComponent<
       selectedAnnotation: -1,
       currentTag: null,
       lockedTags: new Set(),
+    };
+    this.updateAnnotation = this.updateAnnotation.bind(this);
+    this.addLink = this.addLink.bind(this);
+    this.updateCurrentTag = this.updateCurrentTag.bind(this);
+    this.selectAnnotation = this.selectAnnotation.bind(this);
+    this.appendAnnotation = this.appendAnnotation.bind(this);
+    this.toggleTagLock = this.toggleTagLock.bind(this);
+    this.deleteAnnotation = this.deleteAnnotation.bind(this);
+    this.clearChanges = this.clearChanges.bind(this);
+    this.saveAnnotations = this.saveAnnotations.bind(this);
+
+    this.actions = {
+      // It sucks we have to bind all of these separately...
+      updateAnnotation: this.updateAnnotation,
+      addLink: this.addLink,
+      updateCurrentTag: this.updateCurrentTag,
+      selectAnnotation: this.selectAnnotation,
+      appendAnnotation: this.appendAnnotation,
+      toggleTagLock: this.toggleTagLock,
+      deleteAnnotation: this.deleteAnnotation,
+    };
+
+    this.editorActions = {
+      clearChanges: this.clearChanges,
+      saveChanges: this.saveAnnotations,
     };
   }
 
@@ -229,27 +256,11 @@ class AnnotationEditorProvider extends StatefulComponent<
     const { annotations, selectedAnnotation, lockedTags } = this.state;
     const hasChanges = isDifferent(initialAnnotations, annotations);
 
-    const editorActions: EditorActions = {
-      clearChanges: this.clearChanges.bind(this),
-      saveChanges: this.saveAnnotations.bind(this),
-    };
-
     const currentTag = this.state.currentTag ?? this.context[0]?.tag_id;
 
-    const actions: AnnotationActions = {
-      // It sucks we have to bind all of these separately...
-      updateAnnotation: this.updateAnnotation.bind(this),
-      addLink: this.addLink.bind(this),
-      updateCurrentTag: this.updateCurrentTag.bind(this),
-      selectAnnotation: this.selectAnnotation.bind(this),
-      appendAnnotation: this.appendAnnotation.bind(this),
-      toggleTagLock: this.toggleTagLock.bind(this),
-      deleteAnnotation: this.deleteAnnotation.bind(this),
-    };
-
     let editorContext = {
-      actions,
-      editorActions,
+      actions: this.actions,
+      editorActions: this.editorActions,
       hasChanges,
       initialAnnotations,
       lockedTags,
@@ -262,8 +273,6 @@ class AnnotationEditorProvider extends StatefulComponent<
       allowSelection: true,
       selected: selectedAnnotation,
     };
-
-    const { selectAnnotation } = actions;
 
     return h(
       AnnotationsContext.Provider,

@@ -2,14 +2,12 @@ import { hyperStyled } from "@macrostrat/hyper";
 import classNames from "classnames";
 import { Button } from "@blueprintjs/core";
 import { Omnibar, IOmnibarProps } from "@blueprintjs/select";
-import {
-  useTags,
-  useAnnotationEditor,
-  useAnnotationActions,
-} from "~/providers";
+import { useCallback } from "react";
+import { useTags, useAnnotationEditor } from "~/providers";
 import Fuse from "fuse.js";
 import chroma from "chroma-js";
 import styles from "./main.styl";
+import { Tag, TagID } from "~/providers/tags";
 const h = hyperStyled(styles);
 
 interface TagItemProps {
@@ -46,15 +44,22 @@ type BoxLifecycleProps = Pick<IOmnibarProps<Tag>, "onClose" | "isOpen">;
 interface OmniboxProps extends BoxLifecycleProps {
   selectedTag: Tag;
   onSelectTag: (t: Tag) => void;
+  updateCurrentTag: (t: TagID) => void;
+  currentTag: TagID;
   listItemComponent?: React.ComponentType<TagItemProps>;
 }
 
 const AnnotationTypeOmnibox = (props: OmniboxProps) => {
   /** A general omnibox for annotation types */
-  const { onSelectTag, listItemComponent, isOpen, onClose } = props;
+  const {
+    onSelectTag,
+    listItemComponent,
+    currentTag,
+    updateCurrentTag,
+    isOpen,
+    onClose,
+  } = props;
   const tags = useTags();
-  const { currentTag } = useAnnotationEditor();
-  const { updateCurrentTag } = useAnnotationActions();
 
   const options = {
     shouldSort: true,
@@ -64,22 +69,25 @@ const AnnotationTypeOmnibox = (props: OmniboxProps) => {
 
   let fuse = null;
 
-  const itemListRenderer = (obj) => {
-    const { filteredItems } = obj;
-    return h(
-      "div.item-list",
-      null,
-      filteredItems.map((tag: Tag) => {
-        const active = tag.tag_id === currentTag;
-        const onSelect = updateCurrentTag(tag.tag_id);
-        return h(listItemComponent, {
-          active,
-          onSelect,
-          tag,
-        });
-      })
-    );
-  };
+  const itemListRenderer = useCallback(
+    (obj) => {
+      const { filteredItems } = obj;
+      return h(
+        "div.item-list",
+        null,
+        filteredItems.map((tag: Tag) => {
+          const active = tag.tag_id === currentTag;
+          const onSelect = updateCurrentTag(tag.tag_id);
+          return h(listItemComponent, {
+            active,
+            onSelect,
+            tag,
+          });
+        })
+      );
+    },
+    [currentTag]
+  );
 
   return h(Omnibar, {
     onItemSelect(tag) {
@@ -141,9 +149,13 @@ const LockableListItem = (props: LockableItemProps) => {
 LockableListItem.defaultProps = { locked: false };
 
 const AnnotationTypeSelector = (props) => {
+  const { currentTag, actions } = useAnnotationEditor();
+  const { updateCurrentTag } = actions;
   /** A lockable annotation type selector (first output, for tagging app) */
   return h(AnnotationTypeOmnibox, {
     ...props,
+    currentTag,
+    updateCurrentTag,
     listItemComponent: LockableListItem,
   });
 };

@@ -6,7 +6,7 @@ import { Component, useLayoutEffect, useRef } from "react";
 import { findDOMNode } from "react-dom";
 import { select, event } from "d3-selection";
 import { drag } from "d3-drag";
-import h from "react-hyperscript";
+import h from "@macrostrat/hyper";
 import { Spec } from "immutability-helper";
 import { AnnotationRect, CanvasSizeContext, useCanvasSize } from "~/providers";
 
@@ -148,6 +148,7 @@ interface Size {
 interface DragRectProps extends RectProps {
   minSize?: Size;
   update(spec: Spec): void;
+  onClick(e: Event): void;
 }
 
 function mouseCoords() {
@@ -155,7 +156,9 @@ function mouseCoords() {
   return { x, y };
 }
 
-class DragRectangle extends Component {
+const stopPropagation = (event) => event.stopPropagation();
+
+class DragRectangle extends Component<DragRectProps, {}> {
   static contextType = CanvasSizeContext;
   constructor(props) {
     super(props);
@@ -173,12 +176,11 @@ class DragRectangle extends Component {
     const { children, update, bounds, color, onMouseDown } = this.props;
     const margin = 4;
     const className = update != null ? "draggable" : null;
-    let { onClick } = this.props;
+    const onClick = update == null ? this.props.onClick : stopPropagation;
 
     const isSelected = true;
     // TODO: not sure why we were overriding here, but it's weird...
     // maybe something to do with needing to capture mousdowns instead?
-    if (update != null) onClick = (e) => e.stopPropagation();
 
     const { dragInteraction } = this;
     return h(

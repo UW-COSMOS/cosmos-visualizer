@@ -1,24 +1,17 @@
 import h from "react-hyperscript"; //@macrostrat/hyper';
 import { SimpleAnnotation, Annotation, LockedAnnotation } from "./annotation";
 
-import { EditMode } from "../enum";
-import { AnnotationActions } from "~/providers/annotation-editor";
 import {
   useCanvasSize,
   useAnnotations,
   Annotation as IAnnotation,
-  Tag as ITag,
 } from "~/providers";
 
 interface AnnotationsOverlayProps {
   inProgressAnnotation?: IAnnotation | null;
-  lockedTags?: Set<string>;
-  toggleSelect?: () => void;
-  onSelectAnnotation?: (ix: number) => () => void;
   // Function to render a single annotation
   renderAnnotation(d: IAnnotation, ix?: number): React.ReactNode;
   onClick?: () => void;
-  tags?: ITag[];
   children?: React.ReactChild;
 }
 

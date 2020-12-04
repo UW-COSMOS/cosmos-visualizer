@@ -96,6 +96,7 @@ interface Props {
   actions: AnnotationActions;
 }
 interface State {
+  shiftKey: boolean;
   inProgressAnnotation: AnnotationArr | null;
 }
 
@@ -143,15 +144,11 @@ class ImageOverlay extends StatefulComponent<Props, State> {
   }
 
   renderInterior() {
-    const { tags, currentTag, lockedTags, actions, editingRect } = this.props;
     const { selectIsOpen, inProgressAnnotation } = this.state;
-
-    const onClick = this.disableEditing;
 
     return h(
       AnnotationsEditorHotkeys,
       {
-        editingRect,
         onShiftKeyDown: this.shiftKeyDown,
         onToggleSelect: this.toggleSelect,
         onDeleteAnnotation: this.deleteAnnotation,
@@ -163,9 +160,7 @@ class ImageOverlay extends StatefulComponent<Props, State> {
         }),
         h(AddAnnotationsOverlay, {
           inProgressAnnotation,
-          onClick,
-          toggleSelect: this.toggleSelect,
-          onSelectAnnotation: this.selectAnnotation,
+          onClick: this.disableEditing,
         }),
         h(AnnotationLinks),
         h(ModalNotifications),
@@ -195,20 +190,18 @@ class ImageOverlay extends StatefulComponent<Props, State> {
   }
 
   contextValue() {
-    const { actions, tags, currentTag } = this.props;
+    const { actions } = this.props;
     let { shiftKey } = this.state;
     actions.setMode = this.setMode;
 
     return {
-      tags,
-      currentTag,
       editModes: this.editModes(),
       shiftKey,
       actions: {
         toggleSelect: this.toggleSelect,
-        ...actions,
+        setMode: this.setMode,
       },
-      update: this.updateState,
+      //update: this.updateState,
     };
   }
 
@@ -222,11 +215,11 @@ class ImageOverlay extends StatefulComponent<Props, State> {
 
   render() {
     return h(
-      EditorContextForwarder,
-      { editModes: this.editModes(), setMode: this.setMode },
+      EditorContext.Provider,
+      { value: this.contextValue() },
       h(
-        EditorContext.Provider,
-        { value: this.contextValue() },
+        EditorContextForwarder,
+        { editModes: this.editModes(), setMode: this.setMode },
         this.renderInterior()
       )
     );

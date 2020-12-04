@@ -10,11 +10,10 @@ import {
   useTags,
   tagColor,
   useAnnotationColor,
-  useAnnotationUpdater,
   useAnnotationActions,
-  useAnnotationIndex,
   useSelectedAnnotation,
   useSelectionUpdater,
+  AnnotationsContext,
   Annotation as IAnnotation,
 } from "~/providers";
 
@@ -31,10 +30,10 @@ const tagCenter = function (boxes) {
 };
 
 const AnnotationPart = (props) => {
-  const { update, onDelete, bounds, color, ...rest } = props;
+  const { isSelected = true, update, onDelete, bounds, color, ...rest } = props;
 
   return h(Rectangle, { bounds, update, color, ...rest }, [
-    h.if(onDelete != null)(ToolButton, {
+    h.if(isSelected && onDelete != null)(ToolButton, {
       icon: "cross",
       className: "delete-rect",
       intent: Intent.DANGER,
@@ -72,17 +71,19 @@ const Annotation = (props: AnnotationProps) => {
   const { obj, index, multipartEditingEnabled = true, locked = null } = props;
   const { boxes, name: tag_name, tag_id } = obj;
 
+  const { selected } = useContext(AnnotationsContext);
   const { selectAnnotation, updateAnnotation } = useAnnotationActions()!;
   /* This could be simplified significantly;
      we rely on indexing to tell if we have the same annotations
   */
-  const update = useCallback(
+  let update = useCallback(
     (spec) => {
       updateAnnotation(index)(spec);
     },
     [index]
   );
-  const isSelected = update != null;
+  const isSelected = index == selected;
+  if (!isSelected) update = null;
   const overallBounds = tagBounds(boxes);
 
   let alpha = isSelected ? 0.6 : 0.3;
@@ -119,13 +120,13 @@ const Annotation = (props: AnnotationProps) => {
         backgroundColor: "none",
         style: { pointerEvents: "none" },
       },
-      [
+      h.if(isSelected)([
         h("div.tag-name", { style: { color: c.darken(2).css() } }, tagName),
         h(AnnotationControls, {
           annotationIndex: index,
           annotation: obj,
         }),
-      ]
+      ])
     ),
     h(
       "div.tag",
@@ -136,6 +137,7 @@ const Annotation = (props: AnnotationProps) => {
 
         return h(AnnotationPart, {
           bounds,
+          isSelected,
           update: annotationPartUpdater(update, i),
           onDelete: editingEnabled ? deletionCallback : null,
           onMouseDown,

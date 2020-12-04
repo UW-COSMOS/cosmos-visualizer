@@ -1,11 +1,8 @@
 import h from "@macrostrat/hyper";
 import { Hotkey, Hotkeys, HotkeysTarget } from "@blueprintjs/core";
-import { Annotation } from "~/providers";
 import { PureComponent } from "react";
-import { EditorContext } from "../context";
 
 interface Props {
-  editingRect: Annotation;
   children?: React.ReactNode;
   onShiftKeyDown(): void;
   onToggleSelect(): void;
@@ -13,14 +10,12 @@ interface Props {
 }
 
 class EditorHotkeys extends PureComponent<Props> {
-  static contextType = EditorContext;
   render() {
     return h("div.hotkeys-target", null, this.props.children);
   }
 
   renderHotkeys() {
     const { onDeleteAnnotation, onShiftKeyDown, onToggleSelect } = this.props;
-    const { actions } = this.context;
     return h(Hotkeys, [
       h(Hotkey, {
         label: "Delete rectangle",

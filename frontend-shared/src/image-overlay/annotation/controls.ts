@@ -10,6 +10,7 @@ import {
   useCanvasSize,
   useAnnotations,
   useAnnotationActions,
+  Annotation,
 } from "~/providers";
 
 const ToolButton = (props) =>
@@ -48,16 +49,20 @@ interface AnnotationControlsProps {
   children?: React.ReactNode;
 }
 
+const stopPropagation = (event) => event.stopPropagation();
+
 const ControlPanel = (props: AnnotationControlsProps) => {
   const { children, className } = props;
   // Make sure clicks on the control panel don't dismiss it
   // due to the competing overlay click handler
-  const onClick = useCallback((event) => event.stopPropagation(), []);
-  const onMouseOver = onClick;
-  const style = { pointerEvents: "visible" };
   return h(
     "div.rect-controls",
-    { className, onClick, onMouseOver, style },
+    {
+      className,
+      onClick: stopPropagation,
+      onMouseOver: stopPropagation,
+      style: { pointerEvents: "visible" },
+    },
     children
   );
 };
@@ -79,10 +84,9 @@ const LeftControlPanel = (props: AnnotationLeftControlProps) => {
 };
 
 const AnnotationControls = (props: AnnotationControlsProps) => {
-  const { annotationIndex: ix } = props;
+  const { annotationIndex: ix, annotation } = props;
 
   const { deleteAnnotation, updateAnnotation } = useAnnotationActions()!;
-  const annotation = useAnnotations()[ix];
   const { linked_to } = annotation;
 
   const update = useCallback(updateAnnotation(ix), [ix]);
