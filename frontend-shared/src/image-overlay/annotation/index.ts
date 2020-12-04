@@ -14,6 +14,7 @@ import {
   useSelectedAnnotation,
   useSelectionUpdater,
   AnnotationsContext,
+  useAnnotationEditor,
   Annotation as IAnnotation,
 } from "~/providers";
 
@@ -71,6 +72,7 @@ const Annotation = (props: AnnotationProps) => {
   const { obj, index, multipartEditingEnabled = true, locked = null } = props;
   const { boxes, name: tag_name, tag_id } = obj;
 
+  const { lockedTags } = useAnnotationEditor();
   const { selected } = useContext(AnnotationsContext);
   const { selectAnnotation, updateAnnotation } = useAnnotationActions()!;
   /* This could be simplified significantly;
@@ -92,7 +94,7 @@ const Annotation = (props: AnnotationProps) => {
   const c = tagColor(currentTag);
   const color = c.alpha(alpha).css();
   let tagName = currentTag.name ?? tag_name;
-  let tagIsLocked = locked ?? currentTag.locked;
+  let tagIsLocked = locked ?? lockedTags.has(tag_id);
 
   // Sometimes we don't return tags
 
@@ -105,7 +107,7 @@ const Annotation = (props: AnnotationProps) => {
   );
 
   if (tagIsLocked) {
-    return LockedAnnotation(obj);
+    return h(LockedAnnotation, { obj, index });
   }
 
   const className = classNames({ active: isSelected });

@@ -74,6 +74,7 @@ function EditorContextForwarder(props) {
       // Make sure we don't activate the
       // general click or drag handlers
       if (editModes.has(LINK)) {
+        console.log(`Adding link to ${id}`);
         addLink(id);
         setMode(LINK, false);
       } else {
