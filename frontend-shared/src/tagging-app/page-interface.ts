@@ -211,7 +211,8 @@ class TaggingPage extends StatefulComponent {
     }
     console.log(`Getting image from endpoint ${imageToDisplay}`);
     const d = await get(
-      imageToDisplay,
+      "dsadgaer",
+      //imageToDisplay,
       { stack_name: hacky_stack_id },
       {
         unwrapResponse(res) {
@@ -221,7 +222,6 @@ class TaggingPage extends StatefulComponent {
         },
       }
     );
-
     // On image loaded
 
     if (Array.isArray(d) && d.length === 1) {

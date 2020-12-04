@@ -125,18 +125,12 @@ AnnotationTypeOmnibox.defaultProps = {
   listItemComponent: TagListItem,
 };
 
-interface LockableItemProps extends TagItemProps {
-  toggleLock(v: Tag): void;
-  locked: boolean;
-}
-
-const LockableListItem = (props: LockableItemProps) => {
+const LockableListItem = (props: TagItemProps) => {
   let { tag, ...rest } = props;
 
   const ctx = useAnnotationEditor()!;
   const { lockedTags } = ctx;
   const { toggleTagLock } = ctx.actions!;
-  const toggleLock = toggleTagLock(tag.tag_id);
   const locked = lockedTags.has(tag.tag_id);
 
   const icon = locked ? "lock" : "unlock";
@@ -149,7 +143,7 @@ const LockableListItem = (props: LockableItemProps) => {
       icon,
       small: true,
       onClick(event: React.MouseEvent) {
-        toggleLock();
+        toggleTagLock(tag.tag_id);
         event.stopPropagation();
       },
     })

@@ -22,7 +22,7 @@ export interface AnnotationActions {
   selectAnnotation(i: AnnotationID): void;
   updateAnnotation(i: AnnotationID): TagUpdater;
   addLink(i: AnnotationID): void;
-  toggleTagLock(i: TagID): () => void;
+  toggleTagLock(i: TagID): void;
   updateCurrentTag(i: TagID, updateSelected: boolean): void;
   // This should not be passed through...
   //updateState(spec: UpdateSpec): void
@@ -203,37 +203,35 @@ class AnnotationEditorProvider extends StatefulComponent<
   }
 
   toggleTagLock(tagId: TagID) {
-    return () => {
-      const tagStore: Tag[] = this.context;
-      const { currentTag, lockedTags } = this.state;
+    const tagStore: Tag[] = this.context;
+    const { currentTag, lockedTags } = this.state;
 
-      if (lockedTags.has(tagId)) {
-        lockedTags.delete(tagId);
-      } else {
-        lockedTags.add(tagId);
-      }
+    if (lockedTags.has(tagId)) {
+      lockedTags.delete(tagId);
+    } else {
+      lockedTags.add(tagId);
+    }
 
-      // Check if locked and then get next unlocked tag
-      let ix = tagStore.findIndex((d) => d.tag_id === currentTag);
-      let forward = true;
-      while (lockedTags.has(tagStore[ix].tag_id)) {
-        ix += forward ? 1 : -1;
-        if (ix > tagStore.length - 1) {
-          forward = false;
-          ix -= 1;
-        }
-        if (ix < 0) {
-          forward = true;
-        }
+    // Check if locked and then get next unlocked tag
+    let ix = tagStore.findIndex((d) => d.tag_id === currentTag);
+    let forward = true;
+    while (lockedTags.has(tagStore[ix].tag_id)) {
+      ix += forward ? 1 : -1;
+      if (ix > tagStore.length - 1) {
+        forward = false;
+        ix -= 1;
       }
+      if (ix < 0) {
+        forward = true;
+      }
+    }
 
-      const nextTag = tagStore[ix].tag_id;
-      const spec = { lockedTags: { $set: lockedTags } };
-      if (nextTag !== currentTag) {
-        spec.currentTag = { $set: nextTag };
-      }
-      this.updateState(spec);
-    };
+    const nextTag = tagStore[ix].tag_id;
+    const spec = { lockedTags: { $set: lockedTags } };
+    if (nextTag !== currentTag) {
+      spec.currentTag = { $set: nextTag };
+    }
+    this.updateState(spec);
   }
 
   clearChanges() {
