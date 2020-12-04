@@ -100,9 +100,9 @@ const StaticRectangle = (props: RectProps) => {
   const clickHandler = onMouseDown ?? onClick;
   // Replace componentDidMount/findDOMNode with useRef and and useEffect
   const ref = useRef(null);
-  useLayoutEffect(function () {
-    select(ref.current).on("mousedown", clickHandler);
-  }, []);
+  useLayoutEffect(() => {
+    ref.current?.addEventListener("mousedown", clickHandler);
+  }, [ref.current]);
 
   width /= scaleFactor;
   height /= scaleFactor;

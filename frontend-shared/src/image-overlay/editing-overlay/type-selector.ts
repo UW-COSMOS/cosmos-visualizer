@@ -49,7 +49,7 @@ type BoxLifecycleProps = Pick<IOmnibarProps<Tag>, "onClose" | "isOpen">;
 interface OmniboxProps extends BoxLifecycleProps {
   selectedTag: Tag;
   onSelectTag: (t: Tag) => void;
-  updateCurrentTag: (t: TagID) => void;
+  updateCurrentTag: (t: TagID, selected: boolean) => void;
   currentTag: TagID;
   listItemComponent?: React.ComponentType<TagItemProps>;
 }
@@ -74,6 +74,14 @@ const AnnotationTypeOmnibox = (props: OmniboxProps) => {
 
   let fuse = null;
 
+  const onSelect = useCallback(
+    (tag: Tag) => {
+      updateCurrentTag(tag.tag_id, true);
+      onClose();
+    },
+    [updateCurrentTag, onClose]
+  );
+
   const itemListRenderer = useCallback(
     (props: IItemListRendererProps<Tag>) => {
       const { filteredItems, activeItem } = props;
@@ -82,7 +90,6 @@ const AnnotationTypeOmnibox = (props: OmniboxProps) => {
         null,
         filteredItems.map((tag: Tag) => {
           const selected = tag.tag_id === currentTag;
-          const onSelect = updateCurrentTag(tag.tag_id);
           return h(listItemComponent, {
             selected,
             active: tag == activeItem,
@@ -96,9 +103,7 @@ const AnnotationTypeOmnibox = (props: OmniboxProps) => {
   );
 
   return h<Tag>(Omnibar, {
-    onItemSelect(tag: Tag) {
-      updateCurrentTag(tag.tag_id)();
-    },
+    onItemSelect: onSelect,
     items: tags,
     resetOnSelect: true,
     isOpen,

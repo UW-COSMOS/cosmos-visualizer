@@ -1,7 +1,8 @@
 import { createContext, useContext } from "react";
-import h from "react-hyperscript";
+import h from "@macrostrat/hyper";
 import chroma, { Color } from "chroma-js";
 import { useAPIResult } from "@macrostrat/ui-components";
+import { Tag } from "./types";
 
 const TagsContext = createContext<Tag[]>([]);
 type TagsProviderProps = React.PropsWithChildren<{ tags: Tag[] }>;
@@ -21,7 +22,7 @@ function tagColor(tag?: Tag): Color {
   return chroma(tag?.color ?? "black");
 }
 
-function useTagColor(tag_id: number): Color {
+function useTagColor(tag_id: string): Color {
   const tags = useTags();
   return tagColor(tags.find((d) => d.tag_id === tag_id));
 }

@@ -98,8 +98,9 @@ const Annotation = (props: AnnotationProps) => {
 
   const onMouseDown = useCallback(
     (event) => {
+      console.log(event);
       selectAnnotation(index);
-      event?.stopPropagation();
+      event.stopPropagation();
     },
     [index]
   );

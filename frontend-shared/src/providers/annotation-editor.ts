@@ -1,18 +1,13 @@
-import h from "react-hyperscript";
+import h from "@macrostrat/hyper";
 import { createContext, useContext } from "react";
-import {
-  AnnotationsContext,
-  Annotation,
-  AnnotationRect,
-  SelectionUpdateContext,
-} from "./annotations";
+import { AnnotationsContext, SelectionUpdateContext } from "./annotations";
 import { TagsContext } from "./tags";
 import { isDifferent } from "./util";
 import uuidv4 from "uuid/v4";
 import { StatefulComponent } from "@macrostrat/ui-components";
 import { Spec } from "immutability-helper";
+import { Annotation, AnnotationID, TagID, Tag } from "./types";
 
-type AnnotationID = number;
 type UpdateSpec = object;
 type TagUpdater = (s: UpdateSpec) => void;
 
@@ -28,7 +23,7 @@ export interface AnnotationActions {
   updateAnnotation(i: AnnotationID): TagUpdater;
   addLink(i: AnnotationID): void;
   toggleTagLock(i: TagID): () => void;
-  updateCurrentTag(i: TagID): () => void;
+  updateCurrentTag(i: TagID, updateSelected: boolean): void;
   // This should not be passed through...
   //updateState(spec: UpdateSpec): void
 }
@@ -175,16 +170,18 @@ class AnnotationEditorProvider extends StatefulComponent<
     this.updateState(spec);
   }
 
-  updateCurrentTag(tag_id: TagID) {
-    return () => {
-      console.log(`Current tag: ${tag_id}`);
-      return this.updateState({ currentTag: { $set: tag_id } });
-    };
+  updateCurrentTag(tag_id: TagID, updateSelected: boolean = false) {
+    console.log(`Current tag: ${tag_id}`);
+    let spec: Spec<AnnotationEditorState> = { currentTag: { $set: tag_id } };
+    let ix = this.state.selectedAnnotation;
+    if (updateSelected && ix > -1) {
+      spec.annotations = { [ix]: { tag_id: { $set: tag_id } } };
+    }
+    this.updateState(spec);
   }
 
   selectAnnotation(i: AnnotationID) {
     console.log(`Selecting annotation ${i}`);
-    if (i == null) return;
     return this.updateState({ selectedAnnotation: { $set: i } });
   }
 

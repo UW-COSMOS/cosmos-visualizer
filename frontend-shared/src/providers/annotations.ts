@@ -5,6 +5,7 @@ import {
   useContext,
   useCallback,
 } from "react";
+import { Annotation, AnnotationID } from "./types";
 import h from "react-hyperscript";
 import { useTags } from "./tags";
 import chroma from "chroma-js";

@@ -25,6 +25,7 @@ import {
   useSelectionUpdater,
   useCanvasSize,
   Tag,
+  TagID,
   AnnotationArr,
   AnnotationActions,
   Annotation as IAnnotation,
@@ -82,7 +83,10 @@ function EditorContextForwarder(props) {
     [editModes, selectAnnotation, setMode, addLink]
   );
 
-  const newActions = { ...ctx.actions, selectAnnotation: newSelectAnnotation };
+  const newActions = {
+    ...ctx.actions,
+    selectAnnotation: newSelectAnnotation,
+  };
   const newCtx = { ...ctx, actions: newActions };
 
   return h(AnnotationEditorCtxProvider, { value: newCtx }, children);
