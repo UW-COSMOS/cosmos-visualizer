@@ -15,6 +15,7 @@ export interface Annotation {
   tag_id: TagID;
   // Potentially, the uuid of another tag on the page
   image_tag_id?: string;
+  linked_to?: string;
   score?: number;
   obj_id?: number;
 }

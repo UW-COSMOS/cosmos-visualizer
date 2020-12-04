@@ -150,17 +150,18 @@ class AnnotationEditorProvider extends StatefulComponent<
     this.updateState(spec);
   }
 
-  deleteAnnotation(i: number) {
+  deleteAnnotation(annotationIndex: number) {
+    if (annotationIndex == null || annotationIndex < 0) return;
     const { annotations, selectedAnnotation } = this.state;
-    const spec: Spec = {
-      annotations: { $splice: [[i, 1]] },
+    const spec: Spec<AnnotationEditorState> = {
+      annotations: { $splice: [[annotationIndex, 1]] },
     };
-    if (selectedAnnotation != null && i === selectedAnnotation) {
+    if (selectedAnnotation != null && annotationIndex === selectedAnnotation) {
       spec.selectedAnnotation = { $set: null };
     }
     // Zero out links to this annotation
-    const { image_tag_id } = annotations[selectedAnnotation];
-    for (i = 0; i < annotations.length; i++) {
+    const { image_tag_id } = annotations[annotationIndex];
+    for (let i = 0; i < annotations.length; i++) {
       const rect = annotations[i];
       if (rect.linked_to !== image_tag_id) {
         continue;
