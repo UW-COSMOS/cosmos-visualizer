@@ -98,7 +98,6 @@ const Annotation = (props: AnnotationProps) => {
 
   const onMouseDown = useCallback(
     (event) => {
-      console.log(event);
       selectAnnotation(index);
       event.stopPropagation();
     },
@@ -121,13 +120,13 @@ const Annotation = (props: AnnotationProps) => {
         backgroundColor: "none",
         style: { pointerEvents: "none" },
       },
-      h.if(isSelected)([
+      [
         h("div.tag-name", { style: { color: c.darken(2).css() } }, tagName),
-        h(AnnotationControls, {
+        h.if(isSelected)(AnnotationControls, {
           annotationIndex: index,
           annotation: obj,
         }),
-      ])
+      ]
     ),
     h(
       "div.tag",
@@ -223,7 +222,10 @@ const SelectableAnnotation = (props: AnnotationProps) => {
   return h(BasicAnnotation, {
     ...props,
     alpha: isSelected ? 0.6 : 0.3,
-    onClick: () => updateSelection(props.obj),
+    onClick: (event) => {
+      updateSelection(props.obj);
+      event.stopPropagation();
+    },
   });
 };
 

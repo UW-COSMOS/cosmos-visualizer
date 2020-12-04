@@ -306,6 +306,7 @@ class ImageOverlay extends StatefulComponent<Props, State> {
 
   disableEditing() {
     const { editingRect, updateSelection } = this.props;
+    console.log("Clicking outside of a tag");
     if (editingRect == null) {
       return;
     }

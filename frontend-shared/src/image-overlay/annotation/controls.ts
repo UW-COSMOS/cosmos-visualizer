@@ -106,7 +106,10 @@ const AnnotationControls = (props: AnnotationControlsProps) => {
   return h(LeftControlPanel, { annotation }, [
     h(ToolButton, {
       icon: "tag",
-      onClick: toggleSelect,
+      onClick: () => {
+        console.log("Toggling select");
+        toggleSelect();
+      },
     }),
     h(LinkButton, { update, linked_to }),
     h(ToolButton, {

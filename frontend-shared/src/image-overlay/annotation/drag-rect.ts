@@ -278,8 +278,12 @@ class DragRectangle extends Component<DragRectProps, {}> {
   }
 
   componentDidMount() {
-    const el = select(findDOMNode(this));
-    return el.call(this.dragInteraction());
+    const el = findDOMNode(this);
+    // Make sure we don't propagate clicks to the underlying element...
+    el.addEventListener("click", (evt: Event) => {
+      evt.stopPropagation();
+    });
+    return select(el).call(this.dragInteraction());
   }
 }
 
