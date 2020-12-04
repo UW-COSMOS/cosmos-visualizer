@@ -308,10 +308,10 @@ class ImageOverlay extends StatefulComponent<Props, State> {
     return updateSelection(null);
   }
 
-  toggleSelect = () => {
+  toggleSelect() {
     console.log("Opening select box");
     return this.setState({ selectIsOpen: true });
-  };
+  }
 
   handleShift(val) {
     return () => {

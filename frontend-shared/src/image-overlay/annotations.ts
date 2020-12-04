@@ -1,5 +1,5 @@
-import h from "react-hyperscript"; //@macrostrat/hyper';
-import { SimpleAnnotation, Annotation, LockedAnnotation } from "./annotation";
+import h from "@macrostrat/hyper";
+import { SimpleAnnotation } from "./annotation";
 
 import {
   useCanvasSize,

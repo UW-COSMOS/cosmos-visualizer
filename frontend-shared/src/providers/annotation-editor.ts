@@ -279,9 +279,7 @@ class AnnotationEditorProvider extends StatefulComponent<
       { value: annotationsContext },
       h(
         AnnotationEditorCtxProvider,
-        {
-          value: editingEnabled ? editorContext : null,
-        },
+        { value: editingEnabled ? editorContext : null },
         children
       )
     );

@@ -1,7 +1,11 @@
 import { hyperStyled } from "@macrostrat/hyper";
 import classNames from "classnames";
 import { Button } from "@blueprintjs/core";
-import { Omnibar, IOmnibarProps } from "@blueprintjs/select";
+import {
+  Omnibar,
+  IOmnibarProps,
+  IItemListRendererProps,
+} from "@blueprintjs/select";
 import { useCallback } from "react";
 import { useTags, useAnnotationEditor } from "~/providers";
 import Fuse from "fuse.js";
@@ -11,6 +15,7 @@ import { Tag, TagID } from "~/providers/tags";
 const h = hyperStyled(styles);
 
 interface TagItemProps {
+  selected: boolean;
   active: boolean;
   className?: string;
   tag: Tag;
@@ -20,11 +25,11 @@ interface TagItemProps {
 
 const TagListItem: React.ComponentType<TagItemProps> = (props) => {
   /** Render a tag for the omnibox list */
-  let { active, className, onSelect, tag, children } = props;
-  className = classNames({ active }, className);
+  let { active, selected, className, onSelect, tag, children } = props;
+  className = classNames({ active, selected }, className);
   const color = chroma(tag.color);
-  const light = color.set("hsl.l", active ? 0.5 : 0.95);
-  const dark = color.set("hsl.l", active ? 0.95 : 0.5);
+  const light = color.set("hsl.l", selected ? 0.5 : 0.95);
+  const dark = color.set("hsl.l", selected ? 0.95 : 0.5);
 
   const onClick = () => onSelect(tag);
 
@@ -70,16 +75,17 @@ const AnnotationTypeOmnibox = (props: OmniboxProps) => {
   let fuse = null;
 
   const itemListRenderer = useCallback(
-    (obj) => {
-      const { filteredItems } = obj;
+    (props: IItemListRendererProps<Tag>) => {
+      const { filteredItems, activeItem } = props;
       return h(
         "div.item-list",
         null,
         filteredItems.map((tag: Tag) => {
-          const active = tag.tag_id === currentTag;
+          const selected = tag.tag_id === currentTag;
           const onSelect = updateCurrentTag(tag.tag_id);
           return h(listItemComponent, {
-            active,
+            selected,
+            active: tag == activeItem,
             onSelect,
             tag,
           });
@@ -89,18 +95,17 @@ const AnnotationTypeOmnibox = (props: OmniboxProps) => {
     [currentTag]
   );
 
-  return h(Omnibar, {
-    onItemSelect(tag) {
+  return h<Tag>(Omnibar, {
+    onItemSelect(tag: Tag) {
       updateCurrentTag(tag.tag_id)();
     },
     items: tags,
     resetOnSelect: true,
     isOpen,
     onClose,
-    itemRenderer: undefined,
     itemListRenderer,
     itemListPredicate(query, items) {
-      if (query === "") {
+      if (query == null || query === "") {
         return items;
       }
       if (fuse == null) {
