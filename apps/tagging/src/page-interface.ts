@@ -7,7 +7,7 @@ import { ImageOverlay } from "~/image-overlay";
 import { ScaledImagePanel } from "~/page-interface/scaled-image";
 import { StatefulComponent, APIActions } from "@macrostrat/ui-components";
 import { Component, createContext } from "react";
-import { AppToaster } from "../toaster";
+import { AppToaster } from "~/toaster";
 import { APIContext, ErrorMessage } from "~/api";
 import { PageFrame } from "~/page-interface";
 import { APITagsProvider, AnnotationEditorProvider } from "~/providers";

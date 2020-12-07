@@ -43,15 +43,7 @@ module.exports = (env, argv) => {
           test: /\.(js|jsx|ts|tsx)$/,
           use: [jsLoader],
           // https://github.com/webpack/webpack/issues/2031
-          include: [
-            path.resolve(__dirname, "src"),
-            path.resolve(
-              __dirname,
-              "node_modules",
-              "@macrostrat",
-              "ui-components"
-            ),
-          ],
+          exclude: /node_modules/,
         },
         { test: /\.(png|jpe?g|gif)$/i, use: ["file-loader"] },
         { test: /\.styl$/, use: ["style-loader", "css-loader", stylusLoader] },

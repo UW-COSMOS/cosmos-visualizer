@@ -14,7 +14,8 @@
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "tagger-demo": "cd apps/tagger-demo && npm run dev"
+    "tagger-demo": "cd apps/tagger-demo && npm run dev",
+    "tagging": "cd apps/tagging && npm install && npm run dev"
   },
   "repository": {
     "type": "git",
