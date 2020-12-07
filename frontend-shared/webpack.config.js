@@ -1,6 +1,7 @@
 let path = require("path");
 const { EnvironmentPlugin } = require("webpack");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
+require("dotenv").config();
 
 let assetsDir = path.resolve(__dirname, "dist");
 let assetsRoute = process.env.PUBLIC_URL || "";
@@ -80,6 +81,7 @@ module.exports = (env, argv) => {
         "~": path.resolve(__dirname, "src/"),
         app: path.resolve(__dirname, "src/"),
         // Fix "two copies of react"
+        // TODO: this is a kind of outdated signature that a better bundling strategy could fix
         react: path.resolve(__dirname, "node_modules", "react"),
         "react-dom": path.resolve(__dirname, "node_modules", "react-dom"),
         "react-router": path.resolve(__dirname, "node_modules", "react-router"),

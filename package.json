@@ -4,8 +4,8 @@
   "private": true,
   "description": "The **COSMOS** visualizer codebase consists of several applications that build training datasets and showcase model results for the **COSMOS** knowledge-base extraction pipeline. Separate apps for _tagging_, _validation_, and _knowledge-base visualization_ are included.",
   "main": "index.js",
-  "dependencies": {},
   "devDependencies": {
+    "dotenv": "^8.2.0",
     "husky": "^4.3.0",
     "lerna": "^3.22.1",
     "pretty-quick": "^3.0.2",
