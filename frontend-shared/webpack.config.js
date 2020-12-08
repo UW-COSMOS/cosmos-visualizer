@@ -2,6 +2,11 @@ let path = require("path");
 const { EnvironmentPlugin } = require("webpack");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 
+// LOAD ENVIRONMENT VARIABLES from .env file in cwd (not necessarily this directory)
+require("dotenv").config();
+
+console.log(__dirname);
+
 let assetsDir = path.resolve(__dirname, "dist");
 let assetsRoute = process.env.PUBLIC_URL || "";
 
@@ -43,15 +48,7 @@ module.exports = (env, argv) => {
           test: /\.(js|jsx|ts|tsx)$/,
           use: [jsLoader],
           // https://github.com/webpack/webpack/issues/2031
-          include: [
-            path.resolve(__dirname, "src"),
-            path.resolve(
-              __dirname,
-              "node_modules",
-              "@macrostrat",
-              "ui-components"
-            ),
-          ],
+          exclude: /node_modules/,
         },
         { test: /\.(png|jpe?g|gif)$/i, use: ["file-loader"] },
         { test: /\.styl$/, use: ["style-loader", "css-loader", stylusLoader] },
@@ -88,6 +85,7 @@ module.exports = (env, argv) => {
         "~": path.resolve(__dirname, "src/"),
         app: path.resolve(__dirname, "src/"),
         // Fix "two copies of react"
+        // TODO: this is a kind of outdated signature that a better bundling strategy could fix
         react: path.resolve(__dirname, "node_modules", "react"),
         "react-dom": path.resolve(__dirname, "node_modules", "react-dom"),
         "react-router": path.resolve(__dirname, "node_modules", "react-router"),

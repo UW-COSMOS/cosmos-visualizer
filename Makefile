@@ -1,13 +1,9 @@
-all:
-	bin/run-frontend --production visualizer
-
-tagger:
-	bin/run-tagging
+all: xdd
 
 xdd:
-	docker build -t xdd_cosmos_visualizer:latest -f frontend-shared/Dockerfile.xdd frontend-shared
+	docker build -t xdd_cosmos_visualizer:latest -f apps/visualizer-xdd/Dockerfile .
 	docker run -p 8080:80 xdd_cosmos_visualizer:latest
 
-xdd-tagging:
-	docker build -t xdd_cosmos_tagging:latest -f frontend-shared/Dockerfile.xdd-tagging frontend-shared
-	docker run -p 8080:80 xdd_cosmos_tagging:latest
+tagger-xdd:
+	docker build -t xdd_cosmos_tagger:latest -f apps/tagger-xdd/Dockerfile .
+	docker run -p 8080:80 xdd_cosmos_tagger:latest

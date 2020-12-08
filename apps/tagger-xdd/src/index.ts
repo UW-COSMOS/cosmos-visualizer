@@ -3,16 +3,18 @@ import { getEnvironmentConfig } from "~/shared/_env";
 
 import { render } from "react-dom";
 import h, { compose, C } from "@macrostrat/hyper";
-import { APIProvider } from "../api";
+import { APIProvider } from "~/api";
 import { ImageStoreProvider } from "./page-interface";
 import { PublicURLProvider } from "~/providers";
 import { TaggingApplication } from "./app";
+import { DarkModeProvider } from "@macrostrat/ui-components";
 
 const AppHolder = (props) => {
   const { baseURL, imageBaseURL, publicURL, children } = props;
   // Nest a bunch of providers
   return h(
     compose(
+      DarkModeProvider,
       C(PublicURLProvider, { publicURL }),
       C(APIProvider, { baseURL }),
       C(ImageStoreProvider, { baseURL: imageBaseURL }),

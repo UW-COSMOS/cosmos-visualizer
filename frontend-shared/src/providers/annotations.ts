@@ -1,10 +1,4 @@
-import {
-  useState,
-  useReducer,
-  createContext,
-  useContext,
-  useCallback,
-} from "react";
+import { useState, createContext, useContext, useCallback } from "react";
 import { Annotation, AnnotationID } from "./types";
 import h from "react-hyperscript";
 import { useTags } from "./tags";
