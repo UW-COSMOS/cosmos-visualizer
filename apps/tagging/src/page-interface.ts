@@ -65,8 +65,7 @@ class ImageContainer extends Component<ContainerProps, ContainerState> {
     //const {resize_bytes} = image;
     //return "data:image/png;base64," + resize_bytes;
     const prefix = "https://xdddev.chtc.io/tagger";
-    const imgPath = image.file_path.replace(/^(\/data\/pngs)/, "/images");
-
+    const imgPath = image.file_path.replace(/^(\/data\/pngs\/)/, "/images");
     return join(prefix, imgPath);
   }
 

@@ -9,5 +9,6 @@ xdd:
 	docker run -p 8080:80 xdd_cosmos_visualizer:latest
 
 xdd-tagging:
-	docker build -t xdd_cosmos_tagging:latest -f frontend-shared/Dockerfile.xdd-tagging frontend-shared
+	docker build -t xdd_cosmos_tagging:latest \
+		-f apps/tagging/Dockerfile.xdd-tagging .
 	docker run -p 8080:80 xdd_cosmos_tagging:latest

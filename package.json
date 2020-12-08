@@ -13,6 +13,7 @@
     "webpack-cli": "^3.3.11"
   },
   "scripts": {
+    "preinstall": "npm --prefix frontend-shared install",
     "test": "echo \"Error: no test specified\" && exit 1",
     "tagger-demo": "cd apps/tagger-demo && npm run dev",
     "tagging": "cd apps/tagging && npm install && npm run dev"
@@ -22,8 +23,8 @@
     "url": "git+https://github.com/UW-COSMOS/cosmos-visualizer.git"
   },
   "workspaces": [
-    "packages/*",
     "apps/*",
+    "packages/*",
     "frontend-shared"
   ],
   "author": "Daven Quinn",

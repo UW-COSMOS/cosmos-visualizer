@@ -81,8 +81,7 @@
   },
   "scripts": {
     "dev": "./run-local visualizer",
-    "dev:validation": "./run-local validation",
-    "postinstall": "replace 'followSymlinks: false' 'followSymlinks: true' node_modules/watchpack/lib/DirectoryWatcher.js"
+    "dev:validation": "./run-local validation"
   },
   "repository": {
     "type": "git",
