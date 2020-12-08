@@ -21,6 +21,7 @@ jobs:
         with:
           path: .
           dockerfile: ./apps/visualizer-xdd/Dockerfile
+          cache_from: uwxdd/cosmos_set_visualizer
           build_args: PUBLIC_URL=/set_visualizer
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
@@ -32,6 +33,7 @@ jobs:
         with:
           path: .
           dockerfile: ./apps/tagger-xdd/Dockerfile
+          cache_from: uwxdd/cosmos_set_visualizer
           build_args: PUBLIC_URL=/tagger,XDD_BASE_URL=https://xdddev.chtc.io/tagger/
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
