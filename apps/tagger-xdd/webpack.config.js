@@ -1,11 +1,23 @@
+const { EnvironmentPlugin } = require("webpack");
+const HtmlWebpackPlugin = require("html-webpack-plugin");
 let path = require("path");
 let cfg = require("../../frontend-shared/webpack.config.js");
+
 module.exports = function (env, argv) {
   let baseConfig = cfg(env, argv);
-  baseConfig.entry = "./src/index.ts";
-  baseConfig.context = __dirname;
   baseConfig.output.path = path.resolve(__dirname, "dist");
 
-  console.log(baseConfig);
-  return baseConfig;
+  return {
+    ...baseConfig,
+    context: __dirname,
+    entry: "./src/index.ts",
+    plugins: [
+      // Replace plugins entirely
+      new HtmlWebpackPlugin({ title: "xDD — COSMOS tagger" }),
+      new EnvironmentPlugin({
+        XDD_BASE_URL: "https://xdd.wisc.edu",
+        PUBLIC_URL: "/",
+      }),
+    ],
+  };
 };

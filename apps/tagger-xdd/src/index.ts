@@ -1,6 +1,4 @@
 import "~/shared/_init";
-import { getEnvironmentConfig } from "~/shared/_env";
-
 import { render } from "react-dom";
 import h, { compose, C } from "@macrostrat/hyper";
 import { APIProvider } from "~/api";
@@ -9,8 +7,10 @@ import { PublicURLProvider } from "~/providers";
 import { TaggingApplication } from "./app";
 import { DarkModeProvider } from "@macrostrat/ui-components";
 
-const AppHolder = (props) => {
-  const { baseURL, imageBaseURL, publicURL, children } = props;
+const App = (props) => {
+  const publicURL = process.env.PUBLIC_URL;
+  const baseURL = process.env.XDD_BASE_URL + "/tagger/api";
+  const imageBaseURL = process.env.XDD_BASE_URL + "/tagger/images";
   // Nest a bunch of providers
   return h(
     compose(
@@ -18,21 +18,11 @@ const AppHolder = (props) => {
       C(PublicURLProvider, { publicURL }),
       C(APIProvider, { baseURL }),
       C(ImageStoreProvider, { baseURL: imageBaseURL }),
-      C(TaggingApplication, props)
-    ),
-    children
+      C(TaggingApplication)
+    )
   );
 };
 
-const createUI = function (opts) {
-  console.log("Creating UI");
-  // Image base url is properly set here
-  const el = document.createElement("div");
-  document.body.appendChild(el);
-  const env = getEnvironmentConfig(opts);
-  const __ = h(AppHolder, { ...env });
-  return render(__, el);
-};
-
-// Actually run the UI (changed for webpack)
-createUI();
+const el = document.createElement("div");
+document.body.appendChild(el);
+render(h(App), el);
