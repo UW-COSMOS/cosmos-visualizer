@@ -6,6 +6,7 @@ import {
   Intent,
   Alignment,
 } from "@blueprintjs/core";
+import { DarkModeButton } from "@macrostrat/ui-components";
 
 import { useState, ComponentProps } from "react";
 import { PermalinkButton } from "~/shared/router";
@@ -20,7 +21,7 @@ interface FrameProps extends ComponentProps<typeof PersistenceButtons> {
   currentImage: Image;
   subtitleText?: string;
   editingEnabled?: boolean;
-  navigationEnabled: boolean;
+  navigationEnabled?: boolean;
 }
 
 const sendKey = (k: number, opts = {}): void => {
@@ -37,7 +38,7 @@ const PageFrame = (props: FrameProps) => {
   const {
     subtitleText,
     currentImage: image,
-    navigationEnabled,
+    navigationEnabled = true,
     getNextImage,
     children,
   } = props;
@@ -72,6 +73,7 @@ const PageFrame = (props: FrameProps) => {
             onClick: getNextImage,
           }),
         ]),
+        h(DarkModeButton, { minimal: true }),
       ]),
     ]),
     children,

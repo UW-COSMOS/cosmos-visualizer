@@ -7,7 +7,7 @@ import { ImageOverlay } from "~/image-overlay";
 import { ScaledImagePanel } from "~/page-interface/scaled-image";
 import { StatefulComponent, APIActions } from "@macrostrat/ui-components";
 import { Component, createContext } from "react";
-import { AppToaster } from "../toaster";
+import { AppToaster } from "~/toaster";
 import { APIContext, ErrorMessage } from "~/api";
 import { PageFrame } from "~/page-interface";
 import { APITagsProvider, AnnotationEditorProvider } from "~/providers";
@@ -65,8 +65,7 @@ class ImageContainer extends Component<ContainerProps, ContainerState> {
     //const {resize_bytes} = image;
     //return "data:image/png;base64," + resize_bytes;
     const prefix = "https://xdddev.chtc.io/tagger";
-    const imgPath = image.file_path.replace(/^(\/data\/pngs)/, "/images");
-
+    const imgPath = image.file_path.replace(/^(\/data\/pngs\/)/, "/images");
     return join(prefix, imgPath);
   }
 
@@ -221,7 +220,6 @@ class TaggingPage extends StatefulComponent {
         },
       }
     );
-
     // On image loaded
 
     if (Array.isArray(d) && d.length === 1) {

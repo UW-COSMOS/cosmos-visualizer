@@ -1,21 +1,21 @@
-import { useContext, useState } from "react";
+import { useContext, useCallback } from "react";
 import h from "@macrostrat/hyper";
 import { min, max } from "d3-array";
 import { Intent } from "@blueprintjs/core";
 import classNames from "classnames";
 
 import { Rectangle, StaticRectangle } from "./drag-rect";
-import { EditMode } from "~/enum";
-import { EditorContext } from "~/image-overlay/context";
 import { AnnotationControls, ToolButton } from "./controls";
 import {
   useTags,
+  tagColor,
   useAnnotationColor,
-  useAnnotationUpdater,
   useAnnotationActions,
-  useAnnotationIndex,
   useSelectedAnnotation,
   useSelectionUpdater,
+  AnnotationsContext,
+  useAnnotationEditor,
+  Annotation as IAnnotation,
 } from "~/providers";
 
 const tagBounds = (boxes) => [
@@ -31,10 +31,10 @@ const tagCenter = function (boxes) {
 };
 
 const AnnotationPart = (props) => {
-  const { update, onDelete, bounds, color, ...rest } = props;
+  const { isSelected = true, update, onDelete, bounds, color, ...rest } = props;
 
   return h(Rectangle, { bounds, update, color, ...rest }, [
-    h.if(onDelete != null)(ToolButton, {
+    h.if(isSelected && onDelete != null)(ToolButton, {
       icon: "cross",
       className: "delete-rect",
       intent: Intent.DANGER,
@@ -61,49 +61,61 @@ function annotationPartUpdater(update, ix) {
 }
 
 interface AnnotationProps {
-  obj: Annotation;
+  obj: IAnnotation;
   children: React.ReactChild;
+  multipartEditingEnabled: boolean;
+  locked?: boolean;
+  index: number;
 }
 
 const Annotation = (props: AnnotationProps) => {
-  const { obj } = props;
+  const { obj, index, multipartEditingEnabled = true, locked = null } = props;
   const { boxes, name: tag_name, tag_id } = obj;
 
-  const { selectAnnotation } = useAnnotationActions()!;
+  const { lockedTags } = useAnnotationEditor();
+  const { selected } = useContext(AnnotationsContext);
+  const { selectAnnotation, updateAnnotation } = useAnnotationActions()!;
   /* This could be simplified significantly;
      we rely on indexing to tell if we have the same annotations
   */
-  const ix = useAnnotationIndex(obj);
-  const update = useAnnotationUpdater(obj);
-  const isSelected = update != null;
+  let update = useCallback(
+    (spec) => {
+      updateAnnotation(index)(spec);
+    },
+    [index]
+  );
+  const isSelected = index == selected;
+  if (!isSelected) update = null;
   const overallBounds = tagBounds(boxes);
 
-  const c = useAnnotationColor(obj);
   let alpha = isSelected ? 0.6 : 0.3;
-
-  const color = c.alpha(alpha).css();
-
   const tags = useTags();
-  let tagName = tags.find((d) => d.tag_id === tag_id)?.name ?? tag_name;
+  const currentTag = tags.find((d) => d.tag_id === tag_id);
+  const c = tagColor(currentTag);
+  const color = c.alpha(alpha).css();
+  let tagName = currentTag.name ?? tag_name;
+  let tagIsLocked = locked ?? lockedTags.has(tag_id);
+
   // Sometimes we don't return tags
 
-  const { actions, editModes } = useContext(EditorContext);
+  const onMouseDown = useCallback(
+    (event) => {
+      selectAnnotation(index);
+      event.stopPropagation();
+    },
+    [index]
+  );
 
-  const onMouseDown = () => {
-    if (editModes.has(EditMode.LINK)) {
-      actions.addLink(ix)();
-      actions.setMode(EditMode.LINK, false);
-    } else {
-      selectAnnotation(ix)();
-    }
-    // Don't allow dragging
-    event.stopPropagation();
-  };
+  if (tagIsLocked) {
+    return h(LockedAnnotation, { obj, index });
+  }
 
   const className = classNames({ active: isSelected });
+  const editingEnabled = boxes.length > 1 ? multipartEditingEnabled : false;
+
   return h("div.annotation", { className }, [
     h(
-      Rectangle,
+      StaticRectangle,
       {
         bounds: overallBounds,
         color,
@@ -112,7 +124,8 @@ const Annotation = (props: AnnotationProps) => {
       },
       [
         h("div.tag-name", { style: { color: c.darken(2).css() } }, tagName),
-        h(AnnotationControls, {
+        h.if(isSelected)(AnnotationControls, {
+          annotationIndex: index,
           annotation: obj,
         }),
       ]
@@ -122,17 +135,13 @@ const Annotation = (props: AnnotationProps) => {
       { className },
       boxes.map((bounds, i) => {
         // Need actual logic here to allow display if editing is enabled
-        let onDelete = null;
-        let editingEnabled = false;
-        if (boxes.length <= 1) editingEnabled = false;
-        if (editingEnabled) {
-          onDelete = () => update({ boxes: { $splice: [[i, 1]] } });
-        }
+        const deletionCallback = () => update({ boxes: { $splice: [[i, 1]] } });
 
         return h(AnnotationPart, {
           bounds,
+          isSelected,
           update: annotationPartUpdater(update, i),
-          onDelete,
+          onDelete: editingEnabled ? deletionCallback : null,
           onMouseDown,
           color,
         });
@@ -173,6 +182,8 @@ interface BasicAnnotationProps extends AnnotationProps {
   onMouseOver?: React.UIEventHandler;
   onMouseLeave?: React.UIEventHandler;
   className?: string;
+  index: number;
+  obj: IAnnotation;
 }
 
 const BasicAnnotation = (props: BasicAnnotationProps) => {
@@ -181,6 +192,9 @@ const BasicAnnotation = (props: BasicAnnotationProps) => {
 
   const c = useAnnotationColor(obj);
   const color = c.alpha(alpha ?? 0.5).css();
+
+  let tagName = name;
+  if (score != null) tagName += `(${score})`;
 
   return h(
     "div.annotation",
@@ -194,11 +208,7 @@ const BasicAnnotation = (props: BasicAnnotationProps) => {
           ...rest,
         },
         [
-          h(
-            "div.tag-name",
-            { style: { color: c.darken(2).css() } },
-            `${name} (${score})`
-          ),
+          h("div.tag-name", { style: { color: c.darken(2).css() } }, tagName),
           children,
         ]
       );
@@ -214,7 +224,10 @@ const SelectableAnnotation = (props: AnnotationProps) => {
   return h(BasicAnnotation, {
     ...props,
     alpha: isSelected ? 0.6 : 0.3,
-    onClick: () => updateSelection(props.obj),
+    onClick: (event) => {
+      updateSelection(props.obj);
+      event.stopPropagation();
+    },
   });
 };
 

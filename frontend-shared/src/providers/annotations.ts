@@ -1,4 +1,5 @@
-import { useState, useReducer, createContext, useContext } from "react";
+import { useState, createContext, useContext, useCallback } from "react";
+import { Annotation, AnnotationID } from "./types";
 import h from "react-hyperscript";
 import { useTags } from "./tags";
 import chroma from "chroma-js";
@@ -39,10 +40,23 @@ const AnnotationsProvider = (props: ProviderProps) => {
     selected: allowSelection ? selected : null,
   };
 
-  let updateSelection = (annotation: Annotation) => {
-    const ix = annotations.findIndex((d) => d == annotation);
-    setSelected(ix);
-  };
+  let updateSelection = useCallback(
+    (annotation: Annotation | number | null) => {
+      let ix: number;
+      if (typeof annotation === "number") {
+        ix = annotation;
+      } else {
+        ix = annotations.findIndex((d) => d == annotation);
+      }
+
+      if (annotation == null) {
+        setSelected(null);
+        return;
+      }
+      setSelected(ix);
+    },
+    []
+  );
 
   if (!allowSelection) updateSelection = null;
 

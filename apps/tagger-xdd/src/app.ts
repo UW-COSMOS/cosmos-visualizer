@@ -4,8 +4,8 @@ import h from "react-hyperscript";
 import { Route, Redirect } from "react-router-dom";
 
 import { APIActions } from "@macrostrat/ui-components";
-import { APIContext } from "../api";
-import { AppMode, UserRole } from "../enum";
+import { APIContext } from "~/api";
+import { AppMode, UserRole } from "~/enum";
 import { LoginForm } from "./login-form";
 import { TaggingPage } from "./page-interface";
 import { AppRouter, permalinkRouteTemplate } from "~/shared/router";

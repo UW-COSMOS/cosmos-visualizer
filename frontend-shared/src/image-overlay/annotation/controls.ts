@@ -5,11 +5,12 @@ import classNames from "classnames";
 
 import { EditMode } from "~/enum";
 import { EditorContext } from "~/image-overlay/context";
+import { useCallback } from "react";
 import {
   useCanvasSize,
-  useAnnotationUpdater,
+  useAnnotations,
   useAnnotationActions,
-  useAnnotationIndex,
+  Annotation,
 } from "~/providers";
 
 const ToolButton = (props) =>
@@ -21,7 +22,10 @@ const LinkButton = (props) => {
     actions: { setMode },
     editModes,
   } = useContext(EditorContext);
-  const removeLink = () => update({ linked_to: { $set: null } });
+  const removeLink = useCallback(
+    () => update({ linked_to: { $set: null } }),
+    []
+  );
 
   if (props.linked_to != null) {
     return h(ToolButton, {
@@ -40,20 +44,25 @@ const LinkButton = (props) => {
 
 interface AnnotationControlsProps {
   annotation: Annotation;
+  annotationIndex: number;
   className?: string;
   children?: React.ReactNode;
 }
+
+const stopPropagation = (event) => event.stopPropagation();
 
 const ControlPanel = (props: AnnotationControlsProps) => {
   const { children, className } = props;
   // Make sure clicks on the control panel don't dismiss it
   // due to the competing overlay click handler
-  const onClick = (event) => event.stopPropagation();
-  const onMouseOver = onClick;
-  const style = { pointerEvents: "visible" };
   return h(
     "div.rect-controls",
-    { className, onClick, onMouseOver, style },
+    {
+      className,
+      onClick: stopPropagation,
+      onMouseOver: stopPropagation,
+      style: { pointerEvents: "visible" },
+    },
     children
   );
 };
@@ -75,37 +84,45 @@ const LeftControlPanel = (props: AnnotationLeftControlProps) => {
 };
 
 const AnnotationControls = (props: AnnotationControlsProps) => {
-  const { annotation } = props;
+  const { annotationIndex: ix, annotation } = props;
 
-  const update = useAnnotationUpdater(annotation)!;
-  if (update == null) return null;
-
-  const { deleteAnnotation } = useAnnotationActions()!;
-  const ix = useAnnotationIndex(annotation);
+  const { deleteAnnotation, updateAnnotation } = useAnnotationActions()!;
   const { linked_to } = annotation;
 
+  const update = useCallback(updateAnnotation(ix), [ix]);
+
   const {
-    actions: { setMode },
+    actions: { setMode, toggleSelect },
     editModes,
   } = useContext(EditorContext);
+
+  const onClickDelete = useCallback(() => deleteAnnotation(ix), [
+    deleteAnnotation,
+    ix,
+  ]);
+
+  if (update == null) return null;
 
   return h(LeftControlPanel, { annotation }, [
     h(ToolButton, {
       icon: "tag",
-      onClick: updateCurrentTag,
+      onClick: () => {
+        console.log("Toggling select");
+        toggleSelect();
+      },
     }),
     h(LinkButton, { update, linked_to }),
     h(ToolButton, {
       icon: "insert",
       intent: editModes.has(EditMode.ADD_PART) ? Intent.SUCCESS : undefined,
       onClick() {
-        return setMode(EditMode.ADD_PART);
+        setMode(EditMode.ADD_PART);
       },
     }),
     h(ToolButton, {
       icon: "cross",
       intent: Intent.DANGER,
-      onClick: () => deleteAnnotation(ix),
+      onClick: onClickDelete,
     }),
   ]);
 };

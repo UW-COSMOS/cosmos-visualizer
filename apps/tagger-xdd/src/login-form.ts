@@ -6,8 +6,8 @@ import { Select } from "@blueprintjs/select";
 import { MenuItem, Button, ButtonGroup } from "@blueprintjs/core";
 import { InfoButton } from "~/shared/ui";
 
-import { InlineNavbar } from "../util";
-import { UserRole } from "../enum";
+import { InlineNavbar } from "~/util";
+import { UserRole } from "~/enum";
 
 const ModeButton = ({ mode, ...rest }) =>
   h(InfoButton, { to: `/action/${mode}`, ...rest });

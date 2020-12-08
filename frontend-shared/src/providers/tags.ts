@@ -1,7 +1,8 @@
 import { createContext, useContext } from "react";
-import h from "react-hyperscript";
+import h from "@macrostrat/hyper";
 import chroma, { Color } from "chroma-js";
 import { useAPIResult } from "@macrostrat/ui-components";
+import { Tag } from "./types";
 
 const TagsContext = createContext<Tag[]>([]);
 type TagsProviderProps = React.PropsWithChildren<{ tags: Tag[] }>;
@@ -17,16 +18,18 @@ const TagsProvider = (props: TagsProviderProps) => {
 
 const useTags = (): Tag[] => useContext(TagsContext);
 
-function useTagColor(tag_id: number): Color {
+function tagColor(tag?: Tag): Color {
+  return chroma(tag?.color ?? "black");
+}
+
+function useTagColor(tag_id: string): Color {
   const tags = useTags();
-  let color = tags.find((d) => d.tag_id === tag_id)?.color ?? "black";
-  return chroma(color);
+  return tagColor(tags.find((d) => d.tag_id === tag_id));
 }
 
 function useTagColorForName(tag_name: string): Color {
   const tags = useTags();
-  let color = tags.find((d) => d.name === tag_name)?.color ?? "black";
-  return chroma(color);
+  return tagColor(tags.find((d) => d.name === tag_name));
 }
 
 const parseResponse = (cscale) => (d, ix) => {
@@ -42,24 +45,28 @@ const parseResponse = (cscale) => (d, ix) => {
   return { tag_id, color, name };
 };
 
-const APITagsProvider = (props) => {
-  const { children } = props;
-  const data = useAPIResult("/tags/all") ?? [];
-  const cscale = chroma.scale("viridis").colors(data.length);
-
+function TagListProvider({ children, tags }) {
+  const cscale = chroma.scale("viridis").colors(tags.length);
   return h(
     TagsProvider,
     {
-      tags: data.map(parseResponse(cscale)),
+      tags: tags.map(parseResponse(cscale)),
     },
     children
   );
+}
+
+const APITagsProvider = ({ children }) => {
+  const tags = useAPIResult("/tags/all") ?? [];
+  return h(TagListProvider, { tags }, children);
 };
 
 export {
   TagsContext,
   TagsProvider,
+  TagListProvider,
   APITagsProvider,
+  tagColor,
   useTags,
   useTagColor,
   useTagColorForName,

@@ -3,7 +3,9 @@ import {
   useAPIResult,
   useAPIHelpers,
   LinkButton,
+  APIContext,
 } from "@macrostrat/ui-components";
+import { useContext } from "react";
 import { render } from "react-dom";
 import h from "react-hyperscript";
 import { Route, useParams } from "react-router-dom";
@@ -13,8 +15,10 @@ import { AppRouter } from "~/shared/router";
 import { ButtonGroup, Button } from "@blueprintjs/core";
 import "./main.styl";
 
+const baseURL = process.env.XDD_BASE_URL ?? "https://xdd.wisc.edu";
+
 function SetsSelector() {
-  const sets = useAPIResult("/sets");
+  const sets: any = useAPIResult(baseURL + "/sets");
   if (sets == null) return null;
   let { available_sets } = sets;
   // Isn't yet in the lexicon
@@ -33,11 +37,10 @@ function SetsSelector() {
 
 function SetVisualizer() {
   const { set } = useParams();
-  const base = `https://xdd.wisc.edu/sets/${set}`;
-  const word2VecAPIBaseURL = `https://xdd.wisc.edu/sets/${set}/word2vec/api/most_similar`;
+  const word2VecAPIBaseURL = baseURL + `/sets/${set}/word2vec/api/most_similar`;
   return h(
     APIProvider,
-    { baseURL: `${base}/cosmos/api` },
+    { baseURL: baseURL + `/sets/${set}/cosmos/api` },
     h(KnowledgeBaseFilterView, {
       setName: set,
       word2VecAPIBaseURL,
@@ -65,19 +68,13 @@ function App() {
   ]);
 }
 
-const AppHolder = () => {
-  const baseURL = process.env.API_BASE_URL || "https://xdd.wisc.edu";
-  return h(APIProvider, { baseURL }, h(App));
-};
-
-const createUI = function (opts = {}) {
+function createUI() {
   // This app doesn't have any environment configuration options
   // Image base url is properly set here
   const el = document.createElement("div");
   document.body.appendChild(el);
-  const __ = h(AppHolder);
-  return render(__, el);
-};
+  return render(h(App), el);
+}
 
 // Actually run the UI (changed for webpack)
 createUI();

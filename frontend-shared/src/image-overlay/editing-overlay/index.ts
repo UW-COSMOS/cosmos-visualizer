@@ -1,11 +1,11 @@
-import h from "react-hyperscript";
+import h from "@macrostrat/hyper";
 import { select, event } from "d3-selection";
 import { drag } from "d3-drag";
 import { findDOMNode } from "react-dom";
-import { Hotkey, Hotkeys, HotkeysTarget } from "@blueprintjs/core";
 import { StatefulComponent } from "@macrostrat/ui-components";
-import { useContext, ComponentProps } from "react";
+import { ComponentProps, useCallback } from "react";
 
+import { AnnotationsEditorHotkeys } from "./hotkeys";
 import { AnnotationLinks } from "../annotation-links";
 import { AnnotationTypeSelector } from "./type-selector";
 
@@ -18,11 +18,18 @@ import { AnnotationsOverlay } from "../annotations";
 import { SimpleAnnotation, Annotation } from "../annotation";
 import {
   AnnotationsContext,
+  AnnotationEditorCtxProvider,
   useAnnotationActions,
+  useAnnotationEditor,
+  useSelectedAnnotation,
+  useSelectionUpdater,
   useCanvasSize,
   Tag,
+  TagID,
   AnnotationArr,
+  AnnotationActions,
   Annotation as IAnnotation,
+  AnnotationID,
 } from "~/providers";
 
 import "./main.styl";
@@ -37,12 +44,13 @@ const AddAnnotationsOverlay = (props: AddAnnotationsProps) => {
   const { inProgressAnnotation, ...rest } = props;
   let children = null;
   if (inProgressAnnotation != null) {
-    children = h(SimpleAnnotation, { obj: inProgressAnnotation });
+    const obj = { ...inProgressAnnotation };
+    children = h(SimpleAnnotation, { obj });
   }
 
-  const renderAnnotation = (obj: IAnnotation, ix: number) => {
-    return h(Annotation, { key: ix, obj, locked: false });
-  };
+  const renderAnnotation = useCallback((obj: IAnnotation, ix: number) => {
+    return h(Annotation, { key: ix, obj, index: ix });
+  }, []);
 
   return h(
     AnnotationsOverlay,
@@ -54,13 +62,46 @@ const AddAnnotationsOverlay = (props: AddAnnotationsProps) => {
   );
 };
 
+function EditorContextForwarder(props) {
+  /** Modifies the annotation editor context to support multipart editing */
+  const ctx = useAnnotationEditor();
+  const { editModes, children, setMode } = props;
+  const { addLink, selectAnnotation } = ctx.actions;
+
+  const newSelectAnnotation = useCallback(
+    (id: AnnotationID) => {
+      // TODO: this is currently broken, which prevents us from properly linking tags
+      // Make sure we don't activate the
+      // general click or drag handlers
+      if (editModes.has(LINK)) {
+        console.log(`Adding link to ${id}`);
+        addLink(id);
+        setMode(LINK, false);
+      } else {
+        selectAnnotation(id);
+      }
+    },
+    [editModes, selectAnnotation, setMode, addLink]
+  );
+
+  const newActions = {
+    ...ctx.actions,
+    selectAnnotation: newSelectAnnotation,
+  };
+  const newCtx = { ...ctx, actions: newActions };
+
+  return h(AnnotationEditorCtxProvider, { value: newCtx }, children);
+}
+
 interface Props {
   clickDistance: number;
   editingEnabled: boolean;
   selectIsOpen: boolean;
   lockedTags: Set<Tag>;
+  actions: AnnotationActions;
 }
 interface State {
+  shiftKey: boolean;
   inProgressAnnotation: AnnotationArr | null;
 }
 
@@ -78,16 +119,22 @@ class ImageOverlay extends StatefulComponent<Props, State> {
 
     this.contextValue = this.contextValue.bind(this);
     this.setMode = this.setMode.bind(this);
+    this.editModes = this.editModes.bind(this);
+    this.shiftKeyDown = this.shiftKeyDown.bind(this);
     this.handleDrag = this.handleDrag.bind(this);
+    this.deleteAnnotation = this.deleteAnnotation.bind(this);
     this.handleAddAnnotation = this.handleAddAnnotation.bind(this);
     this.disableEditing = this.disableEditing.bind(this);
     this.toggleSelect = this.toggleSelect.bind(this);
     this.handleShift = this.handleShift.bind(this);
+    this.closeSelector = this.closeSelector.bind(this);
+
     this.state = {
       inProgressAnnotation: null,
       editModes: new Set(),
       shiftKey: false,
       clickingInRect: null,
+      selectIsOpen: false,
     };
   }
 
@@ -101,61 +148,65 @@ class ImageOverlay extends StatefulComponent<Props, State> {
     return this.updateState({ editModes: { $set: new Set() } });
   }
 
-  selectAnnotation = (ix) => {
-    return (event) => {
-      const { actions, editModes } = this.contextValue();
-      // Make sure we don't activate the
-      // general click or drag handlers
-      if (editModes.has(LINK)) {
-        actions.addLink(ix)();
-        return actions.setMode(LINK, false);
-      } else {
-        return actions.selectAnnotation(ix)();
-      }
-    };
-  };
-
   renderInterior() {
-    const { tags, currentTag, lockedTags, actions } = this.props;
     const { selectIsOpen, inProgressAnnotation } = this.state;
 
-    const onClick = this.disableEditing;
-
-    return h("div", [
-      h(AnnotationTypeSelector, {
-        isOpen: selectIsOpen,
-        onClose: () => this.setState({ selectIsOpen: false }),
-      }),
-      h(AddAnnotationsOverlay, {
-        inProgressAnnotation,
-        actions,
-        onClick,
-        toggleSelect: this.toggleSelect,
-        onSelectAnnotation: this.selectAnnotation,
-      }),
-      h(AnnotationLinks),
-      h(ModalNotifications),
-    ]);
+    return h(
+      AnnotationsEditorHotkeys,
+      {
+        onShiftKeyDown: this.shiftKeyDown,
+        onToggleSelect: this.toggleSelect,
+        onDeleteAnnotation: this.deleteAnnotation,
+      },
+      [
+        h(AnnotationTypeSelector, {
+          isOpen: selectIsOpen,
+          onClose: this.closeSelector,
+        }),
+        h(AddAnnotationsOverlay, {
+          inProgressAnnotation,
+          onClick: this.disableEditing,
+        }),
+        h(AnnotationLinks),
+        h(ModalNotifications),
+      ]
+    );
   }
 
-  contextValue() {
-    const { actions, tags, currentTag } = this.props;
+  closeSelector() {
+    this.setState({ selectIsOpen: false });
+  }
+
+  shiftKeyDown() {
+    this.setState({ shiftKey: true });
+  }
+
+  deleteAnnotation() {
+    const ix = this.context.annotations.indexOf(this.props.editingRect);
+    this.props.actions.deleteAnnotation(ix);
+  }
+
+  editModes() {
     let { editModes, shiftKey } = this.state;
     if (shiftKey) {
       editModes = SHIFT_MODES;
     }
+    return editModes;
+  }
+
+  contextValue() {
+    const { actions } = this.props;
+    let { shiftKey } = this.state;
     actions.setMode = this.setMode;
 
     return {
-      tags,
-      currentTag,
-      editModes,
+      editModes: this.editModes(),
       shiftKey,
       actions: {
         toggleSelect: this.toggleSelect,
-        ...actions,
+        setMode: this.setMode,
       },
-      update: this.updateState,
+      //update: this.updateState,
     };
   }
 
@@ -164,14 +215,18 @@ class ImageOverlay extends StatefulComponent<Props, State> {
       val = !this.state.editModes.has(mode);
     }
     const action = val ? "$add" : "$remove";
-    return this.updateState({ editModes: { [action]: [mode] } });
+    this.updateState({ editModes: { [action]: [mode] } });
   }
 
   render() {
     return h(
       EditorContext.Provider,
       { value: this.contextValue() },
-      this.renderInterior()
+      h(
+        EditorContextForwarder,
+        { editModes: this.editModes(), setMode: this.setMode },
+        this.renderInterior()
+      )
     );
   }
 
@@ -196,9 +251,9 @@ class ImageOverlay extends StatefulComponent<Props, State> {
     }
 
     // Make sure we color with the tag this will be
-    const { editModes } = this.contextValue();
+    const editModes = this.editModes();
     if (editModes.has(ADD_PART) && editingRect != null) {
-      currentTag = annotations[editingRect].tag_id;
+      currentTag = editingRect.tag_id;
     }
 
     if (scaleFactor == null) {
@@ -235,12 +290,13 @@ class ImageOverlay extends StatefulComponent<Props, State> {
     if (r == null) {
       return;
     }
-    const { editModes } = this.contextValue();
+    const editModes = this.editModes();
+    const ix = this.context.annotations.indexOf(editingRect);
 
     if (editModes.has(ADD_PART) && editingRect != null) {
       // We are adding a box to the currently
       // selected annotation
-      const fn = actions.updateAnnotation(editingRect);
+      const fn = actions.updateAnnotation(ix);
       fn({ boxes: { $push: r.boxes } });
       // Disable linking mode
     } else {
@@ -250,49 +306,17 @@ class ImageOverlay extends StatefulComponent<Props, State> {
   }
 
   disableEditing() {
-    const { actions, editingRect } = this.props;
+    const { editingRect, updateSelection } = this.props;
+    console.log("Clicking outside of a tag");
     if (editingRect == null) {
       return;
     }
-    const __ = { editingRect: { $set: null } };
-    return actions.updateState(__);
+    return updateSelection(null);
   }
 
-  toggleSelect = () => {
+  toggleSelect() {
     console.log("Opening select box");
     return this.setState({ selectIsOpen: true });
-  };
-
-  renderHotkeys() {
-    const { editingRect, actions } = this.props;
-    return h(Hotkeys, null, [
-      h(Hotkey, {
-        label: "Delete rectangle",
-        combo: "backspace",
-        global: true,
-        preventDefault: true,
-        onKeyDown: (evt) => {
-          if (editingRect == null) {
-            return;
-          }
-          return actions.deleteAnnotation(editingRect)();
-        },
-      }),
-      h(Hotkey, {
-        global: true,
-        combo: "l",
-        label: "Toggle select",
-        onKeyDown: this.toggleSelect,
-        //prevent typing "O" in omnibar input
-        preventDefault: true,
-      }),
-      h(Hotkey, {
-        label: "Expose secondary commands",
-        combo: "shift",
-        global: true,
-        onKeyDown: this.handleShift(true),
-      }),
-    ]);
   }
 
   handleShift(val) {
@@ -320,13 +344,21 @@ class ImageOverlay extends StatefulComponent<Props, State> {
   }
 }
 
-HotkeysTarget(ImageOverlay);
-
 const WrappedImageOverlay = (props) => {
   // Get editing actions into the props
   const actions = useAnnotationActions();
   const { scaleFactor } = useCanvasSize();
-  return h(ImageOverlay, { ...props, scaleFactor, actions });
+  const { currentTag } = useAnnotationEditor();
+  const editingRect = useSelectedAnnotation();
+  const updateSelection = useSelectionUpdater();
+  return h(ImageOverlay, {
+    ...props,
+    editingRect,
+    updateSelection,
+    currentTag,
+    scaleFactor,
+    actions,
+  });
 };
 
 export { WrappedImageOverlay as ImageOverlay };
