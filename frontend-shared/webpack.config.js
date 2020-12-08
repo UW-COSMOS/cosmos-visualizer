@@ -1,6 +1,8 @@
 let path = require("path");
 const { EnvironmentPlugin } = require("webpack");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
+
+// LOAD ENVIRONMENT VARIABLES from .env file in cwd (not necessarily this directory)
 require("dotenv").config();
 
 console.log(__dirname);
