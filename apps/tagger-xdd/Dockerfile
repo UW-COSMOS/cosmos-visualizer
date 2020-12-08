@@ -8,7 +8,7 @@ RUN npm install -g npm@7 webpack-cli webpack
 
 ARG MODE="production"
 ARG PUBLIC_URL="/"
-ARG API_BASE_URL="https://xdddev.chtc.io/tagger/api"
+ARG XDD_BASE_URL="https://xdd.wisc.edu"
 
 WORKDIR /user
 COPY ./package.json /user/

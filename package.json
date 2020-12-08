@@ -1,6 +1,6 @@
 {
   "name": "cosmos-visualizer",
-  "version": "1.0.0",
+  "version": "2.0.0-beta",
   "private": true,
   "description": "The **COSMOS** visualizer codebase consists of several applications that build training datasets and showcase model results for the **COSMOS** knowledge-base extraction pipeline. Separate apps for _tagging_, _validation_, and _knowledge-base visualization_ are included.",
   "main": "index.js",
@@ -16,7 +16,8 @@
     "preinstall": "npm --prefix frontend-shared install",
     "test": "echo \"Error: no test specified\" && exit 1",
     "tagger-demo": "cd apps/tagger-demo && npm run dev",
-    "tagger-xdd": "cd apps/tagger-xdd && npm install && npm run dev"
+    "tagger-xdd": "cd apps/tagger-xdd && npm install && npm run dev",
+    "visualizer-xdd": "cd apps/visualizer-xdd && npm run dev"
   },
   "repository": {
     "type": "git",

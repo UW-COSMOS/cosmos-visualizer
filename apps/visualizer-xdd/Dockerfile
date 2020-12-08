@@ -8,13 +8,18 @@ ARG PUBLIC_URL="/"
 ARG API_BASE_URL="https://xdd.wisc.edu"
 
 WORKDIR /user
-COPY ./package.json /user/package.json
+COPY ./package.json /user/
+COPY ./frontend-shared/package.json /user/frontend-shared/
+
 RUN npm install
+
 COPY . /user
 
-RUN webpack src/xdd-app/index.ts
+WORKDIR /user/apps/visualizer-xdd
+
+RUN webpack
 
 FROM nginx
 
-COPY ./nginx.frontend-only.conf /etc/nginx/nginx.conf
-COPY --from=base /user/dist /frontend
+COPY ./docker-cfg/nginx.frontend-only.conf /etc/nginx/nginx.conf
+COPY --from=base /user/apps/visualizer-xdd/dist /frontend

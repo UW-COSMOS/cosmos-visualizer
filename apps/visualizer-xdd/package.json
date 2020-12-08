@@ -1,0 +1,10 @@
+{
+  "name": "visualizer-xdd",
+  "private": true,
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "webpack-dev-server"
+  },
+  "author": "Daven Quinn",
+  "license": "ISC"
+}
