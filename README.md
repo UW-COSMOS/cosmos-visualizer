@@ -19,9 +19,11 @@ Applications, housed in the `apps/*` directories, are all built with a common
 Webpack configuration. Several apps are provided:
 
 - `tagger-demo`: A single-page demo of the training-data collection interface, for debugging purposes
-- `tagger-xdd`: A tagging application to sit atop the COSMOS deployment backed by [xDD](https://xdd.wisc.edu)
-- `visualizer`: A standalone visualizer application
+- `tagger-xdd`: A tagging application to sit atop the COSMOS deployment backed by [xDD](https://xdd.wisc.edu).
+- `visualizer`: A standalone visualizer application.
 - `visualizer-xdd`: A visualizer application to sit atop different "sets" of documents managed by xDD.
+  This is the a key public interface for our Phase 2 ASKE work of integrating xDD and COSMOS. A running instance
+  can be found [here](https://xdddev.chtc.io/set_visualizer).
 
 Each application directory contains a `Dockerfile` allowing
 that application to be built into a container. For now, each of these `Dockerfile`s
@@ -68,7 +70,7 @@ be used in the root context of this repository, as such:
 `docker build -t xdd_cosmos_tagger:latest -f apps/tagger-xdd/Dockerfile .`
 
 Once built, containers can be run on `localhost:8080`:
-`docker run -p 8080:80 xdd_cosmos_tagger:latest`
+`docker run -p 8080:80 xdd_cosmos_tagger:latest`.
 
 This sequence of commands is exposed in the `Makefile` for several apps,
 so you can spin up a server by using e.g. `make visualizer-xdd`.
@@ -84,11 +86,6 @@ The xDD application wraps COSMOS visualizers for all of the document
 sets organized within the xDD API. Since all of the endpoint
 configuration is provided by the API, it has a much simpler
 configuration than the the standalone visualizer (for now).
-
-This application can be built locally using the above instructions,
-OR it can be built using `frontend-shared/Dockerfile.xdd`. The
-appropriate build/run instructions for a version running at
-`localhost:8080` are available in the `make xdd` command.
 
 This app is set up with continuous integration for development and deployment.
 The running app can be found [here](https://xdddev.chtc.io/set_visualizer).
@@ -117,6 +114,7 @@ This work was funded by DARPA ASKE HR00111990013.
 
 - Add continuous integration using Github Actions
 - Add xDD tagger and visualizer applications
+- Move API code to `__archive` folder (now API is managed separately).
 - Reorganize repository into monorepo pattern
 - Start keeping changelog
 
