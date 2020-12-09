@@ -2,7 +2,6 @@ import h from "@macrostrat/hyper";
 import { Intent } from "@blueprintjs/core";
 import T from "prop-types";
 
-import { join } from "path";
 import { ImageOverlay } from "~/image-overlay";
 import { ScaledImagePanel } from "~/page-interface/scaled-image";
 import { StatefulComponent, APIActions } from "@macrostrat/ui-components";
@@ -66,7 +65,7 @@ class ImageContainer extends Component<ContainerProps, ContainerState> {
     //return "data:image/png;base64," + resize_bytes;
     const prefix = "https://xdddev.chtc.io/tagger";
     const imgPath = image.file_path.replace(/^(\/data\/pngs\/)/, "/images");
-    return join(prefix, imgPath);
+    return prefix + imgPath;
   }
 
   render() {
