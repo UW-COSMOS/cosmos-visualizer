@@ -3,7 +3,6 @@ import { render } from "react-dom";
 import h, { compose, C } from "@macrostrat/hyper";
 import { APIProvider } from "~/api";
 import { ImageStoreProvider } from "./page-interface";
-import { PublicURLProvider } from "~/providers";
 import { TaggingApplication } from "./app";
 
 const App = () => {
