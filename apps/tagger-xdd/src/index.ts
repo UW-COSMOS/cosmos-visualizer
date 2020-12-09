@@ -7,7 +7,7 @@ import { PublicURLProvider } from "~/providers";
 import { TaggingApplication } from "./app";
 import { DarkModeProvider } from "@macrostrat/ui-components";
 
-const App = (props) => {
+const App = () => {
   const publicURL = process.env.PUBLIC_URL;
   const baseURL = process.env.XDD_BASE_URL + "/tagger/api";
   const imageBaseURL = process.env.XDD_BASE_URL + "/tagger/images";

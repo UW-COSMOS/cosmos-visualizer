@@ -31,7 +31,7 @@ jobs:
           path: .
           dockerfile: ./apps/tagger-xdd/Dockerfile
           cache_from: uwxdd/cosmos_set_tagger
-          build_args: PUBLIC_URL=/tagger
+          build_args: PUBLIC_URL=/tagger,XDD_BASE_URL=https://xdddev.chtc.io
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
           repository: uwxdd/cosmos_set_tagger
