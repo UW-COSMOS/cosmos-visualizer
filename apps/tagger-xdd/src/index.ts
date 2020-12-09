@@ -5,7 +5,6 @@ import { APIProvider } from "~/api";
 import { ImageStoreProvider } from "./page-interface";
 import { PublicURLProvider } from "~/providers";
 import { TaggingApplication } from "./app";
-import { DarkModeProvider } from "@macrostrat/ui-components";
 
 const App = () => {
   const publicURL = process.env.PUBLIC_URL;
@@ -14,11 +13,9 @@ const App = () => {
   // Nest a bunch of providers
   return h(
     compose(
-      DarkModeProvider,
-      C(PublicURLProvider, { publicURL }),
       C(APIProvider, { baseURL }),
       C(ImageStoreProvider, { baseURL: imageBaseURL }),
-      C(TaggingApplication)
+      C(TaggingApplication, { publicURL })
     )
   );
 };
