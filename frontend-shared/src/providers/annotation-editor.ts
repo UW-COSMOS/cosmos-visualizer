@@ -244,7 +244,7 @@ class AnnotationEditorProvider extends StatefulComponent<
 
   saveAnnotations() {
     const { annotations } = this.state;
-    self.props.onSave?.(annotations);
+    this.props.onSave?.(annotations);
   }
 
   render() {

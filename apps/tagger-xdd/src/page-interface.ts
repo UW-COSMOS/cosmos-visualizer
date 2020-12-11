@@ -41,6 +41,7 @@ class ImageContainer extends Component<ContainerProps, ContainerState> {
     super(props);
     this.state = { image: null };
   }
+
   componentDidUpdate(nextProps) {
     // Store prevUserId in state so we can compare when props change.
     // Clear out any previously-loaded user data (so we don't render stale stuff).
@@ -119,6 +120,7 @@ class TaggingPage extends StatefulComponent {
         {
           initialAnnotations: initialRectStore,
           editingEnabled: true,
+          onSave: this.saveData,
         },
         h(
           PageFrame,
@@ -139,6 +141,8 @@ class TaggingPage extends StatefulComponent {
 
   saveData = async () => {
     const { currentImage, rectStore } = this.state;
+    const { post } = APIActions(this.context);
+
     let { extraSaveData } = this.props;
     if (extraSaveData == null) {
       extraSaveData = {};
@@ -151,15 +155,15 @@ class TaggingPage extends StatefulComponent {
 
     // TODO: Fix this
     // Set the current stack ID to save data with
-    const stack_id =
-      this.state.currentImage.stack_id ||
-      this.props.stack_id ||
-      "default_to_tag";
+    const stack_id = "mars";
+    // this.state.currentImage.stack_id ||
+    // this.props.stack_id ||
+    // "default_to_tag";
 
     const endpoint = `/image/${currentImage.image_id}/${stack_id}/tags`;
 
     try {
-      const newData = await this.context.post(endpoint, saveItem, {
+      const newData = await post(endpoint, saveItem, {
         handleError: false,
       });
       AppToaster.show({
