@@ -8,7 +8,7 @@ require("dotenv").config();
 console.log(__dirname);
 
 let assetsDir = path.resolve(__dirname, "dist");
-let assetsRoute = process.env.PUBLIC_URL || "";
+let assetsRoute = process.env.PUBLIC_URL || "/";
 
 let jsLoader = {
   loader: "babel-loader",

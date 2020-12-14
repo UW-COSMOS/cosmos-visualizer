@@ -8,7 +8,7 @@ import {
 } from "@blueprintjs/core";
 import { DarkModeButton } from "@macrostrat/ui-components";
 
-import { useState, ComponentProps } from "react";
+import { useState, PropsWithChildren } from "react";
 import { PermalinkButton } from "~/shared/router";
 import { PageHeader } from "../util";
 import { InfoDialog } from "../info-dialog";
@@ -16,13 +16,14 @@ import { PersistenceButtons } from "./persistence-buttons";
 import { Image } from "~/types";
 import { useAnnotationEditor } from "~/providers";
 
-interface FrameProps extends ComponentProps<typeof PersistenceButtons> {
+type FrameProps = PropsWithChildren<{
   getNextImage(): void;
   currentImage: Image;
   subtitleText?: string;
   editingEnabled?: boolean;
   navigationEnabled?: boolean;
-}
+  allowSaveWithoutChanges?: boolean;
+}>;
 
 const sendKey = (k: number, opts = {}): void => {
   const evt = new KeyboardEvent("keydown", {
@@ -40,6 +41,7 @@ const PageFrame = (props: FrameProps) => {
     currentImage: image,
     navigationEnabled = true,
     getNextImage,
+    allowSaveWithoutChanges = false,
     children,
   } = props;
 
@@ -64,7 +66,7 @@ const PageFrame = (props: FrameProps) => {
       h(Navbar.Group, { align: Alignment.RIGHT }, [
         h(PermalinkButton, { image }),
         h(ButtonGroup, [
-          h(PersistenceButtons),
+          h(PersistenceButtons, { allowSaveWithoutChanges }),
           h.if(navigationEnabled)(Button, {
             intent: Intent.PRIMARY,
             text: "Next image",

@@ -7,6 +7,7 @@ import uuidv4 from "uuid/v4";
 import { StatefulComponent } from "@macrostrat/ui-components";
 import { Spec } from "immutability-helper";
 import { Annotation, AnnotationID, TagID, Tag } from "./types";
+import { thresholdScott } from "d3";
 
 type UpdateSpec = object;
 type TagUpdater = (s: UpdateSpec) => void;
@@ -250,9 +251,11 @@ class AnnotationEditorProvider extends StatefulComponent<
   render() {
     const { children, initialAnnotations, editingEnabled } = this.props;
     const { annotations, selectedAnnotation, lockedTags } = this.state;
-    const hasChanges = isDifferent(initialAnnotations, annotations);
+    const hasChanges = initialAnnotations != annotations;
 
     const currentTag = this.state.currentTag ?? this.context[0]?.tag_id;
+
+    console.log(hasChanges);
 
     let editorContext = {
       actions: this.actions,
@@ -281,10 +284,16 @@ class AnnotationEditorProvider extends StatefulComponent<
     );
   }
 
-  componentDidUpdate() {
+  componentDidUpdate(prevProps) {
     const firstTag = this.context[0]?.tag_id;
     if (this.state.currentTag == null && firstTag != null) {
       this.setState({ currentTag: firstTag });
+    }
+
+    // We need to be careful, because this could cause us to lose annotations
+    if (prevProps.initialAnnotations != this.props.initialAnnotations) {
+      console.log("Clearing annotation changes");
+      this.clearChanges();
     }
   }
 }

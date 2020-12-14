@@ -9,7 +9,11 @@ import { Component, createContext } from "react";
 import { AppToaster } from "~/toaster";
 import { APIContext, ErrorMessage } from "~/api";
 import { PageFrame } from "~/page-interface";
-import { APITagsProvider, AnnotationEditorProvider } from "~/providers";
+import {
+  APITagsProvider,
+  AnnotationEditorProvider,
+  Annotation,
+} from "~/providers";
 
 interface DocumentPageProvider {
   getRandomPage();
@@ -99,6 +103,7 @@ class TaggingPage extends StatefulComponent {
   static contextType = APIContext;
   constructor(props) {
     super(props);
+    this.getImageToDisplay = this.getImageToDisplay.bind(this);
 
     this.state = {
       currentImage: null,
@@ -128,7 +133,7 @@ class TaggingPage extends StatefulComponent {
             subtitleText,
             editingEnabled,
             currentImage: image,
-            getNextImage: this.getImageToDisplay.bind(this),
+            getNextImage: this.getImageToDisplay,
           },
           h(ImageContainer, {
             editingEnabled,
@@ -139,8 +144,8 @@ class TaggingPage extends StatefulComponent {
     ]);
   }
 
-  saveData = async () => {
-    const { currentImage, rectStore } = this.state;
+  saveData = async (annotations: Annotation[]) => {
+    const { currentImage } = this.state;
     const { post } = APIActions(this.context);
 
     let { extraSaveData } = this.props;
@@ -149,7 +154,7 @@ class TaggingPage extends StatefulComponent {
     }
 
     const saveItem = {
-      tags: rectStore,
+      tags: annotations,
       ...extraSaveData,
     };
 
@@ -171,7 +176,6 @@ class TaggingPage extends StatefulComponent {
         intent: Intent.SUCCESS,
       });
       this.updateState({
-        rectStore: { $set: newData },
         initialRectStore: { $set: newData },
       });
       return true;
@@ -211,7 +215,6 @@ class TaggingPage extends StatefulComponent {
     if (imageToDisplay == null) {
       return;
     }
-    console.log(`Getting image from endpoint ${imageToDisplay}`);
     const d = await get(
       imageToDisplay,
       { stack_name: hacky_stack_id },
@@ -234,7 +237,6 @@ class TaggingPage extends StatefulComponent {
     const rectStore = [];
     this.setState({
       currentImage: d,
-      rectStore,
       initialRectStore: rectStore,
     });
 
@@ -264,9 +266,7 @@ class TaggingPage extends StatefulComponent {
     }
 
     const image_tags = [];
-    console.log("Did update");
     return this.setState({
-      rectStore: image_tags,
       initialRectStore: image_tags,
     });
   }
