@@ -1,6 +1,5 @@
 import h, { compose, C } from "@macrostrat/hyper";
 import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
-import { AppMode } from "~/enum";
 import classNames from "classnames";
 import { PermalinkProvider } from "./permalinks";
 import { DarkModeProvider, inDarkMode } from "@macrostrat/ui-components";

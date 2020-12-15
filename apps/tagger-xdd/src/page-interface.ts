@@ -2,7 +2,7 @@ import h from "@macrostrat/hyper";
 import { Intent } from "@blueprintjs/core";
 import T from "prop-types";
 
-import { ImageOverlay } from "~/image-overlay";
+import { ImageOverlay, StaticImageOverlay } from "~/image-overlay";
 import { ScaledImagePanel } from "~/page-interface/scaled-image";
 import { StatefulComponent, APIActions } from "@macrostrat/ui-components";
 import { Component, createContext } from "react";
@@ -74,6 +74,7 @@ class ImageContainer extends Component<ContainerProps, ContainerState> {
   }
 
   render() {
+    const { children } = this.props;
     const { image } = this.state;
     if (image == null) return null;
     return h(
@@ -82,7 +83,7 @@ class ImageContainer extends Component<ContainerProps, ContainerState> {
         image,
         urlForImage: this.imageURL.bind(this),
       },
-      h(ImageOverlay)
+      children
     );
   }
 }
@@ -104,6 +105,7 @@ class TaggingPage extends StatefulComponent {
   constructor(props) {
     super(props);
     this.getImageToDisplay = this.getImageToDisplay.bind(this);
+    this.tagsEndpoint = this.tagsEndpoint.bind(this);
 
     this.state = {
       currentImage: null,
@@ -119,12 +121,14 @@ class TaggingPage extends StatefulComponent {
     const { initialRectStore } = this.state;
     const { editingEnabled } = this.props;
 
+    if (image == null) return null;
+
     return h(APITagsProvider, [
       h(
         AnnotationEditorProvider,
         {
           initialAnnotations: initialRectStore,
-          editingEnabled: true,
+          editingEnabled,
           onSave: this.saveData,
         },
         h(
@@ -135,17 +139,34 @@ class TaggingPage extends StatefulComponent {
             currentImage: image,
             getNextImage: this.getImageToDisplay,
           },
-          h(ImageContainer, {
-            editingEnabled,
-            image,
-          })
+          h(
+            ImageContainer,
+            {
+              editingEnabled,
+              image,
+            },
+            editingEnabled
+              ? h(ImageOverlay)
+              : h(StaticImageOverlay, { tagRoute: this.tagsEndpoint() })
+          )
         )
       ),
     ]);
   }
 
-  saveData = async (annotations: Annotation[]) => {
+  tagsEndpoint() {
     const { currentImage } = this.state;
+    // TODO: Fix this
+    // Set the current stack ID to save data with
+    const stack_id = "mars";
+    // this.state.currentImage.stack_id ||
+    // this.props.stack_id ||
+    // "default_to_tag";
+
+    return `/image/${currentImage.image_id}/${stack_id}/tags`;
+  }
+
+  saveData = async (annotations: Annotation[]) => {
     const { post } = APIActions(this.context);
 
     let { extraSaveData } = this.props;
@@ -158,17 +179,8 @@ class TaggingPage extends StatefulComponent {
       ...extraSaveData,
     };
 
-    // TODO: Fix this
-    // Set the current stack ID to save data with
-    const stack_id = "mars";
-    // this.state.currentImage.stack_id ||
-    // this.props.stack_id ||
-    // "default_to_tag";
-
-    const endpoint = `/image/${currentImage.image_id}/${stack_id}/tags`;
-
     try {
-      const newData = await post(endpoint, saveItem, {
+      const newData = await post(this.tagsEndpoint(), saveItem, {
         handleError: false,
       });
       AppToaster.show({

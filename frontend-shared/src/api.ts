@@ -1,5 +1,5 @@
 import { Component } from "react";
-import h from "react-hyperscript";
+import h from "@macrostrat/hyper";
 import { AppToaster } from "./toaster";
 import { Intent } from "@blueprintjs/core";
 import { APIContext, APIProvider } from "@macrostrat/ui-components";
@@ -31,11 +31,9 @@ const ErrorMessage = (props) => {
 };
 
 class APIProviderShim extends Component {
-  static initClass() {
-    this.defaultProps = {
-      baseURL: null,
-    };
-  }
+  static defaultProps = {
+    baseURL: null,
+  };
   onError(route, opts) {
     const { error } = opts;
     return AppToaster.show(
@@ -61,6 +59,5 @@ class APIProviderShim extends Component {
     });
   }
 }
-APIProviderShim.initClass();
 
 export { APIProviderShim as APIProvider, APIContext, ErrorMessage };

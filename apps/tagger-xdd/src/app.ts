@@ -2,8 +2,7 @@ import { Component } from "react";
 import h from "react-hyperscript";
 
 import { Route, Redirect } from "react-router-dom";
-
-import { APIActions } from "@macrostrat/ui-components";
+import { useStoredState, useAPIResult } from "@macrostrat/ui-components";
 import { APIContext } from "~/api";
 import { AppMode, UserRole } from "~/enum";
 import { LoginForm } from "./login-form";
@@ -103,79 +102,46 @@ function TaggingInterface(props) {
   });
 }
 
-class TaggingApplication extends Component {
-  static contextType = APIContext;
-  constructor(props) {
-    super(props);
-    this.setupPeople = this.setupPeople.bind(this);
+function TaggingApplication(props) {
+  const { publicURL = "/" } = props;
+  const [person, setPerson] = useStoredState("person", null);
+  const people = useAPIResult("/people/all", null, { context: APIContext });
 
-    this.state = {
-      people: null,
-      person: null,
-    };
-  }
-
-  render() {
-    const { publicURL } = this.props;
-    const { person, people } = this.state;
-    if (this.context == null) return null;
-
-    const setPerson = (person) => {
-      this.setState({ person });
-      localStorage.setItem("person", JSON.stringify(person));
-    };
-
-    return h(
-      AppRouter,
-      {
-        basename: publicURL,
-        appMode: AppMode.ANNOTATION,
-      },
-      [
-        h(Route, {
-          path: "/",
-          exact: true,
-          render() {
-            return h(LoginForm, {
-              person,
-              people,
-              setPerson,
-            });
-          },
-        }),
-        h(Route, {
-          // This should be included from the context, but
-          // this is complicated from the react-router side
-          path: permalinkRouteTemplate(AppMode.ANNOTATION),
-          render: (props) => {
-            const role = UserRole.VIEW_TRAINING;
-            return h(TaggingInterface, { role, person });
-          },
-        }),
-        h(Route, {
-          path: "/action/:role",
-          render() {
-            return h(TaggingInterface, { person });
-          },
-        }),
-      ]
-    );
-  }
-
-  setupPeople = (d) => {
-    return this.setState({ people: d });
-  };
-
-  componentDidMount() {
-    const { get } = APIActions(this.context);
-    get("/people/all").then(this.setupPeople);
-
-    const p = localStorage.getItem("person");
-    if (p == null) {
-      return;
-    }
-    return this.setState({ person: JSON.parse(p) });
-  }
+  return h(
+    AppRouter,
+    {
+      basename: publicURL,
+      appMode: AppMode.ANNOTATION,
+    },
+    [
+      h(Route, {
+        path: "/",
+        exact: true,
+        render() {
+          return h(LoginForm, {
+            person,
+            people,
+            setPerson,
+          });
+        },
+      }),
+      h(Route, {
+        // This should be included from the context, but
+        // this is complicated from the react-router side
+        path: permalinkRouteTemplate(AppMode.ANNOTATION),
+        render: (props) => {
+          const role = UserRole.VIEW_TRAINING;
+          return h(TaggingInterface, { role, person });
+        },
+      }),
+      h(Route, {
+        path: "/action/:role",
+        render() {
+          return h(TaggingInterface, { person });
+        },
+      }),
+    ]
+  );
 }
 
 export { TaggingApplication };
