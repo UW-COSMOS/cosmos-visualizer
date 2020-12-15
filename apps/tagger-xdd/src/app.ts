@@ -3,6 +3,7 @@ import h from "react-hyperscript";
 
 import { Route, Redirect } from "react-router-dom";
 import { useStoredState, useAPIResult } from "@macrostrat/ui-components";
+import { StackProvider } from "~/providers";
 import { APIContext } from "~/api";
 import { AppMode, UserRole } from "~/enum";
 import { LoginForm } from "./login-form";
@@ -104,43 +105,58 @@ function TaggingInterface(props) {
 
 function TaggingApplication(props) {
   const { publicURL = "/" } = props;
+  const stacks = ["mars"];
   const [person, setPerson] = useStoredState("person", null);
   const people = useAPIResult("/people/all", null, { context: APIContext });
+  const permalinkRoute = "/page/:stackId/:imageId";
 
   return h(
-    AppRouter,
-    {
-      basename: publicURL,
-      appMode: AppMode.ANNOTATION,
-    },
-    [
-      h(Route, {
-        path: "/",
-        exact: true,
-        render() {
-          return h(LoginForm, {
-            person,
-            people,
-            setPerson,
-          });
-        },
-      }),
-      h(Route, {
-        // This should be included from the context, but
-        // this is complicated from the react-router side
-        path: permalinkRouteTemplate(AppMode.ANNOTATION),
-        render: (props) => {
-          const role = UserRole.VIEW_TRAINING;
-          return h(TaggingInterface, { role, person });
-        },
-      }),
-      h(Route, {
-        path: "/action/:role",
-        render() {
-          return h(TaggingInterface, { person });
-        },
-      }),
-    ]
+    StackProvider,
+    { stack: stacks[0] },
+    h(
+      AppRouter,
+      {
+        basename: publicURL,
+        routeTemplate: permalinkRoute,
+        appMode: AppMode.ANNOTATION,
+      },
+      [
+        h(Route, {
+          path: "/",
+          exact: true,
+          render() {
+            return h(LoginForm, {
+              person,
+              people,
+              setPerson,
+            });
+          },
+        }),
+        h(Route, {
+          // This should be included from the context, but
+          // this is complicated from the react-router side
+          path: permalinkRoute,
+          render: (props) => {
+            const role = UserRole.VIEW_TRAINING;
+            return h(TaggingInterface, { role, person });
+          },
+        }),
+        h(Route, {
+          path: "/action/:role",
+          render() {
+            return h(TaggingInterface, { person });
+          },
+        }),
+        h(Route, {
+          render() {
+            return h("div", [
+              h("p", "Page not found"),
+              h("p", null, h("a", { href: "/" }, "Go home")),
+            ]);
+          },
+        }),
+      ]
+    )
   );
 }
 
