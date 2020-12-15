@@ -348,14 +348,15 @@ const WrappedImageOverlay = (props) => {
   // Get editing actions into the props
   const actions = useAnnotationActions();
   const { scaleFactor } = useCanvasSize();
-  const { currentTag } = useAnnotationEditor();
+  const editor = useAnnotationEditor();
   const editingRect = useSelectedAnnotation();
   const updateSelection = useSelectionUpdater();
+
   return h(ImageOverlay, {
     ...props,
     editingRect,
     updateSelection,
-    currentTag,
+    currentTag: editor?.currentTag,
     scaleFactor,
     actions,
   });

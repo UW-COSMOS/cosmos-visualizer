@@ -2,8 +2,8 @@ import { Component } from "react";
 import h from "react-hyperscript";
 
 import { Route, Redirect } from "react-router-dom";
-
-import { APIActions } from "@macrostrat/ui-components";
+import { useStoredState, useAPIResult } from "@macrostrat/ui-components";
+import { StackProvider } from "~/providers";
 import { APIContext } from "~/api";
 import { AppMode, UserRole } from "~/enum";
 import { LoginForm } from "./login-form";
@@ -103,32 +103,21 @@ function TaggingInterface(props) {
   });
 }
 
-class TaggingApplication extends Component {
-  static contextType = APIContext;
-  constructor(props) {
-    super(props);
-    this.setupPeople = this.setupPeople.bind(this);
+function TaggingApplication(props) {
+  const { publicURL = "/" } = props;
+  const stacks = ["mars"];
+  const [person, setPerson] = useStoredState("person", null);
+  const people = useAPIResult("/people/all", null, { context: APIContext });
+  const permalinkRoute = "/page/:stackId/:imageId";
 
-    this.state = {
-      people: null,
-      person: null,
-    };
-  }
-
-  render() {
-    const { publicURL } = this.props;
-    const { person, people } = this.state;
-    if (this.context == null) return null;
-
-    const setPerson = (person) => {
-      this.setState({ person });
-      localStorage.setItem("person", JSON.stringify(person));
-    };
-
-    return h(
+  return h(
+    StackProvider,
+    { stack: stacks[0] },
+    h(
       AppRouter,
       {
         basename: publicURL,
+        routeTemplate: permalinkRoute,
         appMode: AppMode.ANNOTATION,
       },
       [
@@ -146,7 +135,7 @@ class TaggingApplication extends Component {
         h(Route, {
           // This should be included from the context, but
           // this is complicated from the react-router side
-          path: permalinkRouteTemplate(AppMode.ANNOTATION),
+          path: permalinkRoute,
           render: (props) => {
             const role = UserRole.VIEW_TRAINING;
             return h(TaggingInterface, { role, person });
@@ -158,24 +147,17 @@ class TaggingApplication extends Component {
             return h(TaggingInterface, { person });
           },
         }),
+        h(Route, {
+          render() {
+            return h("div", [
+              h("p", "Page not found"),
+              h("p", null, h("a", { href: "/" }, "Go home")),
+            ]);
+          },
+        }),
       ]
-    );
-  }
-
-  setupPeople = (d) => {
-    return this.setState({ people: d });
-  };
-
-  componentDidMount() {
-    const { get } = APIActions(this.context);
-    get("/people/all").then(this.setupPeople);
-
-    const p = localStorage.getItem("person");
-    if (p == null) {
-      return;
-    }
-    return this.setState({ person: JSON.parse(p) });
-  }
+    )
+  );
 }
 
 export { TaggingApplication };

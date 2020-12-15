@@ -2,89 +2,40 @@ import h from "@macrostrat/hyper";
 import { Intent } from "@blueprintjs/core";
 import T from "prop-types";
 
-import { ImageOverlay } from "~/image-overlay";
+import { ImageOverlay, StaticImageOverlay } from "~/image-overlay";
 import { ScaledImagePanel } from "~/page-interface/scaled-image";
 import { StatefulComponent, APIActions } from "@macrostrat/ui-components";
-import { Component, createContext } from "react";
 import { AppToaster } from "~/toaster";
 import { APIContext, ErrorMessage } from "~/api";
 import { PageFrame } from "~/page-interface";
+import { useStack } from "~/providers/stack";
 import {
   APITagsProvider,
   AnnotationEditorProvider,
   Annotation,
 } from "~/providers";
 
-interface DocumentPageProvider {
-  getRandomPage();
-  getPermalink();
-  getNextPageInDocument();
-}
+type ImageContainerProps = React.PropsWithChildren<{
+  image: any;
+  stackName: string;
+}>;
 
-const ImageStoreContext = createContext({});
+function ImageContainer(props: ImageContainerProps) {
+  const { children, image } = props;
+  if (image == null) return null;
 
-function ImageStoreProvider(props) {
-  const { baseURL, publicURL, children } = props;
-  if (baseURL == null) {
-    throw "baseURL for image store must be set in context";
-  }
-  const value = { baseURL, publicURL };
-  return h(ImageStoreContext.Provider, { value }, children);
-}
-
-interface ContainerProps {}
-interface ContainerState {}
-
-class ImageContainer extends Component<ContainerProps, ContainerState> {
-  static defaultProps = {
-    image: null,
-    stackName: "images_to_tag",
-  };
-  static contextType = ImageStoreContext;
-  constructor(props: ContainerProps) {
-    super(props);
-    this.state = { image: null };
-  }
-
-  componentDidUpdate(nextProps) {
-    // Store prevUserId in state so we can compare when props change.
-    // Clear out any previously-loaded user data (so we don't render stale stuff).
-    let oldId;
-    const { image } = nextProps;
-    try {
-      oldId = this.state.image.image_id;
-    } catch (error) {
-      oldId = null;
-    }
-    console.log("Updating image");
-    if (image == null) return;
-    if (nextProps.image == this.state.image) return;
-    if (nextProps.image._id === oldId) return;
-    this.setState({ image });
-  }
-
-  imageURL(image) {
-    const { stackName } = this.props;
-    //console.log(`image: ${image}`)
-    //const {resize_bytes} = image;
-    //return "data:image/png;base64," + resize_bytes;
-    const prefix = "https://xdddev.chtc.io/tagger";
-    const imgPath = image.file_path.replace(/^(\/data\/pngs\/)/, "/images");
-    return prefix + imgPath;
-  }
-
-  render() {
-    const { image } = this.state;
-    if (image == null) return null;
-    return h(
-      ScaledImagePanel,
-      {
-        image,
-        urlForImage: this.imageURL.bind(this),
+  return h(
+    ScaledImagePanel,
+    {
+      image,
+      urlForImage() {
+        const prefix = "https://xdddev.chtc.io/tagger";
+        const imgPath = image.file_path.replace(/^(\/data\/pngs\/)/, "/images");
+        return prefix + imgPath;
       },
-      h(ImageOverlay)
-    );
-  }
+    },
+    children
+  );
 }
 
 // Updates props for a rectangle
@@ -104,6 +55,7 @@ class TaggingPage extends StatefulComponent {
   constructor(props) {
     super(props);
     this.getImageToDisplay = this.getImageToDisplay.bind(this);
+    this.tagsEndpoint = this.tagsEndpoint.bind(this);
 
     this.state = {
       currentImage: null,
@@ -119,12 +71,14 @@ class TaggingPage extends StatefulComponent {
     const { initialRectStore } = this.state;
     const { editingEnabled } = this.props;
 
+    if (image == null) return null;
+
     return h(APITagsProvider, [
       h(
         AnnotationEditorProvider,
         {
           initialAnnotations: initialRectStore,
-          editingEnabled: true,
+          editingEnabled,
           onSave: this.saveData,
         },
         h(
@@ -135,17 +89,34 @@ class TaggingPage extends StatefulComponent {
             currentImage: image,
             getNextImage: this.getImageToDisplay,
           },
-          h(ImageContainer, {
-            editingEnabled,
-            image,
-          })
+          h(
+            ImageContainer,
+            {
+              editingEnabled,
+              image,
+            },
+            editingEnabled
+              ? h(ImageOverlay)
+              : h(StaticImageOverlay, { tagRoute: this.tagsEndpoint() })
+          )
         )
       ),
     ]);
   }
 
-  saveData = async (annotations: Annotation[]) => {
+  tagsEndpoint() {
     const { currentImage } = this.state;
+    // TODO: Fix this
+    // Set the current stack ID to save data with
+    const stack_id = "mars";
+    // this.state.currentImage.stack_id ||
+    // this.props.stack_id ||
+    // "default_to_tag";
+
+    return `/image/${currentImage.image_id}/${stack_id}/tags`;
+  }
+
+  saveData = async (annotations: Annotation[]) => {
     const { post } = APIActions(this.context);
 
     let { extraSaveData } = this.props;
@@ -158,17 +129,8 @@ class TaggingPage extends StatefulComponent {
       ...extraSaveData,
     };
 
-    // TODO: Fix this
-    // Set the current stack ID to save data with
-    const stack_id = "mars";
-    // this.state.currentImage.stack_id ||
-    // this.props.stack_id ||
-    // "default_to_tag";
-
-    const endpoint = `/image/${currentImage.image_id}/${stack_id}/tags`;
-
     try {
-      const newData = await post(endpoint, saveItem, {
+      const newData = await post(this.tagsEndpoint(), saveItem, {
         handleError: false,
       });
       AppToaster.show({
@@ -276,4 +238,9 @@ class TaggingPage extends StatefulComponent {
   }
 }
 
-export { ImageStoreProvider, TaggingPage };
+const WrappedTaggingPage = (props) => {
+  const stack_id = useStack();
+  return h(TaggingPage, { ...props, stack_id });
+};
+
+export { WrappedTaggingPage as TaggingPage };

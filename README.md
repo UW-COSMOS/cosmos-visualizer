@@ -112,6 +112,7 @@ This work was funded by DARPA ASKE HR00111990013.
 
 ## [2.0.0-beta] December 2020
 
+- Add "document stack" awareness to xDD tagger application
 - Add continuous integration using Github Actions
 - Add xDD tagger and visualizer applications
 - Move API code to `__archive` folder (now API is managed separately).
