@@ -38,18 +38,21 @@ function ImageContainer(props: ImageContainerProps) {
   );
 }
 
+interface TaggingPageProps {
+  stack_id: string;
+  subtitleText?: string;
+  editingEnabled: boolean;
+}
+
 // Updates props for a rectangle
 // from API signature to our internal signature
 // TODO: make handle multiple boxes
-class TaggingPage extends StatefulComponent {
+class TaggingPage extends StatefulComponent<TaggingPageProps, any> {
   static defaultProps = {
     allowSaveWithoutChanges: false,
     editingEnabled: true,
     navigationEnabled: true,
     imageRoute: "/image",
-  };
-  static propTypes = {
-    stack_id: T.string,
   };
   static contextType = APIContext;
   constructor(props) {
@@ -105,13 +108,8 @@ class TaggingPage extends StatefulComponent {
   }
 
   tagsEndpoint() {
+    const { stack_id } = this.props;
     const { currentImage } = this.state;
-    // TODO: Fix this
-    // Set the current stack ID to save data with
-    const stack_id = "mars";
-    // this.state.currentImage.stack_id ||
-    // this.props.stack_id ||
-    // "default_to_tag";
 
     return `/image/${currentImage.image_id}/${stack_id}/tags`;
   }
@@ -169,8 +167,6 @@ class TaggingPage extends StatefulComponent {
       imageToDisplay = `${imageRoute}/${initialImage}`;
     }
 
-    var hacky_stack_id = "mars";
-
     // Should switch to newer hooks-based API
     const { get } = APIActions(this.context);
 
@@ -179,7 +175,7 @@ class TaggingPage extends StatefulComponent {
     }
     const d = await get(
       imageToDisplay,
-      { stack_name: hacky_stack_id },
+      { stack_name: stack_id },
       {
         unwrapResponse(res) {
           console.log(`res: ${res}`);

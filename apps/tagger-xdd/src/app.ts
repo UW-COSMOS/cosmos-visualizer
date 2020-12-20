@@ -110,13 +110,13 @@ interface XDDTaggerState {
 
 function TaggingApplication(props) {
   const { publicURL = "/" } = props;
-  const stacks = ["mars", "xdd-covid-19"];
+  const stacks = ["xdd-covid-19", "mars"];
   const [state, setState] = useStoredState<XDDTaggerState>("xdd-tagger-state", {
     stack: stacks[0],
     person: null,
   });
   const people = useAPIResult("/people/all", null, { context: APIContext });
-  const permalinkRoute = "/page/:stackId/:imageId";
+  const permalinkRoute = "/:stackId/page/:imageId";
 
   const { person, stack } = state;
 

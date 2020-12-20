@@ -5,6 +5,7 @@ import { LinkButton } from "@macrostrat/ui-components";
 
 import { AppMode } from "~/enum";
 import { Image, ImageShape } from "~/types";
+import { useStack } from "~/providers/stack";
 
 const PermalinkContext = createContext({});
 
@@ -45,6 +46,7 @@ const PermalinkButton = function (props: PermalinkButtonProps) {
   const { image } = props;
   const ctx = useContext(PermalinkContext);
   const { imageId } = useParams();
+  const stack = useStack();
 
   if (image == null) {
     return null;
@@ -60,7 +62,7 @@ const PermalinkButton = function (props: PermalinkButtonProps) {
   }
   return h(LinkButton, {
     icon: "bookmark",
-    to: ctx.permalinkTo({ image_id, stack_id: "mars" }),
+    to: ctx.permalinkTo({ image_id, stack_id: stack }),
     disabled,
     text,
   });
