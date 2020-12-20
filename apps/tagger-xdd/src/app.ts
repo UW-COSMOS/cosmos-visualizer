@@ -103,16 +103,29 @@ function TaggingInterface(props) {
   });
 }
 
+interface XDDTaggerState {
+  person: string | null;
+  stack: string;
+}
+
 function TaggingApplication(props) {
   const { publicURL = "/" } = props;
-  const stacks = ["mars"];
-  const [person, setPerson] = useStoredState("person", null);
+  const stacks = ["mars", "xdd-covid-19"];
+  const [state, setState] = useStoredState<XDDTaggerState>("xdd-tagger-state", {
+    stack: stacks[0],
+    person: null,
+  });
   const people = useAPIResult("/people/all", null, { context: APIContext });
   const permalinkRoute = "/page/:stackId/:imageId";
 
+  const { person, stack } = state;
+
+  const setPerson = (person) => setState({ ...state, person });
+  const setStack = (stack) => setState({ ...state, stack });
+
   return h(
     StackProvider,
-    { stack: stacks[0] },
+    { stack },
     h(
       AppRouter,
       {
@@ -128,7 +141,10 @@ function TaggingApplication(props) {
             return h(LoginForm, {
               person,
               people,
+              stack,
+              stacks,
               setPerson,
+              setStack,
             });
           },
         }),
