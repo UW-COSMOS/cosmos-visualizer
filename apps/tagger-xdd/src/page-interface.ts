@@ -8,6 +8,7 @@ import { StatefulComponent, APIActions } from "@macrostrat/ui-components";
 import { AppToaster } from "~/toaster";
 import { APIContext, ErrorMessage } from "~/api";
 import { PageFrame } from "~/page-interface";
+import { usePageSettings } from "~/page-interface/settings";
 import { useStack } from "~/providers/stack";
 import {
   APITagsProvider,
@@ -17,17 +18,18 @@ import {
 
 type ImageContainerProps = React.PropsWithChildren<{
   image: any;
-  stackName: string;
 }>;
 
 function ImageContainer(props: ImageContainerProps) {
   const { children, image } = props;
+  const { zoom } = usePageSettings();
   if (image == null) return null;
 
   return h(
     ScaledImagePanel,
     {
       image,
+      zoom,
       urlForImage() {
         const prefix = "https://xdddev.chtc.io/tagger";
         const imgPath = image.file_path.replace(/^(\/data\/pngs\/)/, "/images");
@@ -63,14 +65,12 @@ class TaggingPage extends StatefulComponent<TaggingPageProps, any> {
     this.state = {
       currentImage: null,
       initialRectStore: [],
-      imageBaseURL: null,
-      tagStore: [],
     };
   }
 
   render() {
     const { subtitleText } = this.props;
-    const { currentImage: image, tagStore } = this.state;
+    const { currentImage: image, zoom } = this.state;
     const { initialRectStore } = this.state;
     const { editingEnabled } = this.props;
 
@@ -91,11 +91,12 @@ class TaggingPage extends StatefulComponent<TaggingPageProps, any> {
             editingEnabled,
             currentImage: image,
             getNextImage: this.getImageToDisplay,
+            zoom,
+            setZoom: (zoom) => this.setState({ zoom }),
           },
           h(
             ImageContainer,
             {
-              editingEnabled,
               image,
             },
             editingEnabled

@@ -8,6 +8,8 @@ interface ImagePanelProps {
   image: ImageData;
   urlForImage: (im: ImageData) => string;
   dimensionsForImage?: (im: ImageData) => Size;
+  /** A number between 0 and 1 controlling the size of the image relative to its container */
+  zoom?: number | null;
   children?: ReactNode;
 }
 
@@ -28,28 +30,32 @@ async function imageSize(url: string): Size {
 }
 
 class ScaledImagePanel extends Component<ImagePanelProps, ImagePanelState> {
-  static defaultProps = {
-    // By default, just assume we pass a URL
-    urlForImage: (d) => d,
-    dimensionsForImage: imageSize,
-  };
   state = {
     windowWidth: window.innerWidth,
+    windowHeight: window.innerHeight,
     imageSize: null,
   };
   render() {
-    const { windowWidth, imageSize } = this.state;
-    if (imageSize == null) return null;
+    const { zoom = 1, image } = this.props;
+    const { windowWidth, windowHeight, imageSize } = this.state;
+    if (image == null || imageSize == null) return null;
     let { width, height } = imageSize;
 
-    const targetSize = Math.min(2000, windowWidth - 24);
     // Clamp to integer scalings for simplicity
-    const scaleFactor = Math.max(width / targetSize, 1);
+    const maxScaleFactor = Math.max(
+      width / Math.min(2000, windowWidth - 24),
+      1
+    );
+    const minScaleFactor = Math.max(
+      height / Math.min(3000, windowHeight - 74),
+      1
+    );
+
+    let scaleFactor = minScaleFactor + zoom * (maxScaleFactor - minScaleFactor);
+    console.log(scaleFactor, zoom);
 
     height /= scaleFactor;
     width /= scaleFactor;
-
-    console.log(width, height, imageSize, scaleFactor);
 
     const src = this.props.urlForImage(this.props.image);
 
@@ -88,7 +94,10 @@ class ScaledImagePanel extends Component<ImagePanelProps, ImagePanelState> {
   componentDidMount() {
     this.didUpdateImage.apply(this, arguments);
     window.addEventListener("resize", () =>
-      this.setState({ windowWidth: window.innerWidth })
+      this.setState({
+        windowWidth: window.innerWidth,
+        windowHeight: window.innerHeight,
+      })
     );
   }
 
