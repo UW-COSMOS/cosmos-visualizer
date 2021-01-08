@@ -2,174 +2,134 @@ import h from "@macrostrat/hyper";
 import { Intent } from "@blueprintjs/core";
 import T from "prop-types";
 
-import { join } from "path";
-import { ImageOverlay } from "~/image-overlay";
+import { ImageOverlay, StaticImageOverlay } from "~/image-overlay";
 import { ScaledImagePanel } from "~/page-interface/scaled-image";
-
 import { StatefulComponent, APIActions } from "@macrostrat/ui-components";
-import { Component, createContext } from "react";
-import { AppToaster } from "../toaster";
+import { AppToaster } from "~/toaster";
 import { APIContext, ErrorMessage } from "~/api";
 import { PageFrame } from "~/page-interface";
-import { APITagsProvider, AnnotationEditorProvider } from "~/providers";
+import { usePageSettings } from "~/page-interface/settings";
+import { useStack } from "~/providers/stack";
+import {
+  APITagsProvider,
+  AnnotationEditorProvider,
+  Annotation,
+} from "~/providers";
 
-interface DocumentPageProvider {
-  getRandomPage();
-  getPermalink();
-  getNextPageInDocument();
-}
+type ImageContainerProps = React.PropsWithChildren<{
+  image: any;
+}>;
 
-const ImageStoreContext = createContext({});
+function ImageContainer(props: ImageContainerProps) {
+  const { children, image } = props;
+  const { zoom } = usePageSettings();
+  if (image == null) return null;
 
-class ImageStoreProvider extends Component {
-  render() {
-    const { baseURL, publicURL, children } = this.props;
-    if (baseURL == null) {
-      throw "baseURL for image store must be set in context";
-    }
-    const value = { baseURL, publicURL };
-    return h(ImageStoreContext.Provider, { value }, children);
-  }
-}
-
-interface ContainerProps {}
-interface ContainerState {}
-
-class ImageContainer extends Component<ContainerProps, ContainerState> {
-  static defaultProps = {
-    image: null,
-    stackName: "images_to_tag",
-  };
-  static contextType = ImageStoreContext;
-  constructor(props: ContainerProps) {
-    super(props);
-    this.state = { image: null };
-  }
-  async componentDidUpdate(nextProps) {
-    // Store prevUserId in state so we can compare when props change.
-    // Clear out any previously-loaded user data (so we don't render stale stuff).
-    let oldId;
-    const { image } = nextProps;
-    try {
-      oldId = this.state.image.image_id;
-    } catch (error) {
-      oldId = null;
-    }
-
-    if (image == null) return;
-    if (nextProps.image._id === oldId) return;
-    this.setState({ image });
-  }
-
-  imageURL(image) {
-    const { stackName } = this.props;
-    //console.log(`image: ${image}`)
-    //const {resize_bytes} = image;
-    //return "data:image/png;base64," + resize_bytes;
-    return join("/", stackName, image.file_path);
-  }
-
-  render() {
-    const { image } = this.state;
-    if (image == null) return null;
-    return h(
-      ScaledImagePanel,
-      {
-        image,
-        urlForImage: this.imageURL.bind(this),
+  return h(
+    ScaledImagePanel,
+    {
+      image,
+      zoom,
+      urlForImage() {
+        const prefix = "https://xdddev.chtc.io/tagger";
+        const imgPath = image.file_path.replace(/^(\/data\/pngs\/)/, "/images");
+        return prefix + imgPath;
       },
-      h(ImageOverlay)
-    );
-  }
+    },
+    children
+  );
+}
+
+interface TaggingPageProps {
+  stack_id: string;
+  subtitleText?: string;
+  editingEnabled: boolean;
 }
 
 // Updates props for a rectangle
 // from API signature to our internal signature
 // TODO: make handle multiple boxes
-class TaggingPage extends StatefulComponent {
+class TaggingPage extends StatefulComponent<TaggingPageProps, any> {
   static defaultProps = {
     allowSaveWithoutChanges: false,
     editingEnabled: true,
     navigationEnabled: true,
     imageRoute: "/image",
   };
-  static propTypes = {
-    stack_id: T.string,
-  };
   static contextType = APIContext;
   constructor(props) {
     super(props);
-    this.currentStackID = this.currentStackID.bind(this);
-    this.onImageLoaded = this.onImageLoaded.bind(this);
+    this.getImageToDisplay = this.getImageToDisplay.bind(this);
+    this.tagsEndpoint = this.tagsEndpoint.bind(this);
 
     this.state = {
       currentImage: null,
       initialRectStore: [],
-      imageBaseURL: null,
-      tagStore: [],
     };
   }
 
   render() {
     const { subtitleText } = this.props;
-    const { currentImage: image, tagStore } = this.state;
+    const { currentImage: image, zoom } = this.state;
     const { initialRectStore } = this.state;
     const { editingEnabled } = this.props;
+
+    if (image == null) return null;
 
     return h(APITagsProvider, [
       h(
         AnnotationEditorProvider,
         {
           initialAnnotations: initialRectStore,
-          editingEnabled: true,
+          editingEnabled,
+          onSave: this.saveData,
         },
-        [
+        h(
+          PageFrame,
+          {
+            subtitleText,
+            editingEnabled,
+            currentImage: image,
+            getNextImage: this.getImageToDisplay,
+            zoom,
+            setZoom: (zoom) => this.setState({ zoom }),
+          },
           h(
-            PageFrame,
+            ImageContainer,
             {
-              subtitleText,
-              editingEnabled,
-              currentImage: image,
-              getNextImage: this.getImageToDisplay.bind(this),
+              image,
             },
-            [
-              h(ImageContainer, {
-                editingEnabled,
-                image,
-              }),
-            ]
-          ),
-        ]
+            editingEnabled
+              ? h(ImageOverlay)
+              : h(StaticImageOverlay, { tagRoute: this.tagsEndpoint() })
+          )
+        )
       ),
     ]);
   }
 
-  currentStackID() {
-    return (
-      this.state.currentImage.stack_id ||
-      this.props.stack_id ||
-      "default_to_tag"
-    );
+  tagsEndpoint() {
+    const { stack_id } = this.props;
+    const { currentImage } = this.state;
+
+    return `/image/${currentImage.image_id}/${stack_id}/tags`;
   }
 
-  saveData = async () => {
-    const { currentImage, rectStore } = this.state;
+  saveData = async (annotations: Annotation[]) => {
+    const { post } = APIActions(this.context);
+
     let { extraSaveData } = this.props;
     if (extraSaveData == null) {
       extraSaveData = {};
     }
 
     const saveItem = {
-      tags: rectStore,
+      tags: annotations,
       ...extraSaveData,
     };
 
-    const stack_id = this.currentStackID();
-
-    const endpoint = `/image/${currentImage.image_id}/${stack_id}/tags`;
-
     try {
-      const newData = await this.context.post(endpoint, saveItem, {
+      const newData = await post(this.tagsEndpoint(), saveItem, {
         handleError: false,
       });
       AppToaster.show({
@@ -177,7 +137,6 @@ class TaggingPage extends StatefulComponent {
         intent: Intent.SUCCESS,
       });
       this.updateState({
-        rectStore: { $set: newData },
         initialRectStore: { $set: newData },
       });
       return true;
@@ -209,18 +168,15 @@ class TaggingPage extends StatefulComponent {
       imageToDisplay = `${imageRoute}/${initialImage}`;
     }
 
-    var hacky_stack_id = "tag_more";
-
     // Should switch to newer hooks-based API
     const { get } = APIActions(this.context);
 
     if (imageToDisplay == null) {
       return;
     }
-    console.log(`Getting image from endpoint ${imageToDisplay}`);
     const d = await get(
       imageToDisplay,
-      { stack_id: hacky_stack_id },
+      { stack_name: stack_id },
       {
         unwrapResponse(res) {
           console.log(`res: ${res}`);
@@ -229,29 +185,26 @@ class TaggingPage extends StatefulComponent {
         },
       }
     );
-    return this.onImageLoaded(d);
-  };
+    // On image loaded
 
-  onImageLoaded(d) {
     if (Array.isArray(d) && d.length === 1) {
       // API returns a single-item array
       d = d[0];
     }
-    console.log(d);
+    if (this.state.currentImage == d) return;
 
     const rectStore = [];
     this.setState({
       currentImage: d,
-      rectStore,
       initialRectStore: rectStore,
     });
 
-    return AppToaster.show({
+    AppToaster.show({
       message: h("div", ["Loaded image ", h("code", d._id), "."]),
       intent: Intent.PRIMARY,
       timeout: 1000,
     });
-  }
+  };
 
   componentDidMount() {
     return this.getImageToDisplay();
@@ -273,7 +226,6 @@ class TaggingPage extends StatefulComponent {
 
     const image_tags = [];
     return this.setState({
-      rectStore: image_tags,
       initialRectStore: image_tags,
     });
   }
@@ -283,4 +235,9 @@ class TaggingPage extends StatefulComponent {
   }
 }
 
-export { ImageStoreProvider, TaggingPage };
+const WrappedTaggingPage = (props) => {
+  const stack_id = useStack();
+  return h(TaggingPage, { ...props, stack_id });
+};
+
+export { WrappedTaggingPage as TaggingPage };

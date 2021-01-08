@@ -99,7 +99,8 @@ const AnnotationApproverProvider = (props: AnnotationApproverProps) => {
     return state.annotatedClasses[i] ?? null;
   });
 
-  const updateState = (spec) => setState(update(state, spec));
+  const updateState = (spec: Spec<AnnotationApprovalState>) =>
+    setState(update(state, spec));
 
   const data = { baseURL, pdf_name, page_num };
   async function thumbs(

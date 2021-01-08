@@ -1,9 +1,9 @@
-import h from "react-hyperscript";
+import h from "@macrostrat/hyper";
 import { Button, Intent } from "@blueprintjs/core";
 import { useAnnotationEditor } from "~/providers";
 
 type PersistenceButtonProps = {
-  allowSaveWithoutChanges?: boolean;
+  allowSaveWithoutChanges: boolean;
 };
 
 const PersistenceButtons = (props: PersistenceButtonProps) => {
@@ -12,7 +12,7 @@ const PersistenceButtons = (props: PersistenceButtonProps) => {
   if (ctx == null) return null;
 
   const { hasChanges, initialAnnotations } = ctx;
-  const { allowSaveWithoutChanges } = props;
+  const { allowSaveWithoutChanges = false } = props;
   let clearRectText = "Clear changes";
   if (initialAnnotations.length > 0) {
     clearRectText = "Reset changes";
@@ -36,10 +36,6 @@ const PersistenceButtons = (props: PersistenceButtonProps) => {
       onClick: clearChanges,
     }),
   ]);
-};
-
-PersistenceButtons.defaultProps = {
-  allowSaveWithoutChanges: false,
 };
 
 export { PersistenceButtons, PersistenceButtonProps };

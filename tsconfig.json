@@ -10,11 +10,13 @@
     "typeRoots": [
       "node_modules/@types"
     ],
+    "baseUrl": ".",
     "paths": {
-        "~/*": ["src/*"]
+        "~/*": ["frontend-shared/src/*"]
     }
   },
   "include": [
-    "src"
+    "frontend-shared/src/**/*",
+    "apps/*/src/**/*"
   ]
 }

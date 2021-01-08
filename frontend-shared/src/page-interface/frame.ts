@@ -6,22 +6,27 @@ import {
   Intent,
   Alignment,
 } from "@blueprintjs/core";
+import { DarkModeButton } from "@macrostrat/ui-components";
 
-import { useState, ComponentProps } from "react";
+import { useState, PropsWithChildren } from "react";
 import { PermalinkButton } from "~/shared/router";
 import { PageHeader } from "../util";
 import { InfoDialog } from "../info-dialog";
 import { PersistenceButtons } from "./persistence-buttons";
 import { Image } from "~/types";
 import { useAnnotationEditor } from "~/providers";
+import { SettingsPopover, PageSettingsProvider } from "./settings";
 
-interface FrameProps extends ComponentProps<typeof PersistenceButtons> {
+type FrameProps = PropsWithChildren<{
   getNextImage(): void;
   currentImage: Image;
   subtitleText?: string;
   editingEnabled?: boolean;
-  navigationEnabled: boolean;
-}
+  navigationEnabled?: boolean;
+  allowSaveWithoutChanges?: boolean;
+  zoom?: number | null;
+  setZoom?(zoom: number): void;
+}>;
 
 const sendKey = (k: number, opts = {}): void => {
   const evt = new KeyboardEvent("keydown", {
@@ -37,8 +42,9 @@ const PageFrame = (props: FrameProps) => {
   const {
     subtitleText,
     currentImage: image,
-    navigationEnabled,
+    navigationEnabled = true,
     getNextImage,
+    allowSaveWithoutChanges = false,
     children,
   } = props;
 
@@ -48,44 +54,48 @@ const PageFrame = (props: FrameProps) => {
   const editingEnabled = ctx != null;
   const hasChanges = ctx?.hasChanges ?? false;
 
-  return h("div.main", [
-    h(Navbar, { fixedToTop: true }, [
-      h(PageHeader, { subtitle: subtitleText }, [
-        h(
-          Button,
-          {
-            icon: "info-sign",
-            onClick: () => setDialogOpen(!dialogIsOpen),
-          },
-          "Usage"
-        ),
-      ]),
-      h(Navbar.Group, { align: Alignment.RIGHT }, [
-        h(PermalinkButton, { image }),
-        h(ButtonGroup, [
-          h(PersistenceButtons),
-          h.if(navigationEnabled)(Button, {
-            intent: Intent.PRIMARY,
-            text: "Next image",
-            rightIcon: "chevron-right",
-            disabled: hasChanges,
-            onClick: getNextImage,
-          }),
+  return h(PageSettingsProvider, { storageID: "tagger-page-settings" }, [
+    h("div.main", [
+      h(Navbar, { fixedToTop: true }, [
+        h(PageHeader, { subtitle: subtitleText }, [
+          h(
+            Button,
+            {
+              icon: "info-sign",
+              onClick: () => setDialogOpen(!dialogIsOpen),
+            },
+            "Usage"
+          ),
+          h(SettingsPopover),
+        ]),
+        h(Navbar.Group, { align: Alignment.RIGHT }, [
+          h(PermalinkButton, { image }),
+          h(ButtonGroup, [
+            h(PersistenceButtons, { allowSaveWithoutChanges }),
+            h.if(navigationEnabled)(Button, {
+              intent: Intent.PRIMARY,
+              text: "Next image",
+              rightIcon: "chevron-right",
+              disabled: hasChanges,
+              onClick: getNextImage,
+            }),
+          ]),
+          h(DarkModeButton, { minimal: true }),
         ]),
       ]),
+      children,
+      h(InfoDialog, {
+        isOpen: dialogIsOpen,
+        onClose() {
+          setDialogOpen(false);
+        },
+        editingEnabled,
+        displayKeyboardShortcuts() {
+          setDialogOpen(false);
+          sendKey(47, { shiftKey: true });
+        },
+      }),
     ]),
-    children,
-    h(InfoDialog, {
-      isOpen: dialogIsOpen,
-      onClose() {
-        setDialogOpen(false);
-      },
-      editingEnabled,
-      displayKeyboardShortcuts() {
-        setDialogOpen(false);
-        sendKey(47, { shiftKey: true });
-      },
-    }),
   ]);
 };
 

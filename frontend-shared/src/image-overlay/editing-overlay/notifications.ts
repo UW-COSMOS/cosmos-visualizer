@@ -1,5 +1,5 @@
 import { useContext } from "react";
-import h from "react-hyperscript";
+import h from "@macrostrat/hyper";
 import { EditorContext } from "../context";
 import { EditMode } from "~/enum";
 import { Card, Button, Intent } from "@blueprintjs/core";
@@ -24,21 +24,16 @@ const ModeNotification = (props) => {
     return actions.setMode(mode, false);
   };
 
-  let deleteButton = null;
-  if (!shiftKey) {
-    deleteButton = h(Button, {
-      minimal: true,
-      icon: "cross",
-      intent: Intent.DANGER,
-      onClick,
-    });
-  }
-
   const className = classNames("edit-mode", mode);
   return h(Card, { className, icon: null }, [
     h("span.mode", "Mode"),
     h("span.message", message),
-    deleteButton,
+    h.if(!shiftKey)(Button, {
+      minimal: true,
+      icon: "cross",
+      intent: Intent.DANGER,
+      onClick,
+    }),
   ]);
 };
 

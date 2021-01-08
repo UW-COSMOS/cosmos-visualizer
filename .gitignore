@@ -6,3 +6,4 @@ _data
 frontend/logs
 .env
 frontend-shared/local-env.sh
+dist

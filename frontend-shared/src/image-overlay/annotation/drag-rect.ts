@@ -6,7 +6,7 @@ import { Component, useLayoutEffect, useRef } from "react";
 import { findDOMNode } from "react-dom";
 import { select, event } from "d3-selection";
 import { drag } from "d3-drag";
-import h from "react-hyperscript";
+import h from "@macrostrat/hyper";
 import { Spec } from "immutability-helper";
 import { AnnotationRect, CanvasSizeContext, useCanvasSize } from "~/providers";
 
@@ -84,10 +84,11 @@ const StaticRectangle = (props: RectProps) => {
   let {
     bounds,
     color,
-    backgroundColor,
     style,
     onClick,
     onMouseDown,
+    isSelected,
+    backgroundColor,
     ...rest
   } = props;
 
@@ -99,9 +100,9 @@ const StaticRectangle = (props: RectProps) => {
   const clickHandler = onMouseDown ?? onClick;
   // Replace componentDidMount/findDOMNode with useRef and and useEffect
   const ref = useRef(null);
-  useLayoutEffect(function () {
-    select(ref.current).on("mousedown", clickHandler);
-  }, []);
+  useLayoutEffect(() => {
+    ref.current?.addEventListener("mousedown", clickHandler);
+  }, [ref.current]);
 
   width /= scaleFactor;
   height /= scaleFactor;
@@ -147,6 +148,7 @@ interface Size {
 interface DragRectProps extends RectProps {
   minSize?: Size;
   update(spec: Spec): void;
+  onClick(e: Event): void;
 }
 
 function mouseCoords() {
@@ -154,7 +156,9 @@ function mouseCoords() {
   return { x, y };
 }
 
-class DragRectangle extends Component {
+const stopPropagation = (event) => event.stopPropagation();
+
+class DragRectangle extends Component<DragRectProps, {}> {
   static contextType = CanvasSizeContext;
   constructor(props) {
     super(props);
@@ -172,12 +176,11 @@ class DragRectangle extends Component {
     const { children, update, bounds, color, onMouseDown } = this.props;
     const margin = 4;
     const className = update != null ? "draggable" : null;
-    let { onClick } = this.props;
+    const onClick = update == null ? this.props.onClick : stopPropagation;
 
     const isSelected = true;
     // TODO: not sure why we were overriding here, but it's weird...
     // maybe something to do with needing to capture mousdowns instead?
-    if (update != null) onClick = (e) => e.stopPropagation();
 
     const { dragInteraction } = this;
     return h(
@@ -275,8 +278,12 @@ class DragRectangle extends Component {
   }
 
   componentDidMount() {
-    const el = select(findDOMNode(this));
-    return el.call(this.dragInteraction());
+    const el = findDOMNode(this);
+    // Make sure we don't propagate clicks to the underlying element...
+    el.addEventListener("click", (evt: Event) => {
+      evt.stopPropagation();
+    });
+    return select(el).call(this.dragInteraction());
   }
 }
 

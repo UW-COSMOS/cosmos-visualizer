@@ -3,150 +3,103 @@
 The **COSMOS** visualizer codebase consists of several applications
 that build training datasets and showcase model results for
 the **COSMOS** knowledge-base extraction pipeline.
-Separate apps for _tagging_, _validation_, and _knowledge-base visualization_
-are included.
 
-## Setup and installation
+# Repository structure
 
-The _Validation_ and _Visualization_ apps can be run using the following steps:
+This repository organizes several applications that facilitate the COSMOS
+data pipeline, including collecting model training data and providing searchable
+interfaces over the output. These interfaces reuse common components, and the repository
+is structured to maintain independence between the apps with minimal code duplication.
+In **Version 2** (December 2020), this repository was reorganized as a "monorepo" with
+a structure for many packages within a common workspace.
 
-### Docker development
+## Applications
 
-1. Pull submodules: `git submodule update --init`
-2. Copy the `.env.example` file to `.env` and modify the values to your setup.
-   A running **COSMOS** pipeline exposing a search API must be specified here.
-3. Run the script `bin/run-frontend [--production] <validation|visualizer>`.
-   This will spin up `docker-compose` for either the `validation` or `visualizer`
-   apps, using the correct settings for production if that flag is specified, or
-   enabling continuous rebuilding for frontend development if not.
-   Note: as of April 1, 2020, development mode with code reloading is broken in
-   Docker. Use local development strategy.
+Applications, housed in the `apps/*` directories, are all built with a common
+Webpack configuration. Several apps are provided:
 
-## Environment variables
+- `tagger-demo`: A single-page demo of the training-data collection interface, for debugging purposes
+- `tagger-xdd`: A tagging application to sit atop the COSMOS deployment backed by [xDD](https://xdd.wisc.edu).
+- `visualizer`: A standalone visualizer application.
+- `visualizer-xdd`: A visualizer application to sit atop different "sets" of documents managed by xDD.
+  This is the a key public interface for our Phase 2 ASKE work of integrating xDD and COSMOS. A running instance
+  can be found [here](https://xdddev.chtc.io/set_visualizer).
 
-An `API_ERROR_MESSAGE` environment variable can be provided to forward an error
-to the user. This disables all search functionality if set.
+Each application directory contains a `Dockerfile` allowing
+that application to be built into a container. For now, each of these `Dockerfile`s
+must use the root directory of this repository as their context.
 
-### Local development
+Some of the applications expect or allow configuration with environment variables.
+Sensible defaults are provided where possible. For local development, default values
+can be overridden by setting environment variables or in a `.env` file in the application
+directory. For Docker builds, these variables can be specified as build arguments. Check
+the `.env.example` or `Dockerfile` in each application directory for more information.
 
-1. Pull submodules: `git submodule update --init`
-2. Move to frontend directory: `cd frontend-shared`
-3. Copy the `local-env.example.sh` file to `local-env.sh` and modify
-   the values to your setup. A running **COSMOS** pipeline
-   exposing a search API must be specified here.
-4. Install NPM modules: `npm install`
-5. Run webpack bundler and dev server: `./run-local <validation|visualizer|xdd>`  
-   (`npm run dev` is aliased to `./run-local visualizer`).
-6. The frontend will be available on `localhost:8080`.
+## Shared packages
 
-Make sure to test a production bundle in Docker (`bin/run-frontend --production visualizer`)
-before pushing code. We should probably set up CI for this command specifically.
+There is currently a single shared package (the `frontend-shared` directory)
+in the repository. Over time, we will split this package into subsidiary packages
+within the `packages` directory. Some of these will eventually be published to NPM and/or
+spun off into separate repositories.
 
-# Applications
+# Setup and installation
 
-## xDD application
+## Local development
+
+This repository is set up for local development and Dockerized deployment. Currently,
+all apps are purely frontend code, so S3 static deployments are possible as well.
+
+1. Make sure you have at least NPM version 7 (released late 2020) on your system: we
+   require its [workspace support](https://docs.npmjs.com/cli/v7/using-npm/workspaces)
+   to bundle our linked packages. You can check this by running `npm --version`, and
+   update using `npm install -g npm@7` if you need to upgrade.
+2. Install NPM modules in the root of this repository `npm install`
+3. Run the app you are interested in, one of two ways:
+   - Change to the `apps/<your-app>` directory and run `npm run dev`
+   - Most apps provide a shorthand invocation from the root directory: `npm run <your-app>`
+4. A [Webpack dev server](https://webpack.js.org/configuration/dev-server/) containing
+   the app will be available on `localhost:8080`.
+
+To build for deployment, run `npm install` followed by `npm build` in the
+application directory. This will bundle files into the `apps/dist/<your-app>` directory.
+
+## Docker development
+
+`Dockerfile`s are provided for some of the apps. For now, these should be
+be used in the root context of this repository, as such:
+`docker build -t xdd_cosmos_tagger:latest -f apps/tagger-xdd/Dockerfile .`
+
+Once built, containers can be run on `localhost:8080`:
+`docker run -p 8080:80 xdd_cosmos_tagger:latest`.
+
+This sequence of commands is exposed in the `Makefile` for several apps,
+so you can spin up a server by using e.g. `make visualizer-xdd`.
+
+Continuous integration is used to build Docker containers for the
+xDD tagger and visualizer applications.
+
+# Applications reference
+
+## xDD visualier
 
 The xDD application wraps COSMOS visualizers for all of the document
-sets organized within the xDD API. Since all of the endpoint configuration is provided by the API, it has a much simpler configuration than the the standalone visualizer (for now).
+sets organized within the xDD API. Since all of the endpoint
+configuration is provided by the API, it has a much simpler
+configuration than the the standalone visualizer (for now).
 
-This application can be built locally using the above instructions,
-OR it can be built using `frontend-shared/Dockerfile.xdd`. The
-appropriate build/run instructions for a version running at
-`localhost:8080` are available in the `make xdd` command.
+This app is set up with continuous integration for development and deployment.
+The running app can be found [here](https://xdddev.chtc.io/set_visualizer).
 
-The application can be configured using the `PUBLIC_URL` and
-`API_BASE_URL` build-time arguments, as such:
+## Visualiser
 
-```
-docker build -t xdd_cosmos_visualizer:latest \
-  --build-arg PUBLIC_URL="https://xdddev.chtc.io/set_visualizer" \
-  -f frontend-shared/Dockerfile.xdd \
-  frontend-shared
-```
+The core visualizer application provides a searchable interface to the output of a
+COSMOS pipeline. The `API_BASE_URL` should be set to a running **COSMOS** pipeline
+exposing a search API.
 
-## Tagging application
+The `API_ERROR_MESSAGE`: environment variable can be provided to forward an error
+to the user in case of API outage. This disables all search functionality if set.
 
-The _Tagging_ application is relatively complex due to its
-data-storage requirements. The application includes several components:
-
-- A **PostgreSQL** database server that contains training data and model extractions.
-- A **node express**-based API that bridges the data store and user interface.
-- A frontend **React** app.
-- A **Python**-based importer to move structured model output into the extractions database.
-
-Each of these components can be built as a separate **Docker** container and orchestrated
-with **docker-compose**. The entire assemblage can be run with `docker-compose up`. This is
-the preferred way to set up, develop, and run this software.
-
-### Running for production
-
-The production implementation of the visualizer pulls images from Dockerhub instead of
-building them locally. Run this version on a set of documents
-by setting the `PIPELINE_OUTPUT` environment variable to the path to the output to visualize, and then running
-`docker-compose -f docker-compose_prod.yml` in the root directory of this repository.
-
-### Running for development
-
-Debug mode enables hot-reloading of the API and compilation of frontend javascript code.
-
-To start, make sure you have the latest version of all submodules with `git submodule update --init`.
-Data should be added to the `_data/output-from-pipeline` directory by default. The **PostgreSQL**
-cluster will be initialized in the `_data/pg-cluster` directory.
-
-A debug wrapper script, `bin/run-debug`, wraps `docker-compose` to provide the appropriate `DEBUG=1` environment
-variable for hot-reloading and local development. The development server will then be accessible at `http://localhost:5002`.
-
-### File structure
-
-The `PIPELINE_OUTPUT` data directory of each model output collection
-should maintain a the following format:
-
-```
-_data/output_from_pipeline
-├── html
-│   ├── img     <knowledge-base
-│   │   │        extraction images>
-│   │   ├── 5512feb1e1382394b500c4e7.pdf_1
-│   │   ├── 55684840e1382382d70cf603.pdf_8
-│   │   └── 55684840e1382382d70cf603.pdf_9
-│   └── merged
-├── html_out
-│   ├── equations
-│   ├── html
-│   └── words
-├── output.csv
-├── tables.csv
-├── figures.csv
-├── images      <page-level images>
-└── xml         <xml extractions>
-```
-
-### API Routes
-
-#### /image/:image_id
-
-**Methods**: `GET`  
-**Description**: Return or create annotations. The `image_id` parameter can be replaced with `next` to get a random image for annotation or `validate` to get a random image for validation.  
-**Parameters**:
-
-- `validated` : Boolean : when used with `validate`, returns only images that have or have not already been validated
-
-#### /image/:image_id/tags
-
-**Methods**: `GET`, `POST`  
-**Description**: Return or create annotations.
-
-#### /tags/:tag_id?
-
-**Methods**: `GET`  
-**Description**: Get available tags and their descriptions. All tags can be retrieved by passing `all` as the `tag_id`
-
-#### /people/:person_id?
-
-**Methods**: `GET`, `POST`  
-**Description**: Return users.
-
-## Credits
+# Credits
 
 This work was funded by DARPA ASKE HR00111990013.
 
@@ -155,7 +108,19 @@ This work was funded by DARPA ASKE HR00111990013.
 - Integration: Ian Ross
 - Project lead: Theodoros Rekatsinas, Shanan Peters, and Miron Livny
 
-## License and Acknowledgements
+# Changelog
+
+## [2.0.0-beta] December 2020
+
+- Add ability to control image zoom during tagging
+- Add "document stack" awareness to xDD tagger application
+- Add continuous integration using Github Actions
+- Add xDD tagger and visualizer applications
+- Move API code to `__archive` folder (now API is managed separately).
+- Reorganize repository into monorepo pattern
+- Start keeping changelog
+
+# License and Acknowledgements
 
 All development work supported by DAPRA ASKE HR00111990013 and UW-Madison.
 

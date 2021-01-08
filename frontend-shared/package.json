@@ -1,16 +1,16 @@
 {
-  "name": "image-tagger",
+  "name": "frontend-shared",
   "version": "1.0.0",
   "description": "Tag images with rectangles",
   "main": "index.html",
   "dependencies": {
-    "@blueprintjs/core": "^3.15.1",
-    "@blueprintjs/icons": "^3.6.0",
-    "@blueprintjs/select": "^3.8.0",
+    "@blueprintjs/core": "^3.36.0",
+    "@blueprintjs/icons": "^3.23.0",
+    "@blueprintjs/select": "^3.15.0",
     "@emotion/core": "^10.0.7",
     "@emotion/styled": "^10.0.7",
     "@macrostrat/hyper": "^1.2.4",
-    "@macrostrat/ui-components": "^0.4.4",
+    "@macrostrat/ui-components": "^0.4.6",
     "@turf/bbox-polygon": "^6.0.1",
     "@turf/centroid": "^6.0.2",
     "@turf/combine": "^6.0.1",
@@ -67,7 +67,7 @@
     "coffeescript": "^2.3.2",
     "concurrently": "^5.1.0",
     "css-loader": "^3.0.0",
-    "file-loader": "^4.0.0",
+    "file-loader": "^4.3.0",
     "html-loader": "^0.5.5",
     "linklocal": "^2.8.2",
     "markdown-loader": "^5.0.0",
@@ -81,8 +81,7 @@
   },
   "scripts": {
     "dev": "./run-local visualizer",
-    "dev:validation": "./run-local validation",
-    "postinstall": "replace 'followSymlinks: false' 'followSymlinks: true' node_modules/watchpack/lib/DirectoryWatcher.js"
+    "dev:validation": "./run-local validation"
   },
   "repository": {
     "type": "git",
