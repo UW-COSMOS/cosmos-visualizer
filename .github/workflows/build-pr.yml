@@ -22,7 +22,7 @@ jobs:
           path: .
           dockerfile: ./apps/visualizer-xdd/Dockerfile
           cache_from: uwxdd/cosmos_set_visualizer
-          build_args: PUBLIC_URL=/set_visualizer
+          build_args: PUBLIC_URL=/set_visualizer,XDD_BASE_URL=https://xdddev.chtc.io
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
           repository: uwxdd/cosmos_set_visualizer
