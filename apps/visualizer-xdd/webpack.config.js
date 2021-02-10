@@ -15,7 +15,7 @@ module.exports = function (env, argv) {
       // Replace plugins entirely
       new HtmlWebpackPlugin({ title: "COSMOS Visualizer" }),
       new EnvironmentPlugin({
-        API_BASE_URL: "https://xdd.wisc.edu",
+        API_BASE_URL: "https://xdddev.chtc.io",
         MODE: "development",
         PUBLIC_URL: "/",
       }),
