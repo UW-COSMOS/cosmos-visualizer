@@ -20,9 +20,8 @@ const baseURL = process.env.XDD_BASE_URL ?? "https://xdd.wisc.edu";
 function SetsSelector() {
   const sets: any = useAPIResult(baseURL + "/sets");
   if (sets == null) return null;
-  let { available_sets } = sets;
-  // Isn't yet in the lexicon
-  available_sets.push("geothermal");
+  const { available_sets } = sets;
+
   return h("div.sets-selector", [
     h("h1", "xDD sets"),
     h(
