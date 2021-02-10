@@ -5,7 +5,7 @@ RUN npm install -g npm@7 webpack-cli webpack
 
 ARG ENVIRONMENT="production"
 ARG PUBLIC_URL="/"
-ARG API_BASE_URL="https://xdd.wisc.edu"
+ARG API_BASE_URL="https://xdddev.chtc.io"
 
 WORKDIR /user
 COPY ./package.json /user/
