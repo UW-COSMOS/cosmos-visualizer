@@ -10,7 +10,7 @@
     "@emotion/core": "^10.0.7",
     "@emotion/styled": "^10.0.7",
     "@macrostrat/hyper": "^1.2.4",
-    "@macrostrat/ui-components": "^0.4.6",
+    "@macrostrat/ui-components": "^0.5.0",
     "@turf/bbox-polygon": "^6.0.1",
     "@turf/centroid": "^6.0.2",
     "@turf/combine": "^6.0.1",
