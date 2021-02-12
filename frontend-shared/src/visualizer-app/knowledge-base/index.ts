@@ -18,8 +18,8 @@ function PermalinkPage({ backURL }) {
       h("div.spacer"),
       h.if(backURL)(
         LinkButton,
-        { to: backURL, icon: "chevron-left", minimal: true },
-        "Back"
+        { to: backURL, icon: "search", minimal: true },
+        "Explore extractions"
       ),
     ]),
     h(DocumentResults, { data: res.objects }),
