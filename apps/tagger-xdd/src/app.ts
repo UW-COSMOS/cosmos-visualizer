@@ -39,7 +39,6 @@ function TaggingInterface(props) {
   // Go to specific image by default, if set
   let navigationEnabled, subtitleText;
   const { role: newRole, imageId, stackId } = useParams();
-  if (person == null) return null;
 
   // Allow role to be overridden by programmatically
   // set one (to support permalinks)
@@ -50,11 +49,8 @@ function TaggingInterface(props) {
   }
 
   const imageRoute = "/image";
+  const id = person?.person_id;
 
-  let id = null;
-  if (person != null) {
-    id = person.person_id;
-  }
   let extraSaveData = null;
   let nextImageEndpoint = "/image/next";
   let allowSaveWithoutChanges = false;
@@ -121,6 +117,8 @@ function TaggingApplication(props) {
 
   const setPerson = (person) => setState({ ...state, person });
   const setStack = (stack) => setState({ ...state, stack });
+
+  console.log("Hi from tagging application");
 
   return h(
     StackProvider,
