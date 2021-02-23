@@ -1,6 +1,6 @@
 import h from "react-hyperscript";
 import { Route } from "react-router-dom";
-import { AppMode } from "../enum";
+import { AppMode } from "~/enum";
 import { ResultsLandingPage, InfoButton } from "~/visualizer-app/landing-page";
 import { KnowledgeBaseFilterView } from "~/visualizer-app/knowledge-base";
 import { ViewerPage } from "./page-interface";

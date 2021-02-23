@@ -2,7 +2,7 @@ import "~/shared/_init";
 import { render } from "react-dom";
 import h from "react-hyperscript";
 import { App } from "./app";
-import { APIProvider } from "../api";
+import { APIProvider } from "~/api";
 import { getEnvironmentConfig } from "~/shared/_env";
 
 const AppHolder = (props) => {

@@ -18,6 +18,7 @@
     "tagger-demo": "cd apps/tagger-demo && npm run dev",
     "tagger-xdd": "cd apps/tagger-xdd && npm install && npm run dev",
     "visualizer-xdd": "cd apps/visualizer-xdd && npm run dev",
+    "validation": "cd apps/validation && npm run dev",
     "bootstrap": "lerna bootstrap --hoist"
   },
   "repository": {
