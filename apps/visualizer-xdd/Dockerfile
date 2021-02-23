@@ -5,7 +5,9 @@ RUN npm install -g npm@7 webpack-cli webpack
 
 ARG ENVIRONMENT="production"
 ARG PUBLIC_URL="/"
-ARG API_BASE_URL="https://xdd.wisc.edu"
+ARG XDD_BASE_URL="https://xdd.wisc.edu"
+# Allow provision of an API Key for private collections
+ARG XDD_API_KEY
 
 WORKDIR /user
 COPY ./package.json /user/

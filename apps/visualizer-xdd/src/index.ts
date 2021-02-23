@@ -1,11 +1,5 @@
 import "~/shared/_init";
-import {
-  useAPIResult,
-  useAPIHelpers,
-  LinkButton,
-  APIContext,
-} from "@macrostrat/ui-components";
-import { useContext } from "react";
+import { useAPIResult, LinkButton } from "@macrostrat/ui-components";
 import { render } from "react-dom";
 import h from "react-hyperscript";
 import { Route, useParams } from "react-router-dom";
@@ -16,13 +10,16 @@ import { ButtonGroup, Button } from "@blueprintjs/core";
 import "./main.styl";
 
 const baseURL = process.env.XDD_BASE_URL ?? "https://xdd.wisc.edu";
+/* Add API Key to global API params if exists */
+const apiKey = process.env.XDD_API_KEY;
+let globalParams = {};
+if (apiKey != null) globalParams.api_key = apiKey;
 
 function SetsSelector() {
   const sets: any = useAPIResult(baseURL + "/sets");
   if (sets == null) return null;
-  let { available_sets } = sets;
-  // Isn't yet in the lexicon
-  available_sets.push("geothermal");
+  const { available_sets } = sets;
+
   return h("div.sets-selector", [
     h("h1", "xDD sets"),
     h(
@@ -40,7 +37,10 @@ function SetVisualizer() {
   const word2VecAPIBaseURL = baseURL + `/sets/${set}/word2vec/api/most_similar`;
   return h(
     APIProvider,
-    { baseURL: baseURL + `/sets/${set}/cosmos/api` },
+    {
+      baseURL: baseURL + `/sets/${set}/cosmos/api`,
+      params: globalParams,
+    },
     h(KnowledgeBaseFilterView, {
       setName: set,
       word2VecAPIBaseURL,
