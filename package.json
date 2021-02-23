@@ -14,6 +14,7 @@
   },
   "scripts": {
     "preinstall": "npm --prefix frontend-shared install",
+    "postinstall": "npm run bootstrap",
     "test": "echo \"Error: no test specified\" && exit 1",
     "tagger-demo": "cd apps/tagger-demo && npm run dev",
     "tagger-xdd": "cd apps/tagger-xdd && npm install && npm run dev",

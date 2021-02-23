@@ -5,7 +5,7 @@
   "description": "",
   "main": "webpack.config.js",
   "scripts": {
-    "dev": "npm install && webpack-dev-server"
+    "dev": "webpack-dev-server"
   },
   "author": "Daven Quinn",
   "license": "ISC",
