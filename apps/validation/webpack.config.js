@@ -15,7 +15,7 @@ module.exports = function (env, argv) {
       // Replace plugins entirely
       new HtmlWebpackPlugin({ title: "COSMOS validation app" }),
       new EnvironmentPlugin({
-        XDD_BASE_URL: "https://xdd.wisc.edu",
+        API_BASE_URL: "http://cosmos2.chtc.wisc.edu:5010/api/v1/",
         PUBLIC_URL: "/",
       }),
     ],
