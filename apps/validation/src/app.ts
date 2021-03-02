@@ -1,13 +1,12 @@
 import h from "react-hyperscript";
 import { Route } from "react-router-dom";
 import { AppMode } from "~/enum";
-import { ResultsLandingPage, InfoButton } from "~/visualizer-app/landing-page";
-import { KnowledgeBaseFilterView } from "~/visualizer-app/knowledge-base";
+import { LandingPageBase, InfoButton } from "~/visualizer-app/landing-page";
 import { ViewerPage } from "./page-interface";
 import { AppRouter, permalinkRouteTemplate } from "~/shared/router";
 
 const LandingPage = (props) => {
-  return h(ResultsLandingPage, [
+  return h(LandingPageBase, [
     h(
       InfoButton,
       {
@@ -19,10 +18,12 @@ const LandingPage = (props) => {
   ]);
 };
 
+const routeTemplate = "/:stackId/page/:imageId";
+
 const App = (props) => {
   const appMode = AppMode.PREDICTION;
   const { publicURL } = props;
-  return h(AppRouter, { basename: publicURL, appMode }, [
+  return h(AppRouter, { basename: publicURL, appMode, routeTemplate }, [
     h(Route, {
       path: "/",
       exact: true,
@@ -49,10 +50,6 @@ const App = (props) => {
           ...props,
         });
       },
-    }),
-    h(Route, {
-      path: "/knowledge-base",
-      component: KnowledgeBaseFilterView,
     }),
   ]);
 };

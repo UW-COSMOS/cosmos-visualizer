@@ -1,6 +1,7 @@
 import h from "@macrostrat/hyper";
 import { Intent } from "@blueprintjs/core";
-import { StatefulComponent, APIActions } from "@macrostrat/ui-components";
+import { Component } from "react";
+import { APIActions } from "@macrostrat/ui-components";
 import { AppToaster } from "~/toaster";
 import { APIContext } from "~/api";
 import { PageFrame, ScaledImagePanel } from "~/page-interface";
@@ -103,7 +104,7 @@ function notifyImageLoad(im: ImageData) {
   });
 }
 
-class ViewerPageBase extends StatefulComponent<IViewerProps, ViewerState> {
+class ViewerPageBase extends Component<IViewerProps, ViewerState> {
   static defaultProps = {
     allowSaveWithoutChanges: false,
     navigationEnabled: true,
