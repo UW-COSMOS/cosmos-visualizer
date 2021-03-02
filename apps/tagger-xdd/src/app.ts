@@ -105,7 +105,12 @@ interface XDDTaggerState {
 
 function TaggingApplication(props) {
   const { publicURL = "/" } = props;
-  const stacks = ["xdd-covid-19", "xdd-covid-19-equations", "geothermal", "mars"];
+  const stacks = [
+    "xdd-covid-19",
+    "xdd-covid-19-equations",
+    "geothermal",
+    "mars",
+  ];
   const [state, setState] = useStoredState<XDDTaggerState>("xdd-tagger-state", {
     stack: stacks[0],
     person: null,
@@ -117,8 +122,6 @@ function TaggingApplication(props) {
 
   const setPerson = (person) => setState({ ...state, person });
   const setStack = (stack) => setState({ ...state, stack });
-
-  console.log("Hi from tagging application");
 
   return h(
     StackProvider,

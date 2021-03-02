@@ -1,7 +1,5 @@
 import h from "@macrostrat/hyper";
 import { Intent } from "@blueprintjs/core";
-import T from "prop-types";
-
 import { ImageOverlay, StaticImageOverlay } from "~/image-overlay";
 import { ScaledImagePanel } from "~/page-interface/scaled-image";
 import { StatefulComponent, APIActions } from "@macrostrat/ui-components";

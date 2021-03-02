@@ -55,7 +55,7 @@ const PermalinkButton = function (props: PermalinkButtonProps) {
   let text = "Permalink";
   let disabled = false;
 
-  if (image_id === imageId) {
+  if (image_id === imageId && imageId != null) {
     // We are at the permalink right now
     disabled = true;
     text = [h("span", [text, " to image "]), h("code", image_id)];
