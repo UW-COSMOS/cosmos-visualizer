@@ -16,13 +16,25 @@ jobs:
         id: vars
         run: echo "::set-output name=sha_short::$(git rev-parse --short HEAD)"
 
-      - name: Build and push Docker images (Visualizer app)
+      - name: Build and push xDD Docker images (Visualizer app)
         uses: docker/build-push-action@v1
         with:
           path: .
           dockerfile: ./apps/visualizer-xdd/Dockerfile
           cache_from: uwxdd/cosmos_set_visualizer
           build_args: PUBLIC_URL=/set_visualizer,XDD_BASE_URL=https://xdddev.chtc.io,XDD_API_KEY=${{ secrets.XDD_API_KEY }}
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+          repository: uwxdd/cosmos_set_visualizer
+          tags: xdd-staging-pr${{ github.event.number }}-${{ steps.vars.outputs.sha_short }}
+
+      - name: Build and push Docker images (Visualizer app)
+        uses: docker/build-push-action@v1
+        with:
+          path: .
+          dockerfile: ./apps/visualizer-xdd/Dockerfile
+          cache_from: uwxdd/cosmos_set_visualizer
+          build_args: PUBLIC_URL=/set_visualizer,XDD_BASE_URL=https://xdddev.chtc.io
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
           repository: uwxdd/cosmos_set_visualizer
