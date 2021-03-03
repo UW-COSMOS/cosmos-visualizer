@@ -18,7 +18,7 @@ jobs:
           path: .
           dockerfile: ./apps/visualizer-xdd/Dockerfile
           cache_from: uwxdd/cosmos_set_visualizer
-          build_args: PUBLIC_URL=/set_visualizer
+          build_args: PUBLIC_URL=/set_visualizer,XDD_API_KEY=${{ secrets.XDD_API_KEY }}
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
           repository: uwxdd/cosmos_set_visualizer
