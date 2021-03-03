@@ -109,7 +109,8 @@ interface XDDTaggerState {
 
 function TaggingApplication(props) {
   const { publicURL = "/" } = props;
-  const stacks = ["xdd-covid-19", "mars"];
+  const stacksres = useAPIResult("/stacks/all", null, { context: APIContext }) ?? [{'stack_id' :'xdd-covid-19' }];
+  let stacks = stacksres.map( a => a.stack_id );
   const [state, setState] = useStoredState<XDDTaggerState>("xdd-tagger-state", {
     stack: stacks[0],
     person: null,

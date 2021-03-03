@@ -31,8 +31,8 @@ function ImageContainer(props: ImageContainerProps) {
       image,
       zoom,
       urlForImage() {
-        const prefix = "https://xdddev.chtc.io/tagger";
-        const imgPath = image.file_path.replace(/^(\/data\/pngs\/)/, "/images");
+        const prefix = "http://localhost:8080/tagger";
+        const imgPath = image.file_path.replace(/^(\/data\/pngs\/)/, "/images/");
         return prefix + imgPath;
       },
     },
