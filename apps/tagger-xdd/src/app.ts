@@ -1,4 +1,3 @@
-import { Component } from "react";
 import h from "react-hyperscript";
 
 import { Route, Redirect } from "react-router-dom";
