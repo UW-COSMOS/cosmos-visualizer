@@ -64,7 +64,6 @@ function TaggingInterface(props) {
     // We might need to make this better later
     editingEnabled = true;
     nextImageEndpoint = "/image/validate";
-    extraSaveData = { tagger: id };
     allowSaveWithoutChanges = false;
     subtitleText = "View training data";
   } else if (role === UserRole.VALIDATE && id != null) {
