@@ -57,12 +57,14 @@ function TaggingInterface(props) {
   let editingEnabled = true;
 
   if (role === UserRole.TAG && id != null) {
-    extraSaveData = { tagger: id };
     subtitleText = "Tag";
   }
   if (role === UserRole.VIEW_TRAINING) {
-    editingEnabled = false;
+    // We modified the below to allow "quick-and-dirty" edits to existing tags
+    // We might need to make this better later
+    editingEnabled = true;
     nextImageEndpoint = "/image/validate";
+    extraSaveData = { tagger: id };
     allowSaveWithoutChanges = false;
     subtitleText = "View training data";
   } else if (role === UserRole.VALIDATE && id != null) {
@@ -111,10 +113,12 @@ function TaggingApplication(props) {
     "geothermal",
     "mars",
   ];
+
   const [state, setState] = useStoredState<XDDTaggerState>("xdd-tagger-state", {
     stack: stacks[0],
     person: null,
   });
+
   const people = useAPIResult("/people/all", null, { context: APIContext });
   const permalinkRoute = "/:stackId/page/:imageId";
 
@@ -152,7 +156,7 @@ function TaggingApplication(props) {
           // This should be included from the context, but
           // this is complicated from the react-router side
           path: permalinkRoute,
-          render: (props) => {
+          render(props) {
             const role = UserRole.VIEW_TRAINING;
             return h(TaggingInterface, { role, person });
           },

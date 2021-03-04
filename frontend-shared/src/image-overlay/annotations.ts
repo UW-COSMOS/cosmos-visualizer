@@ -17,7 +17,7 @@ interface AnnotationsOverlayProps {
 
 const AnnotationsOverlay = (props: AnnotationsOverlayProps) => {
   let { onClick, children } = props;
-  const annotations = useAnnotations();
+  const annotations = useAnnotations() ?? [];
   const { width, height } = useCanvasSize();
   return h("div.overlay", { style: { width, height }, onClick }, [
     annotations.map(props.renderAnnotation),

@@ -121,6 +121,12 @@ class TaggingPage extends StatefulComponent<TaggingPageProps, any> {
       extraSaveData = {};
     }
 
+    if (extraSaveData.tagger == null) {
+      extraSaveData.tagger = annotations?.[0].tagger;
+    }
+
+    console.log(extraSaveData);
+
     const saveItem = {
       tags: annotations,
       ...extraSaveData,
@@ -208,10 +214,10 @@ class TaggingPage extends StatefulComponent<TaggingPageProps, any> {
     return this.getImageToDisplay();
   }
 
-  didUpdateImage(prevProps, prevState) {
+  async didUpdateImage(prevProps, prevState) {
     const { currentImage } = this.state;
     // This supports flipping between images and predicted images
-    let { imageRoute } = this.props;
+    let { imageRoute, loadExistingTags = true } = this.props;
     if (imageRoute == null) {
       imageRoute = "/image";
     }
@@ -222,7 +228,14 @@ class TaggingPage extends StatefulComponent<TaggingPageProps, any> {
       return;
     }
 
-    const image_tags = [];
+    let image_tags = [];
+    if (loadExistingTags) {
+      const { get } = APIActions(this.context);
+      const res = await get(this.tagsEndpoint(), {});
+      if (res.error == null) {
+        image_tags = res;
+      }
+    }
     return this.setState({
       initialRectStore: image_tags,
     });

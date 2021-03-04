@@ -84,6 +84,8 @@ module.exports = (env, argv) => {
       alias: {
         "~": path.resolve(__dirname, "src/"),
         app: path.resolve(__dirname, "src/"),
+        react: path.resolve(__dirname, "..", "node_modules", "react"),
+        "react-dom": path.resolve(__dirname, "..", "node_modules", "react-dom"),
       },
     },
     // entry must be passed as an argument to webpack
