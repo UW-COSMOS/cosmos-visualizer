@@ -1,12 +1,13 @@
 import h from "@macrostrat/hyper";
 import { Intent } from "@blueprintjs/core";
-import { StatefulComponent, APIActions } from "@macrostrat/ui-components";
-import { AppToaster } from "../toaster";
-import { APIContext } from "../api";
+import { Component } from "react";
+import { APIActions } from "@macrostrat/ui-components";
+import { AppToaster } from "~/toaster";
+import { APIContext } from "~/api";
 import { PageFrame, ScaledImagePanel } from "~/page-interface";
 import { APITagsProvider, AnnotationsProvider } from "~/providers";
-import { AnnotationLinks } from "../image-overlay/annotation-links";
-import { AnnotationsOverlay } from "../image-overlay/annotations";
+import { AnnotationLinks } from "~/image-overlay/annotation-links";
+import { AnnotationsOverlay } from "~/image-overlay/annotations";
 import {
   AnnotationApproverProvider,
   ApprovableAnnotation,
@@ -103,7 +104,7 @@ function notifyImageLoad(im: ImageData) {
   });
 }
 
-class ViewerPageBase extends StatefulComponent<IViewerProps, ViewerState> {
+class ViewerPageBase extends Component<IViewerProps, ViewerState> {
   static defaultProps = {
     allowSaveWithoutChanges: false,
     navigationEnabled: true,

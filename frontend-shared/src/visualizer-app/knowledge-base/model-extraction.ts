@@ -3,7 +3,6 @@ import {
   GeoDeepDiveSwatch,
   useAPIView,
   useAPIHelpers,
-  LinkButton,
 } from "@macrostrat/ui-components";
 import { Card, ButtonGroup, AnchorButton } from "@blueprintjs/core";
 import useImageSize from "@use-hooks/image-size";
@@ -81,10 +80,11 @@ function PermalinkButton({ id }) {
   const permalinkURL = url + "/object/" + id;
   const disabled = url.includes(id);
 
-  return h(LinkButton, {
+  return h(AnchorButton, {
     icon: "bookmark",
     text: "Permalink",
-    to: permalinkURL,
+    target: "_blank",
+    href: permalinkURL,
     small: true,
     minimal: true,
     disabled,

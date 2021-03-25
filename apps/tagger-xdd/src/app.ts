@@ -39,7 +39,6 @@ function TaggingInterface(props) {
   // Go to specific image by default, if set
   let navigationEnabled, subtitleText;
   const { role: newRole, imageId, stackId } = useParams();
-  if (person == null) return null;
 
   // Allow role to be overridden by programmatically
   // set one (to support permalinks)
@@ -50,22 +49,20 @@ function TaggingInterface(props) {
   }
 
   const imageRoute = "/image";
+  const id = person?.person_id;
 
-  let id = null;
-  if (person != null) {
-    id = person.person_id;
-  }
   let extraSaveData = null;
   let nextImageEndpoint = "/image/next";
   let allowSaveWithoutChanges = false;
   let editingEnabled = true;
 
   if (role === UserRole.TAG && id != null) {
-    extraSaveData = { tagger: id };
     subtitleText = "Tag";
   }
   if (role === UserRole.VIEW_TRAINING) {
-    editingEnabled = false;
+    // We modified the below to allow "quick-and-dirty" edits to existing tags
+    // We might need to make this better later
+    editingEnabled = true;
     nextImageEndpoint = "/image/validate";
     allowSaveWithoutChanges = false;
     subtitleText = "View training data";
@@ -109,11 +106,19 @@ interface XDDTaggerState {
 
 function TaggingApplication(props) {
   const { publicURL = "/" } = props;
-  const stacks = ["xdd-covid-19", "xdd-covid-19-equations", "geothermal", "mars"];
+
+  const stacks = [
+    "xdd-covid-19",
+    "xdd-covid-19-equations",
+    "geothermal",
+    "mars",
+  ];
+ 
   const [state, setState] = useStoredState<XDDTaggerState>("xdd-tagger-state", {
     stack: stacks[0],
     person: null,
   });
+
   const people = useAPIResult("/people/all", null, { context: APIContext });
   const permalinkRoute = "/:stackId/page/:imageId";
 
@@ -151,7 +156,7 @@ function TaggingApplication(props) {
           // This should be included from the context, but
           // this is complicated from the react-router side
           path: permalinkRoute,
-          render: (props) => {
+          render(props) {
             const role = UserRole.VIEW_TRAINING;
             return h(TaggingInterface, { role, person });
           },

@@ -11,7 +11,7 @@ ARG PUBLIC_URL="/"
 ARG XDD_BASE_URL="https://xdd.wisc.edu"
 
 WORKDIR /user
-COPY ./package.json /user/
+COPY ./package.json ./lerna.json /user/
 COPY ./frontend-shared/package.json /user/frontend-shared/
 COPY ./apps/tagger-xdd/package.json /user/apps/tagger-xdd/
 

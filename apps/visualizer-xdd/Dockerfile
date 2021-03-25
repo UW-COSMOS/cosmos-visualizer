@@ -10,7 +10,7 @@ ARG XDD_BASE_URL="https://xdd.wisc.edu"
 ARG XDD_API_KEY
 
 WORKDIR /user
-COPY ./package.json /user/
+COPY ./package.json ./lerna.json /user/
 COPY ./frontend-shared/package.json /user/frontend-shared/
 
 RUN npm install

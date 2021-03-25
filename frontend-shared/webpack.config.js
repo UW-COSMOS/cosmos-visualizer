@@ -84,17 +84,8 @@ module.exports = (env, argv) => {
       alias: {
         "~": path.resolve(__dirname, "src/"),
         app: path.resolve(__dirname, "src/"),
-        // Fix "two copies of react"
-        // TODO: this is a kind of outdated signature that a better bundling strategy could fix
-        react: path.resolve(__dirname, "node_modules", "react"),
-        "react-dom": path.resolve(__dirname, "node_modules", "react-dom"),
-        "react-router": path.resolve(__dirname, "node_modules", "react-router"),
-        "react-router-dom": path.resolve(
-          __dirname,
-          "node_modules",
-          "react-router-dom"
-        ),
-        //"@macrostrat/ui-components": path.resolve(__dirname, "bundled-deps", "ui-components")
+        react: path.resolve(__dirname, "..", "node_modules", "react"),
+        "react-dom": path.resolve(__dirname, "..", "node_modules", "react-dom"),
       },
     },
     // entry must be passed as an argument to webpack

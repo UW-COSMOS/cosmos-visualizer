@@ -57,7 +57,7 @@ async function annotationAPIPost(ann: Annotation, data: APIPayload) {
   const object_id = ann.obj_id;
   const box = ann.boxes[0];
   const { baseURL, ...rest } = data;
-  const endpoint = `${baseURL}/object/annotate`;
+  const endpoint = `${baseURL}/detected_object/annotate`;
   const postData = {
     coords: `(${box[0]}, ${box[1]})`,
     object_id,

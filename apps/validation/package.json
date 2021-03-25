@@ -1,0 +1,22 @@
+{
+  "name": "validation",
+  "private": true,
+  "version": "1.0.0",
+  "description": "",
+  "main": "webpack.config.js",
+  "scripts": {
+    "dev": "webpack-dev-server"
+  },
+  "author": "Daven Quinn",
+  "license": "ISC",
+  "dependencies": {
+    "@macrostrat/hyper": "^1.2.11",
+    "react": "^16.12.0",
+    "react-dom": "^16.12.0"
+  },
+  "devDependencies": {
+    "webpack": "^4.42.1",
+    "webpack-cli": "^3.3.11",
+    "webpack-dev-server": "^3.10.3"
+  }
+}
