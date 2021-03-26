@@ -62,7 +62,6 @@ function App() {
     }),
     h(Route, {
       path: "/",
-      exact: true,
       component: SetsSelector,
     }),
   ]);
