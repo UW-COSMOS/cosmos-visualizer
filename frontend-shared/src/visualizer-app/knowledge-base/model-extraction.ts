@@ -111,35 +111,35 @@ const DownloadButtons = (props: { data: APIExtraction[] }) => {
 
   return h("div.download-extractions", [
     h("h4", "Extracted data"),
-    h(ButtonGroup, { className: "downloads" }, [
-      h(AnchorButton, {
-        text: "Text",
-        href,
-        download: `${id}-ocr.txt`,
-        target: "_blank",
-        small: true,
-      }),
-      // Right now we get the JSON object of the first child. Likely not ideal.
-      h(AnchorButton, {
-        text: "JSON object",
-        href: base,
-        target: "_blank",
-        small: true,
-      }),
-      h.if(table != null)([
-        h(AnchorButton, {
-          text: "Table preview",
-          href: base + `/preview?id=${table?.id}`,
-          target: "_blank",
-          small: true,
-        }),
-        h(AnchorButton, {
-          text: "Pandas dataframe",
-          href: base + `/get_dataframe?id=${table?.id}`,
-          small: true,
-        }),
-      ]),
-    ]),
+//    h(ButtonGroup, { className: "downloads" }, [
+//      h(AnchorButton, {
+//        text: "Text",
+//        href,
+//        download: `${id}-ocr.txt`,
+//        target: "_blank",
+//        small: true,
+//      }),
+//      // Right now we get the JSON object of the first child. Likely not ideal.
+//      h(AnchorButton, {
+//        text: "JSON object",
+//        href: base,
+//        target: "_blank",
+//        small: true,
+//      }),
+//      h.if(table != null)([
+//        h(AnchorButton, {
+//          text: "Table preview",
+//          href: base + `/preview?id=${table?.id}`,
+//          target: "_blank",
+//          small: true,
+//        }),
+//        h(AnchorButton, {
+//          text: "Pandas dataframe",
+//          href: base + `/get_dataframe?id=${table?.id}`,
+//          small: true,
+//        }),
+//      ]),
+//    ]),
     h("div.spacer"),
     h(PermalinkButton, { id }),
   ]);
