@@ -34,7 +34,7 @@ function SetsSelector() {
 
 function SetVisualizer() {
   const { set } = useParams();
-  const word2VecAPIBaseURL = baseURL + `/sets/${set}/word2vec/api/most_similar`;
+  const word2VecAPIBaseURL = baseURL + `/sets/${set}/word2vec/api/`;
   return h(
     APIProvider,
     {

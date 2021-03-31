@@ -42,16 +42,17 @@ const TermResults = (props: { words: WordResult[] | null }) => {
 type WordRelatedTermsProps = { word: string; route?: string; params?: object };
 
 const WordRelatedTerms = (props: WordRelatedTermsProps) => {
-  const { word, route = "", params: baseParams = {} } = props;
+  const { word, route = "most_similar", params: baseParams = {} } = props;
   const params = {
     word: word.replace(" ", "_"),
     model: "trigram_lowered_cleaned",
+
     ...baseParams,
   };
 
-  const res = useAPIResult("", params) ?? [];
+  const res = useAPIResult("most_similar", params) ?? [];
   const { buildURL } = useAPIHelpers();
-  const url = buildURL("", {
+  const url = buildURL("most_similar", {
     ...params,
     n: 50,
     // we've hardcoded this; that may need to change
