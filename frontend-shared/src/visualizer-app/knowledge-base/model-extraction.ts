@@ -110,7 +110,7 @@ const DownloadButtons = (props: { data: APIExtraction[] }) => {
   const table = data.find((d) => d.cls == "Table");
 
   return h("div.download-extractions", [
-    h("h4", "Extracted data"),
+//    h("h4", "Extracted data"),
 //    h(ButtonGroup, { className: "downloads" }, [
 //      h(AnchorButton, {
 //        text: "Text",
