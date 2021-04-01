@@ -77,8 +77,10 @@ const ChildExtractions = (props) => {
 
 function PermalinkButton({ id }) {
   const { url } = useRouteMatch();
-  const permalinkURL = url + "/object/" + id;
+  const publicURL = process.env.PUBLIC_URL
+  const permalinkURL = publicURL + url + "/object/" + id;
   const disabled = url.includes(id);
+
 
   return h(AnchorButton, {
     icon: "bookmark",
