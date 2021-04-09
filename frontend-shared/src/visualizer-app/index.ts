@@ -6,12 +6,7 @@ import { getEnvironmentConfig } from "~/shared/_env";
 import { Route } from "react-router-dom";
 import { KnowledgeBaseFilterView } from "./knowledge-base";
 import { AppRouter } from "~/shared/router";
-
-const KBViewRoute = () => {
-  return h(KnowledgeBaseFilterView, {
-    word2VecAPIBaseURL: process.env.WORD2VEC_API_BASE_URL + "/word2vec",
-  });
-};
+import { Word2VecAPIProvider } from "~/related-terms";
 
 const App = (props) => {
   const { publicURL } = props;
@@ -19,16 +14,23 @@ const App = (props) => {
     h(Route, {
       path: "/",
       exact: true,
-      component: KBViewRoute,
+      component: KnowledgeBaseFilterView,
     }),
   ]);
 };
 
 const AppHolder = (props) => {
   const { baseURL, imageBaseURL, publicURL, ...rest } = props;
-  return h(APIProvider, { baseURL }, [
-    h(App, { imageBaseURL, publicURL, ...rest }),
-  ]);
+  const word2vecBaseURL = process.env.WORD2VEC_API_BASE_URL + "/word2vec";
+  return h(
+    APIProvider,
+    { baseURL },
+    h(
+      Word2VecAPIProvider,
+      { baseURL: word2vecBaseURL },
+      h(App, { imageBaseURL, publicURL, ...rest })
+    )
+  );
 };
 
 const createUI = function (opts = {}) {
