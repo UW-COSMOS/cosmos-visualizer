@@ -39,14 +39,31 @@ const TermResults = (props: { words: WordResult[] | null }) => {
   );
 };
 
-type WordRelatedTermsProps = { word: string; route?: string; params?: object };
+type WordRelatedTermsProps = {
+  word: string;
+  route?: string;
+  params?: object;
+  model: string;
+};
+
+function joinWords(model_name: string, words: string[]) {
+  if (model_name.includes("trigram") && words.length <= 3)
+    return [words.join(" ")];
+  if (model_name.includes("bigram") && words.length <= 2)
+    return [words.join(" ")];
+  return words;
+}
 
 const WordRelatedTerms = (props: WordRelatedTermsProps) => {
-  const { word, route = "most_similar", params: baseParams = {} } = props;
+  const {
+    word,
+    route = "most_similar",
+    params: baseParams = {},
+    model = "trigram_lowered_cleaned",
+  } = props;
   const params = {
     word: word.replace(" ", "_"),
-    model: "trigram_lowered_cleaned",
-
+    model,
     ...baseParams,
   };
 
@@ -84,8 +101,6 @@ const useRelatedPanelState = (): RelatedPanelState => {
   const { filterParams, relatedPanelOpen } = useAppState();
   const { query } = filterParams;
   let words = (query ?? "").split(" ");
-  // Up to three words can form a trigram
-  if (words.length <= 3) words = [words.join(" ")];
 
   const canOpen = query != null && query != "";
   return {
@@ -99,14 +114,44 @@ type _ = {
   baseURL?: string;
 };
 
-const RelatedTerms = (props: _) => {
-  const { words, isOpen } = useRelatedPanelState();
-  const dispatch = useAppDispatch();
-  const { baseURL } = props;
+const modelPriorityList = [
+  "trigram_cleaned",
+  "bigram_cleaned",
+  "default_cleaned",
+  "trigram",
+  "bigram",
+  "default",
+  "trigram_lowered_cleaned",
+  "bigram_lowered_cleaned",
+  "default_lowered_cleaned",
+];
+
+function findBestModel(models) {
+  for (const model of modelPriorityList) {
+    const res = models.find((d) => d.name == model);
+    if (res != null) return res.name;
+  }
+  return models[0].name;
+}
+
+const RelatedTermsCard = (props) => {
+  const { isOpen = true, onClose } = props;
+
+  const res = useAPIResult("models");
+  if (res == null) return null;
+  const { models } = res;
+
+  const model = findBestModel(models);
+  const words = joinWords(model, props.words);
 
   return h(CollapseCard, { isOpen, className: "related-terms" }, [
     h("div.top-row", [
       h("h3", "Related terms"),
+      h("div.control.model", [
+        h("span.label", "Model:"),
+        " ",
+        h("code.model-name", model),
+      ]),
       h("div.spacer"),
       h(
         "div.right-controls",
@@ -115,24 +160,37 @@ const RelatedTerms = (props: _) => {
           icon: "cross",
           intent: Intent.DANGER,
           minimal: true,
-          onClick() {
-            dispatch({ type: "toggle-related-panel", value: false });
-          },
+          onClick: onClose,
         })
       ),
     ]),
+
     h(
-      APIProvider,
-      {
-        baseURL,
-        unwrapResponse: (d) => d.data,
-      },
-      h(
-        "div.terms",
-        words.map((w) => h(WordRelatedTerms, { word: w }))
-      )
+      "div.terms",
+      words.map((w) => h(WordRelatedTerms, { word: w, model }))
     ),
   ]);
+};
+
+const RelatedTerms = (props: _) => {
+  const { words, isOpen } = useRelatedPanelState();
+  const dispatch = useAppDispatch();
+  const { baseURL } = props;
+
+  return h(
+    APIProvider,
+    {
+      baseURL,
+      unwrapResponse: (d) => d.data,
+    },
+    h(RelatedTermsCard, {
+      words,
+      isOpen,
+      onClose() {
+        dispatch({ type: "toggle-related-panel", value: false });
+      },
+    })
+  );
 };
 
 const RelatedTermsButton = (props: IButtonProps) => {
