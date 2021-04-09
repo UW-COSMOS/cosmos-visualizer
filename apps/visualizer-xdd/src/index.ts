@@ -1,9 +1,10 @@
 import "~/shared/_init";
 import { useAPIResult, LinkButton } from "@macrostrat/ui-components";
 import { render } from "react-dom";
-import h from "react-hyperscript";
+import h, { compose, C } from "@macrostrat/hyper";
 import { Route, useParams } from "react-router-dom";
 import { APIProvider } from "~/api";
+import { Word2VecAPIProvider } from "~/related-terms";
 import { KnowledgeBaseFilterView } from "~/visualizer-app/knowledge-base";
 import { AppRouter } from "~/shared/router";
 import { ButtonGroup, Button } from "@blueprintjs/core";
@@ -32,15 +33,29 @@ function SetsSelector() {
   ]);
 }
 
-function SetVisualizer() {
-  const { set } = useParams();
-  const word2VecAPIBaseURL = baseURL + `/sets/${set}/word2vec/api/`;
+function CosmosProviderStack({ set, children }) {
   return h(
     APIProvider,
     {
       baseURL: baseURL + `/sets/${set}/cosmos/api`,
       params: globalParams,
     },
+    h(
+      Word2VecAPIProvider,
+      {
+        baseURL: baseURL + `/sets/${set}/word2vec/api/`,
+      },
+      children
+    )
+  );
+}
+
+function SetVisualizer() {
+  const { set } = useParams();
+  const word2VecAPIBaseURL = baseURL + `/sets/${set}/word2vec/api/`;
+  return h(
+    CosmosProviderStack,
+    { set },
     h(KnowledgeBaseFilterView, {
       setName: set,
       word2VecAPIBaseURL,
