@@ -6,14 +6,20 @@ import {
   APIContext,
 } from "@macrostrat/ui-components";
 import { useAppState, useAppDispatch } from "./provider";
+import { useState } from "react";
 import { CollapseCard } from "~/shared/ui";
 import {
   Button,
+  ContextMenu,
   AnchorButton,
   Intent,
   Tooltip,
   IButtonProps,
   Position,
+  Popover,
+  Menu,
+  MenuDivider,
+  MenuItem,
 } from "@blueprintjs/core";
 import { format } from "d3-format";
 
@@ -134,23 +140,55 @@ function findBestModel(models) {
   return models[0].name;
 }
 
+function ModelButton({ model }) {
+  return h(
+    Button,
+    { className: "model-select", minimal: true, small: true },
+    h("code.model-name", model)
+  );
+}
+
 const RelatedTermsCard = (props) => {
   const { isOpen = true, onClose } = props;
 
   const res = useAPIResult("models");
+  const [modelState, setModel] = useState<string | null>(null);
   if (res == null) return null;
   const { models } = res;
 
-  const model = findBestModel(models);
+  const bestModel = findBestModel(models);
+  const model = modelState ?? bestModel;
+
   const words = joinWords(model, props.words);
 
   return h(CollapseCard, { isOpen, className: "related-terms" }, [
     h("div.top-row", [
       h("h3", "Related terms"),
-      h("div.control.model", [
+      h("div.control.model-control", [
         h("span.label", "Model:"),
         " ",
-        h("code.model-name", model),
+        h(Popover, [
+          h(ModelButton, { model }),
+          h(Menu, [
+            h(MenuItem, {
+              onClick() {
+                setModel(null);
+              },
+              intent: modelState == null ? Intent.SUCCESS : null,
+              text: "Auto",
+            }),
+            h(MenuDivider),
+            models.map((d) =>
+              h(MenuItem, {
+                intent: d.name == modelState ? Intent.SUCCESS : null,
+                onClick() {
+                  setModel(d.name);
+                },
+                text: h("code", d.name),
+              })
+            ),
+          ]),
+        ]),
       ]),
       h("div.spacer"),
       h(
