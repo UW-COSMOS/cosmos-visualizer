@@ -72,7 +72,8 @@ const WordRelatedTerms = (props: WordRelatedTermsProps) => {
     ...baseParams,
   };
 
-  const res = useAPIResult("most_similar", params) ?? [];
+  const res =
+    useAPIResult("most_similar", params, { context: Word2VecAPIContext }) ?? [];
   const { buildURL } = useAPIHelpers();
   const url = buildURL("most_similar", {
     ...params,
@@ -161,7 +162,7 @@ function ModelItem({ model, text, selectedModel, setModel }: any) {
 const RelatedTermsCard = (props) => {
   const { isOpen = true, onClose } = props;
 
-  const res = useAPIResult("models", { context: Word2VecAPIContext });
+  const res = useAPIResult("models", null, { context: Word2VecAPIContext });
   const [modelState, setModel] = useState<string | null>(null);
   if (res == null) return null;
   const { models } = res;

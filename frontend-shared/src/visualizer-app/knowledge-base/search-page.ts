@@ -197,7 +197,6 @@ const ResultsView = () => {
 interface KBProps {
   types: any[];
   setName: string;
-  word2VecAPIBaseURL?: string;
 }
 
 function SearchPage(props: KBProps) {
