@@ -165,7 +165,7 @@ const RelatedTermsCard = (props) => {
   const res = useAPIResult("models", null, { context: Word2VecAPIContext });
   const [modelState, setModel] = useState<string | null>(null);
   if (res == null) return null;
-  const { models } = res;
+  const models = res?.models ?? [];
 
   const bestModel = findBestModel(models);
   const model = modelState ?? bestModel;
