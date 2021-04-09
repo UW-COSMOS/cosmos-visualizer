@@ -151,7 +151,7 @@ function ModelItem({ model, text, selectedModel, setModel }: any) {
   return h(MenuItem, {
     intent: model == selectedModel ? Intent.SUCCESS : null,
     onClick() {
-      setModel(selectedModel);
+      setModel(model);
     },
     text,
   });
