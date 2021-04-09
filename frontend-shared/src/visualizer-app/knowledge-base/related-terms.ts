@@ -3,23 +3,21 @@ import {
   useAPIResult,
   useAPIHelpers,
   APIProvider,
-  APIContext,
 } from "@macrostrat/ui-components";
 import { useAppState, useAppDispatch } from "./provider";
 import { useState } from "react";
 import { CollapseCard } from "~/shared/ui";
 import {
   Button,
-  ContextMenu,
   AnchorButton,
   Intent,
   Tooltip,
   IButtonProps,
   Position,
-  Popover,
   Menu,
   MenuDivider,
   MenuItem,
+  Popover,
 } from "@blueprintjs/core";
 import { format } from "d3-format";
 
@@ -148,6 +146,17 @@ function ModelButton({ model }) {
   );
 }
 
+function ModelItem({ model, text, selectedModel, setModel }: any) {
+  text ??= h("code", model);
+  return h(MenuItem, {
+    intent: model == selectedModel ? Intent.SUCCESS : null,
+    onClick() {
+      setModel(selectedModel);
+    },
+    text,
+  });
+}
+
 const RelatedTermsCard = (props) => {
   const { isOpen = true, onClose } = props;
 
@@ -161,34 +170,29 @@ const RelatedTermsCard = (props) => {
 
   const words = joinWords(model, props.words);
 
+  const modelMenu = h(Menu, [
+    h(ModelItem, {
+      setModel,
+      model: null,
+      text: "Auto",
+    }),
+    h(MenuDivider),
+    models.map((d) =>
+      h(ModelItem, {
+        model: d.name,
+        selectedModel: modelState,
+        setModel,
+      })
+    ),
+  ]);
+
   return h(CollapseCard, { isOpen, className: "related-terms" }, [
     h("div.top-row", [
       h("h3", "Related terms"),
       h("div.control.model-control", [
         h("span.label", "Model:"),
         " ",
-        h(Popover, [
-          h(ModelButton, { model }),
-          h(Menu, [
-            h(MenuItem, {
-              onClick() {
-                setModel(null);
-              },
-              intent: modelState == null ? Intent.SUCCESS : null,
-              text: "Auto",
-            }),
-            h(MenuDivider),
-            models.map((d) =>
-              h(MenuItem, {
-                intent: d.name == modelState ? Intent.SUCCESS : null,
-                onClick() {
-                  setModel(d.name);
-                },
-                text: h("code", d.name),
-              })
-            ),
-          ]),
-        ]),
+        h(Popover, [h(ModelButton, { model }), modelMenu]),
       ]),
       h("div.spacer"),
       h(
