@@ -197,16 +197,10 @@ const ResultsView = () => {
 interface KBProps {
   types: any[];
   setName: string;
-  word2VecAPIBaseURL?: string;
 }
 
 function SearchPage(props: KBProps) {
-  const {
-    types,
-    setName = "novel coronavirus",
-    // Should get rid of this default or push higher up...
-    word2VecAPIBaseURL,
-  } = props;
+  const { types, setName = "novel coronavirus" } = props;
   return h(
     AppStateProvider,
     { types, setName },
@@ -214,9 +208,7 @@ function SearchPage(props: KBProps) {
       h(SearchInterface, [
         h(FilterPanel),
         // Related terms only loads if its API Base URL is defined...
-        h.if(word2VecAPIBaseURL != null)(RelatedTerms, {
-          baseURL: word2VecAPIBaseURL,
-        }),
+        h(RelatedTerms),
       ]),
       h(ResultsView),
       h(Footer),

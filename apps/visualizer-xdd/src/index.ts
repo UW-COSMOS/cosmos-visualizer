@@ -33,17 +33,17 @@ function SetsSelector() {
   ]);
 }
 
-function CosmosProviderStack({ set, children }) {
+function CosmosProviderStack({ setBaseURL, children }) {
   return h(
     APIProvider,
     {
-      baseURL: baseURL + `/sets/${set}/cosmos/api`,
+      baseURL: setBaseURL + "/cosmos/api",
       params: globalParams,
     },
     h(
       Word2VecAPIProvider,
       {
-        baseURL: baseURL + `/sets/${set}/word2vec/api/`,
+        baseURL: setBaseURL + `/word2vec/api/`,
       },
       children
     )
@@ -52,13 +52,11 @@ function CosmosProviderStack({ set, children }) {
 
 function SetVisualizer() {
   const { set } = useParams();
-  const word2VecAPIBaseURL = baseURL + `/sets/${set}/word2vec/api/`;
   return h(
     CosmosProviderStack,
-    { set },
+    { setBaseURL: baseURL + "/sets/" + set },
     h(KnowledgeBaseFilterView, {
       setName: set,
-      word2VecAPIBaseURL,
       types: [
         { id: "Figure", name: "Figure" },
         { id: "Table", name: "Table" },

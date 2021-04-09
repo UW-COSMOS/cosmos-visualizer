@@ -5,8 +5,9 @@ import {
   APIProvider,
 } from "@macrostrat/ui-components";
 import { useAppState, useAppDispatch } from "./provider";
-import { useState } from "react";
+import { useState, useContext } from "react";
 import { CollapseCard } from "~/shared/ui";
+import { Word2VecAPIContext } from "~/related-terms";
 import {
   Button,
   AnchorButton,
@@ -71,7 +72,8 @@ const WordRelatedTerms = (props: WordRelatedTermsProps) => {
     ...baseParams,
   };
 
-  const res = useAPIResult("most_similar", params) ?? [];
+  const res =
+    useAPIResult("most_similar", params, { context: Word2VecAPIContext }) ?? [];
   const { buildURL } = useAPIHelpers();
   const url = buildURL("most_similar", {
     ...params,
@@ -160,7 +162,7 @@ function ModelItem({ model, text, selectedModel, setModel }: any) {
 const RelatedTermsCard = (props) => {
   const { isOpen = true, onClose } = props;
 
-  const res = useAPIResult("models");
+  const res = useAPIResult("models", null, { context: Word2VecAPIContext });
   const [modelState, setModel] = useState<string | null>(null);
   if (res == null) return null;
   const { models } = res;
@@ -216,23 +218,19 @@ const RelatedTermsCard = (props) => {
 
 const RelatedTerms = (props: _) => {
   const { words, isOpen } = useRelatedPanelState();
+  const ctx = useContext(Word2VecAPIContext);
   const dispatch = useAppDispatch();
   const { baseURL } = props;
 
-  return h(
-    APIProvider,
-    {
-      baseURL,
-      unwrapResponse: (d) => d.data,
+  if (ctx == null) return null;
+
+  return h(RelatedTermsCard, {
+    words,
+    isOpen,
+    onClose() {
+      dispatch({ type: "toggle-related-panel", value: false });
     },
-    h(RelatedTermsCard, {
-      words,
-      isOpen,
-      onClose() {
-        dispatch({ type: "toggle-related-panel", value: false });
-      },
-    })
-  );
+  });
 };
 
 const RelatedTermsButton = (props: IButtonProps) => {
