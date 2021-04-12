@@ -137,7 +137,7 @@ function findBestModel(models) {
     const res = models.find((d) => d.name == model);
     if (res != null) return res.name;
   }
-  return models[0].name;
+  return models?.[0].name;
 }
 
 function ModelButton({ model }) {
@@ -168,7 +168,10 @@ const RelatedTermsCard = (props) => {
   const models = res?.models ?? [];
 
   const bestModel = findBestModel(models);
+
   const model = modelState ?? bestModel;
+
+  if (model == null) return null;
 
   const words = joinWords(model, props.words);
 
