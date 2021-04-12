@@ -60,7 +60,7 @@ const WordRelatedTerms = (props: WordRelatedTermsProps) => {
 
   const res =
     useAPIResult("most_similar", params, { context: Word2VecAPIContext }) ?? [];
-  const { buildURL } = useAPIHelpers();
+  const { buildURL } = useAPIHelpers(Word2VecAPIContext);
   const url = buildURL("most_similar", {
     ...params,
     n: 50,
