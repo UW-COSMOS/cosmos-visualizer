@@ -14,6 +14,7 @@ import {
   Popover,
 } from "@blueprintjs/core";
 import { format } from "d3-format";
+import { findBestModel, joinWords } from "./util";
 
 const fmt = format(".3f");
 
@@ -43,14 +44,6 @@ type WordRelatedTermsProps = {
   params?: object;
   model: string;
 };
-
-function joinWords(model_name: string, words: string[]) {
-  if (model_name.includes("trigram") && words.length <= 3)
-    return [words.join(" ")];
-  if (model_name.includes("bigram") && words.length <= 2)
-    return [words.join(" ")];
-  return words;
-}
 
 const WordRelatedTerms = (props: WordRelatedTermsProps) => {
   const {
@@ -98,26 +91,6 @@ type _ = {
   baseURL?: string;
 };
 
-const modelPriorityList = [
-  "trigram_cleaned",
-  "bigram_cleaned",
-  "default_cleaned",
-  "trigram",
-  "bigram",
-  "default",
-  "trigram_lowered_cleaned",
-  "bigram_lowered_cleaned",
-  "default_lowered_cleaned",
-];
-
-function findBestModel(models) {
-  for (const model of modelPriorityList) {
-    const res = models.find((d) => d.name == model);
-    if (res != null) return res.name;
-  }
-  return models?.[0].name;
-}
-
 function ModelButton({ model }) {
   return h(
     Button,
@@ -163,6 +136,7 @@ const RelatedTermsCard = (props) => {
     models.map((d) =>
       h(ModelItem, {
         model: d.name,
+        key: d.name,
         selectedModel: modelState,
         setModel,
       })
@@ -192,7 +166,7 @@ const RelatedTermsCard = (props) => {
 
     h(
       "div.terms",
-      words.map((w) => h(WordRelatedTerms, { word: w, model }))
+      words.map((w, i) => h(WordRelatedTerms, { word: w, model, key: i }))
     ),
   ]);
 };
