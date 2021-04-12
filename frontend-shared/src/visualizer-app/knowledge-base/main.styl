@@ -158,8 +158,15 @@ div.mui-collapse-card
     display flex
     flex-direction: row
     align-items baseline
+    &>*
+      margin-right 1em
+      &:last-child
+        margin-right 0
     div.spacer
       flex-grow 1
+
+.bp3-button.model-select
+  transform: translate(0, -3px)
 
 div.bp3-card.filter-controls .inner
     margin-bottom -1em
