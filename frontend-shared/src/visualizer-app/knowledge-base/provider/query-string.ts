@@ -5,10 +5,15 @@ type Updater = (q: ParsedQuery<string | number>) => void;
 const useSearchString = (): [ParsedQuery<string | number>, Updater] => {
   const loc = useLocation();
   const history = useHistory();
-  const searchString = queryString.parse(loc.search, {
+  let searchString = queryString.parse(loc.search, {
     parseNumbers: true,
     arrayFormat: "comma",
   });
+
+  // Reassemble query string if we've parsed it into an array
+  if (Array.isArray(searchString.query)) {
+    searchString.query = searchString.query.join(",");
+  }
 
   const updateSearchString = (q) => {
     // Don't update the search string unless we actually have conducted a search
