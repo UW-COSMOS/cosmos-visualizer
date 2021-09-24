@@ -1,13 +1,14 @@
 import "~/shared/_init";
-import { useAPIResult, LinkButton } from "@macrostrat/ui-components";
+import { LinkButton } from "@macrostrat/router-components";
+import { useAPIResult } from "@macrostrat/ui-components";
 import { render } from "react-dom";
-import h, { compose, C } from "@macrostrat/hyper";
+import h from "@macrostrat/hyper";
 import { Route, useParams } from "react-router-dom";
 import { APIProvider } from "~/api";
 import { Word2VecAPIProvider } from "~/related-terms";
 import { KnowledgeBaseFilterView } from "~/visualizer-app/knowledge-base";
 import { AppRouter } from "~/shared/router";
-import { ButtonGroup, Button } from "@blueprintjs/core";
+import { ButtonGroup } from "@blueprintjs/core";
 import "./main.styl";
 
 const baseURL = process.env.XDD_BASE_URL ?? "https://xdd.wisc.edu";

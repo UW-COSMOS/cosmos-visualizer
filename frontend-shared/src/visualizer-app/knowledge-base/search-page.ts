@@ -124,28 +124,13 @@ LoadingPlaceholder.defaultProps = { perPage: 10 };
 
 type ResProps = APIResultProps<APIDocumentResult[]>;
 
-const DocumentResults = (props: ResProps) => {
-  const data = props.data ?? [];
-  const { isLoading } = props;
-  if (data.length == 0 && !isLoading)
-    return h(Placeholder, {
-      icon: "inbox",
-      title: "No results",
-      description: "No matching extractions found",
-    });
-
-  const offset = 0;
-
-  return h([
-    h(
-      "div.documents",
-      data.map((d, i) => {
-        return h(DocumentExtraction, { key: i, data: d, index: i });
-      })
-    ),
-    h.if(isLoading)(LoadingPlaceholder),
-  ]);
-};
+function EmptyPlaceholder() {
+  return h(Placeholder, {
+    icon: "inbox",
+    title: "No results",
+    description: "No matching extractions found",
+  });
+}
 
 const ResultsView = () => {
   const { filterParams } = useAppState();
@@ -165,33 +150,32 @@ const ResultsView = () => {
     return h("div.results", null, h(StartingPlaceholder));
   }
 
-  return h(
-    InfiniteScrollView,
-    {
-      className: "results",
-      route,
-      opts: {
-        unwrapResponse(res) {
-          return res;
-        },
-      },
-      params: filterParams,
-      totalCount: count,
-      getCount(res) {
-        return res.total;
-      },
-      getNextParams(res, params) {
-        return { ...params, page: (res.page ?? -1) + 1 };
-      },
-      getItems(res) {
-        return res.objects;
-      },
-      hasMore(res) {
-        return res.objects.length > 0;
+  return h(InfiniteScrollView, {
+    className: "results",
+    route,
+    opts: {
+      unwrapResponse(res) {
+        return res;
       },
     },
-    h(DocumentResults)
-  );
+    params: filterParams,
+    totalCount: count,
+    getCount(res) {
+      return res.total;
+    },
+    getNextParams(res, params) {
+      return { ...params, page: (res.page ?? -1) + 1 };
+    },
+    getItems(res) {
+      return res.objects;
+    },
+    hasMore(res) {
+      return res.objects.length > 0;
+    },
+    itemComponent: DocumentExtraction,
+    emptyPlaceholder: EmptyPlaceholder,
+    loadingPlaceholder: LoadingPlaceholder,
+  });
 };
 
 interface KBProps {
@@ -225,4 +209,4 @@ SearchPage.defaultProps = {
   ],
 };
 
-export { SearchPage, DocumentResults };
+export { SearchPage };

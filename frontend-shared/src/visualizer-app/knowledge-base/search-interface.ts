@@ -10,7 +10,9 @@ import {
 import { Navbar } from "./components";
 import { useAppState, useAppDispatch, useTypes } from "./provider";
 import { RelatedTermsButton } from "./related-terms";
+import { useScrollMarkers, ScrollMarker } from "@macrostrat/ui-components";
 import { Spec } from "immutability-helper";
+import { useCallback } from "react";
 
 function FilterButton() {
   const { filterParams, filterPanelOpen, allowSearch } = useAppState();
@@ -94,22 +96,28 @@ const Searchbar = (props: SearchInterfaceProps) => {
   ]);
 };
 
-const SearchInterface = (props) => {
-  const { children } = props;
-  const dispatch = useAppDispatch();
+const markers: ScrollMarker[] = [
+  { offset: 300, id: "filterPanelOpen" },
+  { offset: 600, id: "relatedPanelOpen" },
+];
 
-  const handleScroll = (event) => {
+function ScrollManager() {
+  const dispatch = useAppDispatch();
+  useScrollMarkers(markers, (marker) => {
+    console.log("Scrolled past marker", marker);
     dispatch({
       type: "document-scrolled",
-      offset: document.scrollingElement.scrollTop,
+      marker,
     });
-  };
-
-  useEffect(() => {
-    window.addEventListener("scroll", handleScroll);
   });
+  return null;
+}
+
+const SearchInterface = (props) => {
+  const { children } = props;
 
   return h("div.search-interface", [
+    h(ScrollManager),
     h(Navbar, null, [h(Searchbar), h(RelatedTermsButton)]),
     children,
   ]);

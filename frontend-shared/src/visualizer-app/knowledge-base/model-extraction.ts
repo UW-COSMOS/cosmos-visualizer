@@ -4,6 +4,7 @@ import {
   useAPIView,
   useAPIHelpers,
 } from "@macrostrat/ui-components";
+import { memo } from "react";
 import { Card, ButtonGroup, AnchorButton } from "@blueprintjs/core";
 import useImageSize from "@use-hooks/image-size";
 import { useInView } from "react-intersection-observer";
@@ -77,10 +78,9 @@ const ChildExtractions = (props) => {
 
 function PermalinkButton({ id }) {
   const { url } = useRouteMatch();
-  const publicURL = process.env.PUBLIC_URL
+  const publicURL = process.env.PUBLIC_URL;
   const permalinkURL = publicURL + url + "/object/" + id;
   const disabled = url.includes(id);
-
 
   return h(AnchorButton, {
     icon: "bookmark",
@@ -112,36 +112,36 @@ const DownloadButtons = (props: { data: APIExtraction[] }) => {
   const table = data.find((d) => d.cls == "Table");
 
   return h("div.download-extractions", [
-//    h("h4", "Extracted data"),
-//    h(ButtonGroup, { className: "downloads" }, [
-//      h(AnchorButton, {
-//        text: "Text",
-//        href,
-//        download: `${id}-ocr.txt`,
-//        target: "_blank",
-//        small: true,
-//      }),
-//      // Right now we get the JSON object of the first child. Likely not ideal.
-//      h(AnchorButton, {
-//        text: "JSON object",
-//        href: base,
-//        target: "_blank",
-//        small: true,
-//      }),
-//      h.if(table != null)([
-//        h(AnchorButton, {
-//          text: "Table preview",
-//          href: base + `/preview?id=${table?.id}`,
-//          target: "_blank",
-//          small: true,
-//        }),
-//        h(AnchorButton, {
-//          text: "Pandas dataframe",
-//          href: base + `/get_dataframe?id=${table?.id}`,
-//          small: true,
-//        }),
-//      ]),
-//    ]),
+    //    h("h4", "Extracted data"),
+    //    h(ButtonGroup, { className: "downloads" }, [
+    //      h(AnchorButton, {
+    //        text: "Text",
+    //        href,
+    //        download: `${id}-ocr.txt`,
+    //        target: "_blank",
+    //        small: true,
+    //      }),
+    //      // Right now we get the JSON object of the first child. Likely not ideal.
+    //      h(AnchorButton, {
+    //        text: "JSON object",
+    //        href: base,
+    //        target: "_blank",
+    //        small: true,
+    //      }),
+    //      h.if(table != null)([
+    //        h(AnchorButton, {
+    //          text: "Table preview",
+    //          href: base + `/preview?id=${table?.id}`,
+    //          target: "_blank",
+    //          small: true,
+    //        }),
+    //        h(AnchorButton, {
+    //          text: "Pandas dataframe",
+    //          href: base + `/get_dataframe?id=${table?.id}`,
+    //          small: true,
+    //        }),
+    //      ]),
+    //    ]),
     h("div.spacer"),
     h(PermalinkButton, { id }),
   ]);
@@ -159,10 +159,10 @@ const ResultIndex = (props: { index: number | null }) => {
   return h("p.result-index", txt);
 };
 
-const DocumentExtraction = (props: DocExtractionProps) => {
+const DocumentExtraction = memo((props: DocExtractionProps) => {
   const { data, index } = props;
 
-  const [ref, inView, entry] = useInView();
+  const { ref, inView } = useInView();
   //const {height} = entry?.boundingClientRect ?? {}
 
   const { bibjson } = data;
@@ -186,6 +186,6 @@ const DocumentExtraction = (props: DocExtractionProps) => {
       ])
     ),
   ]);
-};
+});
 
 export { DocumentExtraction };
