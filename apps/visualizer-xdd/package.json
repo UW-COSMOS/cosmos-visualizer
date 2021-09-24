@@ -6,5 +6,8 @@
     "dev": "webpack-dev-server"
   },
   "author": "Daven Quinn",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "@macrostrat/router-components": "^1.0.2"
+  }
 }

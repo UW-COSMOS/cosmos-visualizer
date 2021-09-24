@@ -1,7 +1,7 @@
 import h from "react-hyperscript";
 import styled from "@emotion/styled";
 import classNames from "classnames";
-import { LinkButton } from "@macrostrat/ui-components";
+import { LinkButton } from "@macrostrat/router-components";
 import { Collapse, Card, ICardProps, ICollapseProps } from "@blueprintjs/core";
 
 const InfoButton_ = function (props) {

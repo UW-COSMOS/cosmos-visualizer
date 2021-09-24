@@ -1,4 +1,10 @@
-import { createContext, useEffect, useReducer, useContext } from "react";
+import {
+  createContext,
+  useEffect,
+  useReducer,
+  useContext,
+  useMemo,
+} from "react";
 import h from "@macrostrat/hyper";
 import { appReducer, AppDispatch, SearchBackend } from "./reducer";
 import { useSearchString } from "./query-string";
@@ -22,7 +28,6 @@ const initialState: AppState = {
   searchBackend: SearchBackend.ElasticSearch,
   filterPanelOpen: true,
   relatedPanelOpen: true,
-  scrollOffset: 0,
 };
 
 const AppStateContext = createContext(initialState);
@@ -40,10 +45,11 @@ type _ = { children: React.ReactChild; types: FeatureType[]; setName: string };
 const AppStateProvider = (props: _) => {
   const { types, setName } = props;
 
-  const [value, dispatch] = useReducer(appReducer, {
-    ...initialState,
-    setName, // TODO: we need to be able to update this after initial render
-  });
+  const initialAppState = useMemo(() => {
+    return { ...initialState, setName };
+  }, [setName]);
+
+  const [value, dispatch] = useReducer(appReducer, initialAppState);
 
   const [searchString, updateSearchString] = useSearchString();
 
@@ -73,6 +79,8 @@ const AppStateProvider = (props: _) => {
 
   const { filterParams, searchBackend } = value;
   const { query, type, search_logic } = filterParams;
+
+  console.log("Rendering AppStateProvider", value);
 
   useEffect(() => {
     updateSearchString({ query, type, search_logic });

@@ -2,7 +2,6 @@ import h from "@macrostrat/hyper";
 import {
   InfiniteScrollView,
   APIResultProps,
-  useAPIView,
   useAPIResult,
 } from "@macrostrat/ui-components";
 import { Spinner, Intent } from "@blueprintjs/core";
@@ -87,68 +86,17 @@ const StartingPlaceholder = (props) => {
   });
 };
 
-const LoadingPlaceholder = (props: { perPage: number }) => {
-  const { perPage } = props;
-  const ctx = useAPIView();
-
-  let desc = null;
-  if (ctx != null) {
-    const page = ctx.params?.page ?? 0;
-
-    let computedPageCount = null;
-    if (perPage != null && ctx.totalCount != null) {
-      computedPageCount = Math.ceil(ctx.totalCount / perPage);
-    }
-    const pageCount = ctx.pageCount ?? computedPageCount;
-
-    if (page >= 1) {
-      desc = `Page ${page + 1}`;
-      if (pageCount != null) desc += ` of ${pageCount}`;
-    }
-  }
-
-  const { errorMessage } = useAppState();
-  if (errorMessage != null) {
-    // Return an error placeholder overriding the entire application state
-    return h(APINotAvailable);
-  }
-
+function EmptyPlaceholder() {
   return h(Placeholder, {
-    icon: h(Spinner),
-    title: "Loading extractions",
-    description: desc,
+    icon: "inbox",
+    title: "No results",
+    description: "No matching extractions found",
   });
-};
-
-LoadingPlaceholder.defaultProps = { perPage: 10 };
-
-type ResProps = APIResultProps<APIDocumentResult[]>;
-
-const DocumentResults = (props: ResProps) => {
-  const data = props.data ?? [];
-  const { isLoading } = props;
-  if (data.length == 0 && !isLoading)
-    return h(Placeholder, {
-      icon: "inbox",
-      title: "No results",
-      description: "No matching extractions found",
-    });
-
-  const offset = 0;
-
-  return h([
-    h(
-      "div.documents",
-      data.map((d, i) => {
-        return h(DocumentExtraction, { key: i, data: d, index: i });
-      })
-    ),
-    h.if(isLoading)(LoadingPlaceholder),
-  ]);
-};
+}
 
 const ResultsView = () => {
   const { filterParams } = useAppState();
+  const { errorMessage } = useAppState();
 
   const { query } = filterParams;
   const queryNotSet = query == null || query == "";
@@ -165,33 +113,36 @@ const ResultsView = () => {
     return h("div.results", null, h(StartingPlaceholder));
   }
 
-  return h(
-    InfiniteScrollView,
-    {
-      className: "results",
-      route,
-      opts: {
-        unwrapResponse(res) {
-          return res;
-        },
-      },
-      params: filterParams,
-      totalCount: count,
-      getCount(res) {
-        return res.total;
-      },
-      getNextParams(res, params) {
-        return { ...params, page: (res.page ?? -1) + 1 };
-      },
-      getItems(res) {
-        return res.objects;
-      },
-      hasMore(res) {
-        return res.objects.length > 0;
+  if (errorMessage != null) {
+    // Return an error placeholder overriding the entire application state
+    return h(APINotAvailable);
+  }
+
+  return h(InfiniteScrollView, {
+    className: "results",
+    route,
+    opts: {
+      unwrapResponse(res) {
+        return res;
       },
     },
-    h(DocumentResults)
-  );
+    params: filterParams,
+    totalCount: count,
+    getCount(res) {
+      return res.total;
+    },
+    getNextParams(res, params) {
+      return { ...params, page: (res.page ?? -1) + 1 };
+    },
+    getItems(res) {
+      return res.objects;
+    },
+    hasMore(res) {
+      return res.objects.length > 0;
+    },
+    itemComponent: DocumentExtraction,
+    emptyPlaceholder: EmptyPlaceholder,
+  });
 };
 
 interface KBProps {
@@ -225,4 +176,4 @@ SearchPage.defaultProps = {
   ],
 };
 
-export { SearchPage, DocumentResults };
+export { SearchPage };

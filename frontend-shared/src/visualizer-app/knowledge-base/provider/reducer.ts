@@ -1,4 +1,5 @@
 import update, { Spec } from "immutability-helper";
+import { ScrollMarker } from "@macrostrat/ui-components";
 
 enum SearchBackend {
   ElasticSearch = "ElasticSearch",
@@ -33,7 +34,10 @@ type ToggleRelatedPanel = {
   type: "toggle-related-panel";
   value: boolean | undefined;
 };
-type DocumentScrolled = { type: "document-scrolled"; offset: number };
+type DocumentScrolled = {
+  type: "document-scrolled";
+  marker: ScrollMarker | null;
+};
 type SetESSearchLogic = { type: "set-es-search-logic"; value: ESSearchLogic };
 
 declare type AppAction =
@@ -92,27 +96,22 @@ const appReducer: AppReducer = (state, action) => {
       const val = action.value ?? !state.relatedPanelOpen;
       return update(state, { relatedPanelOpen: { $set: val } });
     }
-    case "document-scrolled": {
-      let spec: Spec<AppState> = { scrollOffset: { $set: action.offset } };
-      // Collapse panels on scroll
-      const thresholds = {
-        300: "filterPanelOpen",
-        600: "relatedPanelOpen",
-      };
-
-      if ((state.filterParams.query ?? "") != "") {
-        for (const [t, param] of Object.entries(thresholds)) {
-          const t1 = parseInt(t);
-          if (state.scrollOffset < t1 && action.offset >= t1) {
-            spec[param] = { $set: false };
-          }
-          if (action.offset == 0) {
-            spec[param] = { $set: true };
-          }
+    case "document-scrolled":
+      {
+        if (action.marker == null) {
+          return update(state, {
+            filterPanelOpen: { $set: true },
+            relatedPanelOpen: { $set: true },
+          });
+        }
+        switch (action.marker?.id) {
+          case "filterPanelOpen":
+            return update(state, { filterPanelOpen: { $set: false } });
+          case "relatedPanelOpen":
+            return update(state, { relatedPanelOpen: { $set: false } });
         }
       }
-      return update(state, spec);
-    }
+      return state;
   }
 };
 
