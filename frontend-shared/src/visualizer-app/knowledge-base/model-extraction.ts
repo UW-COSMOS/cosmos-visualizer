@@ -1,8 +1,8 @@
 import h from "@macrostrat/hyper";
 import {
   GeoDeepDiveSwatch,
-  useAPIView,
   useAPIHelpers,
+  useIndexing,
 } from "@macrostrat/ui-components";
 import { memo } from "react";
 import { Card, ButtonGroup, AnchorButton } from "@blueprintjs/core";
@@ -149,9 +149,7 @@ const DownloadButtons = (props: { data: APIExtraction[] }) => {
 
 const ResultIndex = (props: { index: number | null }) => {
   const { index } = props;
-  const ctx = useAPIView();
-  if (index == null || ctx == null) return null;
-  const { totalCount } = ctx;
+  const totalCount = useIndexing()?.totalCount;
   let txt = fmt1(index + 1);
   if (totalCount != null) {
     txt += ` of ${fmt1(totalCount)}`;

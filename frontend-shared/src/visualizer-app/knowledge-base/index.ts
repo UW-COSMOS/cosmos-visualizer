@@ -1,11 +1,13 @@
 import h from "@macrostrat/hyper";
-import { useAPIResult, LinkButton } from "@macrostrat/ui-components";
+import { useAPIResult } from "@macrostrat/ui-components";
+import { LinkButton } from "@macrostrat/router-components";
 import { Navbar } from "./components";
+import { DocumentExtraction } from "./model-extraction";
 
 import { Footer } from "../landing-page";
 import { useRouteMatch, useParams, Route, Switch } from "react-router-dom";
 import "./main.styl";
-import { SearchPage, DocumentResults } from "./search-page";
+import { SearchPage } from "./search-page";
 
 function PermalinkPage({ backURL }) {
   const { id } = useParams();
@@ -22,7 +24,10 @@ function PermalinkPage({ backURL }) {
         "Explore extractions"
       ),
     ]),
-    h(DocumentResults, { data: res.objects }),
+    h(
+      "div.results",
+      res.objects.map((data, index) => h(DocumentExtraction, { data, index }))
+    ),
     h("div.spacer"),
     h(Footer),
   ]);

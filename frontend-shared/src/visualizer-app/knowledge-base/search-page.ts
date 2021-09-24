@@ -2,7 +2,6 @@ import h from "@macrostrat/hyper";
 import {
   InfiniteScrollView,
   APIResultProps,
-  useAPIView,
   useAPIResult,
 } from "@macrostrat/ui-components";
 import { Spinner, Intent } from "@blueprintjs/core";
@@ -87,43 +86,6 @@ const StartingPlaceholder = (props) => {
   });
 };
 
-const LoadingPlaceholder = (props: { perPage: number }) => {
-  const { perPage } = props;
-  const ctx = useAPIView();
-
-  let desc = null;
-  if (ctx != null) {
-    const page = ctx.params?.page ?? 0;
-
-    let computedPageCount = null;
-    if (perPage != null && ctx.totalCount != null) {
-      computedPageCount = Math.ceil(ctx.totalCount / perPage);
-    }
-    const pageCount = ctx.pageCount ?? computedPageCount;
-
-    if (page >= 1) {
-      desc = `Page ${page + 1}`;
-      if (pageCount != null) desc += ` of ${pageCount}`;
-    }
-  }
-
-  const { errorMessage } = useAppState();
-  if (errorMessage != null) {
-    // Return an error placeholder overriding the entire application state
-    return h(APINotAvailable);
-  }
-
-  return h(Placeholder, {
-    icon: h(Spinner),
-    title: "Loading extractions",
-    description: desc,
-  });
-};
-
-LoadingPlaceholder.defaultProps = { perPage: 10 };
-
-type ResProps = APIResultProps<APIDocumentResult[]>;
-
 function EmptyPlaceholder() {
   return h(Placeholder, {
     icon: "inbox",
@@ -134,6 +96,7 @@ function EmptyPlaceholder() {
 
 const ResultsView = () => {
   const { filterParams } = useAppState();
+  const { errorMessage } = useAppState();
 
   const { query } = filterParams;
   const queryNotSet = query == null || query == "";
@@ -148,6 +111,11 @@ const ResultsView = () => {
 
   if (queryNotSet) {
     return h("div.results", null, h(StartingPlaceholder));
+  }
+
+  if (errorMessage != null) {
+    // Return an error placeholder overriding the entire application state
+    return h(APINotAvailable);
   }
 
   return h(InfiniteScrollView, {
@@ -174,7 +142,6 @@ const ResultsView = () => {
     },
     itemComponent: DocumentExtraction,
     emptyPlaceholder: EmptyPlaceholder,
-    loadingPlaceholder: LoadingPlaceholder,
   });
 };
 

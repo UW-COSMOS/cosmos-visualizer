@@ -36,8 +36,5 @@
   "bugs": {
     "url": "https://github.com/UW-COSMOS/cosmos-visualizer/issues"
   },
-  "homepage": "https://github.com/UW-COSMOS/cosmos-visualizer#readme",
-  "dependencies": {
-    "@macrostrat/ui-components": "file:../../Macrostrat/ui-components"
-  }
+  "homepage": "https://github.com/UW-COSMOS/cosmos-visualizer#readme"
 }

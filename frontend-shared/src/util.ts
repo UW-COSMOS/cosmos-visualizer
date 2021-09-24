@@ -3,7 +3,7 @@ import styled from "@emotion/styled";
 
 import { Link, withRouter } from "react-router-dom";
 import { Navbar, INavbarProps } from "@blueprintjs/core";
-import { LinkButton } from "@macrostrat/ui-components";
+import { LinkButton } from "@macrostrat/router-components";
 
 const PageHeader = function (props) {
   let { children, title, subtitle } = props;

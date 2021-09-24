@@ -12,7 +12,6 @@ import { useAppState, useAppDispatch, useTypes } from "./provider";
 import { RelatedTermsButton } from "./related-terms";
 import { useScrollMarkers, ScrollMarker } from "@macrostrat/ui-components";
 import { Spec } from "immutability-helper";
-import { useCallback } from "react";
 
 function FilterButton() {
   const { filterParams, filterPanelOpen, allowSearch } = useAppState();

@@ -1,7 +1,7 @@
 import { createContext, useContext } from "react";
 import h from "@macrostrat/hyper";
 import { useParams } from "react-router-dom";
-import { LinkButton } from "@macrostrat/ui-components";
+import { LinkButton } from "@macrostrat/router-components";
 
 import { AppMode } from "~/enum";
 import { Image, ImageShape } from "~/types";
