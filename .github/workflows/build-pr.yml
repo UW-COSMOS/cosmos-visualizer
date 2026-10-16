@@ -4,50 +4,68 @@ on:
   pull_request:
     branches: [master]
 
+permissions:
+  contents: read
+
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          persist-credentials: false
 
-      - name: Set outputs
+      - name: Set short SHA
         id: vars
-        run: echo "::set-output name=sha_short::$(git rev-parse --short HEAD)"
+        run: echo "sha_short=${GITHUB_SHA::7}" >> "$GITHUB_OUTPUT"
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069  # v4.4.1
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f  # v4.6.0
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Build and push xDD Docker images (Visualizer app)
-        uses: docker/build-push-action@v1
+        uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc  # v7.4.0
         with:
-          path: .
-          dockerfile: ./apps/visualizer-xdd/Dockerfile
-          cache_from: uwxdd/cosmos_set_visualizer
-          build_args: PUBLIC_URL=/set_visualizer,XDD_BASE_URL=https://xdddev.chtc.io,XDD_API_KEY=${{ secrets.XDD_API_KEY }}
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
-          repository: uwxdd/cosmos_set_visualizer
-          tags: xdd-staging-pr${{ github.event.number }}-${{ steps.vars.outputs.sha_short }}
+          context: .
+          file: ./apps/visualizer-xdd/Dockerfile
+          push: true
+          build-args: |
+            PUBLIC_URL=/set_visualizer
+            XDD_BASE_URL=https://xdddev.chtc.io
+            XDD_API_KEY=${{ secrets.XDD_API_KEY }}
+          tags: uwxdd/cosmos_set_visualizer:xdd-staging-pr${{ github.event.number }}-${{ steps.vars.outputs.sha_short }}
+          cache-from: type=gha,scope=visualizer
+          cache-to: type=gha,scope=visualizer,mode=max
 
       - name: Build and push Docker images (Visualizer app)
-        uses: docker/build-push-action@v1
+        uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc  # v7.4.0
         with:
-          path: .
-          dockerfile: ./apps/visualizer-xdd/Dockerfile
-          cache_from: uwxdd/cosmos_set_visualizer
-          build_args: PUBLIC_URL=/set_visualizer,XDD_BASE_URL=https://xdddev.chtc.io
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
-          repository: uwxdd/cosmos_set_visualizer
-          tags: staging-pr${{ github.event.number }}-${{ steps.vars.outputs.sha_short }}
+          context: .
+          file: ./apps/visualizer-xdd/Dockerfile
+          push: true
+          build-args: |
+            PUBLIC_URL=/set_visualizer
+            XDD_BASE_URL=https://xdddev.chtc.io
+          tags: uwxdd/cosmos_set_visualizer:staging-pr${{ github.event.number }}-${{ steps.vars.outputs.sha_short }}
+          cache-from: type=gha,scope=visualizer
+          cache-to: type=gha,scope=visualizer,mode=max
 
       - name: Build and push Docker images (Tagger app)
-        uses: docker/build-push-action@v1
+        uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc  # v7.4.0
         with:
-          path: .
-          dockerfile: ./apps/tagger-xdd/Dockerfile
-          cache_from: uwxdd/cosmos_set_visualizer
-          build_args: PUBLIC_URL=/tagger,XDD_BASE_URL=https://xdddev.chtc.io
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
-          repository: uwxdd/cosmos_set_tagger
-          tags: staging-pr${{ github.event.number }}-${{ steps.vars.outputs.sha_short }}
+          context: .
+          file: ./apps/tagger-xdd/Dockerfile
+          push: true
+          build-args: |
+            PUBLIC_URL=/tagger
+            XDD_BASE_URL=https://xdddev.chtc.io
+          tags: uwxdd/cosmos_set_tagger:staging-pr${{ github.event.number }}-${{ steps.vars.outputs.sha_short }}
+          cache-from: type=gha,scope=tagger
+          cache-to: type=gha,scope=tagger,mode=max

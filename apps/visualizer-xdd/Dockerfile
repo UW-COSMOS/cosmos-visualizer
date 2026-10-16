@@ -1,7 +1,7 @@
 FROM node:12-alpine AS base
 # A simple docker image to install the xDD application
 
-RUN npm install -g npm@7 webpack-cli webpack
+RUN npm install -g npm@7
 
 ARG ENVIRONMENT="production"
 ARG PUBLIC_URL="/"
@@ -19,7 +19,7 @@ COPY . /user
 
 WORKDIR /user/apps/visualizer-xdd
 
-RUN webpack
+RUN npx --no-install webpack
 
 FROM nginx
 
