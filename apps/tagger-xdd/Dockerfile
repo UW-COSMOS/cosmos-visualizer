@@ -4,7 +4,7 @@
 FROM node:12-alpine AS base
 # A simple docker image to install the xDD application
 
-RUN npm install -g npm@7 webpack-cli webpack
+RUN npm install -g npm@7
 
 ARG MODE="production"
 ARG PUBLIC_URL="/"
@@ -20,7 +20,7 @@ RUN npm install && npm --prefix apps/tagger-xdd install
 COPY . /user
 
 WORKDIR /user/apps/tagger-xdd
-RUN webpack
+RUN npx --no-install webpack
 
 FROM nginx
 
