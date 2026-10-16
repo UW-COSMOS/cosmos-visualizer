@@ -34,14 +34,14 @@ class APIProviderShim extends Component {
   static defaultProps = {
     baseURL: null,
   };
-  onError(route, opts) {
-    const { error } = opts;
+  onError(error, opts) {
+    const { endpoint, method } = opts;
     return AppToaster.show(
       ErrorMessage({
         title: "Invalid API response.",
-        method: "GET",
-        endpoint: route,
-        message: error.toString(),
+        method,
+        endpoint,
+        error: error.toString(),
       })
     );
   }
