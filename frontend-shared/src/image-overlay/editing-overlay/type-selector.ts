@@ -1,4 +1,4 @@
-import { hyperStyled } from "@macrostrat/hyper";
+import h from "@macrostrat/hyper";
 import classNames from "classnames";
 import { Button } from "@blueprintjs/core";
 import {
@@ -10,9 +10,8 @@ import { useCallback } from "react";
 import { useTags, useAnnotationEditor } from "~/providers";
 import Fuse from "fuse.js";
 import chroma from "chroma-js";
-import styles from "./main.styl";
+import "./main.styl";
 import { Tag, TagID } from "~/providers/tags";
-const h = hyperStyled(styles);
 
 interface TagItemProps {
   selected: boolean;

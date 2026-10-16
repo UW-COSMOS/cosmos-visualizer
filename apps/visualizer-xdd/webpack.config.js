@@ -17,7 +17,7 @@ module.exports = function (env, argv) {
       new EnvironmentPlugin({
         XDD_BASE_URL: "https://xdd.wisc.edu",
         XDD_API_KEY: null,
-        MODE: "development",
+        API_ERROR_MESSAGE: null,
         PUBLIC_URL: "/",
       }),
     ],

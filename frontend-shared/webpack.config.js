@@ -18,22 +18,8 @@ let jsLoader = {
       "@babel/preset-react",
       "@babel/preset-typescript",
     ],
-    plugins: [
-      "emotion",
-      "@babel/plugin-proposal-nullish-coalescing-operator",
-      "@babel/plugin-proposal-optional-chaining",
-      "@babel/plugin-proposal-class-properties",
-    ],
+    plugins: ["emotion"],
   },
-};
-
-let fontLoader = {
-  loader: "file-loader",
-  options: { name: "fonts/[name].[ext]" },
-};
-
-let stylusLoader = {
-  loader: "stylus-relative-loader",
 };
 
 // Watching issues! https://github.com/webpack/watchpack/issues/61
@@ -42,6 +28,7 @@ module.exports = (env, argv) => {
   const mode = process.env.ENVIRONMENT || "production";
 
   return {
+    mode,
     module: {
       rules: [
         {
@@ -50,10 +37,17 @@ module.exports = (env, argv) => {
           // https://github.com/webpack/webpack/issues/2031
           exclude: /node_modules/,
         },
-        { test: /\.(png|jpe?g|gif)$/i, use: ["file-loader"] },
-        { test: /\.styl$/, use: ["style-loader", "css-loader", stylusLoader] },
+        { test: /\.(png|jpe?g|gif)$/i, type: "asset/resource" },
+        {
+          test: /\.styl$/,
+          use: ["style-loader", "css-loader", "stylus-loader"],
+        },
         { test: /\.css$/, use: ["style-loader", "css-loader"] },
-        { test: /\.(eot|svg|ttf|woff|woff2)$/, use: [fontLoader] },
+        {
+          test: /\.(eot|svg|ttf|woff|woff2)$/,
+          type: "asset/resource",
+          generator: { filename: "fonts/[name][ext]" },
+        },
         { test: /\.md$/, use: ["html-loader", "markdown-loader"] },
       ],
     },

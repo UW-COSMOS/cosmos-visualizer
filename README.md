@@ -49,19 +49,19 @@ spun off into separate repositories.
 This repository is set up for local development and Dockerized deployment. Currently,
 all apps are purely frontend code, so S3 static deployments are possible as well.
 
-1. Make sure you have at least NPM version 7 (released late 2020) on your system: we
-   require its [workspace support](https://docs.npmjs.com/cli/v7/using-npm/workspaces)
-   to bundle our linked packages. You can check this by running `npm --version`, and
-   update using `npm install -g npm@7` if you need to upgrade.
-2. Install NPM modules in the root of this repository `npm install`
+1. Make sure you have Node.js 24 or later on your system. The repository uses
+   [NPM workspaces](https://docs.npmjs.com/cli/using-npm/workspaces) to link its
+   packages. You can check your version by running `node --version`.
+2. Install NPM modules in the root of this repository with `npm ci`
 3. Run the app you are interested in, one of two ways:
    - Change to the `apps/<your-app>` directory and run `npm run dev`
    - Most apps provide a shorthand invocation from the root directory: `npm run <your-app>`
 4. A [Webpack dev server](https://webpack.js.org/configuration/dev-server/) containing
    the app will be available on `localhost:8080`.
 
-To build for deployment, run `npm install` followed by `npm build` in the
-application directory. This will bundle files into the `apps/dist/<your-app>` directory.
+To build for deployment, run `npm ci` followed by `npm run build -w apps/<your-app>`
+in the root of this repository. This will bundle files into the `apps/<your-app>/dist`
+directory.
 
 ## Docker development
 

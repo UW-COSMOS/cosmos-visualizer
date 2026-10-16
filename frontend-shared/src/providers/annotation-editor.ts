@@ -3,7 +3,7 @@ import { createContext, useContext } from "react";
 import { AnnotationsContext, SelectionUpdateContext } from "./annotations";
 import { TagsContext } from "./tags";
 import { isDifferent } from "./util";
-import uuidv4 from "uuid/v4";
+import { v4 as uuidv4 } from "uuid";
 import { StatefulComponent } from "@macrostrat/ui-components";
 import { Spec } from "immutability-helper";
 import { Annotation, AnnotationID, TagID, Tag } from "./types";

@@ -1,26 +1,26 @@
 # For now, this dockerfile needs to be run against the root of the
 # COSMOS-visualizer repository
 
-FROM node:12-alpine AS base
+FROM node:24-alpine AS base
 # A simple docker image to install the xDD application
 
-RUN npm install -g npm@7
+WORKDIR /user
+COPY package.json package-lock.json /user/
+COPY frontend-shared/package.json /user/frontend-shared/
+COPY apps/tagger-demo/package.json /user/apps/tagger-demo/
+COPY apps/tagger-xdd/package.json /user/apps/tagger-xdd/
+COPY apps/validation/package.json /user/apps/validation/
+COPY apps/visualizer-xdd/package.json /user/apps/visualizer-xdd/
+
+RUN npm ci
 
 ARG MODE="production"
 ARG PUBLIC_URL="/"
 ARG XDD_BASE_URL="https://xdd.wisc.edu"
 
-WORKDIR /user
-COPY ./package.json ./lerna.json /user/
-COPY ./frontend-shared/package.json /user/frontend-shared/
-COPY ./apps/tagger-xdd/package.json /user/apps/tagger-xdd/
-
-RUN npm install && npm --prefix apps/tagger-xdd install
-
 COPY . /user
 
-WORKDIR /user/apps/tagger-xdd
-RUN npx --no-install webpack
+RUN npm run build -w apps/tagger-xdd
 
 FROM nginx
 

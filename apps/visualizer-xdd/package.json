@@ -3,7 +3,8 @@
   "private": true,
   "version": "1.0.0",
   "scripts": {
-    "dev": "webpack-dev-server"
+    "dev": "webpack serve",
+    "build": "webpack"
   },
   "author": "Daven Quinn",
   "license": "ISC",

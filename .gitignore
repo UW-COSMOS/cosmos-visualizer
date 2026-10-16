@@ -1,5 +1,4 @@
 node_modules
-package-lock.json
 annotations.sqlite
 api_key.js
 _data

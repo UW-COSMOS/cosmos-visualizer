@@ -11,4 +11,4 @@ env="local-env.sh"
 export PUBLIC_URL=${PUBLIC_URL:-/}
 export MODE=${MODE:-development}
 
-webpack-dev-server --entry $(pwd)/src/${1:-visualizer}-app/index.ts
+webpack serve --entry $(pwd)/src/${1:-visualizer}-app/index.ts
